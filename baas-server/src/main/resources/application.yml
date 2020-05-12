@@ -1,0 +1,100 @@
+server:
+  port: ${server.listener.port}
+  tomcat:
+    uri-encoding: utf-8
+    max-threads: 200
+    accept-count: 50
+  context-path: /treegraph-baas
+  
+spring:
+  application:
+    name: treegraph-baas
+  http:
+    encoding:
+      charset: utf-8
+      force: true
+      enabled: true
+    multipart:
+      max-file-size: 50Mb
+      max-request-size: 50Mb    
+  datasource:
+    druid:
+      driver-class-name: ${jdbc.driver}    
+      url: ${jdbc.url}
+      username: ${jdbc.username}
+      password: ${jdbc.password}
+      initial-size: ${jdbc.initialSize}
+      max-active: ${jdbc.maxActive}      
+      min-idle: ${jdbc.minIdle}
+      test-on-borrow: true
+      max-wait: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: SELECT 'x'
+      poolPreparedStatements: true
+      maxOpenPreparedStatements: 20
+      filters: stat, slf4j
+  redis:
+    host: ${redis.host}
+    port: ${redis.port}    
+    password: ${redis.password}
+    database: ${redis.database}        
+  kafka:
+    bootstrap-servers: ${kafka.brokers}  
+    consumer:
+      group-id: ${kafka.consumer.groupId}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable.auto.commit: true
+      auto.commit.interval.ms: 1000
+      session.timeout.ms: 15000 
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer 
+  mail:
+    host: smtp.exmail.qq.com
+    username: footstone.crm@mljr.com
+    password: Footstone_321  
+  profiles: 
+    active: ${profile.name}
+        
+security:
+  basic:
+    enabled: false
+    
+mybatis:
+  configuration:
+    cache-enabled: false
+    map-underscore-to-camel-case: true
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: org.treegraph.baas.core.mapper
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  rowboundsWithCount: true
+  offsetAsPageNum: true
+  supportMethodsArguments: false  
+#mapper:
+#  identity: MYSQL
+#  not-empty: false
+#  mappers: com.mljr.repaytoolkit.core.dao.mapper.MybatisMapper
+
+rest:
+  httpclient:
+    connection-request-timeout: 10000
+    connect-timeout: 3000
+    read-timeout: 3000          
+
+crm:
+  job:
+    adminAddresses: ${url.crm.job} 
+    executorAppName: mljr-repaytoolkit
+    executorIp:
+    executorPort: ${port.crm.job}
+    executorLogPath: /opt/data/logs/mljr-repaytoolkit/jobhandler
+    executorLogRetentionDays: 30  
+    
+topic:
+  kafka:
+    lyqcFinAccountNotify: ${topic.lyqcFinAccountNotify} 
+    lyqcFinAccountCallBack: ${topic.lyqcFinAccountCallBack}

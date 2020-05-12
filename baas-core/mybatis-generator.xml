@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC
+        "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+	<classPathEntry location="/Users/wangzhenting/Documents/tools/mysql-connector-java-5.1.49.jar"/>
+    <context id="context" targetRuntime="MyBatis3">
+
+        <!-- 识别关键字 -->
+        <property name="autoDelimitKeywords" value="true"/>
+        <property name="beginningDelimiter" value="`"/>
+        <property name="endingDelimiter" value="`"/>
+
+        <!-- 配置相关插件-->
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
+        <plugin type="org.treegraph.baas.core.util.LombokPlugin" />
+
+        <!-- 使用自定义的插件 -->
+        <commentGenerator type="org.treegraph.baas.core.util.MyCommentGenerator">
+        	<property name="suppressDate" value="true"/>
+			<property name="suppressAllComments" value="true" />
+		</commentGenerator>
+
+
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://127.0.0.1:3306/baas_tgc?tinyInt1isBit=false&amp;
+                        useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull"
+                        userId="root" password="12345678"/>               
+		
+        <!-- 处理TINYINT(1) 等 -->
+        <!-- <javaTypeResolver type="com.yyfq.tsms.mybatis.generator.plugin.DefaultJavaTypeResolverDefault">
+            <property name="forceBigDecimals" value="true"/>
+        </javaTypeResolver> -->
+        
+        <javaTypeResolver>
+			<property name="forceBigDecimals" value="true" />
+		</javaTypeResolver>
+
+        <!-- domaim=po持久化对象-->
+        <javaModelGenerator targetPackage="org.treegraph.baas.core.domain" targetProject="baas-core/src/main/java">
+            <property name="enableSubPackages" value="false"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!-- xml生成地址 -->
+        <sqlMapGenerator targetPackage="mapper" targetProject="baas-core/src/main/resources">
+            <property name="enableSubPackages" value="false"/>
+        </sqlMapGenerator>
+
+        <!-- mapper接口地址 -->
+        <javaClientGenerator targetPackage="org.treegraph.baas.core.mapper" targetProject="baas-core/src/main/java"
+                             type="XMLMAPPER">
+            <property name="enableSubPackages" value="false"/>
+        </javaClientGenerator>
+        
+        
+        <table tableName="blockchain" domainObjectName="BlockChainPo">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="certificate_request" domainObjectName="CertificateRequestPo">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="consortium" domainObjectName="ConsortiumPo">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="node" domainObjectName="NodePo">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="permission" domainObjectName="PermissionPo">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="role" domainObjectName="RolePo">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="role_permission" domainObjectName="RolePermissionPo">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="user_info" domainObjectName="UserInfoPo">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="user_oper_log" domainObjectName="UserOperLogPo">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>        
+        <table tableName="user_role" domainObjectName="UserRolePo">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="user_token" domainObjectName="UserTokenPo">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table> 
+            
+        <table tableName="user_login_log" domainObjectName="UserLoginLogPo">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+
+    </context>
+
+</generatorConfiguration>

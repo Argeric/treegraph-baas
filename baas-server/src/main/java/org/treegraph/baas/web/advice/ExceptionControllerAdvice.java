@@ -21,7 +21,7 @@ public class ExceptionControllerAdvice {
     @ExceptionHandler(BusinessException.class)
     public BaasResult<Void> handleRepaymentException(BusinessException e) {
     	
-        log.error("[clientId={}]handleRepaymentException {}", WebHelper.getUserId(), e.getMessage(), e);
+        log.error("[userId={}]handleRepaymentException {}", WebHelper.getUserId(), e.getMessage(), e);
         return BaasResult.fail(e.getCode(), e.getMessage());
     }
     
@@ -29,7 +29,7 @@ public class ExceptionControllerAdvice {
     @ExceptionHandler(AlertException.class)
     public BaasResult<Void> handleAlertException(AlertException e) {
     	
-        log.error("[clientId={}]handleAlertException {}", WebHelper.getUserId(), e.getMessage(), e);
+        log.error("[userId={}]handleAlertException {}", WebHelper.getUserId(), e.getMessage(), e);
         return BaasResult.fail(e.getCode(), e.getMessage());
     }
 
@@ -37,7 +37,7 @@ public class ExceptionControllerAdvice {
     @ExceptionHandler(Exception.class)
     public BaasResult<Void> handleException(Exception e) {
     	
-        log.error("[clientId={}]handleException {}", WebHelper.getUserId(), e.getMessage(), e);
+        log.error("[userId={}]handleException {}", WebHelper.getUserId(), e.getMessage(), e);
         return BaasResult.fail("系统繁忙，请稍后再试");
     }
 }

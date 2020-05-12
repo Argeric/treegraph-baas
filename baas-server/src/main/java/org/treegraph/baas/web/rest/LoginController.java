@@ -12,13 +12,9 @@ import org.treegraph.baas.api.dto.response.LoginResponse;
 import org.treegraph.baas.core.service.LoginService;
 import org.treegraph.baas.core.util.LogSkip;
 
-import com.alibaba.fastjson.JSON;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @RestController
 @Api(tags = "LoginController", description = "登录管理(此controller下所有接口不做登录控制)")
 public class LoginController {
@@ -31,11 +27,8 @@ public class LoginController {
   @LogSkip
   public BaasResult<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
 	  
-	  log.info("LoginController.login req,account:{},password:{}", loginRequest.getAccount(), loginRequest.getPassword());
 	  LoginResponse userDetailInfo =  loginService.login(loginRequest.getAccount(), loginRequest.getPassword(), request);
 	  BaasResult<LoginResponse> resp =  BaasResult.success(userDetailInfo);
-	  log.info("LoginController.login resp:{}", JSON.toJSONString(resp));
-	  
 	  return resp;
   }
 }

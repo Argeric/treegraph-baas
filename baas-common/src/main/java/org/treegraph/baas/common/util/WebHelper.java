@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class WebHelper {
 
-	private static final Long defaultUserId = 0L;
+	private static final String defaultUserId = "0";
 	private static final String UID = "uid";
 	private static final String ACCOUNT = "account";
 	private static final String NAME = "name";
@@ -27,14 +27,14 @@ public class WebHelper {
         loginContext.remove();
     }
 
-    public static Long getUserId() {
+    public static String getUserId() {
         if (!loginRequrired) {
             return defaultUserId;
         }
         if (loginContext.get() == null) {
             return null;
         }
-        return (Long) loginContext.get().get(UID);
+        return (String) loginContext.get().get(UID);
     }
     
     public static String getUserAccount() {

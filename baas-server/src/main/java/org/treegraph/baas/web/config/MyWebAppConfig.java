@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.treegraph.baas.web.interceptor.LoginAuthInterceptor;
-import org.treegraph.baas.web.interceptor.WebAuthInterceptor;
 
 @Configuration
 public class MyWebAppConfig /*extends WebMvcConfigurerAdapter*/ implements WebMvcConfigurer {
@@ -14,21 +13,17 @@ public class MyWebAppConfig /*extends WebMvcConfigurerAdapter*/ implements WebMv
     @Resource
     private LoginAuthInterceptor loginAuthInterceptor;
     
-    @Resource
-    private WebAuthInterceptor apiAuthInterceptor;
-
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
     	
         String[] clientTokenAuthUrls = new String[]{
-                "/operator/**", "/repaytoolkit/operator/**",
-                "/debtor/**", "/repaytoolkit/debtor/**",
-                "/contract/**", "/repaytoolkit/contract/**",
-                "/repayOrder/**", "/repaytoolkit/repayOrder/**"
+                "/user/**", "/treegraph/user/**",
+                "/role/**", "/treegraph/role/**",
+                "/consortium/**", "/treegraph/consortium/**",
+                "/blockchain/**", "/treegraph/blockchain/**",
+                "/node/**", "/treegraph/node/**"
         };
-        String[] apiUrls = new String[]{"/api/**", "/repaytoolkit/api/**"};
-
+        
         registry.addInterceptor(loginAuthInterceptor).addPathPatterns(clientTokenAuthUrls);
-        registry.addInterceptor(apiAuthInterceptor).addPathPatterns(apiUrls);
     }
 }

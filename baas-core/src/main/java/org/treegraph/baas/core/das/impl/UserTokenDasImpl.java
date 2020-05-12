@@ -1,12 +1,11 @@
-package org.treegraph.baas.core.dao.impl;
+package org.treegraph.baas.core.das.impl;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.treegraph.baas.core.dao.UserTokenDao;
+import org.treegraph.baas.core.das.UserTokenDas;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserTokenPo;
 import org.treegraph.baas.core.domain.UserTokenPoExample;
@@ -18,7 +17,7 @@ import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
-public class UserTokenDaoImpl implements UserTokenDao {
+public class UserTokenDasImpl implements UserTokenDas {
 
 	private UserTokenPoMapper userTokenPoMapper;
 
@@ -35,7 +34,7 @@ public class UserTokenDaoImpl implements UserTokenDao {
 		userToken.setUserId(user.getId());
 		userToken.setExpire((int) (expireSecs));
 		userToken.setToken(token);
-		userToken.setCreateTime(new Date());
+		userToken.setCreateTime(LocalDateTime.now());
 
 		UserTokenPo existToken = findByUserId(user.getId());
 		if (Objects.isNull(existToken)) {
@@ -65,11 +64,6 @@ public class UserTokenDaoImpl implements UserTokenDao {
 		UserTokenPoExample userTokenPoExample = new UserTokenPoExample();
 		userTokenPoExample.createCriteria().andUserIdEqualTo(userId);
 		List<UserTokenPo> userTokens = userTokenPoMapper.selectByExample(userTokenPoExample);
-
-		if (CollectionUtils.isEmpty(userTokens)) {
-			return null;
-		}
-
-		return userTokens.get(0);
+		return userTokens.size() > 0 ? userTokens.get(0) : null;
 	}
 }

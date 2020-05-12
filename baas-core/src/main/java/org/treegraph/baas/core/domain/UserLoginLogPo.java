@@ -1,7 +1,7 @@
 package org.treegraph.baas.core.domain;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,7 +40,7 @@ public class UserLoginLogPo implements Serializable {
     /**
      * 登录的时间
      */
-    private Date loginTime;
+    private LocalDateTime loginTime;
 
     /**
      * 登陆的地址

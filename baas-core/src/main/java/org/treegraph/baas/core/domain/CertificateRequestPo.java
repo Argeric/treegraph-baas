@@ -1,7 +1,7 @@
 package org.treegraph.baas.core.domain;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,22 +40,22 @@ public class CertificateRequestPo implements Serializable {
     /**
      * 生成时间
      */
-    private Date generateTime;
+    private LocalDateTime generateTime;
 
     /**
      * 下载时间
      */
-    private Date downloadTime;
+    private LocalDateTime downloadTime;
 
     /**
      * 创建时间
      */
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 更新时间
      */
-    private Date updateTime;
+    private LocalDateTime updateTime;
 
     private static final long serialVersionUID = 1L;
 }

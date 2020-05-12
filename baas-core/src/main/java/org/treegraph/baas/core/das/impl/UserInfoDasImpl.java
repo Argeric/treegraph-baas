@@ -1,10 +1,9 @@
-package org.treegraph.baas.core.dao.impl;
+package org.treegraph.baas.core.das.impl;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.treegraph.baas.core.dao.UserInfoDao;
+import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserInfoPoExample;
 import org.treegraph.baas.core.mapper.UserInfoPoMapper;
@@ -13,7 +12,7 @@ import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
-public class UserInfoDaoImpl implements UserInfoDao{
+public class UserInfoDasImpl implements UserInfoDas{
 	
     private UserInfoPoMapper userInfoPoMapper;
     
@@ -26,11 +25,6 @@ public class UserInfoDaoImpl implements UserInfoDao{
     	UserInfoPoExample userInfoPoExample = new UserInfoPoExample();
     	userInfoPoExample.createCriteria().andAccountEqualTo(accountNo);
         List<UserInfoPo> users = userInfoPoMapper.selectByExample(userInfoPoExample);
-        
-        if(CollectionUtils.isEmpty(users)) {
-        	return null;
-        }
-
-    	return users.get(0);
+    	return users.size() > 0 ? users.get(0) : null;
     }
 }

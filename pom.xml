@@ -53,6 +53,7 @@
 		<commons-lang3.version>3.9</commons-lang3.version>
 		<jjwt.version>0.7.0</jjwt.version>
 		<aspectj.version>1.8.9</aspectj.version>
+		<pagehelper.version>1.2.13</pagehelper.version>
 		<profiles.dir>src/profiles</profiles.dir>
 	</properties>
 
@@ -289,7 +290,12 @@
 		      <artifactId>aspectjweaver</artifactId>
 		      <version>${aspectj.version}</version>
 		      <scope>compile</scope>
-   		    </dependency>	                    		
+   		    </dependency>	
+			<dependency>
+			    <groupId>com.github.pagehelper</groupId>
+			    <artifactId>pagehelper-spring-boot-starter</artifactId>
+			    <version>${pagehelper.version}</version>
+			</dependency>   		                        		
 		</dependencies>
 	</dependencyManagement>
 	

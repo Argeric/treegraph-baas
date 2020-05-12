@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.treegraph.baas.core.mapper.RolePoMapper">
   <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.RolePo">
-    <id column="id" jdbcType="BIGINT" property="id" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="consortium_id" jdbcType="VARCHAR" property="consortiumId" />
     <result column="role_type" jdbcType="INTEGER" property="roleType" />
     <result column="role_name" jdbcType="VARCHAR" property="roleName" />
@@ -89,15 +89,15 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from role
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from role
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.RolePoExample">
     delete from role
@@ -186,7 +186,7 @@
     update role
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=BIGINT},
+        id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.consortiumId != null">
         consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
@@ -222,7 +222,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update role
-    set id = #{record.id,jdbcType=BIGINT},
+    set id = #{record.id,jdbcType=VARCHAR},
       consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
       role_type = #{record.roleType,jdbcType=INTEGER},
       role_name = #{record.roleName,jdbcType=VARCHAR},
@@ -267,7 +267,7 @@
         update_by = #{updateBy,jdbcType=VARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.RolePo">
     update role
@@ -280,6 +280,6 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP},
       create_by = #{createBy,jdbcType=VARCHAR},
       update_by = #{updateBy,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

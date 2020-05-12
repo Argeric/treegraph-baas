@@ -1,8 +1,8 @@
-package org.treegraph.baas.core.dao;
+package org.treegraph.baas.core.das;
 
 import org.treegraph.baas.core.domain.UserInfoPo;
 
-public interface UserInfoDao {
+public interface UserInfoDas {
 	
 	UserInfoPo findById(String userId);
 	

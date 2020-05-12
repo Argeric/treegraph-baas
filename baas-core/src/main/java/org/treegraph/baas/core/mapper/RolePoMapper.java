@@ -1,6 +1,8 @@
 package org.treegraph.baas.core.mapper;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.RolePoExample;
@@ -10,7 +12,7 @@ public interface RolePoMapper {
 
     int deleteByExample(RolePoExample example);
 
-    int deleteByPrimaryKey(Long id);
+    int deleteByPrimaryKey(String id);
 
     int insert(RolePo record);
 
@@ -18,7 +20,7 @@ public interface RolePoMapper {
 
     List<RolePo> selectByExample(RolePoExample example);
 
-    RolePo selectByPrimaryKey(Long id);
+    Optional<RolePo> selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") RolePo record, @Param("example") RolePoExample example);
 

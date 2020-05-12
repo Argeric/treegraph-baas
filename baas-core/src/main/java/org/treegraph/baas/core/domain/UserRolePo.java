@@ -1,7 +1,7 @@
 package org.treegraph.baas.core.domain;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,7 +25,7 @@ public class UserRolePo implements Serializable {
     /**
      * 角色id
      */
-    private Long roleId;
+    private String roleId;
 
     /**
      * 0-未删除，1-已删除
@@ -35,7 +35,22 @@ public class UserRolePo implements Serializable {
     /**
      * 创建时间
      */
-    private Date createTime;
+    private LocalDateTime createTime;
+
+    /**
+     * 创建用户
+     */
+    private String createBy;
+
+    /**
+     * 更新时间
+     */
+    private LocalDateTime updateTime;
+
+    /**
+     * 更新用户
+     */
+    private String updateBy;
 
     private static final long serialVersionUID = 1L;
 }

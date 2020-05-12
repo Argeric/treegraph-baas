@@ -1,7 +1,7 @@
 package org.treegraph.baas.core.domain;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class CertificateRequestPoExample {
@@ -455,52 +455,52 @@ public class CertificateRequestPoExample {
             return (Criteria) this;
         }
 
-        public Criteria andGenerateTimeEqualTo(Date value) {
+        public Criteria andGenerateTimeEqualTo(LocalDateTime value) {
             addCriterion("generate_time =", value, "generateTime");
             return (Criteria) this;
         }
 
-        public Criteria andGenerateTimeNotEqualTo(Date value) {
+        public Criteria andGenerateTimeNotEqualTo(LocalDateTime value) {
             addCriterion("generate_time <>", value, "generateTime");
             return (Criteria) this;
         }
 
-        public Criteria andGenerateTimeGreaterThan(Date value) {
+        public Criteria andGenerateTimeGreaterThan(LocalDateTime value) {
             addCriterion("generate_time >", value, "generateTime");
             return (Criteria) this;
         }
 
-        public Criteria andGenerateTimeGreaterThanOrEqualTo(Date value) {
+        public Criteria andGenerateTimeGreaterThanOrEqualTo(LocalDateTime value) {
             addCriterion("generate_time >=", value, "generateTime");
             return (Criteria) this;
         }
 
-        public Criteria andGenerateTimeLessThan(Date value) {
+        public Criteria andGenerateTimeLessThan(LocalDateTime value) {
             addCriterion("generate_time <", value, "generateTime");
             return (Criteria) this;
         }
 
-        public Criteria andGenerateTimeLessThanOrEqualTo(Date value) {
+        public Criteria andGenerateTimeLessThanOrEqualTo(LocalDateTime value) {
             addCriterion("generate_time <=", value, "generateTime");
             return (Criteria) this;
         }
 
-        public Criteria andGenerateTimeIn(List<Date> values) {
+        public Criteria andGenerateTimeIn(List<LocalDateTime> values) {
             addCriterion("generate_time in", values, "generateTime");
             return (Criteria) this;
         }
 
-        public Criteria andGenerateTimeNotIn(List<Date> values) {
+        public Criteria andGenerateTimeNotIn(List<LocalDateTime> values) {
             addCriterion("generate_time not in", values, "generateTime");
             return (Criteria) this;
         }
 
-        public Criteria andGenerateTimeBetween(Date value1, Date value2) {
+        public Criteria andGenerateTimeBetween(LocalDateTime value1, LocalDateTime value2) {
             addCriterion("generate_time between", value1, value2, "generateTime");
             return (Criteria) this;
         }
 
-        public Criteria andGenerateTimeNotBetween(Date value1, Date value2) {
+        public Criteria andGenerateTimeNotBetween(LocalDateTime value1, LocalDateTime value2) {
             addCriterion("generate_time not between", value1, value2, "generateTime");
             return (Criteria) this;
         }
@@ -515,52 +515,52 @@ public class CertificateRequestPoExample {
             return (Criteria) this;
         }
 
-        public Criteria andDownloadTimeEqualTo(Date value) {
+        public Criteria andDownloadTimeEqualTo(LocalDateTime value) {
             addCriterion("download_time =", value, "downloadTime");
             return (Criteria) this;
         }
 
-        public Criteria andDownloadTimeNotEqualTo(Date value) {
+        public Criteria andDownloadTimeNotEqualTo(LocalDateTime value) {
             addCriterion("download_time <>", value, "downloadTime");
             return (Criteria) this;
         }
 
-        public Criteria andDownloadTimeGreaterThan(Date value) {
+        public Criteria andDownloadTimeGreaterThan(LocalDateTime value) {
             addCriterion("download_time >", value, "downloadTime");
             return (Criteria) this;
         }
 
-        public Criteria andDownloadTimeGreaterThanOrEqualTo(Date value) {
+        public Criteria andDownloadTimeGreaterThanOrEqualTo(LocalDateTime value) {
             addCriterion("download_time >=", value, "downloadTime");
             return (Criteria) this;
         }
 
-        public Criteria andDownloadTimeLessThan(Date value) {
+        public Criteria andDownloadTimeLessThan(LocalDateTime value) {
             addCriterion("download_time <", value, "downloadTime");
             return (Criteria) this;
         }
 
-        public Criteria andDownloadTimeLessThanOrEqualTo(Date value) {
+        public Criteria andDownloadTimeLessThanOrEqualTo(LocalDateTime value) {
             addCriterion("download_time <=", value, "downloadTime");
             return (Criteria) this;
         }
 
-        public Criteria andDownloadTimeIn(List<Date> values) {
+        public Criteria andDownloadTimeIn(List<LocalDateTime> values) {
             addCriterion("download_time in", values, "downloadTime");
             return (Criteria) this;
         }
 
-        public Criteria andDownloadTimeNotIn(List<Date> values) {
+        public Criteria andDownloadTimeNotIn(List<LocalDateTime> values) {
             addCriterion("download_time not in", values, "downloadTime");
             return (Criteria) this;
         }
 
-        public Criteria andDownloadTimeBetween(Date value1, Date value2) {
+        public Criteria andDownloadTimeBetween(LocalDateTime value1, LocalDateTime value2) {
             addCriterion("download_time between", value1, value2, "downloadTime");
             return (Criteria) this;
         }
 
-        public Criteria andDownloadTimeNotBetween(Date value1, Date value2) {
+        public Criteria andDownloadTimeNotBetween(LocalDateTime value1, LocalDateTime value2) {
             addCriterion("download_time not between", value1, value2, "downloadTime");
             return (Criteria) this;
         }
@@ -575,52 +575,52 @@ public class CertificateRequestPoExample {
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeEqualTo(Date value) {
+        public Criteria andCreateTimeEqualTo(LocalDateTime value) {
             addCriterion("create_time =", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeNotEqualTo(Date value) {
+        public Criteria andCreateTimeNotEqualTo(LocalDateTime value) {
             addCriterion("create_time <>", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeGreaterThan(Date value) {
+        public Criteria andCreateTimeGreaterThan(LocalDateTime value) {
             addCriterion("create_time >", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeGreaterThanOrEqualTo(Date value) {
+        public Criteria andCreateTimeGreaterThanOrEqualTo(LocalDateTime value) {
             addCriterion("create_time >=", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeLessThan(Date value) {
+        public Criteria andCreateTimeLessThan(LocalDateTime value) {
             addCriterion("create_time <", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeLessThanOrEqualTo(Date value) {
+        public Criteria andCreateTimeLessThanOrEqualTo(LocalDateTime value) {
             addCriterion("create_time <=", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeIn(List<Date> values) {
+        public Criteria andCreateTimeIn(List<LocalDateTime> values) {
             addCriterion("create_time in", values, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeNotIn(List<Date> values) {
+        public Criteria andCreateTimeNotIn(List<LocalDateTime> values) {
             addCriterion("create_time not in", values, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeBetween(Date value1, Date value2) {
+        public Criteria andCreateTimeBetween(LocalDateTime value1, LocalDateTime value2) {
             addCriterion("create_time between", value1, value2, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeNotBetween(Date value1, Date value2) {
+        public Criteria andCreateTimeNotBetween(LocalDateTime value1, LocalDateTime value2) {
             addCriterion("create_time not between", value1, value2, "createTime");
             return (Criteria) this;
         }
@@ -635,52 +635,52 @@ public class CertificateRequestPoExample {
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeEqualTo(Date value) {
+        public Criteria andUpdateTimeEqualTo(LocalDateTime value) {
             addCriterion("update_time =", value, "updateTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeNotEqualTo(Date value) {
+        public Criteria andUpdateTimeNotEqualTo(LocalDateTime value) {
             addCriterion("update_time <>", value, "updateTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeGreaterThan(Date value) {
+        public Criteria andUpdateTimeGreaterThan(LocalDateTime value) {
             addCriterion("update_time >", value, "updateTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeGreaterThanOrEqualTo(Date value) {
+        public Criteria andUpdateTimeGreaterThanOrEqualTo(LocalDateTime value) {
             addCriterion("update_time >=", value, "updateTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeLessThan(Date value) {
+        public Criteria andUpdateTimeLessThan(LocalDateTime value) {
             addCriterion("update_time <", value, "updateTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeLessThanOrEqualTo(Date value) {
+        public Criteria andUpdateTimeLessThanOrEqualTo(LocalDateTime value) {
             addCriterion("update_time <=", value, "updateTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeIn(List<Date> values) {
+        public Criteria andUpdateTimeIn(List<LocalDateTime> values) {
             addCriterion("update_time in", values, "updateTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeNotIn(List<Date> values) {
+        public Criteria andUpdateTimeNotIn(List<LocalDateTime> values) {
             addCriterion("update_time not in", values, "updateTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeBetween(Date value1, Date value2) {
+        public Criteria andUpdateTimeBetween(LocalDateTime value1, LocalDateTime value2) {
             addCriterion("update_time between", value1, value2, "updateTime");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateTimeNotBetween(Date value1, Date value2) {
+        public Criteria andUpdateTimeNotBetween(LocalDateTime value1, LocalDateTime value2) {
             addCriterion("update_time not between", value1, value2, "updateTime");
             return (Criteria) this;
         }

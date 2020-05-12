@@ -1,12 +1,13 @@
 package org.treegraph.baas.core.service.impl;
 
-import java.util.Calendar;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.treegraph.baas.core.dao.UserInfoDao;
-import org.treegraph.baas.core.dao.UserTokenDao;
+import org.treegraph.baas.core.das.UserInfoDas;
+import org.treegraph.baas.core.das.UserTokenDas;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserTokenPo;
 import org.treegraph.baas.core.service.TokenService;
@@ -18,9 +19,9 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class TokenServicempl implements TokenService {
 
-    private UserInfoDao userInfoDao;
+    private UserInfoDas userInfoDas;
     
-    private UserTokenDao userTokenDao;
+    private UserTokenDas userTokenDas;
 	
     @Override
     public UserInfoPo checkToken(String token) {
@@ -32,18 +33,18 @@ public class TokenServicempl implements TokenService {
     	String userId = JwtUtils.getUid(paraMap);
     	String account = JwtUtils.getAccount(paraMap);
     	String name = JwtUtils.getName(paraMap);
-    	UserInfoPo user = userInfoDao.findById(userId);
+    	UserInfoPo user = userInfoDas.findById(userId);
     	Assert.notNull(user, "用户不存在["+userId+"]");
     	Assert.isTrue(user.getAccount().equals(account), "用户账户不一致["+userId+"]");
     	Assert.isTrue(user.getName().equals(name), "用户姓名不一致["+userId+"]");
     	
     	// check token value
-    	UserTokenPo userToken = userTokenDao.findByUserId(userId);
+    	UserTokenPo userToken = userTokenDas.findByUserId(userId);
     	Assert.isTrue(userToken.getToken().equals(token), "token失效，请重新登陆["+userId+"]");
     	
     	// check token expire
     	int expireSecs = userToken.getExpire();
-    	long diffSecs = (Calendar.getInstance().getTime().getTime() - userToken.getCreateTime().getTime())/1000;
+    	long diffSecs = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")) - userToken.getCreateTime().toEpochSecond(ZoneOffset.of("+8"));
     	Assert.isTrue(diffSecs - expireSecs > 0, "token失效，请重新登陆!["+userId+"]");
     	
     	return user;

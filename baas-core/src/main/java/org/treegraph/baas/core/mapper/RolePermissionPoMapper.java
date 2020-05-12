@@ -27,4 +27,6 @@ public interface RolePermissionPoMapper {
     int updateByPrimaryKeySelective(RolePermissionPo record);
 
     int updateByPrimaryKey(RolePermissionPo record);
+    
+    int bulkInsert(List<RolePermissionPo> list);
 }

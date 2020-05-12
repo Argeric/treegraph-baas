@@ -3,10 +3,13 @@
 <mapper namespace="org.treegraph.baas.core.mapper.RolePermissionPoMapper">
   <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.RolePermissionPo">
     <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="role_id" jdbcType="BIGINT" property="roleId" />
+    <result column="role_id" jdbcType="VARCHAR" property="roleId" />
     <result column="permission_id" jdbcType="BIGINT" property="permissionId" />
     <result column="delete_flag" jdbcType="INTEGER" property="deleteFlag" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -67,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, role_id, permission_id, delete_flag, create_time
+    id, role_id, permission_id, delete_flag, create_time, create_by, update_time, update_by
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.RolePermissionPoExample" resultMap="BaseResultMap">
     select
@@ -101,9 +104,11 @@
   </delete>
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.RolePermissionPo" useGeneratedKeys="true">
     insert into role_permission (role_id, permission_id, delete_flag, 
-      create_time)
-    values (#{roleId,jdbcType=BIGINT}, #{permissionId,jdbcType=BIGINT}, #{deleteFlag,jdbcType=INTEGER}, 
-      #{createTime,jdbcType=TIMESTAMP})
+      create_time, create_by, update_time, 
+      update_by)
+    values (#{roleId,jdbcType=VARCHAR}, #{permissionId,jdbcType=BIGINT}, #{deleteFlag,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP}, 
+      #{updateBy,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.RolePermissionPo" useGeneratedKeys="true">
     insert into role_permission
@@ -120,10 +125,19 @@
       <if test="createTime != null">
         create_time,
       </if>
+      <if test="createBy != null">
+        create_by,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="updateBy != null">
+        update_by,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="roleId != null">
-        #{roleId,jdbcType=BIGINT},
+        #{roleId,jdbcType=VARCHAR},
       </if>
       <if test="permissionId != null">
         #{permissionId,jdbcType=BIGINT},
@@ -133,6 +147,15 @@
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null">
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        #{updateBy,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -149,7 +172,7 @@
         id = #{record.id,jdbcType=BIGINT},
       </if>
       <if test="record.roleId != null">
-        role_id = #{record.roleId,jdbcType=BIGINT},
+        role_id = #{record.roleId,jdbcType=VARCHAR},
       </if>
       <if test="record.permissionId != null">
         permission_id = #{record.permissionId,jdbcType=BIGINT},
@@ -160,6 +183,15 @@
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="record.createBy != null">
+        create_by = #{record.createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateBy != null">
+        update_by = #{record.updateBy,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -168,10 +200,13 @@
   <update id="updateByExample" parameterType="map">
     update role_permission
     set id = #{record.id,jdbcType=BIGINT},
-      role_id = #{record.roleId,jdbcType=BIGINT},
+      role_id = #{record.roleId,jdbcType=VARCHAR},
       permission_id = #{record.permissionId,jdbcType=BIGINT},
       delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP}
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      create_by = #{record.createBy,jdbcType=VARCHAR},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      update_by = #{record.updateBy,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -180,7 +215,7 @@
     update role_permission
     <set>
       <if test="roleId != null">
-        role_id = #{roleId,jdbcType=BIGINT},
+        role_id = #{roleId,jdbcType=VARCHAR},
       </if>
       <if test="permissionId != null">
         permission_id = #{permissionId,jdbcType=BIGINT},
@@ -191,15 +226,51 @@
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="createBy != null">
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        update_by = #{updateBy,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
   <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.RolePermissionPo">
     update role_permission
-    set role_id = #{roleId,jdbcType=BIGINT},
+    set role_id = #{roleId,jdbcType=VARCHAR},
       permission_id = #{permissionId,jdbcType=BIGINT},
       delete_flag = #{deleteFlag,jdbcType=INTEGER},
-      create_time = #{createTime,jdbcType=TIMESTAMP}
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
+  
+  <insert id="bulkInsert" parameterType="org.treegraph.baas.core.domain.RolePermissionPo">
+      INSERT INTO role_permission(
+          role_id,
+          permission_id,
+          delete_flag,
+          create_time,
+          create_by,
+          update_time,
+          update_by
+      )
+      VALUES
+      <foreach collection="list" item="item" separator=",">
+          (
+              #{item.roleId},
+              #{item.permissionId},
+              #{item.deleteFlag},
+              #{item.createTime},
+              #{item.createBy},
+              #{item.updateTime},
+              #{item.updateBy}
+          )
+      </foreach>
+  </insert>  
 </mapper>

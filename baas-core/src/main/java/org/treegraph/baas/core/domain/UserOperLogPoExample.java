@@ -1,7 +1,7 @@
 package org.treegraph.baas.core.domain;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class UserOperLogPoExample {
@@ -445,52 +445,52 @@ public class UserOperLogPoExample {
             return (Criteria) this;
         }
 
-        public Criteria andOperTimeEqualTo(Date value) {
+        public Criteria andOperTimeEqualTo(LocalDateTime value) {
             addCriterion("oper_time =", value, "operTime");
             return (Criteria) this;
         }
 
-        public Criteria andOperTimeNotEqualTo(Date value) {
+        public Criteria andOperTimeNotEqualTo(LocalDateTime value) {
             addCriterion("oper_time <>", value, "operTime");
             return (Criteria) this;
         }
 
-        public Criteria andOperTimeGreaterThan(Date value) {
+        public Criteria andOperTimeGreaterThan(LocalDateTime value) {
             addCriterion("oper_time >", value, "operTime");
             return (Criteria) this;
         }
 
-        public Criteria andOperTimeGreaterThanOrEqualTo(Date value) {
+        public Criteria andOperTimeGreaterThanOrEqualTo(LocalDateTime value) {
             addCriterion("oper_time >=", value, "operTime");
             return (Criteria) this;
         }
 
-        public Criteria andOperTimeLessThan(Date value) {
+        public Criteria andOperTimeLessThan(LocalDateTime value) {
             addCriterion("oper_time <", value, "operTime");
             return (Criteria) this;
         }
 
-        public Criteria andOperTimeLessThanOrEqualTo(Date value) {
+        public Criteria andOperTimeLessThanOrEqualTo(LocalDateTime value) {
             addCriterion("oper_time <=", value, "operTime");
             return (Criteria) this;
         }
 
-        public Criteria andOperTimeIn(List<Date> values) {
+        public Criteria andOperTimeIn(List<LocalDateTime> values) {
             addCriterion("oper_time in", values, "operTime");
             return (Criteria) this;
         }
 
-        public Criteria andOperTimeNotIn(List<Date> values) {
+        public Criteria andOperTimeNotIn(List<LocalDateTime> values) {
             addCriterion("oper_time not in", values, "operTime");
             return (Criteria) this;
         }
 
-        public Criteria andOperTimeBetween(Date value1, Date value2) {
+        public Criteria andOperTimeBetween(LocalDateTime value1, LocalDateTime value2) {
             addCriterion("oper_time between", value1, value2, "operTime");
             return (Criteria) this;
         }
 
-        public Criteria andOperTimeNotBetween(Date value1, Date value2) {
+        public Criteria andOperTimeNotBetween(LocalDateTime value1, LocalDateTime value2) {
             addCriterion("oper_time not between", value1, value2, "operTime");
             return (Criteria) this;
         }
@@ -505,52 +505,52 @@ public class UserOperLogPoExample {
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeEqualTo(Date value) {
+        public Criteria andCreateTimeEqualTo(LocalDateTime value) {
             addCriterion("create_time =", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeNotEqualTo(Date value) {
+        public Criteria andCreateTimeNotEqualTo(LocalDateTime value) {
             addCriterion("create_time <>", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeGreaterThan(Date value) {
+        public Criteria andCreateTimeGreaterThan(LocalDateTime value) {
             addCriterion("create_time >", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeGreaterThanOrEqualTo(Date value) {
+        public Criteria andCreateTimeGreaterThanOrEqualTo(LocalDateTime value) {
             addCriterion("create_time >=", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeLessThan(Date value) {
+        public Criteria andCreateTimeLessThan(LocalDateTime value) {
             addCriterion("create_time <", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeLessThanOrEqualTo(Date value) {
+        public Criteria andCreateTimeLessThanOrEqualTo(LocalDateTime value) {
             addCriterion("create_time <=", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeIn(List<Date> values) {
+        public Criteria andCreateTimeIn(List<LocalDateTime> values) {
             addCriterion("create_time in", values, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeNotIn(List<Date> values) {
+        public Criteria andCreateTimeNotIn(List<LocalDateTime> values) {
             addCriterion("create_time not in", values, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeBetween(Date value1, Date value2) {
+        public Criteria andCreateTimeBetween(LocalDateTime value1, LocalDateTime value2) {
             addCriterion("create_time between", value1, value2, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeNotBetween(Date value1, Date value2) {
+        public Criteria andCreateTimeNotBetween(LocalDateTime value1, LocalDateTime value2) {
             addCriterion("create_time not between", value1, value2, "createTime");
             return (Criteria) this;
         }

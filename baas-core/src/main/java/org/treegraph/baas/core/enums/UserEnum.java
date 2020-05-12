@@ -26,13 +26,13 @@ public class UserEnum {
 
         ;
 
-        private Integer status;
+        private Integer code;
 
         private String desc;
 
-        public static Status getByStatus(int status) {
+        public static Status getByCode(int code) {
             for (Status s : Status.values()) {
-                if (s.status.equals(status)) {
+                if (s.code.equals(code)) {
                     return s;
                 }
             }
@@ -40,8 +40,38 @@ public class UserEnum {
         }
 
         public static boolean isAvailable(int status) {
-            return AVAILABLE.getStatus() == status;
+            return AVAILABLE.getCode() == status;
         }
+    }
+    
+    /**
+     * 角色
+     */
+    @Getter
+    @AllArgsConstructor
+    public enum Role {
+
+        SYS_ADMIN(1, "系统角色"),
+
+        CONSORTIUM_ADMIN(2, "联盟角色"),
+        
+        COMMON_USER(2, "普通角色"),
+
+        ;
+
+        private Integer code;
+
+        private String desc;
+
+        public static Status getByCode(int code) {
+            for (Status s : Status.values()) {
+                if (s.code.equals(code)) {
+                    return s;
+                }
+            }
+            return null;
+        }
+
     }
 
 }

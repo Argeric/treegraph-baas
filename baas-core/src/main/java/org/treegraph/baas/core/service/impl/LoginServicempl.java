@@ -15,10 +15,10 @@ import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.AuthInfo;
 import org.treegraph.baas.api.dto.response.LoginResponse;
-import org.treegraph.baas.core.dao.PermissionDao;
-import org.treegraph.baas.core.dao.RoleDao;
-import org.treegraph.baas.core.dao.UserInfoDao;
-import org.treegraph.baas.core.dao.UserTokenDao;
+import org.treegraph.baas.core.das.PermissionDas;
+import org.treegraph.baas.core.das.RoleDas;
+import org.treegraph.baas.core.das.UserInfoDas;
+import org.treegraph.baas.core.das.UserTokenDas;
 import org.treegraph.baas.core.domain.PermissionPo;
 import org.treegraph.baas.core.domain.RolePermissionPo;
 import org.treegraph.baas.core.domain.RolePo;
@@ -27,7 +27,6 @@ import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.enums.LogEnum.Login;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.service.LoginService;
-import org.treegraph.baas.core.util.LogSkip;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -37,16 +36,16 @@ import com.google.common.collect.Sets;
 public class LoginServicempl implements LoginService {
 
 	@Autowired
-    private UserInfoDao userInfoDao;
+    private UserInfoDas userInfoDas;
     
 	@Autowired
-    private UserTokenDao userTokenDao;
+    private UserTokenDas userTokenDas;
 	
 	@Autowired
-    private RoleDao roleDao;
+    private RoleDas roleDas;
 	
 	@Autowired
-    private PermissionDao permissionDao;
+    private PermissionDas permissionDas;
     
 	@Autowired
     private PasswordService passwordService;
@@ -58,10 +57,9 @@ public class LoginServicempl implements LoginService {
     private String defaultPassword;
 
     @Override
-    @LogSkip
     public LoginResponse login(String accountNo, String password, HttpServletRequest request) {
     	
-    	UserInfoPo user = userInfoDao.findByAccountNo(accountNo);
+    	UserInfoPo user = userInfoDas.findByAccountNo(accountNo);
     	Assert.notNull(user, "用户不存在");
         Assert.isTrue(UserEnum.Status.isAvailable(user.getStatus()), "用户已禁用");
         Assert.state(passwordService.matches(password, user.getPassword()), "密码错误");
@@ -72,7 +70,6 @@ public class LoginServicempl implements LoginService {
         return userDetailInfo;
     }
 
-    @LogSkip
     private LoginResponse loginAfter(UserInfoPo user, boolean needChangePwd, Login login,
         HttpServletRequest request) {
     	
@@ -87,7 +84,7 @@ public class LoginServicempl implements LoginService {
 
     	List<AuthInfo> authInfo = getAuthInfos(user);
     	userDetailInfo.setAuth(authInfo);
-        String token = userTokenDao.createToken(user);
+        String token = userTokenDas.createToken(user);
         userDetailInfo.setToken(token);
 
         logService.addLoginLog(user.getId(), login, request);
@@ -99,26 +96,26 @@ public class LoginServicempl implements LoginService {
 
 		List<AuthInfo> authInfos = new ArrayList<>();
 
-		List<UserRolePo> userRoles = roleDao.findUserRolesByUserId(user.getId());
-		List<Long> roleIds = userRoles.stream().map(item -> item.getRoleId()).collect(Collectors.toList());
-		List<RolePo> roles = roleDao.findRolesByIds(roleIds);
+		List<UserRolePo> userRoles = roleDas.findUserRolesByUserId(user.getId());
+		List<String> roleIds = userRoles.stream().map(item -> item.getRoleId()).collect(Collectors.toList());
+		List<RolePo> roles = roleDas.findRolesByIds(roleIds);
 		Map<String, List<RolePo>> groupedRoleIds = roles.stream()
 				.collect(Collectors.groupingBy(RolePo::getConsortiumId));
 
 		groupedRoleIds.entrySet().stream().forEach(entry -> {
 			List<RolePo> roleListGrouped = entry.getValue();
-			Set<Long> roleIdSet = Sets.newHashSet();
+			Set<String> roleIdSet = Sets.newHashSet();
 			Set<String> roleNameSet = Sets.newHashSet();
 			roleListGrouped.stream().forEach(item -> {
 				roleIdSet.add(item.getId());
 				roleNameSet.add(item.getRoleName());
 			});
 
-			List<RolePermissionPo> rolePermissions = permissionDao
+			List<RolePermissionPo> rolePermissions = permissionDas
 					.findRolePermissionsByRoleIds(Lists.newArrayList(roleIdSet));
 			List<Long> permissionIds = rolePermissions.stream().map(RolePermissionPo::getPermissionId)
 					.collect(Collectors.toList());
-			List<PermissionPo> permissions = permissionDao.findPermissionsByIds(permissionIds);
+			List<PermissionPo> permissions = permissionDas.findPermissionsByIds(permissionIds);
 			List<String> permissionCodes = permissions.stream().map(PermissionPo::getPermissionCode)
 					.collect(Collectors.toList());
 

@@ -1,6 +1,6 @@
 package org.treegraph.baas.core.service.impl;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +40,7 @@ public class LogService {
     loginLog.setIpAddress(AddressUtils.getAddressByIp(ip));
     loginLog.setType(login.getType());
     loginLog.setDevice(Objects.isNull(request) ? "" : WebUtils.getDeviceeInfo(request));
-    loginLog.setLoginTime(new Date());
+    loginLog.setLoginTime(LocalDateTime.now());
     userLoginLogPoMapper.insertSelective(loginLog);
   }
 
@@ -50,7 +50,7 @@ public class LogService {
   @Async
   public void addOperateLog(String content, LogEnum.Operate operateEnum, String user) {
 	UserOperLogPo operLog = new UserOperLogPo();
-	operLog.setCreateTime(new Date());
+	operLog.setCreateTime(LocalDateTime.now());
     userOperLogPoMapper.insertSelective(operLog);
   }
 
@@ -60,7 +60,7 @@ public class LogService {
   @Async
   public void addFormatOperateLog(String user, String contentFormat, Object... params) {
 	  UserOperLogPo operLog = new UserOperLogPo();
-	  operLog.setCreateTime(new Date());
+	  operLog.setCreateTime(LocalDateTime.now());
 	  userOperLogPoMapper.insertSelective(operLog);
   }
 }

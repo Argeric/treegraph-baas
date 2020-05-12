@@ -16,6 +16,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.treegraph.baas.common.util.WebHelper;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
@@ -46,11 +47,19 @@ public class LogAspect {
 
         String userId = null; 
         try{
-        	//userId = RequestUtils.getUserId(); 
+        	userId = WebHelper.getUserId(); 
         } catch(Exception e){
         }
+        
+		Object[] argArrays = null;
+		Object[] originalArrays = joinPoint.getArgs();
+		if (!CollectionUtils.isEmpty(originalArrays)) {
+			List<Object> argList = Lists.newArrayList(originalArrays).stream()
+					.filter(item -> isShowArg(item)).collect(Collectors.toList());
+			argArrays = CollectionUtils.isNotEmpty(argList) ? argList.toArray() : null;
+		}
 
-        log.info("[userId={}]{} req:{}", userId, methodName, JSON.toJSONString(joinPoint.getArgs()));
+        log.info("[userId={}]{} req:{}", userId, methodName, JSON.toJSONString(argArrays));
         try {
             result = joinPoint.proceed();
         } catch (Throwable e) {
@@ -61,18 +70,12 @@ public class LogAspect {
         
         return result;
     }
-    
-    public static void main(String[] params) {
-    	Object o = new Date();
-    	Object[] args = {"account", "pass", o};
-		List<Object> toLogArgs = null;
-		if (!CollectionUtils.isEmpty(args)) {
-			ArrayList<Object> argList = Lists.newArrayList(args);
-			System.out.println(argList);
-			toLogArgs = Lists.newArrayList(args).stream()
-					.filter(arg -> !arg.getClass().isAssignableFrom(Date.class))
-					.collect(Collectors.toList());
+
+	private boolean isShowArg(Object item) {
+		if (item instanceof HttpServletRequest) {
+			return false;
 		}
-		System.out.println(toLogArgs);
+		// add other subject
+		return true;
 	}
 }

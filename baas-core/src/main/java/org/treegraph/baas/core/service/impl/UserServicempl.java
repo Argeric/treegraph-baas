@@ -1,20 +1,25 @@
 package org.treegraph.baas.core.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
+import org.treegraph.baas.api.RoleInfo;
 import org.treegraph.baas.api.dto.AuthInfo;
+import org.treegraph.baas.api.dto.request.CreateUserRequest;
 import org.treegraph.baas.api.dto.response.LoginResponse;
+import org.treegraph.baas.common.enums.IntTypeEnum;
+import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.PermissionDas;
 import org.treegraph.baas.core.das.RoleDas;
 import org.treegraph.baas.core.das.UserInfoDas;
@@ -55,6 +60,52 @@ public class UserServicempl implements UserService {
     private LogService logService;
 
 
+	public boolean createUser(CreateUserRequest req) {
+
+		List<RoleInfo> roles = req.getRoles();
+		List<String> consIds = roles.stream().map(RoleInfo::getConsId).collect(Collectors.toList());
+		List<RolePo> dbRoles = roleDas.findRolesByConsIds(consIds);
+		Map<String, List<String>> dbConsIdRoldIdMap = dbRoles.stream().collect(
+				Collectors.groupingBy(RolePo::getConsortiumId, Collectors.mapping(RolePo::getId, Collectors.toList())));
+		roles.stream().forEach(item -> {
+			List<String> dbRoleIdList = dbConsIdRoldIdMap.get(item.getConsId());
+			Assert.notEmpty(dbRoleIdList, "给用户所授角色,联盟无此角色["+item.getConsId()+"]");
+			List<String> reqRoleIdList = item.getRoleIds();
+			reqRoleIdList.stream()
+					.forEach(roleId -> Assert.isTrue(dbRoleIdList.contains(roleId), "给用户所授角色无效[" + roleId + "]"));
+		});
+		
+		LocalDateTime now = LocalDateTime.now();
+		String operUser = WebHelper.getUserId();
+		UserInfoPo user = UserInfoPo.builder()
+				.id(UUID.randomUUID().toString())
+				.account(req.getAccount())
+				.name(req.getName())
+				.phone(req.getPhone())
+				.password(passwordService.bcryptEncoder(req.getPwd()))
+				.email(null)
+				.status(UserEnum.Status.AVAILABLE.getCode())
+				.deleteFlag(IntTypeEnum.FALSE.getValue())
+				.createTime(now)
+				.createBy(operUser)
+				.updateTime(now)
+				.updateBy(operUser)
+				.build();
+		
+		List<String> roleIds = Lists.newArrayList();
+		roles.stream().forEach(item -> roleIds.addAll(item.getRoleIds()));
+		List<UserRolePo> userRoles = roleIds.stream().map( item -> UserRolePo.builder()
+				.userId(user.getId())
+				.roleId(item)
+				.deleteFlag(IntTypeEnum.FALSE.getValue())
+				.createTime(now)
+				.createBy(operUser)
+				.updateTime(now)
+				.updateBy(operUser)
+				.build()).collect(Collectors.toList());
+		
+		return userInfoDas.createUser(user, userRoles);
+	}
 
     @LogSkip
     private LoginResponse loginAfter(UserInfoPo user, boolean needChangePwd, Login login,

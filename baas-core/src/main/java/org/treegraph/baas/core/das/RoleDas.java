@@ -21,4 +21,6 @@ public interface RoleDas {
 	boolean modifyRole(String roleId, RolePo role, List<Long> toDelPermIds, List<RolePermissionPo> toAddPerms);
 	
 	List<RolePo> findRoles(String consId, String roleName);
+	
+	List<RolePo> findRolesByConsIds(List<String> consIds);
 }

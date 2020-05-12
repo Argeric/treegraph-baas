@@ -13,6 +13,7 @@ import org.treegraph.baas.api.dto.request.ModifyUserRequest;
 import org.treegraph.baas.api.dto.request.QueryUserRequest;
 import org.treegraph.baas.api.dto.response.ListUserResponse;
 import org.treegraph.baas.api.dto.response.QueryUserResponse;
+import org.treegraph.baas.core.service.UserService;
 import org.treegraph.baas.core.util.LogSkip;
 
 import io.swagger.annotations.Api;
@@ -30,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/user")
 public class UserController {
 
-	 
+	 private UserService userService;
 
 	@PostMapping("/list")
 	@ApiOperation("用户列表")
@@ -52,8 +53,8 @@ public class UserController {
 	@ApiOperation("创建用户")
 	@LogSkip
 	public BaasResult<Void> createUser(@RequestBody CreateUserRequest createUserRequest) {
-
-		return null;
+		userService.createUser(createUserRequest);
+		return BaasResult.success();
 	}
 	
 	@PostMapping("/modify")

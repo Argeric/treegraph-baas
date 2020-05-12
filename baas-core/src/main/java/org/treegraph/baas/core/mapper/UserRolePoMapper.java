@@ -1,6 +1,7 @@
 package org.treegraph.baas.core.mapper;
 
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.domain.UserRolePoExample;
@@ -27,4 +28,6 @@ public interface UserRolePoMapper {
     int updateByPrimaryKeySelective(UserRolePo record);
 
     int updateByPrimaryKey(UserRolePo record);
+    
+    int bulkInsert(List<UserRolePo> list);
 }

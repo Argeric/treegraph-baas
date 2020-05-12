@@ -100,6 +100,14 @@ public class RoleDasImpl implements RoleDas {
     	return rolePoMapper.selectByExample(example);
     }
     
+    public List<RolePo> findRolesByConsIds(List<String> consIds){
+    	
+    	RolePoExample example = new RolePoExample();
+    	example.createCriteria().andConsortiumIdIn(consIds);
+    	
+    	return rolePoMapper.selectByExample(example);
+    }
+    
     
     
     

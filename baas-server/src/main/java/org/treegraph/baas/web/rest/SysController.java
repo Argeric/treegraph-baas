@@ -5,26 +5,26 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.treegraph.baas.api.dto.BaasResult;
 import org.treegraph.baas.api.dto.request.LoginRequest;
 import org.treegraph.baas.api.dto.response.LoginResponse;
 import org.treegraph.baas.core.service.LoginService;
-import org.treegraph.baas.core.util.LogSkip;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@Api(tags = "LoginController", description = "登录管理(此controller下所有接口不做登录控制)")
-public class LoginController {
+@Api(tags = "系统模块", description = "登录管理相关")
+@RequestMapping("/sys")
+public class SysController {
 
   @Autowired
   private LoginService loginService;
 
   @PostMapping("/login")
   @ApiOperation("用户登陆接口")
-  @LogSkip
   public BaasResult<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
 	  
 	  LoginResponse userDetailInfo =  loginService.login(loginRequest.getAccount(), loginRequest.getPassword(), request);

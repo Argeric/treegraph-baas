@@ -88,12 +88,6 @@ public class RoleServicempl implements RoleService {
     	return resp;
     }
     
-	public List<String> getPermissionCodes(String roleId, Map<String, List<Long>> groupRoleIdPermIds,
-			Map<Long, String> permIdCodeMap) {
-
-		return null;
-	}
-
    	public boolean createRole(CreateRoleRequest req) {
    		
    		List<RolePermissionPo> rolePermissionList = Lists.newArrayList();
@@ -183,9 +177,5 @@ public class RoleServicempl implements RoleService {
 		Map<String, Long> permissionCodeIdMap = permissions.stream()
 				.collect(Collectors.toMap(PermissionPo::getPermissionCode, PermissionPo::getId));
 		return permissionCodeIdMap;
-	}
-	
-	public static void main(String[] args) {
-		System.out.println(LocalDateTime.now().toString());
 	}
 }

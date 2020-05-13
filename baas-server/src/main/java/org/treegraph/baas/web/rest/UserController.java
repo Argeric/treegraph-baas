@@ -14,10 +14,10 @@ import org.treegraph.baas.api.dto.request.QueryUserRequest;
 import org.treegraph.baas.api.dto.response.ListUserResponse;
 import org.treegraph.baas.api.dto.response.QueryUserResponse;
 import org.treegraph.baas.core.service.UserService;
-import org.treegraph.baas.core.util.LogSkip;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.AllArgsConstructor;
 
 /**
  * @author zt
@@ -25,15 +25,15 @@ import io.swagger.annotations.ApiOperation;
  * @version 1.0
  */
 @RestController
-@Api(tags = "UserController", description = "用户管理")
+@Api(tags = "用户模块", description = "用户管理")
 @RequestMapping("/user")
+@AllArgsConstructor
 public class UserController {
 
 	 private UserService userService;
 
 	@PostMapping("/list")
 	@ApiOperation("用户列表")
-	@LogSkip
 	public BaasResult<ListUserResponse> listUser(@RequestBody ListUserRequest listUserRequest) {
 		ListUserResponse data = userService.listUser(listUserRequest);
 		return BaasResult.success(data);
@@ -41,7 +41,6 @@ public class UserController {
 	
 	@PostMapping("/query")
 	@ApiOperation("查询列表")
-	@LogSkip
 	public BaasResult<QueryUserResponse> queryUser(@RequestBody QueryUserRequest queryUserRequest) {
 		QueryUserResponse data = userService.queryUser(queryUserRequest);
 		return BaasResult.success(data);
@@ -49,7 +48,6 @@ public class UserController {
 
 	@PostMapping("/create")
 	@ApiOperation("创建用户")
-	@LogSkip
 	public BaasResult<Void> createUser(@RequestBody CreateUserRequest createUserRequest) {
 		userService.createUser(createUserRequest);
 		return BaasResult.success();
@@ -57,7 +55,6 @@ public class UserController {
 	
 	@PostMapping("/modify")
 	@ApiOperation("修改用户")
-	@LogSkip
 	public BaasResult<Void> modifyUser(@RequestBody ModifyUserRequest modifyUserRequest) {
 		userService.modifyUser(modifyUserRequest);
 		return BaasResult.success();
@@ -65,7 +62,6 @@ public class UserController {
 	
 	@PostMapping("/pwd/modify")
 	@ApiOperation("修改密码")
-	@LogSkip
 	public BaasResult<Void> modifyPwd(@RequestBody ModifyPwdRequest modifyPwdRequest) {
 		userService.modifyPwd(modifyPwdRequest);
 		return BaasResult.success();
@@ -73,7 +69,6 @@ public class UserController {
 	
 	@PostMapping("/del")
 	@ApiOperation("删除用户")
-	@LogSkip
 	public BaasResult<Void> deleteUser(@RequestBody DeleteUserRequest deleteUserRequest) {
 		userService.deleteUser(deleteUserRequest);
 		return BaasResult.success();

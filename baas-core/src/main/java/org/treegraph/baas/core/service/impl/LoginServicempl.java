@@ -92,7 +92,7 @@ public class LoginServicempl implements LoginService {
         return userDetailInfo;
     }
     
-	public List<AuthInfo> getAuthInfos(UserInfoPo user) {
+    private List<AuthInfo> getAuthInfos(UserInfoPo user) {
 
 		List<AuthInfo> authInfos = new ArrayList<>();
 

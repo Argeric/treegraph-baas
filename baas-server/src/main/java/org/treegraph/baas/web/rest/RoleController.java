@@ -10,7 +10,6 @@ import org.treegraph.baas.api.dto.request.ListRoleRequest;
 import org.treegraph.baas.api.dto.request.ModifyRoleRequest;
 import org.treegraph.baas.api.dto.response.ListRoleResponse;
 import org.treegraph.baas.core.service.RoleService;
-import org.treegraph.baas.core.util.LogSkip;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -21,7 +20,7 @@ import io.swagger.annotations.ApiOperation;
  * @version 1.0
  */
 @RestController
-@Api(tags = "RoleController", description = "权限角色管理")
+@Api(tags = "角色模块", description = "权限角色管理")
 @RequestMapping("/role")
 public class RoleController {
 	
@@ -29,7 +28,6 @@ public class RoleController {
 	
 	@PostMapping("/list")
 	@ApiOperation("角色权限列表")
-	@LogSkip
 	public BaasResult<ListRoleResponse> listRole(@RequestBody ListRoleRequest listRoleRequest) {
 		ListRoleResponse roles = roleService.listRole(listRoleRequest);
 		return BaasResult.success(roles);
@@ -37,7 +35,6 @@ public class RoleController {
 
 	@PostMapping("/create")
 	@ApiOperation("创建角色")
-	@LogSkip
 	public BaasResult<Void> createRole(@RequestBody CreateRoleRequest createRoleRequest) {
 	    roleService.createRole(createRoleRequest);
 		return BaasResult.success();
@@ -45,7 +42,6 @@ public class RoleController {
 	
 	@PostMapping("/modify")
 	@ApiOperation("修改角色")
-	@LogSkip
 	public BaasResult<Void> modifyRole(@RequestBody ModifyRoleRequest modifyRoleRequest) {
 		roleService.modifyRole(modifyRoleRequest);
 		return BaasResult.success();

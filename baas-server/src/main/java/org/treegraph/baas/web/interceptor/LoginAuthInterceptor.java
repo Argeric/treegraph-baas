@@ -15,6 +15,7 @@ import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.service.TokenService;
 import org.treegraph.baas.core.util.JwtUtils;
+import org.treegraph.baas.core.util.WebUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -41,7 +42,8 @@ public class LoginAuthInterceptor extends HandlerInterceptorAdapter {
         	return false;
         }
     	
-		WebHelper.init(user.getId(), user.getAccount(), user.getName());
+        String userIp = WebUtils.getIpAddress(request);
+		WebHelper.init(user.getId(), user.getAccount(), user.getName(), userIp);
 		
         return true;
     }

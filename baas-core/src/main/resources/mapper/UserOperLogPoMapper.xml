@@ -5,7 +5,9 @@
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="user_id" jdbcType="VARCHAR" property="userId" />
     <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="user_ip" jdbcType="VARCHAR" property="userIp" />
     <result column="oper_type" jdbcType="INTEGER" property="operType" />
+    <result column="oper_code" jdbcType="VARCHAR" property="operCode" />
     <result column="oper_info" jdbcType="VARCHAR" property="operInfo" />
     <result column="oper_time" jdbcType="TIMESTAMP" property="operTime" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
@@ -69,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, user_id, user_name, oper_type, oper_info, oper_time, create_time
+    id, user_id, user_name, user_ip, oper_type, oper_code, oper_info, oper_time, create_time
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.UserOperLogPoExample" resultMap="BaseResultMap">
     select
@@ -102,12 +104,12 @@
     </if>
   </delete>
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserOperLogPo" useGeneratedKeys="true">
-    insert into user_oper_log (user_id, user_name, oper_type, 
-      oper_info, oper_time, create_time
-      )
-    values (#{userId,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, #{operType,jdbcType=INTEGER}, 
-      #{operInfo,jdbcType=VARCHAR}, #{operTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}
-      )
+    insert into user_oper_log (user_id, user_name, user_ip, 
+      oper_type, oper_code, oper_info, 
+      oper_time, create_time)
+    values (#{userId,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, #{userIp,jdbcType=VARCHAR}, 
+      #{operType,jdbcType=INTEGER}, #{operCode,jdbcType=VARCHAR}, #{operInfo,jdbcType=VARCHAR}, 
+      #{operTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserOperLogPo" useGeneratedKeys="true">
     insert into user_oper_log
@@ -118,8 +120,14 @@
       <if test="userName != null">
         user_name,
       </if>
+      <if test="userIp != null">
+        user_ip,
+      </if>
       <if test="operType != null">
         oper_type,
+      </if>
+      <if test="operCode != null">
+        oper_code,
       </if>
       <if test="operInfo != null">
         oper_info,
@@ -138,8 +146,14 @@
       <if test="userName != null">
         #{userName,jdbcType=VARCHAR},
       </if>
+      <if test="userIp != null">
+        #{userIp,jdbcType=VARCHAR},
+      </if>
       <if test="operType != null">
         #{operType,jdbcType=INTEGER},
+      </if>
+      <if test="operCode != null">
+        #{operCode,jdbcType=VARCHAR},
       </if>
       <if test="operInfo != null">
         #{operInfo,jdbcType=VARCHAR},
@@ -170,8 +184,14 @@
       <if test="record.userName != null">
         user_name = #{record.userName,jdbcType=VARCHAR},
       </if>
+      <if test="record.userIp != null">
+        user_ip = #{record.userIp,jdbcType=VARCHAR},
+      </if>
       <if test="record.operType != null">
         oper_type = #{record.operType,jdbcType=INTEGER},
+      </if>
+      <if test="record.operCode != null">
+        oper_code = #{record.operCode,jdbcType=VARCHAR},
       </if>
       <if test="record.operInfo != null">
         oper_info = #{record.operInfo,jdbcType=VARCHAR},
@@ -192,7 +212,9 @@
     set id = #{record.id,jdbcType=BIGINT},
       user_id = #{record.userId,jdbcType=VARCHAR},
       user_name = #{record.userName,jdbcType=VARCHAR},
+      user_ip = #{record.userIp,jdbcType=VARCHAR},
       oper_type = #{record.operType,jdbcType=INTEGER},
+      oper_code = #{record.operCode,jdbcType=VARCHAR},
       oper_info = #{record.operInfo,jdbcType=VARCHAR},
       oper_time = #{record.operTime,jdbcType=TIMESTAMP},
       create_time = #{record.createTime,jdbcType=TIMESTAMP}
@@ -209,8 +231,14 @@
       <if test="userName != null">
         user_name = #{userName,jdbcType=VARCHAR},
       </if>
+      <if test="userIp != null">
+        user_ip = #{userIp,jdbcType=VARCHAR},
+      </if>
       <if test="operType != null">
         oper_type = #{operType,jdbcType=INTEGER},
+      </if>
+      <if test="operCode != null">
+        oper_code = #{operCode,jdbcType=VARCHAR},
       </if>
       <if test="operInfo != null">
         oper_info = #{operInfo,jdbcType=VARCHAR},
@@ -228,7 +256,9 @@
     update user_oper_log
     set user_id = #{userId,jdbcType=VARCHAR},
       user_name = #{userName,jdbcType=VARCHAR},
+      user_ip = #{userIp,jdbcType=VARCHAR},
       oper_type = #{operType,jdbcType=INTEGER},
+      oper_code = #{operCode,jdbcType=VARCHAR},
       oper_info = #{operInfo,jdbcType=VARCHAR},
       oper_time = #{operTime,jdbcType=TIMESTAMP},
       create_time = #{createTime,jdbcType=TIMESTAMP}

@@ -1,13 +1,12 @@
 package org.treegraph.baas.core.util;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -17,22 +16,27 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.treegraph.baas.common.util.WebHelper;
+import org.treegraph.baas.core.das.UserOperLogDas;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Aspect
 @Component
 @Slf4j
 @Order(0)
+@AllArgsConstructor
 public class LogAspect {
+	
+	private UserOperLogDas userOperLogDas;
 
     /**
      * @Description: 日志切点
      */
-    @Pointcut("execution(* org.treegraph.baas.web.controller..*.*(..)) || execution(* org.treegraph.baas.core.service.impl..*.*(..)) || execution(* org.treegraph.baas.core.dao.impl..*.*(..))")
+	@Pointcut("execution(* org.treegraph.baas.web.rest..*.*(..)) || execution(* org.treegraph.baas.core.service.impl..*.*(..)) || execution(* org.treegraph.baas.core.dao.impl..*.*(..))")
     public void logPointCut() {
     }
 
@@ -63,9 +67,11 @@ public class LogAspect {
         try {
             result = joinPoint.proceed();
         } catch (Throwable e) {
+        	addOperLog(methodName, "req="+JSON.toJSONString(argArrays)+",resp=" + StringUtils.substring(e.getMessage(), 0, 100));
             log.error("[userId={}]{} resp:{},elapsed:{},err:", userId, methodName, JSON.toJSONString(result), stopWatch.getTime(), e);
             throw e;
         }
+        addOperLog(methodName, "req="+JSON.toJSONString(argArrays)+",resp=" + JSON.toJSONString(result));
         log.info("[userId={}]{} resp:{},elapsed:{}", userId, methodName, JSON.toJSONString(result), stopWatch.getTime());
         
         return result;
@@ -77,5 +83,13 @@ public class LogAspect {
 		}
 		// add other subject
 		return true;
+	}
+	
+	private void addOperLog(String method, String info) {
+		if (!method.endsWith("Controller") || WebHelper.getUserId() == null) {
+			return;
+		}
+		userOperLogDas.addOperLog(WebHelper.getUserId(), WebHelper.getUserName(), WebHelper.getUserIp(),
+				StringUtils.substringAfterLast(method, "."), info);
 	}
 }

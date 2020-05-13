@@ -108,11 +108,11 @@
     </if>
   </delete>
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserInfoPo" useGeneratedKeys="true">
-    insert into user_info (account, email, `name`, 
+    insert into user_info (id, account, email, `name`, 
       phone, `password`, `status`, 
       delete_flag, create_time, update_time, 
       create_by, update_by)
-    values (#{account,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{account,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{phone,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
       #{deleteFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
       #{createBy,jdbcType=VARCHAR}, #{updateBy,jdbcType=VARCHAR})

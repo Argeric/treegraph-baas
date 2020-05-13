@@ -54,7 +54,7 @@
             <property name="enableSubPackages" value="false"/>
         </javaClientGenerator>
         
-        
+        <!-- 
         <table tableName="blockchain" domainObjectName="BlockChainPo">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
@@ -79,19 +79,20 @@
         <table tableName="user_info" domainObjectName="UserInfoPo">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
-        <table tableName="user_oper_log" domainObjectName="UserOperLogPo">
-        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table>        
         <table tableName="user_role" domainObjectName="UserRolePo">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
         <table tableName="user_token" domainObjectName="UserTokenPo">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table> 
-            
         <table tableName="user_login_log" domainObjectName="UserLoginLogPo">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
+        -->
+        
+        <table tableName="user_oper_log" domainObjectName="UserOperLogPo">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>        
 
     </context>
 

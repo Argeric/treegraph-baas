@@ -44,8 +44,8 @@ public class TokenServicempl implements TokenService {
     	
     	// check token expire
     	int expireSecs = userToken.getExpire();
-    	long diffSecs = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")) - userToken.getCreateTime().toEpochSecond(ZoneOffset.of("+8"));
-    	Assert.isTrue(diffSecs - expireSecs > 0, "token失效，请重新登陆!["+userId+"]");
+    	long loginSecs = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")) - userToken.getCreateTime().toEpochSecond(ZoneOffset.of("+8"));
+    	Assert.isTrue(loginSecs - expireSecs < 0, "token失效，请重新登陆!["+userId+"]");
     	
     	return user;
     }

@@ -305,6 +305,76 @@ public class UserOperLogPoExample {
             return (Criteria) this;
         }
 
+        public Criteria andUserIpIsNull() {
+            addCriterion("user_ip is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserIpIsNotNull() {
+            addCriterion("user_ip is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserIpEqualTo(String value) {
+            addCriterion("user_ip =", value, "userIp");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserIpNotEqualTo(String value) {
+            addCriterion("user_ip <>", value, "userIp");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserIpGreaterThan(String value) {
+            addCriterion("user_ip >", value, "userIp");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserIpGreaterThanOrEqualTo(String value) {
+            addCriterion("user_ip >=", value, "userIp");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserIpLessThan(String value) {
+            addCriterion("user_ip <", value, "userIp");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserIpLessThanOrEqualTo(String value) {
+            addCriterion("user_ip <=", value, "userIp");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserIpLike(String value) {
+            addCriterion("user_ip like", value, "userIp");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserIpNotLike(String value) {
+            addCriterion("user_ip not like", value, "userIp");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserIpIn(List<String> values) {
+            addCriterion("user_ip in", values, "userIp");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserIpNotIn(List<String> values) {
+            addCriterion("user_ip not in", values, "userIp");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserIpBetween(String value1, String value2) {
+            addCriterion("user_ip between", value1, value2, "userIp");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserIpNotBetween(String value1, String value2) {
+            addCriterion("user_ip not between", value1, value2, "userIp");
+            return (Criteria) this;
+        }
+
         public Criteria andOperTypeIsNull() {
             addCriterion("oper_type is null");
             return (Criteria) this;
@@ -362,6 +432,76 @@ public class UserOperLogPoExample {
 
         public Criteria andOperTypeNotBetween(Integer value1, Integer value2) {
             addCriterion("oper_type not between", value1, value2, "operType");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperCodeIsNull() {
+            addCriterion("oper_code is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperCodeIsNotNull() {
+            addCriterion("oper_code is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperCodeEqualTo(String value) {
+            addCriterion("oper_code =", value, "operCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperCodeNotEqualTo(String value) {
+            addCriterion("oper_code <>", value, "operCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperCodeGreaterThan(String value) {
+            addCriterion("oper_code >", value, "operCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperCodeGreaterThanOrEqualTo(String value) {
+            addCriterion("oper_code >=", value, "operCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperCodeLessThan(String value) {
+            addCriterion("oper_code <", value, "operCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperCodeLessThanOrEqualTo(String value) {
+            addCriterion("oper_code <=", value, "operCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperCodeLike(String value) {
+            addCriterion("oper_code like", value, "operCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperCodeNotLike(String value) {
+            addCriterion("oper_code not like", value, "operCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperCodeIn(List<String> values) {
+            addCriterion("oper_code in", values, "operCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperCodeNotIn(List<String> values) {
+            addCriterion("oper_code not in", values, "operCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperCodeBetween(String value1, String value2) {
+            addCriterion("oper_code between", value1, value2, "operCode");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperCodeNotBetween(String value1, String value2) {
+            addCriterion("oper_code not between", value1, value2, "operCode");
             return (Criteria) this;
         }
 

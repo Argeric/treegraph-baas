@@ -15,7 +15,6 @@ import org.treegraph.baas.core.enums.LogEnum.Login;
 import org.treegraph.baas.core.mapper.UserLoginLogPoMapper;
 import org.treegraph.baas.core.mapper.UserOperLogPoMapper;
 import org.treegraph.baas.core.util.AddressUtils;
-import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.WebUtils;
 
 @Service
@@ -31,7 +30,6 @@ public class LogService {
    * 添加登录登出日志
    */
   @Async
-  @LogSkip
   public void addLoginLog(String userId, Login login, HttpServletRequest request) {
 	UserLoginLogPo loginLog = new UserLoginLogPo();
     String ip = Objects.isNull(request) ? "" : WebUtils.getIpAddress(request);

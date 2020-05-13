@@ -28,9 +28,19 @@ public class UserOperLogPo implements Serializable {
     private String userName;
 
     /**
+     * 用户ip
+     */
+    private String userIp;
+
+    /**
      * 操作类型
      */
     private Integer operType;
+
+    /**
+     * 操作code
+     */
+    private String operCode;
 
     /**
      * 操作信息

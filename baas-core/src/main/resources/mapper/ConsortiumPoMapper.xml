@@ -9,6 +9,7 @@
     <result column="contact_email" jdbcType="VARCHAR" property="contactEmail" />
     <result column="contact_phone" jdbcType="VARCHAR" property="contactPhone" />
     <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="establish_step" jdbcType="INTEGER" property="establishStep" />
     <result column="delete_flag" jdbcType="INTEGER" property="deleteFlag" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
@@ -16,7 +17,7 @@
     <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="org.treegraph.baas.core.domain.ConsortiumPo">
-    <result column="icon" jdbcType="LONGVARBINARY" property="icon" />
+    <result column="avatar" jdbcType="LONGVARBINARY" property="avatar" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -77,11 +78,11 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, description, contact_name, contact_email, contact_phone, `status`, delete_flag, 
-    create_time, update_time, create_by, update_by
+    id, `name`, description, contact_name, contact_email, contact_phone, `status`, establish_step, 
+    delete_flag, create_time, update_time, create_by, update_by
   </sql>
   <sql id="Blob_Column_List">
-    icon
+    avatar
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="org.treegraph.baas.core.domain.ConsortiumPoExample" resultMap="ResultMapWithBLOBs">
     select
@@ -131,21 +132,24 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.ConsortiumPo" useGeneratedKeys="true">
-    insert into consortium (`name`, description, contact_name, 
-      contact_email, contact_phone, `status`, 
-      delete_flag, create_time, update_time, 
-      create_by, update_by, icon
-      )
-    values (#{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{contactName,jdbcType=VARCHAR}, 
-      #{contactEmail,jdbcType=VARCHAR}, #{contactPhone,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
-      #{deleteFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
-      #{createBy,jdbcType=VARCHAR}, #{updateBy,jdbcType=VARCHAR}, #{icon,jdbcType=LONGVARBINARY}
-      )
+  <insert id="insert" parameterType="org.treegraph.baas.core.domain.ConsortiumPo">
+    insert into consortium (id, `name`, description, 
+      contact_name, contact_email, contact_phone, 
+      `status`, establish_step, delete_flag, 
+      create_time, update_time, create_by, 
+      update_by, avatar)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+      #{contactName,jdbcType=VARCHAR}, #{contactEmail,jdbcType=VARCHAR}, #{contactPhone,jdbcType=VARCHAR}, 
+      #{status,jdbcType=INTEGER}, #{establishStep,jdbcType=INTEGER}, #{deleteFlag,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateBy,jdbcType=VARCHAR}, #{avatar,jdbcType=LONGVARBINARY})
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.ConsortiumPo" useGeneratedKeys="true">
+  <insert id="insertSelective" parameterType="org.treegraph.baas.core.domain.ConsortiumPo">
     insert into consortium
     <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
       <if test="name != null">
         `name`,
       </if>
@@ -164,6 +168,9 @@
       <if test="status != null">
         `status`,
       </if>
+      <if test="establishStep != null">
+        establish_step,
+      </if>
       <if test="deleteFlag != null">
         delete_flag,
       </if>
@@ -179,11 +186,14 @@
       <if test="updateBy != null">
         update_by,
       </if>
-      <if test="icon != null">
-        icon,
+      <if test="avatar != null">
+        avatar,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
@@ -202,6 +212,9 @@
       <if test="status != null">
         #{status,jdbcType=INTEGER},
       </if>
+      <if test="establishStep != null">
+        #{establishStep,jdbcType=INTEGER},
+      </if>
       <if test="deleteFlag != null">
         #{deleteFlag,jdbcType=INTEGER},
       </if>
@@ -217,8 +230,8 @@
       <if test="updateBy != null">
         #{updateBy,jdbcType=VARCHAR},
       </if>
-      <if test="icon != null">
-        #{icon,jdbcType=LONGVARBINARY},
+      <if test="avatar != null">
+        #{avatar,jdbcType=LONGVARBINARY},
       </if>
     </trim>
   </insert>
@@ -252,6 +265,9 @@
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=INTEGER},
       </if>
+      <if test="record.establishStep != null">
+        establish_step = #{record.establishStep,jdbcType=INTEGER},
+      </if>
       <if test="record.deleteFlag != null">
         delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       </if>
@@ -267,8 +283,8 @@
       <if test="record.updateBy != null">
         update_by = #{record.updateBy,jdbcType=VARCHAR},
       </if>
-      <if test="record.icon != null">
-        icon = #{record.icon,jdbcType=LONGVARBINARY},
+      <if test="record.avatar != null">
+        avatar = #{record.avatar,jdbcType=LONGVARBINARY},
       </if>
     </set>
     <if test="_parameter != null">
@@ -284,12 +300,13 @@
       contact_email = #{record.contactEmail,jdbcType=VARCHAR},
       contact_phone = #{record.contactPhone,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=INTEGER},
+      establish_step = #{record.establishStep,jdbcType=INTEGER},
       delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       create_by = #{record.createBy,jdbcType=VARCHAR},
       update_by = #{record.updateBy,jdbcType=VARCHAR},
-      icon = #{record.icon,jdbcType=LONGVARBINARY}
+      avatar = #{record.avatar,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -303,6 +320,7 @@
       contact_email = #{record.contactEmail,jdbcType=VARCHAR},
       contact_phone = #{record.contactPhone,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=INTEGER},
+      establish_step = #{record.establishStep,jdbcType=INTEGER},
       delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP},
@@ -333,6 +351,9 @@
       <if test="status != null">
         `status` = #{status,jdbcType=INTEGER},
       </if>
+      <if test="establishStep != null">
+        establish_step = #{establishStep,jdbcType=INTEGER},
+      </if>
       <if test="deleteFlag != null">
         delete_flag = #{deleteFlag,jdbcType=INTEGER},
       </if>
@@ -348,8 +369,8 @@
       <if test="updateBy != null">
         update_by = #{updateBy,jdbcType=VARCHAR},
       </if>
-      <if test="icon != null">
-        icon = #{icon,jdbcType=LONGVARBINARY},
+      <if test="avatar != null">
+        avatar = #{avatar,jdbcType=LONGVARBINARY},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -362,12 +383,13 @@
       contact_email = #{contactEmail,jdbcType=VARCHAR},
       contact_phone = #{contactPhone,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=INTEGER},
+      establish_step = #{establishStep,jdbcType=INTEGER},
       delete_flag = #{deleteFlag,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP},
       create_by = #{createBy,jdbcType=VARCHAR},
       update_by = #{updateBy,jdbcType=VARCHAR},
-      icon = #{icon,jdbcType=LONGVARBINARY}
+      avatar = #{avatar,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.ConsortiumPo">
@@ -378,6 +400,7 @@
       contact_email = #{contactEmail,jdbcType=VARCHAR},
       contact_phone = #{contactPhone,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=INTEGER},
+      establish_step = #{establishStep,jdbcType=INTEGER},
       delete_flag = #{deleteFlag,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP},

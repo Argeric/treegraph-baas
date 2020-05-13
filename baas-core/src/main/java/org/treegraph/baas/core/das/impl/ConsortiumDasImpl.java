@@ -26,4 +26,23 @@ public class ConsortiumDasImpl implements ConsortiumDas{
 		example.createCriteria().andIdIn(ids);
 		return consortiumPoMapper.selectByExample(example);
 	}
+	
+	public int createConsortium(ConsortiumPo cons) {
+		return consortiumPoMapper.insert(cons);
+	}
+	
+	public List<ConsortiumPo> findByName(String name){
+		ConsortiumPoExample example = new ConsortiumPoExample();
+		example.createCriteria().andNameEqualTo(name);
+		return consortiumPoMapper.selectByExample(example);
+	}
+	
+	public List<ConsortiumPo> findAll(){
+		ConsortiumPoExample example = new ConsortiumPoExample();
+		return consortiumPoMapper.selectByExample(example);
+	}
+	
+	public int modifyCons(ConsortiumPo cons){
+		return consortiumPoMapper.updateByPrimaryKeySelective(cons);
+	}
 }

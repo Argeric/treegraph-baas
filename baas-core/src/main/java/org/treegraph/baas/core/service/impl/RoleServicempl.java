@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
-import org.treegraph.baas.api.RolePermissionInfo;
+import org.treegraph.baas.api.dto.RolePermissionInfo;
 import org.treegraph.baas.api.dto.request.CreateRoleRequest;
 import org.treegraph.baas.api.dto.request.ListRoleRequest;
 import org.treegraph.baas.api.dto.request.ModifyRoleRequest;

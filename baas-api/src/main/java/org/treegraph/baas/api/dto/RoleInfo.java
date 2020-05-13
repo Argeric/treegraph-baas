@@ -1,4 +1,4 @@
-package org.treegraph.baas.api;
+package org.treegraph.baas.api.dto;
 
 import java.util.List;
 

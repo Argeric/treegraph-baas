@@ -585,6 +585,66 @@ public class ConsortiumPoExample {
             return (Criteria) this;
         }
 
+        public Criteria andEstablishStepIsNull() {
+            addCriterion("establish_step is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEstablishStepIsNotNull() {
+            addCriterion("establish_step is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEstablishStepEqualTo(Integer value) {
+            addCriterion("establish_step =", value, "establishStep");
+            return (Criteria) this;
+        }
+
+        public Criteria andEstablishStepNotEqualTo(Integer value) {
+            addCriterion("establish_step <>", value, "establishStep");
+            return (Criteria) this;
+        }
+
+        public Criteria andEstablishStepGreaterThan(Integer value) {
+            addCriterion("establish_step >", value, "establishStep");
+            return (Criteria) this;
+        }
+
+        public Criteria andEstablishStepGreaterThanOrEqualTo(Integer value) {
+            addCriterion("establish_step >=", value, "establishStep");
+            return (Criteria) this;
+        }
+
+        public Criteria andEstablishStepLessThan(Integer value) {
+            addCriterion("establish_step <", value, "establishStep");
+            return (Criteria) this;
+        }
+
+        public Criteria andEstablishStepLessThanOrEqualTo(Integer value) {
+            addCriterion("establish_step <=", value, "establishStep");
+            return (Criteria) this;
+        }
+
+        public Criteria andEstablishStepIn(List<Integer> values) {
+            addCriterion("establish_step in", values, "establishStep");
+            return (Criteria) this;
+        }
+
+        public Criteria andEstablishStepNotIn(List<Integer> values) {
+            addCriterion("establish_step not in", values, "establishStep");
+            return (Criteria) this;
+        }
+
+        public Criteria andEstablishStepBetween(Integer value1, Integer value2) {
+            addCriterion("establish_step between", value1, value2, "establishStep");
+            return (Criteria) this;
+        }
+
+        public Criteria andEstablishStepNotBetween(Integer value1, Integer value2) {
+            addCriterion("establish_step not between", value1, value2, "establishStep");
+            return (Criteria) this;
+        }
+
         public Criteria andDeleteFlagIsNull() {
             addCriterion("delete_flag is null");
             return (Criteria) this;

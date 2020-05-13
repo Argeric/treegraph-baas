@@ -48,6 +48,11 @@ public class ConsortiumPo implements Serializable {
     private Integer status;
 
     /**
+     * 创建联盟步骤，0 - 创建联盟（一般不存在步骤） 1 - 创建联盟管理员 2 - 创建区块链 3 - 添加节点 4 - 等待部署
+     */
+    private Integer establishStep;
+
+    /**
      * 0-未删除，1-已删除
      */
     private Integer deleteFlag;
@@ -75,7 +80,7 @@ public class ConsortiumPo implements Serializable {
     /**
      * 联盟头像
      */
-    private byte[] icon;
+    private byte[] avatar;
 
     private static final long serialVersionUID = 1L;
 }

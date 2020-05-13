@@ -12,4 +12,12 @@ import org.treegraph.baas.core.domain.ConsortiumPo;
 public interface ConsortiumDas {
 
 	List<ConsortiumPo> findByIds(List<String> ids);
+	
+	int createConsortium(ConsortiumPo cons);
+	
+	List<ConsortiumPo> findByName(String name);
+	
+	List<ConsortiumPo> findAll();
+	
+	int modifyCons(ConsortiumPo cons);
 }

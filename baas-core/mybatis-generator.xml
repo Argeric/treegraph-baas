@@ -61,9 +61,6 @@
         <table tableName="certificate_request" domainObjectName="CertificateRequestPo">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
-        <table tableName="consortium" domainObjectName="ConsortiumPo">
-        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table>
         <table tableName="node" domainObjectName="NodePo">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
@@ -88,10 +85,11 @@
         <table tableName="user_login_log" domainObjectName="UserLoginLogPo">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
-        -->
-        
         <table tableName="user_oper_log" domainObjectName="UserOperLogPo">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>        
+        -->
+        <table tableName="consortium" domainObjectName="ConsortiumPo">
         </table>        
 
     </context>

@@ -2,7 +2,7 @@ package org.treegraph.baas.api.dto.response;
 
 import java.util.List;
 
-import org.treegraph.baas.api.RolePermissionInfo;
+import org.treegraph.baas.api.dto.RolePermissionInfo;
 
 import lombok.Builder;
 import lombok.Data;

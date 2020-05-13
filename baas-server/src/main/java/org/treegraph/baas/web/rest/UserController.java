@@ -18,14 +18,12 @@ import org.treegraph.baas.core.util.LogSkip;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author zt
  * @date May 11, 2020
  * @version 1.0
  */
-@Slf4j
 @RestController
 @Api(tags = "UserController", description = "用户管理")
 @RequestMapping("/user")
@@ -37,16 +35,16 @@ public class UserController {
 	@ApiOperation("用户列表")
 	@LogSkip
 	public BaasResult<ListUserResponse> listUser(@RequestBody ListUserRequest listUserRequest) {
-
-		return null;
+		ListUserResponse data = userService.listUser(listUserRequest);
+		return BaasResult.success(data);
 	}
 	
 	@PostMapping("/query")
 	@ApiOperation("查询列表")
 	@LogSkip
 	public BaasResult<QueryUserResponse> queryUser(@RequestBody QueryUserRequest queryUserRequest) {
-
-		return null;
+		QueryUserResponse data = userService.queryUser(queryUserRequest);
+		return BaasResult.success(data);
 	}
 
 	@PostMapping("/create")
@@ -61,23 +59,23 @@ public class UserController {
 	@ApiOperation("修改用户")
 	@LogSkip
 	public BaasResult<Void> modifyUser(@RequestBody ModifyUserRequest modifyUserRequest) {
-
-		return null;
+		userService.modifyUser(modifyUserRequest);
+		return BaasResult.success();
 	}
 	
 	@PostMapping("/pwd/modify")
 	@ApiOperation("修改密码")
 	@LogSkip
 	public BaasResult<Void> modifyPwd(@RequestBody ModifyPwdRequest modifyPwdRequest) {
-
-		return null;
+		userService.modifyPwd(modifyPwdRequest);
+		return BaasResult.success();
 	}
 	
 	@PostMapping("/del")
 	@ApiOperation("删除用户")
 	@LogSkip
 	public BaasResult<Void> deleteUser(@RequestBody DeleteUserRequest deleteUserRequest) {
-
-		return null;
+		userService.deleteUser(deleteUserRequest);
+		return BaasResult.success();
 	}
 }

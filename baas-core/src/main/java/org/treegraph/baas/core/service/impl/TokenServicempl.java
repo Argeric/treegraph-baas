@@ -10,6 +10,7 @@ import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.das.UserTokenDas;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserTokenPo;
+import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.TokenService;
 import org.treegraph.baas.core.util.JwtUtils;
 
@@ -33,8 +34,7 @@ public class TokenServicempl implements TokenService {
     	String userId = JwtUtils.getUid(paraMap);
     	String account = JwtUtils.getAccount(paraMap);
     	String name = JwtUtils.getName(paraMap);
-    	UserInfoPo user = userInfoDas.findById(userId);
-    	Assert.notNull(user, "用户不存在["+userId+"]");
+    	UserInfoPo user = userInfoDas.findById(userId).orElseThrow(() -> new AlertException("用户不存在["+userId+"]"));
     	Assert.isTrue(user.getAccount().equals(account), "用户账户不一致["+userId+"]");
     	Assert.isTrue(user.getName().equals(name), "用户姓名不一致["+userId+"]");
     	

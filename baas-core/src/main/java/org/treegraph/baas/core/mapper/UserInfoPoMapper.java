@@ -1,6 +1,8 @@
 package org.treegraph.baas.core.mapper;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserInfoPoExample;
@@ -18,7 +20,7 @@ public interface UserInfoPoMapper {
 
     List<UserInfoPo> selectByExample(UserInfoPoExample example);
 
-    UserInfoPo selectByPrimaryKey(String id);
+    Optional<UserInfoPo> selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") UserInfoPo record, @Param("example") UserInfoPoExample example);
 

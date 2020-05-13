@@ -1,8 +1,10 @@
 package org.treegraph.baas.api;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class UserInfo {
 	
 	private String id;

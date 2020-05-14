@@ -2,10 +2,6 @@ package org.treegraph.baas.core.enums;
 
 import lombok.Getter;
 
-/**
- * @author Jia
- * @date 2017/8/2
- */
 public class LogEnum {
 
 

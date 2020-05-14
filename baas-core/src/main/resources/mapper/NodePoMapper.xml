@@ -312,4 +312,39 @@
       update_by = #{updateBy,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+ 
+  <insert id="bulkInsert" parameterType="org.treegraph.baas.core.domain.NodePo">
+      INSERT INTO node(
+          id, 
+          consortium_id, 
+          blockchain_id, 
+          node_ip, 
+          node_port, 
+          organization_name, 
+          `status`, 
+	      delete_flag,  
+	      create_time, 
+	      update_time, 
+	      create_by, 
+	      update_by
+      )
+      VALUES
+      <foreach collection="list" item="item" separator=",">
+          (
+          	 (#{id,jdbcType=VARCHAR}, 
+             (#{consortiumId,jdbcType=VARCHAR}, 
+             #{blockchainId,jdbcType=VARCHAR}, 
+             #{nodeIp,jdbcType=VARCHAR}, 
+      		 #{nodePort,jdbcType=INTEGER}, 
+      		 #{organizationName,
+      		 jdbcType=VARCHAR}, 
+      		 #{status,jdbcType=INTEGER}, 
+             #{deleteFlag,jdbcType=INTEGER}, 
+             #{createTime,jdbcType=TIMESTAMP}, 
+             #{updateTime,jdbcType=TIMESTAMP}, 
+             #{createBy,jdbcType=VARCHAR}, 
+             #{updateBy,jdbcType=VARCHAR})
+          )
+      </foreach>
+  </insert>    
 </mapper>

@@ -82,7 +82,7 @@ public class ConsortiumController {
 		return BaasResult.success();
 	}
 	
-	@PostMapping("/script/query")
+	@PostMapping("/script/download")
 	@ApiOperation("获取部署脚本")
 	public BaasResult<Void> getDeployScript(@RequestBody GetDeployScriptRequest getDeployScriptRequest) {
 		consortiumService.getDeployScript(getDeployScriptRequest);

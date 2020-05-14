@@ -12,6 +12,7 @@ import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.ConsAdminInfo;
 import org.treegraph.baas.api.dto.ConsInfo;
+import org.treegraph.baas.api.dto.NodeInfo;
 import org.treegraph.baas.api.dto.request.AddNodesRequest;
 import org.treegraph.baas.api.dto.request.CreateBlockchainRequest;
 import org.treegraph.baas.api.dto.request.CreateConsAdminRequest;
@@ -23,14 +24,20 @@ import org.treegraph.baas.api.dto.request.ModifyConsRequest;
 import org.treegraph.baas.api.dto.response.ListConsResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
+import org.treegraph.baas.core.das.BlockchainDas;
 import org.treegraph.baas.core.das.ConsortiumDas;
+import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.das.RoleDas;
 import org.treegraph.baas.core.das.UserInfoDas;
+import org.treegraph.baas.core.domain.BlockChainPo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
+import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserRolePo;
+import org.treegraph.baas.core.enums.ChainEnum;
 import org.treegraph.baas.core.enums.ConsortiumEnum;
+import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.service.ConsortiumService;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
@@ -54,6 +61,10 @@ public class ConsortiumServicempl implements ConsortiumService {
     private UserInfoDas userInfoDas;
     
     private RoleDas roleDas;
+    
+    private BlockchainDas blockchainDas;
+    
+    private NodeDas nodeDas;
     
     private BuildService buildService;
    
@@ -112,7 +123,6 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		return consortiumDas.createConsortium(cons) > 0;
 	}
-	
 
 	public boolean modifyCons(ModifyConsRequest req) {
 		
@@ -145,7 +155,6 @@ public class ConsortiumServicempl implements ConsortiumService {
 		return consortiumDas.modifyCons(cons) > 0;
 	}
 	
-
 	public boolean createConsAdmin(CreateConsAdminRequest req) {
 		
 		RoleInfoBo roleBo = null;
@@ -183,19 +192,64 @@ public class ConsortiumServicempl implements ConsortiumService {
 		return userInfoDas.createConsAdmin(roleBo != null ? roleBo.getRole() : null,
 				roleBo != null ? roleBo.getRolePermissionList() : null, users, userRoles);
 	}
-	
 
-	public boolean createBlockchain( CreateBlockchainRequest createBlockchainRequest) {
-		return false;
-	}
-	
-
-	public boolean addNodes( AddNodesRequest addNodesRequest) {
-		return false;
-	}
-	
-
-	public void getDeployScript(GetDeployScriptRequest getDeployScriptRequest) {
+	public boolean createBlockchain(CreateBlockchainRequest req) {
 		
+		List<BlockChainPo> blockchains = blockchainDas.findByConsId(req.getConsId());
+		Assert.isTrue(CollectionUtils.isEmpty(blockchains), "联盟["+req.getConsId()+"]下已创建区块链");
+		
+		LocalDateTime now = LocalDateTime.now();
+		String operUser = WebHelper.getUserId();
+		BlockChainPo blockchain = BlockChainPo.builder()
+				.id(UUID.randomUUID().toString())
+				.blockchainName(req.getName())
+				.consortiumId(req.getConsId())
+				.alarmEmail(req.getAlertEmail())
+				.consensusAlgorithm(req.getConsensus() == null ? ChainEnum.Consensus.TREE_GRAPH.getCode()
+						: ChainEnum.Consensus.getByName(req.getConsensus()).getCode())
+				.encryptAlgorithm(req.getAlgorithm() == null ? ChainEnum.ALGORITHM.TREE_GRAPH.getCode()
+						: ChainEnum.ALGORITHM.getByName(req.getConsensus()).getCode())
+				.deleteFlag(IntTypeEnum.FALSE.getValue())
+				.createTime(now)
+				.createBy(operUser)
+				.updateTime(now)
+				.updateBy(operUser)
+				.build();
+		
+		return blockchainDas.createBlockchain(blockchain);
+	}
+
+	public boolean addNodes(AddNodesRequest req) {
+		
+		List<NodePo> dbNodes = nodeDas.findByConsIdAndChainId(req.getConsId(), req.getBlockchainId());
+		Set<String> dbIpPortSet = dbNodes.stream().map(item -> item.getNodeIp() + ":" + item.getNodePort())
+				.collect(Collectors.toSet());
+		List<NodeInfo> reqNodes = req.getNodes();
+		reqNodes.stream().forEach(item -> {
+			String ipPortPair = item.getIp() + ":" +item.getPort();
+			Assert.isTrue(!dbIpPortSet.contains(ipPortPair), "节点不可重复添加["+ipPortPair+"]");
+		});
+		
+		LocalDateTime now = LocalDateTime.now();
+		String operUser = WebHelper.getUserId();
+		List<NodePo> nodes = reqNodes.stream().map(item -> NodePo.builder()
+				.id(UUID.randomUUID().toString())
+				.consortiumId(req.getConsId())
+				.blockchainId(req.getBlockchainId())
+				.organizationName(item.getOrg())
+				.nodeIp(item.getIp())
+				.nodePort(Integer.parseInt(item.getPort()))
+				.status(NodeEnum.Status.STOP.getCode())
+				.deleteFlag(IntTypeEnum.FALSE.getValue())
+				.createTime(now)
+				.createBy(operUser)
+				.updateTime(now)
+				.updateBy(operUser)
+				.build()).collect(Collectors.toList());
+		
+		return nodeDas.addNodes(nodes);
+	}
+
+	public void getDeployScript(GetDeployScriptRequest req) {
 	}
 }

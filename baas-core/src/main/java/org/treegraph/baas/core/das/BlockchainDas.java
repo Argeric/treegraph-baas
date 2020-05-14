@@ -1,0 +1,12 @@
+package org.treegraph.baas.core.das;
+
+import java.util.List;
+
+import org.treegraph.baas.core.domain.BlockChainPo;
+
+public interface BlockchainDas {
+	
+	List<BlockChainPo> findByConsId(String consId);
+	
+	boolean createBlockchain(BlockChainPo blockchain);
+}

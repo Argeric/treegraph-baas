@@ -12,5 +12,4 @@ public interface RoleService {
 	boolean createRole(CreateRoleRequest req);
 	
 	boolean modifyRole(ModifyRoleRequest req);
-	
 }

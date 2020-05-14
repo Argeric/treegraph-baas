@@ -3,10 +3,8 @@ package org.treegraph.baas.core.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
@@ -27,9 +25,9 @@ import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserRolePo;
-import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.UserService;
+import org.treegraph.baas.core.service.bo.UserInfoBo;
 import org.treegraph.baas.core.util.CollectionUtils;
 import org.treegraph.baas.core.util.DateTimeUtils;
 
@@ -37,53 +35,29 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 
+import lombok.AllArgsConstructor;
+
 @Validated
 @Service
+@AllArgsConstructor
 public class UserServicempl implements UserService {
 
-	@Autowired
     private UserInfoDas userInfoDas;
     
-	@Autowired
     private RoleDas roleDas;
 	
-	@Autowired
     private PasswordService passwordService;
+	
+    private BuildService buildService;
     
 	public boolean createUser(CreateUserRequest req) {
 
 		List<RoleInfo> roles = validateRoleIds(req.getRoles());
-		
-		LocalDateTime now = LocalDateTime.now();
-		String operUser = WebHelper.getUserId();
-		UserInfoPo user = UserInfoPo.builder()
-				.id(UUID.randomUUID().toString())
-				.account(req.getAccount())
-				.name(req.getName())
-				.phone(req.getPhone())
-				.password(passwordService.bcryptEncoder(req.getPwd()))
-				.email(null)
-				.status(UserEnum.Status.AVAILABLE.getCode())
-				.deleteFlag(IntTypeEnum.FALSE.getValue())
-				.createTime(now)
-				.createBy(operUser)
-				.updateTime(now)
-				.updateBy(operUser)
-				.build();
-		
 		List<String> roleIds = Lists.newArrayList();
 		roles.stream().forEach(item -> roleIds.addAll(item.getRoleIds()));
-		List<UserRolePo> userRoles = roleIds.stream().map(item -> UserRolePo.builder()
-				.userId(user.getId())
-				.roleId(item)
-				.deleteFlag(IntTypeEnum.FALSE.getValue())
-				.createTime(now)
-				.createBy(operUser)
-				.updateTime(now)
-				.updateBy(operUser)
-				.build()).collect(Collectors.toList());
-		
-		return userInfoDas.createUser(user, userRoles);
+		UserInfoBo user = buildService.buildUser(req.getAccount(), req.getName(), req.getPhone(), null, req.getPwd(), roleIds);
+
+		return userInfoDas.createUser(user.getUser(), user.getUserRoles());
 	}
 	
 	public boolean deleteUser(DeleteUserRequest req){

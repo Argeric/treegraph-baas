@@ -312,4 +312,35 @@
       update_by = #{updateBy,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="bulkInsert" parameterType="org.treegraph.baas.core.domain.UserInfoPo">
+      INSERT INTO user_role(
+          account, 
+          email, 
+          `name`, 
+          phone,
+          `password`,
+          `status`,
+          delete_flag,
+      	  create_time, 
+      	  create_by, 
+      	  update_time, 
+          update_by
+      )
+      VALUES
+      <foreach collection="list" item="item" separator=",">
+          (
+              #{item.account},
+              #{item.email},
+              #{item.name},
+              #{item.phone},
+              #{item.password},
+              #{item.status},
+              #{item.deleteFlag},
+              #{item.createTime},
+              #{item.createBy},
+              #{item.updateTime},
+              #{item.updateBy}
+          )
+      </foreach>
+  </insert>      
 </mapper>

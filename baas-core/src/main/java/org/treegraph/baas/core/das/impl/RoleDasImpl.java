@@ -13,6 +13,7 @@ import org.treegraph.baas.core.domain.RolePermissionPoExample;
 import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.RolePoExample;
 import org.treegraph.baas.core.domain.RolePoExample.Criteria;
+import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.domain.UserRolePoExample;
 import org.treegraph.baas.core.mapper.RolePermissionPoMapper;
@@ -39,6 +40,13 @@ public class RoleDasImpl implements RoleDas {
     	return userRolePoMapper.selectByExample(example);
     }
     
+   public List<UserRolePo> findUserRolesByUserIds(List<String> userIds){
+    	
+    	UserRolePoExample example = new UserRolePoExample();
+    	example.createCriteria().andUserIdIn(userIds);
+    	return userRolePoMapper.selectByExample(example);
+    }
+    
     public List<RolePo> findRolesByIds(List<String> roleIds){
     	
     	RolePoExample example = new RolePoExample();
@@ -56,7 +64,6 @@ public class RoleDasImpl implements RoleDas {
     	boolean succFlag =  Boolean.TRUE;
     	succFlag = succFlag && rolePoMapper.insert(role) > 0;
     	if(CollectionUtils.isNotEmpty(permissionList)) {
-    		permissionList.stream().forEach(item -> item.setRoleId(role.getId()));
     		succFlag = succFlag && rolePermissionPoMapper.bulkInsert(permissionList) == permissionList.size();
     	}
     	return succFlag;
@@ -108,6 +115,14 @@ public class RoleDasImpl implements RoleDas {
     	return rolePoMapper.selectByExample(example);
     }
     
+    public Optional<RolePo> findConsAdminRole(String consId) {
+    	
+    	RolePoExample example = new RolePoExample();
+    	example.createCriteria().andConsortiumIdEqualTo(consId).andRoleTypeEqualTo(UserEnum.Role.CONSORTIUM_ADMIN.getCode());
+    	List<RolePo> roles = rolePoMapper.selectByExample(example);
+    	
+    	return Optional.ofNullable(CollectionUtils.isEmpty(roles) ? null : roles.get(0));
+    }
     
     
     

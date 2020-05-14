@@ -8,11 +8,15 @@ import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.UserInfoDas;
+import org.treegraph.baas.core.domain.RolePermissionPo;
+import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserInfoPoExample;
 import org.treegraph.baas.core.domain.UserInfoPoExample.Criteria;
 import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.domain.UserRolePoExample;
+import org.treegraph.baas.core.mapper.RolePermissionPoMapper;
+import org.treegraph.baas.core.mapper.RolePoMapper;
 import org.treegraph.baas.core.mapper.UserInfoPoMapper;
 import org.treegraph.baas.core.mapper.UserRolePoMapper;
 import org.treegraph.baas.core.util.CollectionUtils;
@@ -26,6 +30,10 @@ public class UserInfoDasImpl implements UserInfoDas{
     private UserInfoPoMapper userInfoPoMapper;
     
     private UserRolePoMapper userRolePoMapper;
+    
+    private RolePoMapper rolePoMapper;
+    
+    private RolePermissionPoMapper rolePermissionPoMapper;
     
     public Optional<UserInfoPo> findById(String userId) {
         return userInfoPoMapper.selectByPrimaryKey(userId);
@@ -99,4 +107,25 @@ public class UserInfoDasImpl implements UserInfoDas{
     	
     	return succFlag;
     }
+    
+	public boolean createConsAdmin(RolePo role, List<RolePermissionPo> permissionList, List<UserInfoPo> users,
+			List<UserRolePo> userRoles) {
+		
+    	boolean succFlag =  Boolean.TRUE;
+    	if(role != null) {
+    		succFlag = succFlag && rolePoMapper.insert(role) > 0;
+    	}
+    	if(CollectionUtils.isNotEmpty(permissionList)) {
+    		succFlag = succFlag && rolePermissionPoMapper.bulkInsert(permissionList) == permissionList.size();
+    	}
+    	if(CollectionUtils.isNotEmpty(users)) {
+    		succFlag = succFlag && userInfoPoMapper.bulkInsert(users) == users.size();
+    	}
+    	if(CollectionUtils.isNotEmpty(userRoles)) {
+    		succFlag = succFlag && userRolePoMapper.bulkInsert(userRoles) == userRoles.size();
+    	}
+    	
+    	
+    	return succFlag;
+	}
 }

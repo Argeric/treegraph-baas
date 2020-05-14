@@ -12,6 +12,8 @@ public interface RoleDas {
 	
 	List<UserRolePo> findUserRolesByUserId(String userId);
 	
+	List<UserRolePo> findUserRolesByUserIds(List<String> userIds);
+	
 	Optional<RolePo> findRolesById(String roleId);
 	
 	List<RolePo> findRolesByIds(List<String> roleIds);
@@ -23,4 +25,6 @@ public interface RoleDas {
 	List<RolePo> findRoles(String consId, String roleName);
 	
 	List<RolePo> findRolesByConsIds(List<String> consIds);
+	
+	Optional<RolePo> findConsAdminRole(String consId);
 }

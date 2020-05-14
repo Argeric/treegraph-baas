@@ -10,6 +10,8 @@ import lombok.Data;
 @Data
 public class ConsAdminInfo {
 	
+	private String userId;
+	
 	private String account;
 
 	private String name;

@@ -2,12 +2,15 @@ package org.treegraph.baas.core.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
+import org.treegraph.baas.api.dto.ConsAdminInfo;
 import org.treegraph.baas.api.dto.ConsInfo;
 import org.treegraph.baas.api.dto.request.AddNodesRequest;
 import org.treegraph.baas.api.dto.request.CreateBlockchainRequest;
@@ -21,14 +24,23 @@ import org.treegraph.baas.api.dto.response.ListConsResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.ConsortiumDas;
+import org.treegraph.baas.core.das.RoleDas;
+import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.domain.ConsortiumPo;
+import org.treegraph.baas.core.domain.RolePo;
+import org.treegraph.baas.core.domain.UserInfoPo;
+import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.enums.ConsortiumEnum;
+import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.service.ConsortiumService;
+import org.treegraph.baas.core.service.bo.RoleInfoBo;
+import org.treegraph.baas.core.service.bo.UserInfoBo;
 import org.treegraph.baas.core.util.CollectionUtils;
 import org.treegraph.baas.core.util.DateTimeUtils;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 
 import lombok.AllArgsConstructor;
 
@@ -39,6 +51,11 @@ public class ConsortiumServicempl implements ConsortiumService {
     
     private ConsortiumDas consortiumDas;
     
+    private UserInfoDas userInfoDas;
+    
+    private RoleDas roleDas;
+    
+    private BuildService buildService;
    
 	public ListConsResponse listCons(ListConsRequest req) {
 		
@@ -129,8 +146,42 @@ public class ConsortiumServicempl implements ConsortiumService {
 	}
 	
 
-	public boolean createConsAdmin( CreateConsAdminRequest createConsAdminRequest) {
-		return false;
+	public boolean createConsAdmin(CreateConsAdminRequest req) {
+		
+		RoleInfoBo roleBo = null;
+		Optional<RolePo> roleOp = roleDas.findConsAdminRole(req.getConsId());
+		if (!roleOp.isPresent()) {
+			List<String> reqPermissions = UserEnum.PermissionPoint.getForConsAdmin().stream()
+					.map(item -> item.getCode()).collect(Collectors.toList());
+			roleBo = buildService.buildRole(UserEnum.Role.CONSORTIUM_ADMIN.getCode(),
+					UserEnum.Role.CONSORTIUM_ADMIN.getDesc(), req.getConsId(), reqPermissions);
+		}
+		
+		String roleId = roleBo != null ? roleBo.getRole().getId() : roleOp.get().getId();
+		List<UserInfoBo> userBos = req.getUsers().stream().filter(item -> item.getUserId() == null).map(
+					item -> buildService.buildUser(item.getAccount(),
+						item.getName(), item.getPhone(), item.getEmail(), 
+						item.getPwd(), Lists.newArrayList(roleId))
+				).collect(Collectors.toList());
+		
+		List<UserInfoPo> users = Lists.newArrayList();
+		List<UserRolePo> userRoles = Lists.newArrayList();
+		if(CollectionUtils.isNotEmpty(userBos)) {
+			userBos.stream().forEach(item -> {
+				users.add(item.getUser());
+				userRoles.addAll(item.getUserRoles());
+			});
+		}
+		
+		List<String> existUserIds = req.getUsers().stream().filter(item -> item.getUserId() != null)
+				.map(ConsAdminInfo::getUserId).collect(Collectors.toList());
+		List<UserRolePo> dbUserRoles = roleDas.findUserRolesByUserIds(existUserIds);
+		Set<String> dbUserIdSet = dbUserRoles.stream().map(UserRolePo::getUserId).collect(Collectors.toSet());
+		existUserIds.stream().filter(item -> !dbUserIdSet.contains(item))
+				.forEach(item -> userRoles.add(buildService.buildUserRole(item, roleId)));
+		
+		return userInfoDas.createConsAdmin(roleBo != null ? roleBo.getRole() : null,
+				roleBo != null ? roleBo.getRolePermissionList() : null, users, userRoles);
 	}
 	
 

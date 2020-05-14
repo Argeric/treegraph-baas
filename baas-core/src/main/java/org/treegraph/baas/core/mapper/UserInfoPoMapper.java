@@ -29,4 +29,6 @@ public interface UserInfoPoMapper {
     int updateByPrimaryKeySelective(UserInfoPo record);
 
     int updateByPrimaryKey(UserInfoPo record);
+    
+    int bulkInsert(List<UserInfoPo> list);
 }

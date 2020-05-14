@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -27,6 +26,7 @@ import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.RoleService;
+import org.treegraph.baas.core.service.bo.RoleInfoBo;
 import org.treegraph.baas.core.util.CollectionUtils;
 import org.treegraph.baas.core.util.DateTimeUtils;
 
@@ -46,6 +46,8 @@ public class RoleServicempl implements RoleService {
     private PermissionDas permissionDas;
     
     private ConsortiumDas consortiumDas;
+    
+    private BuildService buildService;
     
     public ListRoleResponse listRole(ListRoleRequest req) {
     	
@@ -87,42 +89,13 @@ public class RoleServicempl implements RoleService {
     	
     	return resp;
     }
-    
-   	public boolean createRole(CreateRoleRequest req) {
-   		
-   		List<RolePermissionPo> rolePermissionList = Lists.newArrayList();
-   		List<String> reqPermissions = req.getPermissions();
-   		LocalDateTime now = LocalDateTime.now();
-		if(CollectionUtils.isNotEmpty(reqPermissions)) {
-			Map<String, Long> permissionCodeIdMap = validatePermissions(reqPermissions);
-   			reqPermissions.stream().forEach(item -> {
-   				RolePermissionPo rolePerm = RolePermissionPo.builder()
-   						.permissionId(permissionCodeIdMap.get(item))
-   						.deleteFlag(IntTypeEnum.FALSE.getValue())
-   						.createTime(now)
-   						.createBy(WebHelper.getUserId())
-   						.updateTime(now)
-   						.updateBy(WebHelper.getUserId())
-   						.build();
-   				rolePermissionList .add(rolePerm);
-   			});
-   		}
-   		
-   		RolePo role = RolePo.builder()
-   				.id(UUID.randomUUID().toString())
-   				.consortiumId(req.getConsId())
-   				.roleName(req.getName())
-   				.roleType(UserEnum.Role.COMMON_USER.getCode())
-   				.deleteFlag(IntTypeEnum.FALSE.getValue())
-				.createTime(now)
-				.createBy(WebHelper.getUserId())
-				.updateTime(now)
-				.updateBy(WebHelper.getUserId())
-   				.build();
-   		
-   		return roleDas.createRole(role, rolePermissionList);
-   	}
-   	
+
+	public boolean createRole(CreateRoleRequest req) {
+		RoleInfoBo roleInfoBo = buildService.buildRole(UserEnum.Role.COMMON_USER.getCode(), req.getName(), req.getConsId(),
+				req.getPermissions());
+		return roleDas.createRole(roleInfoBo.getRole(), roleInfoBo.getRolePermissionList());
+	}
+
    	public boolean modifyRole(ModifyRoleRequest req) {
    		
    		String roleId = req.getId();

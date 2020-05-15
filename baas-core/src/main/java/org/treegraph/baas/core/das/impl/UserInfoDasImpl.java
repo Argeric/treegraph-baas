@@ -38,6 +38,12 @@ public class UserInfoDasImpl implements UserInfoDas{
     public Optional<UserInfoPo> findById(String userId) {
         return userInfoPoMapper.selectByPrimaryKey(userId);
     }
+    
+    public List<UserInfoPo> findByIds(List<String> userIds) {
+    	UserInfoPoExample example = new UserInfoPoExample();
+    	example.createCriteria().andIdIn(userIds);
+        return userInfoPoMapper.selectByExample(example);
+    }
 
     public UserInfoPo findByAccountNo(String accountNo) {
 

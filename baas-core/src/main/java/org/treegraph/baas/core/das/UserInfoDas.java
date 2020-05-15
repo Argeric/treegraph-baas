@@ -11,6 +11,8 @@ import org.treegraph.baas.core.domain.UserRolePo;
 public interface UserInfoDas {
 
 	Optional<UserInfoPo> findById(String userId);
+	
+	List<UserInfoPo> findByIds(List<String> userIds);
 
 	UserInfoPo findByAccountNo(String accountNo);
 

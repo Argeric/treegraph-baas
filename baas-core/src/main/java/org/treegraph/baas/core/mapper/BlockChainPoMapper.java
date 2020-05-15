@@ -1,6 +1,8 @@
 package org.treegraph.baas.core.mapper;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.BlockChainPo;
 import org.treegraph.baas.core.domain.BlockChainPoExample;
@@ -18,7 +20,7 @@ public interface BlockChainPoMapper {
 
     List<BlockChainPo> selectByExample(BlockChainPoExample example);
 
-    BlockChainPo selectByPrimaryKey(String id);
+    Optional<BlockChainPo> selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") BlockChainPo record, @Param("example") BlockChainPoExample example);
 

@@ -5,13 +5,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.treegraph.baas.api.dto.BaasResult;
+import org.treegraph.baas.api.dto.ListRequest;
 import org.treegraph.baas.api.dto.request.AddNodesRequest;
 import org.treegraph.baas.api.dto.request.CreateBlockchainRequest;
 import org.treegraph.baas.api.dto.request.CreateConsAdminRequest;
 import org.treegraph.baas.api.dto.request.CreateConsRequest;
 import org.treegraph.baas.api.dto.request.DeleteConsRequest;
-import org.treegraph.baas.api.dto.request.GetDeployScriptRequest;
-import org.treegraph.baas.api.dto.request.ListConsRequest;
+import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
 import org.treegraph.baas.api.dto.request.ModifyConsRequest;
 import org.treegraph.baas.api.dto.response.ListConsResponse;
 import org.treegraph.baas.core.service.ConsortiumService;
@@ -35,7 +35,7 @@ public class ConsortiumController {
 
 	@PostMapping("/list")
 	@ApiOperation("联盟列表")
-	public BaasResult<ListConsResponse> listCons(@RequestBody ListConsRequest listConsRequest) {
+	public BaasResult<ListConsResponse> listCons(@RequestBody ListRequest listConsRequest) {
 		ListConsResponse data = consortiumService.listCons(listConsRequest);
 		return BaasResult.success(data);
 	}
@@ -84,7 +84,7 @@ public class ConsortiumController {
 	
 	@PostMapping("/script/download")
 	@ApiOperation("获取部署脚本")
-	public BaasResult<Void> getDeployScript(@RequestBody GetDeployScriptRequest getDeployScriptRequest) {
+	public BaasResult<Void> getDeployScript(@RequestBody DownloadDeployScriptRequest getDeployScriptRequest) {
 		consortiumService.getDeployScript(getDeployScriptRequest);
 		return BaasResult.success();
 	}

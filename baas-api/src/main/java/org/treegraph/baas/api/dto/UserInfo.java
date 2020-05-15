@@ -15,6 +15,8 @@ public class UserInfo {
 	
 	private String phone;
 	
+	private String email;
+	
 	private String createTime;
 
 	private int status;

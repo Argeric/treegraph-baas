@@ -83,6 +83,8 @@ public class RoleServicempl implements RoleService {
     	}
     	
     	ListRoleResponse resp = ListRoleResponse.builder()
+    			.current(req.getCurrent())
+				.pageSize(req.getPageSize())
     			.total(pageInfo.getTotal())
     			.list(rolePermInfos)
     			.build();

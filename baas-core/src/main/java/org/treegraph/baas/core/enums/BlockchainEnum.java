@@ -1,10 +1,41 @@
 package org.treegraph.baas.core.enums;
 
+import org.treegraph.baas.core.enums.ConsortiumEnum.Status;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 
-public class ChainEnum {
+public class BlockchainEnum {
+	
+	/**
+     * 区块链状态
+     */
+    @Getter
+    @AllArgsConstructor
+    public enum Status {
+
+        TO_DEPLOY(0, "待部署"),
+
+        RUNING(1, "运行中"),
+  
+        STOPED(2, "已停止"),
+
+        ;
+
+        private Integer code;
+
+        private String desc;
+
+        public static Status getByCode(int code) {
+            for (Status s : Status.values()) {
+                if (s.code.equals(code)) {
+                    return s;
+                }
+            }
+            return null;
+        }
+    }
 
     /**
      * 共识策略

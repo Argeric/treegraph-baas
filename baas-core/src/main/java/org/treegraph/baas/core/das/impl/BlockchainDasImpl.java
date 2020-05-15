@@ -1,6 +1,7 @@
 package org.treegraph.baas.core.das.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
@@ -34,4 +35,16 @@ public class BlockchainDasImpl implements BlockchainDas{
 		return blockChainPoMapper.selectByExample(example);
     }
     
+    public Optional<BlockChainPo> findById(String id) {
+    	return blockChainPoMapper.selectByPrimaryKey(id);
+    }
+    
+	public List<BlockChainPo> findAll() {
+		BlockChainPoExample example = new BlockChainPoExample();
+		return blockChainPoMapper.selectByExample(example);
+	}
+	
+	public boolean modify(BlockChainPo blockChainPo) {
+		return blockChainPoMapper.updateByPrimaryKeySelective(blockChainPo) > 0;
+	}
 }

@@ -27,6 +27,12 @@ public class NodeDasImpl implements NodeDas{
 		return nodePoMapper.selectByExample(example);
 	}
     
+    public List<NodePo> findByChainIds(List<String> chainIds) {
+		NodePoExample example = new NodePoExample();
+		example.createCriteria().andBlockchainIdIn(chainIds);
+		return nodePoMapper.selectByExample(example);
+	}
+    
     public boolean addNodes(List<NodePo> list) {
     	return nodePoMapper.bulkInsert(list) == list.size();
     }

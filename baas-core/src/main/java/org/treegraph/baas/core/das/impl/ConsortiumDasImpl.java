@@ -1,6 +1,7 @@
 package org.treegraph.baas.core.das.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.core.das.ConsortiumDas;
@@ -44,5 +45,9 @@ public class ConsortiumDasImpl implements ConsortiumDas{
 	
 	public int modifyCons(ConsortiumPo cons){
 		return consortiumPoMapper.updateByPrimaryKeySelective(cons);
+	}
+	
+	public Optional<ConsortiumPo> findById(String id) {
+		return consortiumPoMapper.selectByPrimaryKey(id);
 	}
 }

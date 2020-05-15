@@ -12,14 +12,14 @@ import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.ConsAdminInfo;
 import org.treegraph.baas.api.dto.ConsInfo;
+import org.treegraph.baas.api.dto.ListRequest;
 import org.treegraph.baas.api.dto.NodeInfo;
 import org.treegraph.baas.api.dto.request.AddNodesRequest;
 import org.treegraph.baas.api.dto.request.CreateBlockchainRequest;
 import org.treegraph.baas.api.dto.request.CreateConsAdminRequest;
 import org.treegraph.baas.api.dto.request.CreateConsRequest;
 import org.treegraph.baas.api.dto.request.DeleteConsRequest;
-import org.treegraph.baas.api.dto.request.GetDeployScriptRequest;
-import org.treegraph.baas.api.dto.request.ListConsRequest;
+import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
 import org.treegraph.baas.api.dto.request.ModifyConsRequest;
 import org.treegraph.baas.api.dto.response.ListConsResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
@@ -35,7 +35,7 @@ import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserRolePo;
-import org.treegraph.baas.core.enums.ChainEnum;
+import org.treegraph.baas.core.enums.BlockchainEnum;
 import org.treegraph.baas.core.enums.ConsortiumEnum;
 import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.enums.UserEnum;
@@ -68,7 +68,7 @@ public class ConsortiumServicempl implements ConsortiumService {
     
     private BuildService buildService;
    
-	public ListConsResponse listCons(ListConsRequest req) {
+	public ListConsResponse listCons(ListRequest req) {
 		
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
 		List<ConsortiumPo> consList = consortiumDas.findAll();
@@ -90,6 +90,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.build()).collect(Collectors.toList());
 		
 		ListConsResponse listConsResponse = ListConsResponse.builder()
+				.current(req.getCurrent())
+				.pageSize(req.getPageSize())
 				.total(pageInfo.getTotal())
 				.list(userInfoList)
 				.build();
@@ -205,10 +207,10 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.blockchainName(req.getName())
 				.consortiumId(req.getConsId())
 				.alarmEmail(req.getAlertEmail())
-				.consensusAlgorithm(req.getConsensus() == null ? ChainEnum.Consensus.TREE_GRAPH.getCode()
-						: ChainEnum.Consensus.getByName(req.getConsensus()).getCode())
-				.encryptAlgorithm(req.getAlgorithm() == null ? ChainEnum.ALGORITHM.TREE_GRAPH.getCode()
-						: ChainEnum.ALGORITHM.getByName(req.getConsensus()).getCode())
+				.consensusAlgorithm(req.getConsensus() == null ? BlockchainEnum.Consensus.TREE_GRAPH.getCode()
+						: BlockchainEnum.Consensus.getByName(req.getConsensus()).getCode())
+				.encryptAlgorithm(req.getAlgorithm() == null ? BlockchainEnum.ALGORITHM.TREE_GRAPH.getCode()
+						: BlockchainEnum.ALGORITHM.getByName(req.getConsensus()).getCode())
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
 				.createTime(now)
 				.createBy(operUser)
@@ -250,6 +252,6 @@ public class ConsortiumServicempl implements ConsortiumService {
 		return nodeDas.addNodes(nodes);
 	}
 
-	public void getDeployScript(GetDeployScriptRequest req) {
+	public void getDeployScript(DownloadDeployScriptRequest req) {
 	}
 }

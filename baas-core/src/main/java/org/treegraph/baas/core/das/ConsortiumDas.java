@@ -1,6 +1,7 @@
 package org.treegraph.baas.core.das;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.treegraph.baas.core.domain.ConsortiumPo;
 
@@ -20,4 +21,6 @@ public interface ConsortiumDas {
 	List<ConsortiumPo> findAll();
 	
 	int modifyCons(ConsortiumPo cons);
+	
+	Optional<ConsortiumPo> findById(String id);
 }

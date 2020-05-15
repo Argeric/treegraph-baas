@@ -1,6 +1,8 @@
 package org.treegraph.baas.core.mapper;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.ConsortiumPoExample;
@@ -20,7 +22,7 @@ public interface ConsortiumPoMapper {
 
     List<ConsortiumPo> selectByExample(ConsortiumPoExample example);
 
-    ConsortiumPo selectByPrimaryKey(String id);
+    Optional<ConsortiumPo> selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") ConsortiumPo record, @Param("example") ConsortiumPoExample example);
 

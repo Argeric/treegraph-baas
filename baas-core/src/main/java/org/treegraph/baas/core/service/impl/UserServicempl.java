@@ -98,12 +98,15 @@ public class UserServicempl implements UserService {
 						.account(item.getAccount())
 						.name(item.getName())
 						.phone(item.getPhone())
+						.email(item.getEmail())
 						.status(item.getStatus())
 						.createTime(DateTimeUtils.formatTime(item.getCreateTime(),DateTimeUtils.FORMAT_yyyyMMddHHmmss))
 						.build())
 				.collect(Collectors.toList());
 		
 		ListUserResponse listUserResponse = ListUserResponse.builder()
+				.current(req.getCurrent())
+				.pageSize(req.getPageSize())
 				.total(pageInfo.getTotal())
 				.list(users)
 				.build();

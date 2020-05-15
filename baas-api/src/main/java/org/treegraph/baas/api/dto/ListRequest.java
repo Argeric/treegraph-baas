@@ -1,9 +1,9 @@
-package org.treegraph.baas.api.dto.request;
+package org.treegraph.baas.api.dto;
 
 import lombok.Data;
 
 @Data
-public class ListConsRequest {
+public class ListRequest {
 	
 	private int current;
 

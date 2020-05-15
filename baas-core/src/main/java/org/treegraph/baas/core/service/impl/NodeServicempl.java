@@ -71,6 +71,8 @@ public class NodeServicempl implements NodeService {
     			.build()).collect(Collectors.toList());
     	
     	return ListNodeResponse.builder()
+    			.current(req.getCurrent())
+				.pageSize(req.getPageSize())
     			.total(pageInfo.getTotal())
     			.list(nodeInfos)
     			.build();

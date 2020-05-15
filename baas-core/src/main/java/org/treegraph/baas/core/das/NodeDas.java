@@ -8,6 +8,8 @@ public interface NodeDas {
 	
 	List<NodePo> findByConsIdAndChainId(String consId, String chainId);
 	
+	List<NodePo> findByChainIds(List<String> chainIds);
+	
 	boolean addNodes(List<NodePo> list);
 	
 	NodePo findById(String id);

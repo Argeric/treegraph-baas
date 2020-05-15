@@ -3,7 +3,7 @@ package org.treegraph.baas.api.dto.request;
 import lombok.Data;
 
 @Data
-public class GetDeployScriptRequest {
+public class ListCertRequest {
 	
-	private String consId;
+	private String blockchainId	;
 }

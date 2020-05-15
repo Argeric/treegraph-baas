@@ -9,4 +9,10 @@ public interface NodeDas {
 	List<NodePo> findByConsIdAndChainId(String consId, String chainId);
 	
 	boolean addNodes(List<NodePo> list);
+	
+	NodePo findById(String id);
+	
+	List<NodePo> findNodes(String consId, String ip);
+	
+	boolean modifyNode(NodePo node);
 }

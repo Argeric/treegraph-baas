@@ -9,4 +9,6 @@ public interface BlockchainDas {
 	List<BlockChainPo> findByConsId(String consId);
 	
 	boolean createBlockchain(BlockChainPo blockchain);
+	
+	List<BlockChainPo> findByIds(List<String> ids);
 }

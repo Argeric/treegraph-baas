@@ -1,5 +1,6 @@
 package org.treegraph.baas.api.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -8,11 +9,26 @@ import lombok.Data;
  * @version 1.0
  */
 @Data
+@Builder
 public class NodeInfo {
+	
+	private String id;
 
 	private String ip;
 	
 	private String port;
 	
 	private String org;
+	
+	private String consId;
+	
+	private String consName;
+	
+	private String blockchainId;
+	
+	private String blockchainName;
+	
+	private String createTime;
+	
+	private Integer status;
 }

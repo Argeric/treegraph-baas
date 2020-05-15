@@ -48,8 +48,8 @@ public class NodeEnum {
             return null;
         }
 
-        public static boolean isRuning(int status) {
-            return RUNING.getCode() == status;
+        public static boolean isRuningOrDeploying(int status) {
+            return RUNING.getCode() == status || DEPLOYING.getCode() == status;
         }
     }
 

@@ -28,4 +28,10 @@ public class BlockchainDasImpl implements BlockchainDas{
     	return blockChainPoMapper.insert(blockchain) > 0;
     }
     
+    public List<BlockChainPo> findByIds(List<String> ids){
+    	BlockChainPoExample example = new BlockChainPoExample();
+		example.createCriteria().andIdIn(ids);
+		return blockChainPoMapper.selectByExample(example);
+    }
+    
 }

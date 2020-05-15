@@ -5,11 +5,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.treegraph.baas.api.dto.BaasResult;
-import org.treegraph.baas.api.dto.request.CreateConsRequest;
-import org.treegraph.baas.api.dto.request.DeleteConsRequest;
-import org.treegraph.baas.api.dto.request.ListConsRequest;
-import org.treegraph.baas.api.dto.request.ModifyConsRequest;
-import org.treegraph.baas.api.dto.response.ListConsResponse;
+import org.treegraph.baas.api.dto.NodeInfo;
+import org.treegraph.baas.api.dto.request.ListNodeRequest;
+import org.treegraph.baas.api.dto.request.ModifyNodeRequest;
+import org.treegraph.baas.api.dto.request.QueryNodeDetailRequest;
+import org.treegraph.baas.api.dto.request.QueryNodeLogRequest;
+import org.treegraph.baas.api.dto.response.ListNodeResponse;
+import org.treegraph.baas.core.service.NodeService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -26,33 +28,33 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class NodeController {
 
-	//private NodeService nodeService;
+	private NodeService nodeService;
 
 	@PostMapping("/list")
 	@ApiOperation("节点列表")
-	public BaasResult<ListConsResponse> listNodes(@RequestBody ListConsRequest listConsRequest) {
-		
-		return BaasResult.success();
+	public BaasResult<ListNodeResponse> listNodes(@RequestBody ListNodeRequest listNodeRequest) {
+		ListNodeResponse nodes = nodeService.listNodes(listNodeRequest);
+		return BaasResult.success(nodes);
 	}
 	
 	@PostMapping("/detail")
 	@ApiOperation("节点详情")
-	public BaasResult<Void> getNodeDetail(@RequestBody CreateConsRequest createConsRequest) {
-		
-		return BaasResult.success();
+	public BaasResult<NodeInfo> getNodeDetail(@RequestBody QueryNodeDetailRequest queryNodeDetailRequest) {
+		NodeInfo nodeInfo = nodeService.getNodeDetail(queryNodeDetailRequest);
+		return BaasResult.success(nodeInfo);
 	}
 	
 	@PostMapping("/log")
 	@ApiOperation("节点日志")
-	public BaasResult<Void> getNodeLog(@RequestBody ModifyConsRequest modifyConsRequest) {
-		
-		return BaasResult.success();
+	public BaasResult<String> getNodeLog(@RequestBody QueryNodeLogRequest queryNodeLogRequest) {
+		String log = nodeService.getNodeLog(queryNodeLogRequest);
+		return BaasResult.success(log);
 	}
 	
 	@PostMapping("/modify")
 	@ApiOperation("修改节点")
-	public BaasResult<Void> modifyNode(@RequestBody DeleteConsRequest deleteConsRequest) {
-		
+	public BaasResult<Void> modifyNode(@RequestBody ModifyNodeRequest modifyNodeRequest) {
+		nodeService.modifyNode(modifyNodeRequest);
 		return BaasResult.success();
 	}
 	

@@ -3,6 +3,7 @@ package org.treegraph.baas.core.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -17,7 +18,6 @@ import org.treegraph.baas.api.dto.request.ModifyPwdRequest;
 import org.treegraph.baas.api.dto.request.ModifyUserRequest;
 import org.treegraph.baas.api.dto.request.QueryUserRequest;
 import org.treegraph.baas.api.dto.response.ListUserResponse;
-import org.treegraph.baas.api.dto.response.QueryUserResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.RoleDas;
@@ -52,18 +52,24 @@ public class UserServicempl implements UserService {
     
 	public boolean createUser(CreateUserRequest req) {
 
+		Optional<UserInfoPo> userInfoOp = userInfoDas.findByAccountNo(req.getAccount());
+		Assert.isTrue(!userInfoOp.isPresent(), "用户账号不可重复[" + req.getAccount() + "]");
+
 		List<RoleInfo> roles = validateRoleIds(req.getRoles());
 		List<String> roleIds = Lists.newArrayList();
 		roles.stream().forEach(item -> roleIds.addAll(item.getRoleIds()));
-		UserInfoBo user = buildService.buildUser(req.getAccount(), req.getName(), req.getPhone(), null, req.getPwd(), roleIds);
+		UserInfoBo user = buildService.buildUser(req.getAccount(), req.getName(), req.getPhone(), req.getEmail(), req.getPwd(),
+				roleIds);
 
 		return userInfoDas.createUser(user.getUser(), user.getUserRoles());
 	}
 	
 	public boolean deleteUser(DeleteUserRequest req){
 		String userId = req.getId();
+		UserInfoPo userInfo = userInfoDas.findById(userId).orElseThrow(() -> new AlertException("user.not.found"));
 		UserInfoPo user = UserInfoPo.builder()
 				.id(userId)
+				.account("_0_"+userInfo.getAccount()+"_0_")
 				.deleteFlag(IntTypeEnum.TRUE.getValue())
 				.updateTime(LocalDateTime.now())
 				.updateBy(WebHelper.getUserId())
@@ -71,24 +77,22 @@ public class UserServicempl implements UserService {
 		return userInfoDas.delUser(user);
 	}
 	
-	public QueryUserResponse queryUser(QueryUserRequest req) {
+	public List<UserInfo> queryUser(QueryUserRequest req) {
 		
 		String account = req.getAccount();
-		UserInfoPo user = userInfoDas.findByAccountNo(account);
+		List<UserInfoPo> users = userInfoDas.findByAccountNoInLike(account);
 		
-		QueryUserResponse queryUserResponse = QueryUserResponse.builder()
-				.id(user.getId())
-				.account(account)
-				.name(user.getName())
-				.build();
-		
-		return queryUserResponse;
+		List<UserInfo> userList = users.stream().map(item -> UserInfo.builder().id(item.getId())
+				.account(item.getAccount())
+				.name(item.getName()).build()).collect(Collectors.toList());
+
+		return userList;
 	}
 	
 	public ListUserResponse listUser(ListUserRequest req){
 		
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
-		List<UserInfoPo> userList = userInfoDas.findUsers(req.getAccount(), req.getName(), req.getEmail(),
+		List<UserInfoPo> userList = userInfoDas.findAll(req.getAccount(), req.getName(), req.getEmail(),
 				req.getPhone());
 		PageInfo<UserInfoPo> pageInfo = new PageInfo<>(userList);
 		

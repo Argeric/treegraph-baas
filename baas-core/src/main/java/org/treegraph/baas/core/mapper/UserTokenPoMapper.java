@@ -1,6 +1,8 @@
 package org.treegraph.baas.core.mapper;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.UserTokenPo;
 import org.treegraph.baas.core.domain.UserTokenPoExample;
@@ -18,7 +20,7 @@ public interface UserTokenPoMapper {
 
     List<UserTokenPo> selectByExample(UserTokenPoExample example);
 
-    UserTokenPo selectByPrimaryKey(Long id);
+    Optional<UserTokenPo> selectByPrimaryKey(Long id);
 
     int updateByExampleSelective(@Param("record") UserTokenPo record, @Param("example") UserTokenPoExample example);
 

@@ -21,6 +21,7 @@ import org.treegraph.baas.core.mapper.UserInfoPoMapper;
 import org.treegraph.baas.core.mapper.UserRolePoMapper;
 import org.treegraph.baas.core.util.CollectionUtils;
 
+import io.micrometer.core.instrument.util.StringUtils;
 import lombok.AllArgsConstructor;
 
 @Service
@@ -45,16 +46,43 @@ public class UserInfoDasImpl implements UserInfoDas{
         return userInfoPoMapper.selectByExample(example);
     }
 
-    public UserInfoPo findByAccountNo(String accountNo) {
-
+    public Optional<UserInfoPo> findByAccountNo(String accountNo) {
     	UserInfoPoExample userInfoPoExample = new UserInfoPoExample();
-    	userInfoPoExample.createCriteria().andAccountEqualTo(accountNo);
+    	userInfoPoExample.createCriteria().andAccountEqualTo(accountNo)
+    	.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
         List<UserInfoPo> users = userInfoPoMapper.selectByExample(userInfoPoExample);
-    	return users.size() > 0 ? users.get(0) : null;
+    	return Optional.ofNullable(users.size() > 0 ? users.get(0) : null);
+    }
+    
+    public List<UserInfoPo> findByAccountNoInLike(String accountNo) {
+    	UserInfoPoExample userInfoPoExample = new UserInfoPoExample();
+    	userInfoPoExample.createCriteria().andAccountLike("%"+accountNo+"%")
+    	.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+        return userInfoPoMapper.selectByExample(userInfoPoExample);
+    }
+    
+    public List<UserInfoPo> findAll(String account, String name, String email, String phone) {
+    	
+    	UserInfoPoExample userInfoPoExample = new UserInfoPoExample();
+    	Criteria criteria = userInfoPoExample.createCriteria();
+    	if(StringUtils.isNotBlank(account)) {
+    		criteria.andAccountEqualTo(account);
+    	}
+    	if(StringUtils.isNotBlank(name)) {
+    		criteria.andNameEqualTo(name);
+    	}
+    	if(StringUtils.isNotBlank(email)) {
+    		criteria.andEmailEqualTo(email);
+    	}
+    	if(StringUtils.isNotBlank(phone)) {
+    		criteria.andPhoneEqualTo(phone);
+    	}
+    	criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    	
+    	return userInfoPoMapper.selectByExample(userInfoPoExample);
     }
     
     public boolean createUser(UserInfoPo user, List<UserRolePo> userRoles) {
-    	
     	boolean succFlag = Boolean.TRUE;
     	
     	succFlag = succFlag && userInfoPoMapper.insert(user) > 0;
@@ -69,32 +97,11 @@ public class UserInfoDasImpl implements UserInfoDas{
     	return userInfoPoMapper.updateByPrimaryKeySelective(user) > 0;
     }
     
-    public List<UserInfoPo> findUsers(String account, String name, String email, String phone) {
-    	
-    	UserInfoPoExample userInfoPoExample = new UserInfoPoExample();
-    	Criteria criteria = userInfoPoExample.createCriteria();
-    	if(account != null) {
-    		criteria.andAccountEqualTo(account);
-    	}
-    	if(name != null) {
-    		criteria.andNameEqualTo(name);
-    	}
-    	if(email != null) {
-    		criteria.andEmailEqualTo(email);
-    	}
-    	if(phone != null) {
-    		criteria.andPhoneEqualTo(phone);
-    	}
-    	
-    	return userInfoPoMapper.selectByExample(userInfoPoExample);
-    }
-    
     public boolean updateUser(UserInfoPo user) {
     	return userInfoPoMapper.updateByPrimaryKeySelective(user) > 0;
     }
     
     public boolean modifyUser(String uesrId, UserInfoPo user, List<String> toDelRoleIds, List<UserRolePo> toAddUserRoles) {
-    	
     	boolean succFlag = Boolean.TRUE;
     	
     	if(user != null) {
@@ -130,7 +137,6 @@ public class UserInfoDasImpl implements UserInfoDas{
     	if(CollectionUtils.isNotEmpty(userRoles)) {
     		succFlag = succFlag && userRolePoMapper.bulkInsert(userRoles) == userRoles.size();
     	}
-    	
     	
     	return succFlag;
 	}

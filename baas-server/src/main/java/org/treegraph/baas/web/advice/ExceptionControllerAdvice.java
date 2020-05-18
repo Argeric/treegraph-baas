@@ -32,6 +32,22 @@ public class ExceptionControllerAdvice {
         log.error("[userId={}]handleAlertException {}", WebHelper.getUserId(), e.getMessage(), e);
         return BaasResult.fail(e.getCode(), e.getMessage());
     }
+    
+    @ResponseBody
+    @ExceptionHandler(IllegalArgumentException.class)
+    public BaasResult<Void> handleIllegalArgumentException(IllegalArgumentException e) {
+    	
+        log.error("[userId={}]handleIllegalArgumentException {}", WebHelper.getUserId(), e.getMessage(), e);
+        return BaasResult.fail(9999, e.getMessage());
+    }
+    
+    @ResponseBody
+    @ExceptionHandler(IllegalStateException.class)
+    public BaasResult<Void> handleIllegalStateException(IllegalStateException e) {
+    	
+        log.error("[userId={}]handleIllegalStateException {}", WebHelper.getUserId(), e.getMessage(), e);
+        return BaasResult.fail(9999, e.getMessage());
+    }
 
     @ResponseBody
     @ExceptionHandler(Exception.class)

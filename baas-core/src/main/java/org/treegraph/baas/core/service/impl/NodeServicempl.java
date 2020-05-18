@@ -22,6 +22,7 @@ import org.treegraph.baas.core.domain.BlockChainPo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.NodeEnum;
+import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.NodeService;
 import org.treegraph.baas.core.util.DateTimeUtils;
 
@@ -44,7 +45,7 @@ public class NodeServicempl implements NodeService {
 	public ListNodeResponse listNodes(ListNodeRequest req) {
 		
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
-    	List<NodePo> nodes = nodeDas.findNodes(req.getConsId(), req.getIp());
+    	List<NodePo> nodes = nodeDas.findAll(req.getConsId(), req.getIp());
     	PageInfo<NodePo> pageInfo = new PageInfo<NodePo>(nodes);
     	
     	List<NodePo> nodeList = pageInfo.getList();
@@ -79,7 +80,7 @@ public class NodeServicempl implements NodeService {
 	}
 	
 	public NodeInfo getNodeDetail(QueryNodeDetailRequest req) {
-		NodePo nodePo = nodeDas.findById(req.getId());
+		NodePo nodePo = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
 		return NodeInfo.builder()
 				.ip(nodePo.getNodeIp())
 				.port(nodePo.getNodePort()+"")
@@ -94,7 +95,7 @@ public class NodeServicempl implements NodeService {
 	}
 
 	public boolean modifyNode(ModifyNodeRequest req) {
-		NodePo node = nodeDas.findById(req.getId());
+		NodePo node = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
 		Assert.isTrue(NodeEnum.Status.isRuningOrDeploying(node.getStatus()),
 				"节点在运行中或部署中，不可修改[" + req.getIp() + ":" + req.getPort() + "]");
 		

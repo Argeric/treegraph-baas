@@ -1,10 +1,13 @@
 package org.treegraph.baas.web.rest;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.treegraph.baas.api.dto.BaasResult;
+import org.treegraph.baas.api.dto.UserInfo;
 import org.treegraph.baas.api.dto.request.CreateUserRequest;
 import org.treegraph.baas.api.dto.request.DeleteUserRequest;
 import org.treegraph.baas.api.dto.request.ListUserRequest;
@@ -12,7 +15,6 @@ import org.treegraph.baas.api.dto.request.ModifyPwdRequest;
 import org.treegraph.baas.api.dto.request.ModifyUserRequest;
 import org.treegraph.baas.api.dto.request.QueryUserRequest;
 import org.treegraph.baas.api.dto.response.ListUserResponse;
-import org.treegraph.baas.api.dto.response.QueryUserResponse;
 import org.treegraph.baas.core.service.UserService;
 
 import io.swagger.annotations.Api;
@@ -40,9 +42,9 @@ public class UserController {
 	}
 	
 	@PostMapping("/query")
-	@ApiOperation("查询列表")
-	public BaasResult<QueryUserResponse> queryUser(@RequestBody QueryUserRequest queryUserRequest) {
-		QueryUserResponse data = userService.queryUser(queryUserRequest);
+	@ApiOperation("用户查询")
+	public BaasResult<List<UserInfo>> queryUser(@RequestBody QueryUserRequest queryUserRequest) {
+		List<UserInfo> data = userService.queryUser(queryUserRequest);
 		return BaasResult.success(data);
 	}
 

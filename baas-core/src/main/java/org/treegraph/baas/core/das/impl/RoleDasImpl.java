@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
@@ -33,34 +34,59 @@ public class RoleDasImpl implements RoleDas {
     
     private RolePermissionPoMapper rolePermissionPoMapper;
     
+    public Optional<RolePo> findById(String roleId){
+    	return rolePoMapper.selectByPrimaryKey(roleId);
+    }
+     
+     public List<RolePo> findByIds(List<String> roleIds){
+     	RolePoExample example = new RolePoExample();
+     	example.createCriteria().andIdIn(roleIds);
+     	return rolePoMapper.selectByExample(example);
+     }
+
+     public List<RolePo> findAll(String consId, String roleName){
+     	RolePoExample example = new RolePoExample();
+     	Criteria criteria = example.createCriteria();
+     	if(StringUtils.isNotBlank(consId)) {
+     		criteria.andConsortiumIdEqualTo(consId);
+     	}
+     	if(StringUtils.isNotBlank(roleName)) {
+     		criteria.andRoleNameEqualTo(roleName);
+     	}
+     	criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+     	return rolePoMapper.selectByExample(example);
+     }
+    
     public List<UserRolePo> findUserRolesByUserId(String userId){
-    	
     	UserRolePoExample example = new UserRolePoExample();
-    	example.createCriteria().andUserIdEqualTo(userId);
+    	example.createCriteria().andUserIdEqualTo(userId).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
     	return userRolePoMapper.selectByExample(example);
     }
     
    public List<UserRolePo> findUserRolesByUserIds(List<String> userIds){
-    	
     	UserRolePoExample example = new UserRolePoExample();
-    	example.createCriteria().andUserIdIn(userIds);
+    	example.createCriteria().andUserIdIn(userIds).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
     	return userRolePoMapper.selectByExample(example);
     }
     
-    public List<RolePo> findRolesByIds(List<String> roleIds){
-    	
+    public List<RolePo> findRolesByConsIds(List<String> consIds){
     	RolePoExample example = new RolePoExample();
-    	example.createCriteria().andIdIn(roleIds);
+		example.createCriteria().andConsortiumIdIn(consIds).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    	
     	return rolePoMapper.selectByExample(example);
     }
     
-    public Optional<RolePo> findRolesById(String roleId){
+    public Optional<RolePo> findConsAdminRole(String consId) {
+    	RolePoExample example = new RolePoExample();
+		example.createCriteria().andConsortiumIdEqualTo(consId)
+				.andRoleTypeEqualTo(UserEnum.Role.CONSORTIUM_ADMIN.getCode())
+				.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    	List<RolePo> roles = rolePoMapper.selectByExample(example);
     	
-    	return rolePoMapper.selectByPrimaryKey(roleId);
+    	return Optional.ofNullable(CollectionUtils.isEmpty(roles) ? null : roles.get(0));
     }
     
     public boolean createRole(RolePo role, List<RolePermissionPo> permissionList) {
-    	
     	boolean succFlag =  Boolean.TRUE;
     	succFlag = succFlag && rolePoMapper.insert(role) > 0;
     	if(CollectionUtils.isNotEmpty(permissionList)) {
@@ -70,7 +96,6 @@ public class RoleDasImpl implements RoleDas {
     }
     
     public boolean modifyRole(String roleId, RolePo role, List<Long> toDelPermIds, List<RolePermissionPo> toAddPerms) {
-   		
     	boolean succFlag =  Boolean.TRUE;
     	if(role != null) {
     		succFlag = succFlag && rolePoMapper.updateByPrimaryKeySelective(role) > 0;
@@ -93,70 +118,4 @@ public class RoleDasImpl implements RoleDas {
     	
     	return succFlag;
     }
-    
-    public List<RolePo> findRoles(String consId, String roleName){
-    	
-    	RolePoExample example = new RolePoExample();
-    	Criteria criteria = example.createCriteria();
-    	if(consId != null) {
-    		criteria.andConsortiumIdEqualTo(consId);
-    	}
-    	if(roleName != null) {
-    		criteria.andRoleNameEqualTo(roleName);
-    	}
-    	return rolePoMapper.selectByExample(example);
-    }
-    
-    public List<RolePo> findRolesByConsIds(List<String> consIds){
-    	
-    	RolePoExample example = new RolePoExample();
-    	example.createCriteria().andConsortiumIdIn(consIds);
-    	
-    	return rolePoMapper.selectByExample(example);
-    }
-    
-    public Optional<RolePo> findConsAdminRole(String consId) {
-    	
-    	RolePoExample example = new RolePoExample();
-    	example.createCriteria().andConsortiumIdEqualTo(consId).andRoleTypeEqualTo(UserEnum.Role.CONSORTIUM_ADMIN.getCode());
-    	List<RolePo> roles = rolePoMapper.selectByExample(example);
-    	
-    	return Optional.ofNullable(CollectionUtils.isEmpty(roles) ? null : roles.get(0));
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }

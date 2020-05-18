@@ -1,6 +1,7 @@
 package org.treegraph.baas.core.mapper;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.NodePo;
@@ -19,7 +20,7 @@ public interface NodePoMapper {
 
     List<NodePo> selectByExample(NodePoExample example);
 
-    NodePo selectByPrimaryKey(String id);
+    Optional<NodePo> selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") NodePo record, @Param("example") NodePoExample example);
 

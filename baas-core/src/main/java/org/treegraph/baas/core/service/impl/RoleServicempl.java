@@ -52,7 +52,7 @@ public class RoleServicempl implements RoleService {
     public ListRoleResponse listRole(ListRoleRequest req) {
     	
     	PageHelper.startPage(req.getCurrent(), req.getPageSize());
-    	List<RolePo> roles = roleDas.findRoles(req.getConsId(), req.getName());
+    	List<RolePo> roles = roleDas.findAll(req.getConsId(), req.getName());
     	PageInfo<RolePo> pageInfo = new PageInfo<RolePo>(roles);
     	
     	List<RolePo> roleList = pageInfo.getList();
@@ -63,7 +63,7 @@ public class RoleServicempl implements RoleService {
 			Map<String, String> consIdNameMap = cons.stream()
 					.collect(Collectors.toMap(ConsortiumPo::getId, ConsortiumPo::getName));
 	    	
-	    	List<PermissionPo> allPerms = permissionDas.findAllPermissions();
+	    	List<PermissionPo> allPerms = permissionDas.findAll();
 			Map<Long, String> allPermIdCodeMap = allPerms.stream()
 					.collect(Collectors.toMap(PermissionPo::getId, PermissionPo::getPermissionCode));
 	    	List<String> roleIds = roleList.stream().map(RolePo::getId).collect(Collectors.toList());
@@ -102,7 +102,7 @@ public class RoleServicempl implements RoleService {
    		
    		String roleId = req.getId();
    		String consId = req.getConsId();
-   		RolePo role = roleDas.findRolesById(roleId).orElseThrow(() -> new AlertException("role.not.found["+roleId+"]"));
+   		RolePo role = roleDas.findById(roleId).orElseThrow(() -> new AlertException("role.not.found["+roleId+"]"));
    		Assert.isTrue(role.getConsortiumId().equals(consId), "角色所属联盟不匹配["+roleId+"]["+consId+"]");
    		RolePo updateRole = null;
    		if(req.getName() != null && !req.getName().equals(role.getRoleName())) {
@@ -117,7 +117,7 @@ public class RoleServicempl implements RoleService {
    			Map<String, Long> permissionCodeIdMap = validatePermissions(reqPermissionCodes);
 	   		List<RolePermissionPo> dbRolePermissions = permissionDas.findRolePermissionsByRoleId(roleId);
 	   		List<Long> dbPermissionIds = dbRolePermissions.stream().map(RolePermissionPo::getPermissionId).collect(Collectors.toList());
-	   		List<PermissionPo> dbPermissions = permissionDas.findPermissionsByIds(dbPermissionIds);
+	   		List<PermissionPo> dbPermissions = permissionDas.findByIds(dbPermissionIds);
 	   		List<String> dbPermissionCodes = dbPermissions.stream().map(PermissionPo::getPermissionCode).collect(Collectors.toList());
 	   		
 	   		List<String> interset = Lists.newArrayList();
@@ -142,7 +142,7 @@ public class RoleServicempl implements RoleService {
    	}
 
 	private Map<String, Long> validatePermissions(List<String> reqPermissions) {
-		List<PermissionPo> permissions = permissionDas.findAllPermissions();
+		List<PermissionPo> permissions = permissionDas.findAll();
 		Set<String> permissionCodeSet = permissions.stream().map(PermissionPo::getPermissionCode)
 				.collect(Collectors.toSet());
 		reqPermissions.stream().forEach(item -> {

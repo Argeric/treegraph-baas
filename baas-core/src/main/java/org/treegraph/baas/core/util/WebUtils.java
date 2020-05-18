@@ -36,7 +36,7 @@ public class WebUtils extends org.springframework.web.util.WebUtils {
 		if (ip != null && ip.indexOf(":") >= 0) { // 判断是否为IPV6地址
 			ip = "127.0.0.1";
 		}
-		log.info("ip is :{}", ip);
+		//log.info("ip is :{}", ip);
 		Matcher matcher = Pattern
 				.compile("(25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)" + "(\\.(25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)){3}")
 				.matcher(ip);

@@ -18,15 +18,8 @@ public class BlockchainDasImpl implements BlockchainDas{
 	
     private BlockChainPoMapper blockChainPoMapper;
     
-	public List<BlockChainPo> findByConsId(String consId) {
-		BlockChainPoExample example = new BlockChainPoExample();
-		example.createCriteria().andConsortiumIdEqualTo(consId).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-		return blockChainPoMapper.selectByExample(example);
-	}
-  
-    public boolean createBlockchain(BlockChainPo blockchain) {
-    	
-    	return blockChainPoMapper.insert(blockchain) > 0;
+    public Optional<BlockChainPo> findById(String id) {
+    	return blockChainPoMapper.selectByPrimaryKey(id);
     }
     
     public List<BlockChainPo> findByIds(List<String> ids){
@@ -35,15 +28,22 @@ public class BlockchainDasImpl implements BlockchainDas{
 		return blockChainPoMapper.selectByExample(example);
     }
     
-    public Optional<BlockChainPo> findById(String id) {
-    	return blockChainPoMapper.selectByPrimaryKey(id);
-    }
-    
 	public List<BlockChainPo> findAll() {
 		BlockChainPoExample example = new BlockChainPoExample();
+		example.createCriteria().andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
 		return blockChainPoMapper.selectByExample(example);
 	}
-	
+    
+	public List<BlockChainPo> findByConsId(String consId) {
+		BlockChainPoExample example = new BlockChainPoExample();
+		example.createCriteria().andConsortiumIdEqualTo(consId).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		return blockChainPoMapper.selectByExample(example);
+	}
+
+    public boolean createBlockchain(BlockChainPo blockchain) {
+    	return blockChainPoMapper.insert(blockchain) > 0;
+    }
+
 	public boolean modify(BlockChainPo blockChainPo) {
 		return blockChainPoMapper.updateByPrimaryKeySelective(blockChainPo) > 0;
 	}

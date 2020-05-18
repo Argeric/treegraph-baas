@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.AuthInfo;
 import org.treegraph.baas.api.dto.response.LoginResponse;
@@ -25,6 +26,7 @@ import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.enums.LogEnum.Login;
+import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.service.LoginService;
 
@@ -59,7 +61,8 @@ public class LoginServicempl implements LoginService {
     @Override
     public LoginResponse login(String accountNo, String password, HttpServletRequest request) {
     	
-    	UserInfoPo user = userInfoDas.findByAccountNo(accountNo);
+		UserInfoPo user = userInfoDas.findByAccountNo(accountNo)
+				.orElseThrow(() -> new AlertException("user.not.found"));
     	Assert.notNull(user, "用户不存在");
         Assert.isTrue(UserEnum.Status.isAvailable(user.getStatus()), "用户已禁用");
         Assert.state(passwordService.matches(password, user.getPassword()), "密码错误");
@@ -95,10 +98,12 @@ public class LoginServicempl implements LoginService {
     private List<AuthInfo> getAuthInfos(UserInfoPo user) {
 
 		List<AuthInfo> authInfos = new ArrayList<>();
-
 		List<UserRolePo> userRoles = roleDas.findUserRolesByUserId(user.getId());
+		if(CollectionUtils.isEmpty(userRoles)) {
+			return authInfos;
+		}
 		List<String> roleIds = userRoles.stream().map(item -> item.getRoleId()).collect(Collectors.toList());
-		List<RolePo> roles = roleDas.findRolesByIds(roleIds);
+		List<RolePo> roles = roleDas.findByIds(roleIds);
 		Map<String, List<RolePo>> groupedRoleIds = roles.stream()
 				.collect(Collectors.groupingBy(RolePo::getConsortiumId));
 
@@ -115,7 +120,7 @@ public class LoginServicempl implements LoginService {
 					.findRolePermissionsByRoleIds(Lists.newArrayList(roleIdSet));
 			List<Long> permissionIds = rolePermissions.stream().map(RolePermissionPo::getPermissionId)
 					.collect(Collectors.toList());
-			List<PermissionPo> permissions = permissionDas.findPermissionsByIds(permissionIds);
+			List<PermissionPo> permissions = permissionDas.findByIds(permissionIds);
 			List<String> permissionCodes = permissions.stream().map(PermissionPo::getPermissionCode)
 					.collect(Collectors.toList());
 

@@ -1,6 +1,7 @@
 package org.treegraph.baas.core.mapper;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.UserRolePo;
@@ -19,7 +20,7 @@ public interface UserRolePoMapper {
 
     List<UserRolePo> selectByExample(UserRolePoExample example);
 
-    UserRolePo selectByPrimaryKey(Long id);
+    Optional<UserRolePo> selectByPrimaryKey(Long id);
 
     int updateByExampleSelective(@Param("record") UserRolePo record, @Param("example") UserRolePoExample example);
 

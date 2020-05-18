@@ -7,15 +7,15 @@ import org.treegraph.baas.core.domain.BlockChainPo;
 
 public interface BlockchainDas {
 	
-	List<BlockChainPo> findByConsId(String consId);
-	
-	boolean createBlockchain(BlockChainPo blockchain);
-	
 	List<BlockChainPo> findByIds(List<String> ids);
 	
 	Optional<BlockChainPo> findById(String id);
 	
 	List<BlockChainPo> findAll();
+	
+	List<BlockChainPo> findByConsId(String consId);
+	
+	boolean createBlockchain(BlockChainPo blockchain);
 	
 	boolean modify(BlockChainPo blockChainPo);
 }

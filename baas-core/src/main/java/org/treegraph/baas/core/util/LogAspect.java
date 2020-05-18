@@ -36,7 +36,7 @@ public class LogAspect {
     /**
      * @Description: 日志切点
      */
-	@Pointcut("execution(* org.treegraph.baas.web.rest..*.*(..)) || execution(* org.treegraph.baas.core.service.impl..*.*(..)) || execution(* org.treegraph.baas.core.dao.impl..*.*(..))")
+	@Pointcut("execution(* org.treegraph.baas.web.rest..*.*(..)) || execution(* org.treegraph.baas.core.service.impl..*.*(..)) || execution(* org.treegraph.baas.core.das.impl..*.*(..))")
     public void logPointCut() {
     }
 
@@ -67,11 +67,11 @@ public class LogAspect {
         try {
             result = joinPoint.proceed();
         } catch (Throwable e) {
-        	addOperLog(methodName, "req="+JSON.toJSONString(argArrays)+",resp=" + StringUtils.substring(e.getMessage(), 0, 100));
+        	addOperLog(methodName, JSON.toJSONString(argArrays), StringUtils.substring(e.getMessage(), 0, 100));
             log.error("[userId={}]{} resp:{},elapsed:{},err:", userId, methodName, JSON.toJSONString(result), stopWatch.getTime(), e);
             throw e;
         }
-        addOperLog(methodName, "req="+JSON.toJSONString(argArrays)+",resp=" + JSON.toJSONString(result));
+        addOperLog(methodName, JSON.toJSONString(argArrays), JSON.toJSONString(result));
         log.info("[userId={}]{} resp:{},elapsed:{}", userId, methodName, JSON.toJSONString(result), stopWatch.getTime());
         
         return result;
@@ -85,11 +85,13 @@ public class LogAspect {
 		return true;
 	}
 	
-	private void addOperLog(String method, String info) {
-		if (!method.endsWith("Controller") || WebHelper.getUserId() == null) {
+	private void addOperLog(String methodName, String req, String resp) {
+		String[] paras = StringUtils.split(methodName, ".");
+		if (!paras[0].endsWith("Controller") || WebHelper.getUserId() == null) {
 			return;
 		}
+		StringBuilder info = new StringBuilder("req=").append(req).append(",resp=").append(resp);
 		userOperLogDas.addOperLog(WebHelper.getUserId(), WebHelper.getUserName(), WebHelper.getUserIp(),
-				StringUtils.substringAfterLast(method, "."), info);
+				paras[1], info.toString());
 	}
 }

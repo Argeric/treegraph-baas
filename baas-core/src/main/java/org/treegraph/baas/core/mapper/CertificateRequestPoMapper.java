@@ -1,6 +1,8 @@
 package org.treegraph.baas.core.mapper;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.CertificateRequestPo;
 import org.treegraph.baas.core.domain.CertificateRequestPoExample;
@@ -18,7 +20,7 @@ public interface CertificateRequestPoMapper {
 
     List<CertificateRequestPo> selectByExample(CertificateRequestPoExample example);
 
-    CertificateRequestPo selectByPrimaryKey(Long id);
+    Optional<CertificateRequestPo> selectByPrimaryKey(Long id);
 
     int updateByExampleSelective(@Param("record") CertificateRequestPo record, @Param("example") CertificateRequestPoExample example);
 

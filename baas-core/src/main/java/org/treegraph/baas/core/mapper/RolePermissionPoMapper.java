@@ -1,6 +1,8 @@
 package org.treegraph.baas.core.mapper;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.RolePermissionPo;
 import org.treegraph.baas.core.domain.RolePermissionPoExample;
@@ -18,7 +20,7 @@ public interface RolePermissionPoMapper {
 
     List<RolePermissionPo> selectByExample(RolePermissionPoExample example);
 
-    RolePermissionPo selectByPrimaryKey(Long id);
+    Optional<RolePermissionPo> selectByPrimaryKey(Long id);
 
     int updateByExampleSelective(@Param("record") RolePermissionPo record, @Param("example") RolePermissionPoExample example);
 

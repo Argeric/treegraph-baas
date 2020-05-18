@@ -14,15 +14,15 @@ public interface RoleDas {
 	
 	List<UserRolePo> findUserRolesByUserIds(List<String> userIds);
 	
-	Optional<RolePo> findRolesById(String roleId);
+	Optional<RolePo> findById(String roleId);
 	
-	List<RolePo> findRolesByIds(List<String> roleIds);
+	List<RolePo> findByIds(List<String> roleIds);
 	
 	boolean createRole(RolePo role, List<RolePermissionPo> rolePermissionList);
 	
 	boolean modifyRole(String roleId, RolePo role, List<Long> toDelPermIds, List<RolePermissionPo> toAddPerms);
 	
-	List<RolePo> findRoles(String consId, String roleName);
+	List<RolePo> findAll(String consId, String roleName);
 	
 	List<RolePo> findRolesByConsIds(List<String> consIds);
 	

@@ -17,5 +17,7 @@ public class CreateUserRequest {
 	
 	private String phone;
 	
+	private String email;
+	
 	private List<RoleInfo> roles;
 }

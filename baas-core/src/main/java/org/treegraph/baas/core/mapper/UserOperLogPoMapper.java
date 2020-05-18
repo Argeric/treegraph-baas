@@ -1,6 +1,8 @@
 package org.treegraph.baas.core.mapper;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.UserOperLogPo;
 import org.treegraph.baas.core.domain.UserOperLogPoExample;
@@ -18,7 +20,7 @@ public interface UserOperLogPoMapper {
 
     List<UserOperLogPo> selectByExample(UserOperLogPoExample example);
 
-    UserOperLogPo selectByPrimaryKey(Long id);
+    Optional<UserOperLogPo> selectByPrimaryKey(Long id);
 
     int updateByExampleSelective(@Param("record") UserOperLogPo record, @Param("example") UserOperLogPoExample example);
 

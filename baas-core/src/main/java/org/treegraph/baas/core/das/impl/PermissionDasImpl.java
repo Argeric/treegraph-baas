@@ -2,12 +2,14 @@ package org.treegraph.baas.core.das.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.core.das.PermissionDas;
 import org.treegraph.baas.core.domain.PermissionPo;
 import org.treegraph.baas.core.domain.PermissionPoExample;
@@ -24,39 +26,43 @@ public class PermissionDasImpl implements PermissionDas {
 
 	@Autowired
 	private PermissionPoMapper permissionPoMapper;
-
+	
 	@Override
-	public List<RolePermissionPo> findRolePermissionsByRoleId(String roldId) {
-		RolePermissionPoExample example = new RolePermissionPoExample();
-		example.createCriteria().andRoleIdEqualTo(roldId);
-		return rolePermissionPoMapper.selectByExample(example);
+	public Optional<PermissionPo> findById(Long permissionId) {
+		return permissionPoMapper.selectByPrimaryKey(permissionId);
 	}
-
+	
 	@Override
-	public List<RolePermissionPo> findRolePermissionsByRoleIds(List<String> roldIds) {
-
-		RolePermissionPoExample example = new RolePermissionPoExample();
-		example.createCriteria().andRoleIdIn(roldIds);
-		return rolePermissionPoMapper.selectByExample(example);
-	}
-
-	@Override
-	public List<PermissionPo> findPermissionsByIds(List<Long> permissionIds) {
-
+	public List<PermissionPo> findByIds(List<Long> permissionIds) {
 		PermissionPoExample example = new PermissionPoExample();
 		example.createCriteria().andIdIn(permissionIds);
 		return permissionPoMapper.selectByExample(example);
 	}
 
 	@Override
-	public List<PermissionPo> findAllPermissions() {
+	public List<PermissionPo> findAll() {
 		PermissionPoExample example = new PermissionPoExample();
+		example.createCriteria().andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
 		return permissionPoMapper.selectByExample(example);
 	}
 
 	@Override
+	public List<RolePermissionPo> findRolePermissionsByRoleId(String roldId) {
+		RolePermissionPoExample example = new RolePermissionPoExample();
+		example.createCriteria().andRoleIdEqualTo(roldId).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		return rolePermissionPoMapper.selectByExample(example);
+	}
+
+	@Override
+	public List<RolePermissionPo> findRolePermissionsByRoleIds(List<String> roldIds) {
+		RolePermissionPoExample example = new RolePermissionPoExample();
+		example.createCriteria().andRoleIdIn(roldIds).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		return rolePermissionPoMapper.selectByExample(example);
+	}
+
+	@Override
 	public Map<String, Long> validatePermissions(List<String> reqPermissions) {
-		List<PermissionPo> permissions = this.findAllPermissions();
+		List<PermissionPo> permissions = this.findAll();
 		Set<String> permissionCodeSet = permissions.stream().map(PermissionPo::getPermissionCode)
 				.collect(Collectors.toSet());
 		reqPermissions.stream().forEach(item -> {

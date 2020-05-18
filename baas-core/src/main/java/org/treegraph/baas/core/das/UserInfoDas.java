@@ -14,13 +14,15 @@ public interface UserInfoDas {
 	
 	List<UserInfoPo> findByIds(List<String> userIds);
 
-	UserInfoPo findByAccountNo(String accountNo);
+	Optional<UserInfoPo> findByAccountNo(String accountNo);
+	
+	List<UserInfoPo> findByAccountNoInLike(String accountNo);
 
 	boolean createUser(UserInfoPo user, List<UserRolePo> userRoles);
 
 	boolean delUser(UserInfoPo user);
 
-	List<UserInfoPo> findUsers(String account, String name, String email, String phone);
+	List<UserInfoPo> findAll(String account, String name, String email, String phone);
 
 	boolean updateUser(UserInfoPo user);
 

@@ -11,6 +11,9 @@ import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.NodePoExample;
 import org.treegraph.baas.core.domain.NodePoExample.Criteria;
 import org.treegraph.baas.core.mapper.NodePoMapper;
+import org.treegraph.baas.core.util.CollectionUtils;
+
+import com.google.common.collect.Lists;
 
 import lombok.AllArgsConstructor;
 
@@ -46,6 +49,9 @@ public class NodeDasImpl implements NodeDas {
 	}
 
 	public List<NodePo> findByChainIds(List<String> chainIds) {
+		if(CollectionUtils.isEmpty(chainIds)) {
+			return Lists.newArrayList();
+		}
 		NodePoExample example = new NodePoExample();
 		example.createCriteria().andBlockchainIdIn(chainIds).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
 		return nodePoMapper.selectByExample(example);

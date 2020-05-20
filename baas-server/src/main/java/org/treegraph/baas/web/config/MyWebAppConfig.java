@@ -19,7 +19,7 @@ public class MyWebAppConfig /*extends WebMvcConfigurerAdapter*/ implements WebMv
         String[] clientTokenAuthUrls = new String[]{
                 "/user/**", "/treegraph/user/**",
                 "/role/**", "/treegraph/role/**",
-                "/consortium/**", "/treegraph/consortium/**",
+                "/cons/**", "/treegraph/cons/**",
                 "/blockchain/**", "/treegraph/blockchain/**",
                 "/node/**", "/treegraph/node/**"
         };

@@ -3,9 +3,12 @@ package org.treegraph.baas.core.das;
 import java.util.List;
 import java.util.Optional;
 
+import org.treegraph.baas.core.domain.InviteUserPo;
+import org.treegraph.baas.core.domain.InviteUserRolePo;
 import org.treegraph.baas.core.domain.RolePermissionPo;
 import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
+import org.treegraph.baas.core.domain.UserOrganizationPo;
 import org.treegraph.baas.core.domain.UserRolePo;
 
 public interface UserInfoDas {
@@ -14,11 +17,17 @@ public interface UserInfoDas {
 	
 	List<UserInfoPo> findByIds(List<String> userIds);
 
-	Optional<UserInfoPo> findByAccountNo(String accountNo);
+	Optional<UserInfoPo> findByAccount(String account);
 	
-	List<UserInfoPo> findByAccountNoInLike(String accountNo);
+	List<UserInfoPo> findByAccountLike(String account);
 
-	boolean createUser(UserInfoPo user, List<UserRolePo> userRoles);
+	boolean createUser(UserInfoPo user, List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs);
+	
+	boolean createUserRoles(List<UserRolePo> userRoles);
+	
+	boolean inviteUser(InviteUserPo inviteUser, List<InviteUserRolePo> inviteUserRoles);
+	
+	boolean updateInviteUserById(InviteUserPo inviteUser);
 
 	boolean delUser(UserInfoPo user);
 
@@ -26,8 +35,11 @@ public interface UserInfoDas {
 
 	boolean updateUser(UserInfoPo user);
 
-	boolean modifyUser(String uesrId, UserInfoPo user, List<String> toDelRoleIds, List<UserRolePo> toAddUserRoles);
+	boolean modifyUser(String uesrId, UserInfoPo user, List<Long> toDelUserRoleIds, List<UserRolePo> toAddUserRoles,
+			List<Long> toDelUserOrgIds, List<UserOrganizationPo> toAddUserOrgs);
 
 	boolean createConsAdmin(RolePo consAdminRole, List<RolePermissionPo> rolePermissions, List<UserInfoPo> users,
 			List<UserRolePo> userRoles);
+	
+	List<UserOrganizationPo> findUserOrgsByUserIds(List<String> userIds);
 }

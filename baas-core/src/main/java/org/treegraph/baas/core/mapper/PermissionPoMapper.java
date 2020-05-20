@@ -29,4 +29,6 @@ public interface PermissionPoMapper {
     int updateByPrimaryKeySelective(PermissionPo record);
 
     int updateByPrimaryKey(PermissionPo record);
+    
+    List<String> findPermissionCodeByUserId(String userId);
 }

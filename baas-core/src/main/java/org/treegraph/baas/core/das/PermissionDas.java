@@ -17,7 +17,9 @@ public interface PermissionDas {
 	
 	List<RolePermissionPo> findRolePermissionsByRoleId(String roldId);
 
-	List<RolePermissionPo> findRolePermissionsByRoleIds(List<String> roldIds);
+	List<RolePermissionPo> findRolePermissionsByRoleIds(List<String> roleIds);
 	
 	Map<String, Long> validatePermissions(List<String> reqPermissions);
+	
+	List<String> findPermissionCodeByUserId(String userId);
 }

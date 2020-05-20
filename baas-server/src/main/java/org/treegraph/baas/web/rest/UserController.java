@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.treegraph.baas.api.dto.BaasResult;
 import org.treegraph.baas.api.dto.UserInfo;
+import org.treegraph.baas.api.dto.request.AcceptInviteRequest;
 import org.treegraph.baas.api.dto.request.CreateUserRequest;
 import org.treegraph.baas.api.dto.request.DeleteUserRequest;
+import org.treegraph.baas.api.dto.request.InviteUserRequest;
 import org.treegraph.baas.api.dto.request.ListUserRequest;
 import org.treegraph.baas.api.dto.request.ModifyPwdRequest;
 import org.treegraph.baas.api.dto.request.ModifyUserRequest;
@@ -32,7 +34,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class UserController {
 
-	 private UserService userService;
+	private UserService userService;
 
 	@PostMapping("/list")
 	@ApiOperation("用户列表")
@@ -52,6 +54,20 @@ public class UserController {
 	@ApiOperation("创建用户")
 	public BaasResult<Void> createUser(@RequestBody CreateUserRequest createUserRequest) {
 		userService.createUser(createUserRequest);
+		return BaasResult.success();
+	}
+	
+	@PostMapping("/invite")
+	@ApiOperation("邀请用户")
+	public BaasResult<String> inviteUser(@RequestBody InviteUserRequest inviteUserRequest) {
+		String inviteToken = userService.inviteUser(inviteUserRequest);
+		return BaasResult.success(inviteToken);
+	}
+	
+	@PostMapping("/invite/accept")
+	@ApiOperation("邀请用户")
+	public BaasResult<Void> acceptInvite(@RequestBody AcceptInviteRequest acceptInviteRequest) {
+		userService.acceptInvite(acceptInviteRequest);
 		return BaasResult.success();
 	}
 	

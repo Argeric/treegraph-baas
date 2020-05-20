@@ -61,9 +61,8 @@ public class LoginServicempl implements LoginService {
     @Override
     public LoginResponse login(String accountNo, String password, HttpServletRequest request) {
     	
-		UserInfoPo user = userInfoDas.findByAccountNo(accountNo)
-				.orElseThrow(() -> new AlertException("user.not.found"));
-    	Assert.notNull(user, "用户不存在");
+		UserInfoPo user = userInfoDas.findByAccount(accountNo)
+				.orElseThrow(() -> new AlertException("用户不存在"));
         Assert.isTrue(UserEnum.Status.isAvailable(user.getStatus()), "用户已禁用");
         Assert.state(passwordService.matches(password, user.getPassword()), "密码错误");
         

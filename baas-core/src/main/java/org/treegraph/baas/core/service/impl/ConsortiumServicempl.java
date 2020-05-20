@@ -21,7 +21,9 @@ import org.treegraph.baas.api.dto.request.CreateConsRequest;
 import org.treegraph.baas.api.dto.request.DeleteConsRequest;
 import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
 import org.treegraph.baas.api.dto.request.ModifyConsRequest;
+import org.treegraph.baas.api.dto.request.QueryConsRequest;
 import org.treegraph.baas.api.dto.response.ListConsResponse;
+import org.treegraph.baas.api.dto.response.QueryConsResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.BlockchainDas;
@@ -69,20 +71,19 @@ public class ConsortiumServicempl implements ConsortiumService {
     private BuildService buildService;
    
 	public ListConsResponse listCons(ListRequest req) {
-		
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
-		List<ConsortiumPo> consList = consortiumDas.findAll();
+		List<ConsortiumPo> consList = consortiumDas.findAll(null);
 		PageInfo<ConsortiumPo> pageInfo = new PageInfo<>(consList);
 		
 		List<ConsortiumPo> conses = pageInfo.getList();
-		List<ConsInfo> userInfoList = conses.stream().map(item -> ConsInfo.builder()
+		List<ConsInfo> consInfoList = conses.stream().map(item -> ConsInfo.builder()
 				.id(item.getId())
 				.name(item.getName())
 				.remark(item.getDescription())
 				.contact(item.getContactName())
 				.phone(item.getContactPhone())
 				.email(item.getContactEmail())
-				.avatar(new String(item.getAvatar()))
+				.avatar(item.getAvatar() != null ? new String(item.getAvatar()) : null)
 				.createUser(item.getCreateBy())
 				.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
 				.status(item.getStatus())
@@ -93,13 +94,30 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.current(req.getCurrent())
 				.pageSize(req.getPageSize())
 				.total(pageInfo.getTotal())
-				.list(userInfoList)
+				.list(consInfoList)
 				.build();
 		
 		return listConsResponse;
 	}
 	
-	public boolean createCons(CreateConsRequest req) {
+	public QueryConsResponse queryCons(QueryConsRequest req) {
+		List<ConsortiumPo> consList = consortiumDas.findAll(req.getId());
+		List<ConsInfo> consInfoList = consList.stream().map(item -> ConsInfo.builder()
+				.id(item.getId())
+				.name(item.getName())
+				.status(item.getStatus())
+				.step(item.getEstablishStep())
+				.remark(item.getDescription())
+				.build()).collect(Collectors.toList());
+		
+		QueryConsResponse queryConsResponse = QueryConsResponse.builder()
+				.list(consInfoList)
+				.build();
+		
+		return queryConsResponse;
+	}
+	
+	public String createCons(CreateConsRequest req) {
 		
 		List<ConsortiumPo> consList = consortiumDas.findByName(req.getName());
 		Assert.isTrue(CollectionUtils.isEmpty(consList), "新创建联盟名称已被使用["+req.getName()+"]");
@@ -122,14 +140,16 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.updateTime(now)
 				.updateBy(oper)
 				.build();
+		consortiumDas.createConsortium(cons);
 		
-		return consortiumDas.createConsortium(cons) > 0;
+		return cons.getId();
 	}
 
 	public boolean modifyCons(ModifyConsRequest req) {
-		
 		List<ConsortiumPo> consList = consortiumDas.findByName(req.getName());
-		Assert.isTrue(CollectionUtils.isEmpty(consList), "新创建联盟名称已被使用["+req.getName()+"]");
+		List<ConsortiumPo> repeatNameConsList = consList.stream().filter(item -> !item.getId().equals(req.getId()))
+				.collect(Collectors.toList());
+		Assert.isTrue(CollectionUtils.isEmpty(repeatNameConsList), "新创建联盟名称已被使用["+req.getName()+"]");
 		
 		ConsortiumPo cons = ConsortiumPo.builder()
 				.id(req.getId())
@@ -158,7 +178,6 @@ public class ConsortiumServicempl implements ConsortiumService {
 	}
 	
 	public boolean createConsAdmin(CreateConsAdminRequest req) {
-		
 		RoleInfoBo roleBo = null;
 		Optional<RolePo> roleOp = roleDas.findConsAdminRole(req.getConsId());
 		if (!roleOp.isPresent()) {
@@ -186,10 +205,10 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		List<String> existUserIds = req.getUsers().stream().filter(item -> item.getUserId() != null)
 				.map(ConsAdminInfo::getUserId).collect(Collectors.toList());
-		List<UserRolePo> dbUserRoles = roleDas.findUserRolesByUserIds(existUserIds);
+		List<UserRolePo> dbUserRoles = roleDas.findUserRolesForConsAdmin(existUserIds, roleId);
 		Set<String> dbUserIdSet = dbUserRoles.stream().map(UserRolePo::getUserId).collect(Collectors.toSet());
 		existUserIds.stream().filter(item -> !dbUserIdSet.contains(item))
-				.forEach(item -> userRoles.add(buildService.buildUserRole(item, roleId)));
+				.forEach(item -> userRoles.addAll(buildService.buildUserRoles(item, Lists.newArrayList(roleId))));
 		
 		return userInfoDas.createConsAdmin(roleBo != null ? roleBo.getRole() : null,
 				roleBo != null ? roleBo.getRolePermissionList() : null, users, userRoles);

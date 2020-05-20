@@ -13,6 +13,7 @@ import org.treegraph.baas.api.dto.RolePermissionInfo;
 import org.treegraph.baas.api.dto.request.CreateRoleRequest;
 import org.treegraph.baas.api.dto.request.ListRoleRequest;
 import org.treegraph.baas.api.dto.request.ModifyRoleRequest;
+import org.treegraph.baas.api.dto.request.QueryRoleRequest;
 import org.treegraph.baas.api.dto.response.ListRoleResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
@@ -50,46 +51,24 @@ public class RoleServicempl implements RoleService {
     private BuildService buildService;
     
     public ListRoleResponse listRole(ListRoleRequest req) {
-    	
     	PageHelper.startPage(req.getCurrent(), req.getPageSize());
-    	List<RolePo> roles = roleDas.findAll(req.getConsId(), req.getName());
+    	List<RolePo> roles = roleDas.findAll(null, req.getConsId(), req.getName());
     	PageInfo<RolePo> pageInfo = new PageInfo<RolePo>(roles);
     	
     	List<RolePo> roleList = pageInfo.getList();
-    	List<RolePermissionInfo> rolePermInfos = null;
-    	if(CollectionUtils.isNotEmpty(roleList)) {
-	    	List<String> consIds = roleList.stream().map(RolePo::getConsortiumId).collect(Collectors.toList());
-	    	List<ConsortiumPo> cons = consortiumDas.findByIds(consIds);
-			Map<String, String> consIdNameMap = cons.stream()
-					.collect(Collectors.toMap(ConsortiumPo::getId, ConsortiumPo::getName));
-	    	
-	    	List<PermissionPo> allPerms = permissionDas.findAll();
-			Map<Long, String> allPermIdCodeMap = allPerms.stream()
-					.collect(Collectors.toMap(PermissionPo::getId, PermissionPo::getPermissionCode));
-	    	List<String> roleIds = roleList.stream().map(RolePo::getId).collect(Collectors.toList());
-	    	List<RolePermissionPo> rolePerms = permissionDas.findRolePermissionsByRoleIds(roleIds);
-			Map<String, List<String>> roleIdPermCodeMap = rolePerms.stream()
-					.collect(Collectors.groupingBy(RolePermissionPo::getRoleId,
-							Collectors.mapping(item -> allPermIdCodeMap.get(item.getPermissionId()), Collectors.toList())));
-	    	
-	    	rolePermInfos = roles.stream().map(item -> RolePermissionInfo.builder()
-					.id(item.getId())
-					.consId(item.getConsortiumId())
-					.consName(consIdNameMap.get(item.getConsortiumId()))
-					.createTime(DateTimeUtils.formatTime(item.getCreateTime(),DateTimeUtils.FORMAT_yyyyMMddHHmmss))
-					.name(item.getRoleName())
-					.permissions(roleIdPermCodeMap.get(item.getId()))
-					.build()).collect(Collectors.toList());
-    	}
+    	List<RolePermissionInfo> rolePermInfos = getRolePermissionInfo(roleList);
     	
-    	ListRoleResponse resp = ListRoleResponse.builder()
+    	return ListRoleResponse.builder()
     			.current(req.getCurrent())
 				.pageSize(req.getPageSize())
     			.total(pageInfo.getTotal())
     			.list(rolePermInfos)
     			.build();
-    	
-    	return resp;
+    }
+    
+   public List<RolePermissionInfo> queryRole(QueryRoleRequest req) {
+    	List<RolePo> roleList = roleDas.findAll(req.getId(), req.getConsId(), null);
+    	return getRolePermissionInfo(roleList);
     }
 
 	public boolean createRole(CreateRoleRequest req) {
@@ -152,5 +131,34 @@ public class RoleServicempl implements RoleService {
 		Map<String, Long> permissionCodeIdMap = permissions.stream()
 				.collect(Collectors.toMap(PermissionPo::getPermissionCode, PermissionPo::getId));
 		return permissionCodeIdMap;
+	}
+
+	private List<RolePermissionInfo> getRolePermissionInfo(List<RolePo> roleList) {
+		if(CollectionUtils.isEmpty(roleList)) {
+			return Lists.newArrayList();
+		}
+	
+    	List<String> consIds = roleList.stream().map(RolePo::getConsortiumId).collect(Collectors.toList());
+    	List<ConsortiumPo> cons = consortiumDas.findByIds(consIds);
+		Map<String, String> consIdNameMap = cons.stream()
+				.collect(Collectors.toMap(ConsortiumPo::getId, ConsortiumPo::getName));
+    	
+    	List<PermissionPo> allPerms = permissionDas.findAll();
+		Map<Long, String> allPermIdCodeMap = allPerms.stream()
+				.collect(Collectors.toMap(PermissionPo::getId, PermissionPo::getPermissionCode));
+    	List<String> roleIds = roleList.stream().map(RolePo::getId).collect(Collectors.toList());
+    	List<RolePermissionPo> rolePerms = permissionDas.findRolePermissionsByRoleIds(roleIds);
+		Map<String, List<String>> roleIdPermCodeMap = rolePerms.stream()
+				.collect(Collectors.groupingBy(RolePermissionPo::getRoleId,
+						Collectors.mapping(item -> allPermIdCodeMap.get(item.getPermissionId()), Collectors.toList())));
+    	
+    	return roleList.stream().map(item -> RolePermissionInfo.builder()
+				.id(item.getId())
+				.consId(item.getConsortiumId())
+				.consName(consIdNameMap.get(item.getConsortiumId()))
+				.createTime(DateTimeUtils.formatTime(item.getCreateTime(),DateTimeUtils.FORMAT_yyyyMMddHHmmss))
+				.name(item.getRoleName())
+				.permissions(roleIdPermCodeMap.get(item.getId()))
+				.build()).collect(Collectors.toList());
 	}
 }

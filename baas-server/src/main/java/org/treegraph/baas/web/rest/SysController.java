@@ -2,7 +2,6 @@ package org.treegraph.baas.web.rest;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,13 +13,14 @@ import org.treegraph.baas.core.service.LoginService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.AllArgsConstructor;
 
 @RestController
 @Api(tags = "系统模块", description = "登录管理相关")
 @RequestMapping("/sys")
+@AllArgsConstructor
 public class SysController {
 
-  @Autowired
   private LoginService loginService;
 
   @PostMapping("/login")

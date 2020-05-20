@@ -22,6 +22,8 @@ import org.treegraph.baas.core.mapper.RolePoMapper;
 import org.treegraph.baas.core.mapper.UserRolePoMapper;
 import org.treegraph.baas.core.util.CollectionUtils;
 
+import com.google.common.collect.Lists;
+
 import lombok.AllArgsConstructor;
 
 @Service
@@ -39,14 +41,20 @@ public class RoleDasImpl implements RoleDas {
     }
      
      public List<RolePo> findByIds(List<String> roleIds){
+    	 if(CollectionUtils.isEmpty(roleIds)) {
+ 			return Lists.newArrayList();
+ 		}
      	RolePoExample example = new RolePoExample();
      	example.createCriteria().andIdIn(roleIds);
      	return rolePoMapper.selectByExample(example);
      }
 
-     public List<RolePo> findAll(String consId, String roleName){
+     public List<RolePo> findAll(String id, String consId, String roleName){
      	RolePoExample example = new RolePoExample();
      	Criteria criteria = example.createCriteria();
+     	if(StringUtils.isNotBlank(id)) {
+     		criteria.andIdEqualTo(id);
+     	}
      	if(StringUtils.isNotBlank(consId)) {
      		criteria.andConsortiumIdEqualTo(consId);
      	}
@@ -64,12 +72,30 @@ public class RoleDasImpl implements RoleDas {
     }
     
    public List<UserRolePo> findUserRolesByUserIds(List<String> userIds){
+	   if(CollectionUtils.isEmpty(userIds)) {
+			return Lists.newArrayList();
+		}
     	UserRolePoExample example = new UserRolePoExample();
     	example.createCriteria().andUserIdIn(userIds).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
     	return userRolePoMapper.selectByExample(example);
     }
+   
+   public List<UserRolePo> findUserRolesForConsAdmin(List<String> userIds, String roleId){
+	   if(CollectionUtils.isEmpty(userIds)) {
+			return Lists.newArrayList();
+		}
+    	UserRolePoExample example = new UserRolePoExample();
+    	example.createCriteria()
+    	.andUserIdIn(userIds)
+    	.andRoleIdEqualTo(roleId)
+    	.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    	return userRolePoMapper.selectByExample(example);
+    }
     
-    public List<RolePo> findRolesByConsIds(List<String> consIds){
+    public List<RolePo> findByConsIds(List<String> consIds){
+    	if(CollectionUtils.isEmpty(consIds)) {
+			return Lists.newArrayList();
+		}
     	RolePoExample example = new RolePoExample();
 		example.createCriteria().andConsortiumIdIn(consIds).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
     	

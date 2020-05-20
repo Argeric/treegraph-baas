@@ -18,7 +18,7 @@ public interface ConsortiumDas {
 	
 	List<ConsortiumPo> findByName(String name);
 	
-	List<ConsortiumPo> findAll();
+	List<ConsortiumPo> findAll(String id);
 	
 	int createConsortium(ConsortiumPo cons);
 

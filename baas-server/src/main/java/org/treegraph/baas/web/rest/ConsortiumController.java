@@ -13,7 +13,9 @@ import org.treegraph.baas.api.dto.request.CreateConsRequest;
 import org.treegraph.baas.api.dto.request.DeleteConsRequest;
 import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
 import org.treegraph.baas.api.dto.request.ModifyConsRequest;
+import org.treegraph.baas.api.dto.request.QueryConsRequest;
 import org.treegraph.baas.api.dto.response.ListConsResponse;
+import org.treegraph.baas.api.dto.response.QueryConsResponse;
 import org.treegraph.baas.core.service.ConsortiumService;
 
 import io.swagger.annotations.Api;
@@ -40,11 +42,18 @@ public class ConsortiumController {
 		return BaasResult.success(data);
 	}
 	
+	@PostMapping("/query")
+	@ApiOperation("查询联盟")
+	public BaasResult<QueryConsResponse> queryCons(@RequestBody QueryConsRequest queryConsRequest) {
+		QueryConsResponse data = consortiumService.queryCons(queryConsRequest);
+		return BaasResult.success(data);
+	}
+	
 	@PostMapping("/create")
 	@ApiOperation("创建联盟")
-	public BaasResult<Void> createCons(@RequestBody CreateConsRequest createConsRequest) {
-		consortiumService.createCons(createConsRequest);
-		return BaasResult.success();
+	public BaasResult<String> createCons(@RequestBody CreateConsRequest createConsRequest) {
+		String consId = consortiumService.createCons(createConsRequest);
+		return BaasResult.success(consId);
 	}
 	
 	@PostMapping("/modify")

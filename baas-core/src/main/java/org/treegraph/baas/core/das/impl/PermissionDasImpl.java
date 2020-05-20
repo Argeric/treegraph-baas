@@ -17,6 +17,9 @@ import org.treegraph.baas.core.domain.RolePermissionPo;
 import org.treegraph.baas.core.domain.RolePermissionPoExample;
 import org.treegraph.baas.core.mapper.PermissionPoMapper;
 import org.treegraph.baas.core.mapper.RolePermissionPoMapper;
+import org.treegraph.baas.core.util.CollectionUtils;
+
+import com.google.common.collect.Lists;
 
 @Service
 public class PermissionDasImpl implements PermissionDas {
@@ -34,6 +37,9 @@ public class PermissionDasImpl implements PermissionDas {
 	
 	@Override
 	public List<PermissionPo> findByIds(List<Long> permissionIds) {
+		if(CollectionUtils.isEmpty(permissionIds)) {
+			return Lists.newArrayList();
+		}
 		PermissionPoExample example = new PermissionPoExample();
 		example.createCriteria().andIdIn(permissionIds);
 		return permissionPoMapper.selectByExample(example);
@@ -54,9 +60,12 @@ public class PermissionDasImpl implements PermissionDas {
 	}
 
 	@Override
-	public List<RolePermissionPo> findRolePermissionsByRoleIds(List<String> roldIds) {
+	public List<RolePermissionPo> findRolePermissionsByRoleIds(List<String> roleIds) {
+		if(CollectionUtils.isEmpty(roleIds)) {
+			return Lists.newArrayList();
+		}
 		RolePermissionPoExample example = new RolePermissionPoExample();
-		example.createCriteria().andRoleIdIn(roldIds).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		example.createCriteria().andRoleIdIn(roleIds).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
 		return rolePermissionPoMapper.selectByExample(example);
 	}
 
@@ -72,5 +81,10 @@ public class PermissionDasImpl implements PermissionDas {
 		Map<String, Long> permissionCodeIdMap = permissions.stream()
 				.collect(Collectors.toMap(PermissionPo::getPermissionCode, PermissionPo::getId));
 		return permissionCodeIdMap;
+	}
+	
+	@Override
+	public List<String> findPermissionCodeByUserId(String userId){
+		return permissionPoMapper.findPermissionCodeByUserId(userId);
 	}
 }

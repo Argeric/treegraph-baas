@@ -8,7 +8,11 @@ import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.core.das.ConsortiumDas;
 import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.ConsortiumPoExample;
+import org.treegraph.baas.core.domain.ConsortiumPoExample.Criteria;
 import org.treegraph.baas.core.mapper.ConsortiumPoMapper;
+import org.treegraph.baas.core.util.CollectionUtils;
+
+import com.google.common.collect.Lists;
 
 import lombok.AllArgsConstructor;
 
@@ -28,6 +32,9 @@ public class ConsortiumDasImpl implements ConsortiumDas{
 	}
 	
 	public List<ConsortiumPo> findByIds(List<String> ids) {
+		if(CollectionUtils.isEmpty(ids)) {
+			return Lists.newArrayList();
+		}
 		ConsortiumPoExample example = new ConsortiumPoExample();
 		example.createCriteria().andIdIn(ids);
 		return consortiumPoMapper.selectByExample(example);
@@ -40,10 +47,14 @@ public class ConsortiumDasImpl implements ConsortiumDas{
 		return consortiumPoMapper.selectByExample(example);
 	}
 	
-	public List<ConsortiumPo> findAll(){
+	public List<ConsortiumPo> findAll(String id){
 		ConsortiumPoExample example = new ConsortiumPoExample();
-		example.createCriteria().andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-		return consortiumPoMapper.selectByExample(example);
+		Criteria criteria = example.createCriteria();
+		criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		if(id != null) {
+			criteria.andIdEqualTo(id);
+		}
+		return consortiumPoMapper.selectByExampleWithBLOBs(example);
 	}
 	
 	public int createConsortium(ConsortiumPo cons) {

@@ -56,11 +56,11 @@ public class UserEnum {
     @AllArgsConstructor
     public enum Role {
 
-        SYS_ADMIN(1, "系统角色"),
+        SYS_ADMIN(1, "系统管理员"),
 
-        CONSORTIUM_ADMIN(2, "联盟角色"),
+        CONSORTIUM_ADMIN(2, "联盟管理员"),
         
-        COMMON_USER(2, "普通角色"),
+        COMMON_USER(3, "普通角色"),
 
         ;
 
@@ -125,5 +125,61 @@ public class UserEnum {
 					.collect(Collectors.toList());
 		}
 	}
+	
+	/**
+     * 邀请状态
+     */
+    @Getter
+    @AllArgsConstructor
+    public enum InviteStatus {
+
+        INIT(0, "创建邀请记录"),
+
+        SNED(1, "发送邀请"),
+        
+        ACCEPT(2, "接受邀请"),
+
+        ;
+
+        private Integer code;
+
+        private String desc;
+
+        public static Status getByCode(int code) {
+            for (Status s : Status.values()) {
+                if (s.code.equals(code)) {
+                    return s;
+                }
+            }
+            return null;
+        }
+    }
+    
+    /**
+     * 邀请角色状态
+     */
+    @Getter
+    @AllArgsConstructor
+    public enum InviteUserRoleStatus {
+
+        NOT_ACCEPT(0, "未接受邀请"),
+
+        ACCEPT(1, "已接受邀请"),
+        
+        ;
+
+        private Integer code;
+
+        private String desc;
+
+        public static Status getByCode(int code) {
+            for (Status s : Status.values()) {
+                if (s.code.equals(code)) {
+                    return s;
+                }
+            }
+            return null;
+        }
+    }
 
 }

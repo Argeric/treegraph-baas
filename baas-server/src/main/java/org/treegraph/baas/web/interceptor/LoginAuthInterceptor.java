@@ -13,6 +13,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.treegraph.baas.api.dto.BaasResult;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.domain.UserInfoPo;
+import org.treegraph.baas.core.enums.ErrorCodeEnum;
 import org.treegraph.baas.core.service.TokenService;
 import org.treegraph.baas.core.util.JwtUtils;
 import org.treegraph.baas.core.util.WebUtils;
@@ -57,7 +58,7 @@ public class LoginAuthInterceptor extends HandlerInterceptorAdapter {
     }
 
     private void outputAuthFailResult(HttpServletResponse response, String msg) throws IOException {
-        BaasResult<Void> result = BaasResult.fail(msg);
+        BaasResult<Void> result = BaasResult.fail(ErrorCodeEnum.AUTH_ERROR.getCode(), msg);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         response.getWriter().print(new ObjectMapper().writeValueAsString(result));

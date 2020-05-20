@@ -8,13 +8,17 @@ import org.treegraph.baas.api.dto.request.CreateConsRequest;
 import org.treegraph.baas.api.dto.request.DeleteConsRequest;
 import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
 import org.treegraph.baas.api.dto.request.ModifyConsRequest;
+import org.treegraph.baas.api.dto.request.QueryConsRequest;
 import org.treegraph.baas.api.dto.response.ListConsResponse;
+import org.treegraph.baas.api.dto.response.QueryConsResponse;
 
 public interface ConsortiumService {
 
 	ListConsResponse listCons(ListRequest listRequest);
+	
+	QueryConsResponse queryCons(QueryConsRequest req);
 
-	boolean createCons(CreateConsRequest createConsRequest);
+	String createCons(CreateConsRequest createConsRequest);
 
 	boolean modifyCons(ModifyConsRequest modifyConsRequest);
 

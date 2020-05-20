@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.treegraph.baas.api.dto.NodeInfo;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -21,7 +23,8 @@ public class QueryBlockchainDetailResponse {
 	private String alertEmail;//报警邮件
 	private List<NodeInfo> nodes;
 	private String consId;//联盟id	
-	private String consName;//联盟名称	
+	private String consName;//联盟名称
+	@JSONField(serialize = false)
 	private String consAvatar;//联盟头像	
 	private String consContact;//联系人姓名	
 	private String consEmail;//联系人邮箱	

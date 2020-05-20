@@ -8,18 +8,29 @@ import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.UserInfoDas;
+import org.treegraph.baas.core.domain.InviteUserPo;
+import org.treegraph.baas.core.domain.InviteUserRolePo;
 import org.treegraph.baas.core.domain.RolePermissionPo;
 import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserInfoPoExample;
 import org.treegraph.baas.core.domain.UserInfoPoExample.Criteria;
+import org.treegraph.baas.core.domain.UserOrganizationPo;
+import org.treegraph.baas.core.domain.UserOrganizationPoExample;
 import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.domain.UserRolePoExample;
+import org.treegraph.baas.core.mapper.InviteUserPoMapper;
+import org.treegraph.baas.core.mapper.InviteUserRolePoMapper;
 import org.treegraph.baas.core.mapper.RolePermissionPoMapper;
 import org.treegraph.baas.core.mapper.RolePoMapper;
 import org.treegraph.baas.core.mapper.UserInfoPoMapper;
+import org.treegraph.baas.core.mapper.UserOrganizationPoMapper;
 import org.treegraph.baas.core.mapper.UserRolePoMapper;
+import org.treegraph.baas.core.util.CacheTimeUtil;
 import org.treegraph.baas.core.util.CollectionUtils;
+import org.treegraph.baas.core.util.JwtUtils;
+
+import com.google.common.collect.Lists;
 
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.AllArgsConstructor;
@@ -32,31 +43,40 @@ public class UserInfoDasImpl implements UserInfoDas{
     
     private UserRolePoMapper userRolePoMapper;
     
+    private UserOrganizationPoMapper userOrganizationPoMapper;
+    
     private RolePoMapper rolePoMapper;
     
     private RolePermissionPoMapper rolePermissionPoMapper;
+    
+    private InviteUserPoMapper inviteUserPoMapper;
+    
+    private InviteUserRolePoMapper inviteUserRolePoMapper;
     
     public Optional<UserInfoPo> findById(String userId) {
         return userInfoPoMapper.selectByPrimaryKey(userId);
     }
     
     public List<UserInfoPo> findByIds(List<String> userIds) {
+    	if(CollectionUtils.isEmpty(userIds)) {
+			return Lists.newArrayList();
+		}
     	UserInfoPoExample example = new UserInfoPoExample();
     	example.createCriteria().andIdIn(userIds);
         return userInfoPoMapper.selectByExample(example);
     }
 
-    public Optional<UserInfoPo> findByAccountNo(String accountNo) {
+    public Optional<UserInfoPo> findByAccount(String account) {
     	UserInfoPoExample userInfoPoExample = new UserInfoPoExample();
-    	userInfoPoExample.createCriteria().andAccountEqualTo(accountNo)
+    	userInfoPoExample.createCriteria().andAccountEqualTo(account)
     	.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
         List<UserInfoPo> users = userInfoPoMapper.selectByExample(userInfoPoExample);
     	return Optional.ofNullable(users.size() > 0 ? users.get(0) : null);
     }
     
-    public List<UserInfoPo> findByAccountNoInLike(String accountNo) {
+    public List<UserInfoPo> findByAccountLike(String account) {
     	UserInfoPoExample userInfoPoExample = new UserInfoPoExample();
-    	userInfoPoExample.createCriteria().andAccountLike("%"+accountNo+"%")
+    	userInfoPoExample.createCriteria().andAccountLike("%"+account+"%")
     	.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
         return userInfoPoMapper.selectByExample(userInfoPoExample);
     }
@@ -82,16 +102,66 @@ public class UserInfoDasImpl implements UserInfoDas{
     	return userInfoPoMapper.selectByExample(userInfoPoExample);
     }
     
-    public boolean createUser(UserInfoPo user, List<UserRolePo> userRoles) {
+	public List<UserOrganizationPo> findUserOrgsByUserIds(List<String> userIds) {
+		if(CollectionUtils.isEmpty(userIds)) {
+			return Lists.newArrayList();
+		}
+		UserOrganizationPoExample example = new UserOrganizationPoExample();
+		example.createCriteria().andUserIdIn(userIds)
+		.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		return userOrganizationPoMapper.selectByExample(example);
+	}    
+    
+    public boolean createUser(UserInfoPo user, List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs) {
     	boolean succFlag = Boolean.TRUE;
     	
     	succFlag = succFlag && userInfoPoMapper.insert(user) > 0;
     	if(CollectionUtils.isNotEmpty(userRoles)) {
     		succFlag = succFlag && userRolePoMapper.bulkInsert(userRoles) == userRoles.size();
     	}
+    	if(CollectionUtils.isNotEmpty(userOrgs)) {
+    		succFlag = succFlag && userOrganizationPoMapper.bulkInsert(userOrgs) == userOrgs.size();
+    	}
     	
     	return succFlag;
     }
+    
+    public boolean createUserRoles(List<UserRolePo> userRoles) {
+    	boolean succFlag = Boolean.TRUE;
+    	
+    	if(CollectionUtils.isNotEmpty(userRoles)) {
+    		succFlag = succFlag && userRolePoMapper.bulkInsert(userRoles) == userRoles.size();
+    	}
+    	
+    	return succFlag;
+    }
+    
+    
+	public boolean inviteUser(InviteUserPo inviteUser, List<InviteUserRolePo> inviteUserRoles) {
+		boolean succFlag = Boolean.TRUE;
+
+		succFlag = succFlag && inviteUserPoMapper.insert(inviteUser) > 0;
+		
+		if (CollectionUtils.isNotEmpty(inviteUserRoles)) {
+			inviteUserRoles.stream().forEach(item -> item.setInviteId(inviteUser.getId()));
+			succFlag = succFlag && inviteUserRolePoMapper.bulkInsert(inviteUserRoles) == inviteUserRoles.size();
+		}
+		
+		long expireSecs = CacheTimeUtil.getSecondToMorning();
+		String token = JwtUtils.generateInviteToken(inviteUser.getId(), inviteUser.getInviter(), inviteUser.getAccepter(), expireSecs);
+		InviteUserPo updateInviteUser = InviteUserPo.builder()
+				.id(inviteUser.getId())
+				.token(token)
+				.expire((int)expireSecs)
+				.build();
+		succFlag = succFlag && inviteUserPoMapper.updateByPrimaryKeySelective(updateInviteUser) > 0;
+		
+		return succFlag;
+	}
+	
+	public boolean updateInviteUserById(InviteUserPo inviteUser) {
+		return inviteUserPoMapper.updateByPrimaryKeySelective(inviteUser) > 0;
+	}
     
     public boolean delUser(UserInfoPo user) {
     	return userInfoPoMapper.updateByPrimaryKeySelective(user) > 0;
@@ -101,21 +171,33 @@ public class UserInfoDasImpl implements UserInfoDas{
     	return userInfoPoMapper.updateByPrimaryKeySelective(user) > 0;
     }
     
-    public boolean modifyUser(String uesrId, UserInfoPo user, List<String> toDelRoleIds, List<UserRolePo> toAddUserRoles) {
+	public boolean modifyUser(String uesrId, UserInfoPo user, List<Long> toDelUserRoleIds,
+			List<UserRolePo> toAddUserRoles, List<Long> toDelUserOrgIds, List<UserOrganizationPo> toAddUserOrgs) {
     	boolean succFlag = Boolean.TRUE;
-    	
     	if(user != null) {
     		succFlag = succFlag && userInfoPoMapper.updateByPrimaryKeySelective(user) > 0;
     	}
-    	if(CollectionUtils.isNotEmpty(toDelRoleIds)) {
+    	
+    	if(CollectionUtils.isNotEmpty(toDelUserRoleIds)) {
     		UserRolePo record = UserRolePo.builder().deleteFlag(IntTypeEnum.TRUE.getValue())
     				.updateTime(LocalDateTime.now()).updateBy(WebHelper.getUserId()).build();
     		UserRolePoExample example = new UserRolePoExample();
-    		example.createCriteria().andUserIdEqualTo(uesrId).andRoleIdIn(toDelRoleIds);
-    		succFlag = succFlag && userRolePoMapper.updateByExampleSelective(record, example) == toDelRoleIds.size();
+    		example.createCriteria().andIdIn(toDelUserRoleIds);
+    		succFlag = succFlag && userRolePoMapper.updateByExampleSelective(record, example) == toDelUserRoleIds.size();
     	}
     	if(CollectionUtils.isNotEmpty(toAddUserRoles)) {
     		succFlag = succFlag && userRolePoMapper.bulkInsert(toAddUserRoles) == toAddUserRoles.size();
+    	}
+    	
+    	if(CollectionUtils.isNotEmpty(toDelUserOrgIds)) {
+    		UserOrganizationPo record = UserOrganizationPo.builder().deleteFlag(IntTypeEnum.TRUE.getValue())
+    				.updateTime(LocalDateTime.now()).build();
+    		UserOrganizationPoExample example = new UserOrganizationPoExample();
+    		example.createCriteria().andIdIn(toDelUserOrgIds);
+    		succFlag = succFlag && userOrganizationPoMapper.updateByExampleSelective(record, example) == toDelUserOrgIds.size();
+    	}
+    	if(CollectionUtils.isNotEmpty(toAddUserOrgs)) {
+    		succFlag = succFlag && userOrganizationPoMapper.bulkInsert(toAddUserOrgs) == toAddUserOrgs.size();
     	}
     	
     	return succFlag;

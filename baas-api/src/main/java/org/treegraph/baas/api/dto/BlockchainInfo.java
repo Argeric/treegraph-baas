@@ -1,5 +1,7 @@
 package org.treegraph.baas.api.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,7 +17,8 @@ public class BlockchainInfo {
 	private String id;//区块链id	
 	private String name;//区块链名称	
 	private String consId;//联盟id	
-	private String consName;//联盟名称	
+	private String consName;//联盟名称
+	@JSONField(serialize = false)
 	private String consAvatar;//联盟头像	
 	private String createUser;//创建人	
 	private String createTime;//创建时间	

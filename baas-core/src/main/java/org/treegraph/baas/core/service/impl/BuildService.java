@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
@@ -14,6 +15,7 @@ import org.treegraph.baas.core.das.PermissionDas;
 import org.treegraph.baas.core.domain.RolePermissionPo;
 import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
+import org.treegraph.baas.core.domain.UserOrganizationPo;
 import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
@@ -107,10 +109,11 @@ public class BuildService {
 				.build();
 	}
 	
-	public UserRolePo buildUserRole(String userId, String roleId) {
+	public List<UserRolePo> buildUserRoles(String userId, List<String> roleIds) {
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
-		return UserRolePo.builder()
+		
+		return roleIds.stream().map(roleId -> UserRolePo.builder()
 				.userId(userId)
 				.roleId(roleId)
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
@@ -118,6 +121,24 @@ public class BuildService {
 				.createBy(operUser)
 				.updateTime(now)
 				.updateBy(operUser)
+				.build()).collect(Collectors.toList());
+	}
+	
+	public String buildUserOrgIdentifier(UserOrganizationPo usrOrg) {
+		return new StringBuilder(usrOrg.getUserId()).append(",").append(usrOrg.getConsortiumId()).append(",")
+				.append(usrOrg.getOrganizationName()).toString();
+	}
+	
+	public UserOrganizationPo buildUserOrg(String identifier) {
+		String[] params = StringUtils.split(identifier, ",");
+		LocalDateTime now = LocalDateTime.now();
+		return UserOrganizationPo.builder()
+				.userId(params[0])
+				.consortiumId(params[1])
+				.organizationName(params[2])
+				.deleteFlag(IntTypeEnum.FALSE.getValue())
+				.createTime(now)
+				.updateTime(now)
 				.build();
 	}
 }

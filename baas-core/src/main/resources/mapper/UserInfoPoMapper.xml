@@ -313,7 +313,8 @@
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="bulkInsert" parameterType="org.treegraph.baas.core.domain.UserInfoPo">
-      INSERT INTO user_role(
+      INSERT INTO user_info(
+      	  id,
           account, 
           email, 
           `name`, 
@@ -329,6 +330,7 @@
       VALUES
       <foreach collection="list" item="item" separator=",">
           (
+           	  #{item.id},
               #{item.account},
               #{item.email},
               #{item.name},

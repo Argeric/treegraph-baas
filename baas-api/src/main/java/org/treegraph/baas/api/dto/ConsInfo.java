@@ -1,5 +1,7 @@
 package org.treegraph.baas.api.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -19,6 +21,7 @@ public class ConsInfo {
 	
 	private String email;
 	
+	@JSONField(serialize = false)
 	private String avatar;
 	
 	private String createUser;

@@ -1,18 +1,23 @@
 package org.treegraph.baas.web.rest;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.treegraph.baas.api.dto.BaasResult;
+import org.treegraph.baas.api.dto.RolePermissionInfo;
 import org.treegraph.baas.api.dto.request.CreateRoleRequest;
 import org.treegraph.baas.api.dto.request.ListRoleRequest;
 import org.treegraph.baas.api.dto.request.ModifyRoleRequest;
+import org.treegraph.baas.api.dto.request.QueryRoleRequest;
 import org.treegraph.baas.api.dto.response.ListRoleResponse;
 import org.treegraph.baas.core.service.RoleService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.AllArgsConstructor;
 
 /**
  * @author zt
@@ -22,6 +27,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @Api(tags = "角色模块", description = "权限角色管理")
 @RequestMapping("/role")
+@AllArgsConstructor
 public class RoleController {
 	
 	private RoleService roleService;
@@ -31,6 +37,13 @@ public class RoleController {
 	public BaasResult<ListRoleResponse> listRole(@RequestBody ListRoleRequest listRoleRequest) {
 		ListRoleResponse roles = roleService.listRole(listRoleRequest);
 		return BaasResult.success(roles);
+	}
+	
+	@PostMapping("/query")
+	@ApiOperation("角色查询")
+	public BaasResult<List<RolePermissionInfo>> queryRole(@RequestBody QueryRoleRequest queryRoleRequest) {
+		List<RolePermissionInfo> roleList = roleService.queryRole(queryRoleRequest);
+		return BaasResult.success(roleList);
 	}
 
 	@PostMapping("/create")

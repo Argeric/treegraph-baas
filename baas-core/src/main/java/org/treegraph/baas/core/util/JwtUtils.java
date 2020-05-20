@@ -25,6 +25,12 @@ public class JwtUtils {
 	private static final String PARAM_ACCOUNT = "account";
 
 	private static final String PARAM_NAME = "name";
+	
+	private static final String PARAM_FROM_UID = "fromUid";
+	
+	private static final String PARAM_TO_UID = "toUid";
+
+	private static final String PARAM_INVITE_ID = "invite_id";
 
 	/**
 	 * 生成token
@@ -76,5 +82,57 @@ public class JwtUtils {
 
 	public static String getName(Map<String, Object> map) {
 		return (String) map.get(PARAM_NAME);
+	}
+	
+	/**
+	 * 生成invite token
+	 */
+	public static String generateInviteToken(Long invitId, String fromUid, String toUid, long ttlSecs) {
+
+		HashMap<String, Object> map = new HashMap<>();
+		// you can put any data in the map
+		map.put(PARAM_UID, PARAM_FROM_UID);
+		map.put(PARAM_ACCOUNT, PARAM_TO_UID);
+		map.put(PARAM_NAME, PARAM_INVITE_ID);
+
+		JwtBuilder jwtBuilder = Jwts.builder().setClaims(map).signWith(SignatureAlgorithm.HS512, SECRET);
+
+		// 过期时间
+		if (ttlSecs >= 0) {
+			long nowMillis = System.currentTimeMillis();
+			long expMillis = nowMillis + ttlSecs * 1000;
+			Date exp = new Date(expMillis);
+			jwtBuilder.setExpiration(exp);
+		}
+
+		return jwtBuilder.compact();
+	}
+	
+	/**
+	 * 验证invite token
+	 */
+	public static Map<String, Object> validateInviteToken(String inviteToken) {
+		try {
+			// parse the token.
+			Map<String, Object> body = Jwts.parser().setSigningKey(SECRET)
+					.parseClaimsJws(inviteToken.replace(TOKEN_PREFIX, "")).getBody();
+			return body;
+		} catch (ExpiredJwtException e) {
+			throw new BusinessException(ErrorCodeEnum.AUTH_ERROR, "签名已经过期");
+		} catch (Exception e) {
+			throw new BusinessException(ErrorCodeEnum.AUTH_ERROR, "签名验证失败");
+		}
+	}
+	
+	public static String getInviter(Map<String, Object> map) {
+		return (String) map.get(PARAM_FROM_UID);
+	}
+
+	public static String getAccepter(Map<String, Object> map) {
+		return (String) map.get(PARAM_TO_UID);
+	}
+
+	public static String getInviteId(Map<String, Object> map) {
+		return (String) map.get(PARAM_INVITE_ID);
 	}
 }

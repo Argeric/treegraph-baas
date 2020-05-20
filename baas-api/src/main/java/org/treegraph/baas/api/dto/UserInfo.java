@@ -1,5 +1,7 @@
 package org.treegraph.baas.api.dto;
 
+import java.util.List;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -20,4 +22,6 @@ public class UserInfo {
 	private String createTime;
 
 	private int status;
+	
+	private List<RoleDetailInfo> roles;
 }

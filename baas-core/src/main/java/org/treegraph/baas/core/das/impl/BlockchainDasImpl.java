@@ -22,21 +22,23 @@ public class BlockchainDasImpl implements BlockchainDas{
     	return blockChainPoMapper.selectByPrimaryKey(id);
     }
     
+    public List<BlockChainPo> findByConsId(String consId) {
+    	BlockChainPoExample example = new BlockChainPoExample();
+    	example.createCriteria().andConsortiumIdEqualTo(consId).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    	return blockChainPoMapper.selectByExample(example);
+    }
+    
     public List<BlockChainPo> findByIds(List<String> ids){
     	BlockChainPoExample example = new BlockChainPoExample();
 		example.createCriteria().andIdIn(ids);
+		example.setOrderByClause("create_time desc");
 		return blockChainPoMapper.selectByExample(example);
     }
     
 	public List<BlockChainPo> findAll() {
 		BlockChainPoExample example = new BlockChainPoExample();
 		example.createCriteria().andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-		return blockChainPoMapper.selectByExample(example);
-	}
-    
-	public List<BlockChainPo> findByConsId(String consId) {
-		BlockChainPoExample example = new BlockChainPoExample();
-		example.createCriteria().andConsortiumIdEqualTo(consId).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		example.setOrderByClause("create_time desc");
 		return blockChainPoMapper.selectByExample(example);
 	}
 

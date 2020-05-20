@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.treegraph.baas.api.dto.RolePermissionInfo;
 import org.treegraph.baas.api.dto.request.CreateRoleRequest;
+import org.treegraph.baas.api.dto.request.DeleteRoleRequest;
 import org.treegraph.baas.api.dto.request.ListRoleRequest;
 import org.treegraph.baas.api.dto.request.ModifyRoleRequest;
 import org.treegraph.baas.api.dto.request.QueryRoleRequest;
@@ -18,4 +19,6 @@ public interface RoleService {
 	boolean createRole(CreateRoleRequest req);
 	
 	boolean modifyRole(ModifyRoleRequest req);
+	
+	boolean deleteRole(DeleteRoleRequest req);
 }

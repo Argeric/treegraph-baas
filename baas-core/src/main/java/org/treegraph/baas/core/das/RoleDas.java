@@ -26,8 +26,11 @@ public interface RoleDas {
 	
 	List<UserRolePo> findUserRolesForConsAdmin(List<String> userIds, String roleId);
 	
+	List<UserRolePo> findUserRolesByRoleId(String roleId);
+	
 	boolean createRole(RolePo role, List<RolePermissionPo> rolePermissionList);
 	
 	boolean modifyRole(String roleId, RolePo role, List<Long> toDelPermIds, List<RolePermissionPo> toAddPerms);
 
+	boolean deleteRole(String roleId);
 }

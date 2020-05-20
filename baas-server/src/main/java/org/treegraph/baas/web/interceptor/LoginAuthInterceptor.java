@@ -39,7 +39,14 @@ public class LoginAuthInterceptor extends HandlerInterceptorAdapter {
         try {
         	user = tokenService.checkToken(token);
         } catch(Exception e) {
-        	outputAuthFailResult(response, e.getMessage());
+        	outputAuthFailResult(response, ErrorCodeEnum.AUTH_TOKEN_ERROR.getCode(), e.getMessage());
+        	return false;
+        }
+        
+        try {
+        	tokenService.authPermission(user.getId(), request.getRequestURI());
+        } catch(Exception e) {
+        	outputAuthFailResult(response, ErrorCodeEnum.AUTH_PERMISSION_ERROR.getCode(), e.getMessage());
         	return false;
         }
     	
@@ -57,8 +64,8 @@ public class LoginAuthInterceptor extends HandlerInterceptorAdapter {
         WebHelper.destroy();
     }
 
-    private void outputAuthFailResult(HttpServletResponse response, String msg) throws IOException {
-        BaasResult<Void> result = BaasResult.fail(ErrorCodeEnum.AUTH_ERROR.getCode(), msg);
+    private void outputAuthFailResult(HttpServletResponse response, int errCode, String errMsg) throws IOException {
+        BaasResult<Void> result = BaasResult.fail(errCode, errMsg);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         response.getWriter().print(new ObjectMapper().writeValueAsString(result));

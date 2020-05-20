@@ -57,6 +57,13 @@ public class UserController {
 		return BaasResult.success();
 	}
 	
+	@PostMapping("/modify")
+	@ApiOperation("修改用户")
+	public BaasResult<Void> modifyUser(@RequestBody ModifyUserRequest modifyUserRequest) {
+		userService.modifyUser(modifyUserRequest);
+		return BaasResult.success();
+	}
+	
 	@PostMapping("/invite")
 	@ApiOperation("邀请用户")
 	public BaasResult<String> inviteUser(@RequestBody InviteUserRequest inviteUserRequest) {
@@ -68,13 +75,6 @@ public class UserController {
 	@ApiOperation("邀请用户")
 	public BaasResult<Void> acceptInvite(@RequestBody AcceptInviteRequest acceptInviteRequest) {
 		userService.acceptInvite(acceptInviteRequest);
-		return BaasResult.success();
-	}
-	
-	@PostMapping("/modify")
-	@ApiOperation("修改用户")
-	public BaasResult<Void> modifyUser(@RequestBody ModifyUserRequest modifyUserRequest) {
-		userService.modifyUser(modifyUserRequest);
 		return BaasResult.success();
 	}
 	

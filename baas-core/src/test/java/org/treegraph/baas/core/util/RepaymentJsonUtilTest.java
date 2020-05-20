@@ -1,13 +1,12 @@
 package org.treegraph.baas.core.util;
 
-import org.junit.Test;
-import org.treegraph.baas.core.entity.bo.ClientBo;
-import org.treegraph.baas.core.util.RepaymentJsonUtil;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 import java.util.Date;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
+import org.treegraph.baas.core.entity.bo.ClientBo;
 
 public class RepaymentJsonUtilTest {
     @Test

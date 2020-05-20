@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -42,6 +41,7 @@ import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.TokenService;
 import org.treegraph.baas.core.service.UserService;
+import org.treegraph.baas.core.service.bo.OrgBo;
 import org.treegraph.baas.core.service.bo.UserInfoBo;
 import org.treegraph.baas.core.service.bo.UserOrgBo;
 import org.treegraph.baas.core.util.CollectionUtils;
@@ -51,7 +51,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import lombok.AllArgsConstructor;
 
@@ -80,20 +79,14 @@ public class UserServicempl implements UserService {
 		Optional<UserInfoPo> userInfoOp = userInfoDas.findByAccount(req.getAccount());
 		Assert.isTrue(!userInfoOp.isPresent(), "用户账号不可重复[" + req.getAccount() + "]");
 		List<String> roleIds = validateRoleIds(req.getRoles());
-		UserInfoBo user = buildService.buildUser(req.getAccount(), req.getName(), req.getPhone(), req.getEmail(),
-				req.getPwd(), roleIds);
-		
-		LocalDateTime now = LocalDateTime.now();
-		List<UserOrganizationPo> userOrgs = req.getRoles().stream().map(item -> UserOrganizationPo.builder()
-				.userId(user.getUser().getId())
+		List<OrgBo> orgs = req.getRoles().stream().map(item -> OrgBo.builder()
 				.consortiumId(item.getConsId())
 				.organizationName(item.getOrgName())
-				.deleteFlag(IntTypeEnum.FALSE.getValue())
-				.createTime(now)
-				.updateTime(now)
 				.build()).collect(Collectors.toList());
-
-		return userInfoDas.createUser(user.getUser(), user.getUserRoles(), userOrgs);
+		UserInfoBo user = buildService.buildUser(req.getAccount(), req.getName(), req.getPhone(), req.getEmail(),
+				req.getPwd(), roleIds, orgs);
+		
+		return userInfoDas.createUser(user.getUser(), user.getUserRoles(), user.getUserOrgs());
 	}
 	
 	public String inviteUser(InviteUserRequest req) {
@@ -194,7 +187,11 @@ public class UserServicempl implements UserService {
 				.updateTime(LocalDateTime.now())
 				.updateBy(WebHelper.getUserId())
 				.build();
-		return userInfoDas.delUser(user);
+		
+		List<UserRolePo> userRoles = roleDas.findUserRolesByUserId(userId);
+		List<Long> userRoleIds = userRoles.stream().map(UserRolePo::getId).collect(Collectors.toList());
+		
+		return userInfoDas.delUser(user, userRoleIds);
 	}
 	
 	public List<UserInfo> queryUser(QueryUserRequest req) {
@@ -299,7 +296,8 @@ public class UserServicempl implements UserService {
 				.consortiumId(item.getConsId())
 				.organizationName(item.getOrgName())
 				.build()).collect(Collectors.toList());
-		UserOrgBo userOrgBo = modifyUserOrg(req.getId(), reqUserOrgs);
+		List<UserOrganizationPo> dbUserOrgs = userInfoDas.findUserOrgsByUserIds(Lists.newArrayList(req.getId()));
+		UserOrgBo userOrgBo = buildService.buildModifyUserOrg(dbUserOrgs, reqUserOrgs);
 		
 		return userInfoDas.modifyUser(req.getId(), updateUser, toDelUserRoleIds, toAddUserRoles,
 				userOrgBo.getToDelUserOrgIds(), userOrgBo.getToAddUserOrgs());
@@ -372,31 +370,5 @@ public class UserServicempl implements UserService {
 								.build();
 					}).collect(Collectors.toList());
 				}));
-	}
-	
-	private UserOrgBo modifyUserOrg(String userId, List<UserOrganizationPo> reqUserOrgs) {
-		List<UserOrganizationPo> dbUserOrgs = userInfoDas.findUserOrgsByUserIds(Lists.newArrayList(userId));
-		Set<String> dbOrgs = dbUserOrgs.stream().map(item -> buildService.buildUserOrgIdentifier(item))
-				.collect(Collectors.toSet());
-		Set<String> reqOrgs = reqUserOrgs.stream().map(item -> buildService.buildUserOrgIdentifier(item))
-				.collect(Collectors.toSet());
-		
-		Set<String> intersetOrgs = Sets.newHashSet();
-		intersetOrgs.addAll(dbOrgs);
-		intersetOrgs.retainAll(reqOrgs);
-		reqOrgs.removeAll(intersetOrgs);
-		dbOrgs.removeAll(intersetOrgs);
-		
-		List<UserOrganizationPo> toAddUserOrgs = reqOrgs.stream().map(item -> buildService.buildUserOrg(item))
-				.collect(Collectors.toList());
-		Map<String, UserOrganizationPo> dbOrgMap = dbUserOrgs.stream()
-				.collect(Collectors.toMap(item -> buildService.buildUserOrgIdentifier(item), Functions.identity()));
-		List<Long> toDelUserOrgIds = dbOrgs.stream().map(item -> dbOrgMap.get(item).getId())
-				.collect(Collectors.toList());
-
-		return UserOrgBo.builder()
-				.toAddUserOrgs(toAddUserOrgs)
-				.toDelUserOrgIds(toDelUserOrgIds)
-				.build();
 	}
 }

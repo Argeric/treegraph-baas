@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.treegraph.baas.api.dto.BaasResult;
 import org.treegraph.baas.api.dto.RolePermissionInfo;
 import org.treegraph.baas.api.dto.request.CreateRoleRequest;
+import org.treegraph.baas.api.dto.request.DeleteRoleRequest;
 import org.treegraph.baas.api.dto.request.ListRoleRequest;
 import org.treegraph.baas.api.dto.request.ModifyRoleRequest;
 import org.treegraph.baas.api.dto.request.QueryRoleRequest;
@@ -57,6 +58,13 @@ public class RoleController {
 	@ApiOperation("修改角色")
 	public BaasResult<Void> modifyRole(@RequestBody ModifyRoleRequest modifyRoleRequest) {
 		roleService.modifyRole(modifyRoleRequest);
+		return BaasResult.success();
+	}
+	
+	@PostMapping("/del")
+	@ApiOperation("删除角色")
+	public BaasResult<Void> deleteRole(@RequestBody DeleteRoleRequest deleteRoleRequest) {
+		roleService.deleteRole(deleteRoleRequest);
 		return BaasResult.success();
 	}
 }

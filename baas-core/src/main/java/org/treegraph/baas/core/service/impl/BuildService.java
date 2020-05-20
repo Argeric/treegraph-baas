@@ -3,6 +3,7 @@ package org.treegraph.baas.core.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -18,11 +19,15 @@ import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserOrganizationPo;
 import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.enums.UserEnum;
+import org.treegraph.baas.core.service.bo.OrgBo;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
 import org.treegraph.baas.core.service.bo.UserInfoBo;
+import org.treegraph.baas.core.service.bo.UserOrgBo;
 import org.treegraph.baas.core.util.CollectionUtils;
 
+import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import lombok.AllArgsConstructor;
 
@@ -74,7 +79,7 @@ public class BuildService {
 				.build();
 	}
 	
-	public UserInfoBo buildUser(String account, String name, String phone, String email, String pwd, List<String> roleIds) {
+	public UserInfoBo buildUser(String account, String name, String phone, String email, String pwd, List<String> roleIds, List<OrgBo> orgs) {
 		
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
@@ -103,9 +108,19 @@ public class BuildService {
 				.updateBy(operUser)
 				.build()).collect(Collectors.toList());
 		
+		List<UserOrganizationPo> userOrgs = orgs.stream().map(item -> UserOrganizationPo.builder()
+				.userId(user.getId())
+				.consortiumId(item.getConsortiumId())
+				.organizationName(item.getOrganizationName())
+				.deleteFlag(IntTypeEnum.FALSE.getValue())
+				.createTime(now)
+				.updateTime(now)
+				.build()).collect(Collectors.toList());
+		
 		return UserInfoBo.builder()
 				.user(user)
 				.userRoles(userRoles)
+				.userOrgs(userOrgs)
 				.build();
 	}
 	
@@ -124,12 +139,37 @@ public class BuildService {
 				.build()).collect(Collectors.toList());
 	}
 	
-	public String buildUserOrgIdentifier(UserOrganizationPo usrOrg) {
+	public UserOrgBo buildModifyUserOrg(List<UserOrganizationPo> dbUserOrgs, List<UserOrganizationPo> reqUserOrgs) {
+		Set<String> dbOrgs = dbUserOrgs.stream().map(item -> this.buildUserOrgIdentifier(item))
+				.collect(Collectors.toSet());
+		Set<String> reqOrgs = reqUserOrgs.stream().map(item -> this.buildUserOrgIdentifier(item))
+				.collect(Collectors.toSet());
+		
+		Set<String> intersetOrgs = Sets.newHashSet();
+		intersetOrgs.addAll(dbOrgs);
+		intersetOrgs.retainAll(reqOrgs);
+		reqOrgs.removeAll(intersetOrgs);
+		dbOrgs.removeAll(intersetOrgs);
+		
+		List<UserOrganizationPo> toAddUserOrgs = reqOrgs.stream().map(item -> this.buildUserOrg(item))
+				.collect(Collectors.toList());
+		Map<String, UserOrganizationPo> dbOrgMap = dbUserOrgs.stream()
+				.collect(Collectors.toMap(item -> this.buildUserOrgIdentifier(item), Functions.identity()));
+		List<Long> toDelUserOrgIds = dbOrgs.stream().map(item -> dbOrgMap.get(item).getId())
+				.collect(Collectors.toList());
+
+		return UserOrgBo.builder()
+				.toAddUserOrgs(toAddUserOrgs)
+				.toDelUserOrgIds(toDelUserOrgIds)
+				.build();
+	}
+	
+	private String buildUserOrgIdentifier(UserOrganizationPo usrOrg) {
 		return new StringBuilder(usrOrg.getUserId()).append(",").append(usrOrg.getConsortiumId()).append(",")
 				.append(usrOrg.getOrganizationName()).toString();
 	}
 	
-	public UserOrganizationPo buildUserOrg(String identifier) {
+	private UserOrganizationPo buildUserOrg(String identifier) {
 		String[] params = StringUtils.split(identifier, ",");
 		LocalDateTime now = LocalDateTime.now();
 		return UserOrganizationPo.builder()

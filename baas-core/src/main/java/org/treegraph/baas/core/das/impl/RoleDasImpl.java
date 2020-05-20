@@ -46,6 +46,7 @@ public class RoleDasImpl implements RoleDas {
  		}
      	RolePoExample example = new RolePoExample();
      	example.createCriteria().andIdIn(roleIds);
+     	example.setOrderByClause("create_time desc");
      	return rolePoMapper.selectByExample(example);
      }
 
@@ -62,6 +63,7 @@ public class RoleDasImpl implements RoleDas {
      		criteria.andRoleNameEqualTo(roleName);
      	}
      	criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+     	example.setOrderByClause("create_time desc");
      	return rolePoMapper.selectByExample(example);
      }
     
@@ -112,6 +114,12 @@ public class RoleDasImpl implements RoleDas {
     	return Optional.ofNullable(CollectionUtils.isEmpty(roles) ? null : roles.get(0));
     }
     
+    public List<UserRolePo> findUserRolesByRoleId(String roleId){
+    	UserRolePoExample example = new UserRolePoExample();
+    	example.createCriteria().andRoleIdEqualTo(roleId).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    	return userRolePoMapper.selectByExample(example);
+    }
+    
     public boolean createRole(RolePo role, List<RolePermissionPo> permissionList) {
     	boolean succFlag =  Boolean.TRUE;
     	succFlag = succFlag && rolePoMapper.insert(role) > 0;
@@ -143,5 +151,15 @@ public class RoleDasImpl implements RoleDas {
     	}
     	
     	return succFlag;
+    }
+    
+    public boolean deleteRole(String roleId) {
+    	RolePo record = RolePo.builder()
+    			.id(roleId)
+    			.deleteFlag(IntTypeEnum.TRUE.getValue())
+    			.updateTime(LocalDateTime.now())
+    			.updateBy(WebHelper.getUserId())
+    			.build();
+    	return rolePoMapper.updateByPrimaryKeySelective(record) > 0;
     }
 }

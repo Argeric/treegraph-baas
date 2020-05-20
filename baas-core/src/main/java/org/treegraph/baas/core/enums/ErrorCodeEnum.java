@@ -26,7 +26,8 @@ public enum ErrorCodeEnum {
 	SMS_SEND_ERROR(9002, "短信发送异常"),
 	SMS_VERIFY_CODE_ERROR(9003, "短信验证码错误"),
 	BUSINESS_EXCEPTION(9999, "业务异常"),
-	AUTH_ERROR(4000, "auth异常"),
+	AUTH_TOKEN_ERROR(40001, "token异常"),
+	AUTH_PERMISSION_ERROR(40002, "permission异常"),
 	
 	//新核心异常
 	AGREEMENT_BUSINESS_EXCEPTION(10000, "业务异常"),

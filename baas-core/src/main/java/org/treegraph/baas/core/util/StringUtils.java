@@ -2,10 +2,9 @@ package org.treegraph.baas.core.util;
 
 import java.text.MessageFormat;
 
-import org.apache.commons.lang3.text.ExtendedMessageFormat;
+import org.slf4j.helpers.MessageFormatter;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.helpers.MessageFormatter;
 
 /**
  * Created by junqing.li on 17/4/17.

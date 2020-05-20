@@ -12,9 +12,7 @@ import com.google.common.collect.Lists;
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.OperatingSystem;
 import eu.bitwalker.useragentutils.UserAgent;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class WebUtils extends org.springframework.web.util.WebUtils {
 
 	/**

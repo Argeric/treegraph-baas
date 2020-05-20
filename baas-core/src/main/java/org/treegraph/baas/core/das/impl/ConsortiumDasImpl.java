@@ -31,19 +31,20 @@ public class ConsortiumDasImpl implements ConsortiumDas{
 		return consortiumPoMapper.selectByPrimaryKey(id);
 	}
 	
+	public List<ConsortiumPo> findByName(String name){
+		ConsortiumPoExample example = new ConsortiumPoExample();
+		example.createCriteria().andNameEqualTo(name)
+		.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		return consortiumPoMapper.selectByExample(example);
+	}
+	
 	public List<ConsortiumPo> findByIds(List<String> ids) {
 		if(CollectionUtils.isEmpty(ids)) {
 			return Lists.newArrayList();
 		}
 		ConsortiumPoExample example = new ConsortiumPoExample();
 		example.createCriteria().andIdIn(ids);
-		return consortiumPoMapper.selectByExample(example);
-	}
-	
-	public List<ConsortiumPo> findByName(String name){
-		ConsortiumPoExample example = new ConsortiumPoExample();
-		example.createCriteria().andNameEqualTo(name)
-		.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		example.setOrderByClause("create_time desc");
 		return consortiumPoMapper.selectByExample(example);
 	}
 	
@@ -54,6 +55,7 @@ public class ConsortiumDasImpl implements ConsortiumDas{
 		if(id != null) {
 			criteria.andIdEqualTo(id);
 		}
+		example.setOrderByClause("create_time desc");
 		return consortiumPoMapper.selectByExampleWithBLOBs(example);
 	}
 	

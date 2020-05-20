@@ -66,9 +66,9 @@ public class JwtUtils {
 					.parseClaimsJws(token.replace(TOKEN_PREFIX, "")).getBody();
 			return body;
 		} catch (ExpiredJwtException e) {
-			throw new BusinessException(ErrorCodeEnum.AUTH_ERROR, "签名已经过期");
+			throw new BusinessException(ErrorCodeEnum.AUTH_TOKEN_ERROR, "签名已经过期");
 		} catch (Exception e) {
-			throw new BusinessException(ErrorCodeEnum.AUTH_ERROR, "签名验证失败");
+			throw new BusinessException(ErrorCodeEnum.AUTH_TOKEN_ERROR, "签名验证失败");
 		}
 	}
 	
@@ -118,9 +118,9 @@ public class JwtUtils {
 					.parseClaimsJws(inviteToken.replace(TOKEN_PREFIX, "")).getBody();
 			return body;
 		} catch (ExpiredJwtException e) {
-			throw new BusinessException(ErrorCodeEnum.AUTH_ERROR, "签名已经过期");
+			throw new BusinessException(ErrorCodeEnum.AUTH_TOKEN_ERROR, "签名已经过期");
 		} catch (Exception e) {
-			throw new BusinessException(ErrorCodeEnum.AUTH_ERROR, "签名验证失败");
+			throw new BusinessException(ErrorCodeEnum.AUTH_TOKEN_ERROR, "签名验证失败");
 		}
 	}
 	

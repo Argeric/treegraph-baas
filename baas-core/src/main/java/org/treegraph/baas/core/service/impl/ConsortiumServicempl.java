@@ -36,12 +36,14 @@ import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
+import org.treegraph.baas.core.domain.UserOrganizationPo;
 import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.enums.BlockchainEnum;
 import org.treegraph.baas.core.enums.ConsortiumEnum;
 import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.service.ConsortiumService;
+import org.treegraph.baas.core.service.bo.OrgBo;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
 import org.treegraph.baas.core.service.bo.UserInfoBo;
 import org.treegraph.baas.core.util.CollectionUtils;
@@ -118,7 +120,6 @@ public class ConsortiumServicempl implements ConsortiumService {
 	}
 	
 	public String createCons(CreateConsRequest req) {
-		
 		List<ConsortiumPo> consList = consortiumDas.findByName(req.getName());
 		Assert.isTrue(CollectionUtils.isEmpty(consList), "新创建联盟名称已被使用["+req.getName()+"]");
 		
@@ -167,7 +168,6 @@ public class ConsortiumServicempl implements ConsortiumService {
 	}
 
 	public boolean deleteCons(DeleteConsRequest req) {
-		
 		ConsortiumPo cons = ConsortiumPo.builder()
 				.id(req.getId())
 				.deleteFlag(IntTypeEnum.TRUE.getValue())
@@ -188,18 +188,20 @@ public class ConsortiumServicempl implements ConsortiumService {
 		}
 		
 		String roleId = roleBo != null ? roleBo.getRole().getId() : roleOp.get().getId();
-		List<UserInfoBo> userBos = req.getUsers().stream().filter(item -> item.getUserId() == null).map(
-					item -> buildService.buildUser(item.getAccount(),
-						item.getName(), item.getPhone(), item.getEmail(), 
-						item.getPwd(), Lists.newArrayList(roleId))
-				).collect(Collectors.toList());
+		List<UserInfoBo> userBos = req.getUsers().stream().filter(item -> item.getUserId() == null).map(item -> {
+			OrgBo orgBo = OrgBo.builder().consortiumId(req.getConsId()).organizationName(item.getOrg()).build();
+			return buildService.buildUser(item.getAccount(), item.getName(), item.getPhone(), item.getEmail(),
+					item.getPwd(), Lists.newArrayList(roleId), Lists.newArrayList(orgBo));
+		}).collect(Collectors.toList());
 		
 		List<UserInfoPo> users = Lists.newArrayList();
 		List<UserRolePo> userRoles = Lists.newArrayList();
+		List<UserOrganizationPo> userOrgs = Lists.newArrayList();
 		if(CollectionUtils.isNotEmpty(userBos)) {
 			userBos.stream().forEach(item -> {
 				users.add(item.getUser());
 				userRoles.addAll(item.getUserRoles());
+				userOrgs.addAll(item.getUserOrgs());
 			});
 		}
 		
@@ -211,11 +213,10 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.forEach(item -> userRoles.addAll(buildService.buildUserRoles(item, Lists.newArrayList(roleId))));
 		
 		return userInfoDas.createConsAdmin(roleBo != null ? roleBo.getRole() : null,
-				roleBo != null ? roleBo.getRolePermissionList() : null, users, userRoles);
+				roleBo != null ? roleBo.getRolePermissionList() : null, users, userRoles, userOrgs);
 	}
 
 	public boolean createBlockchain(CreateBlockchainRequest req) {
-		
 		List<BlockChainPo> blockchains = blockchainDas.findByConsId(req.getConsId());
 		Assert.isTrue(CollectionUtils.isEmpty(blockchains), "联盟["+req.getConsId()+"]下已创建区块链");
 		
@@ -241,7 +242,6 @@ public class ConsortiumServicempl implements ConsortiumService {
 	}
 
 	public boolean addNodes(AddNodesRequest req) {
-		
 		List<NodePo> dbNodes = nodeDas.findByConsIdAndChainId(req.getConsId(), req.getBlockchainId());
 		Set<String> dbIpPortSet = dbNodes.stream().map(item -> item.getNodeIp() + ":" + item.getNodePort())
 				.collect(Collectors.toSet());

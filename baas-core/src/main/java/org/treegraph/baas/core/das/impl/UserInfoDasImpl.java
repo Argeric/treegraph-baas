@@ -57,34 +57,36 @@ public class UserInfoDasImpl implements UserInfoDas{
         return userInfoPoMapper.selectByPrimaryKey(userId);
     }
     
+    public Optional<UserInfoPo> findByAccount(String account) {
+    	UserInfoPoExample example = new UserInfoPoExample();
+    	example.createCriteria().andAccountEqualTo(account)
+    	.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    	List<UserInfoPo> users = userInfoPoMapper.selectByExample(example);
+    	return Optional.ofNullable(users.size() > 0 ? users.get(0) : null);
+    }
+    
     public List<UserInfoPo> findByIds(List<String> userIds) {
     	if(CollectionUtils.isEmpty(userIds)) {
 			return Lists.newArrayList();
 		}
     	UserInfoPoExample example = new UserInfoPoExample();
     	example.createCriteria().andIdIn(userIds);
+    	example.setOrderByClause("create_time desc");
         return userInfoPoMapper.selectByExample(example);
-    }
-
-    public Optional<UserInfoPo> findByAccount(String account) {
-    	UserInfoPoExample userInfoPoExample = new UserInfoPoExample();
-    	userInfoPoExample.createCriteria().andAccountEqualTo(account)
-    	.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-        List<UserInfoPo> users = userInfoPoMapper.selectByExample(userInfoPoExample);
-    	return Optional.ofNullable(users.size() > 0 ? users.get(0) : null);
     }
     
     public List<UserInfoPo> findByAccountLike(String account) {
-    	UserInfoPoExample userInfoPoExample = new UserInfoPoExample();
-    	userInfoPoExample.createCriteria().andAccountLike("%"+account+"%")
+    	UserInfoPoExample example = new UserInfoPoExample();
+    	example.createCriteria().andAccountLike("%"+account+"%")
     	.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-        return userInfoPoMapper.selectByExample(userInfoPoExample);
+    	example.setOrderByClause("create_time desc");
+        return userInfoPoMapper.selectByExample(example);
     }
     
     public List<UserInfoPo> findAll(String account, String name, String email, String phone) {
     	
-    	UserInfoPoExample userInfoPoExample = new UserInfoPoExample();
-    	Criteria criteria = userInfoPoExample.createCriteria();
+    	UserInfoPoExample example = new UserInfoPoExample();
+    	Criteria criteria = example.createCriteria();
     	if(StringUtils.isNotBlank(account)) {
     		criteria.andAccountEqualTo(account);
     	}
@@ -98,8 +100,8 @@ public class UserInfoDasImpl implements UserInfoDas{
     		criteria.andPhoneEqualTo(phone);
     	}
     	criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-    	
-    	return userInfoPoMapper.selectByExample(userInfoPoExample);
+    	example.setOrderByClause("create_time desc");
+    	return userInfoPoMapper.selectByExample(example);
     }
     
 	public List<UserOrganizationPo> findUserOrgsByUserIds(List<String> userIds) {
@@ -163,8 +165,19 @@ public class UserInfoDasImpl implements UserInfoDas{
 		return inviteUserPoMapper.updateByPrimaryKeySelective(inviteUser) > 0;
 	}
     
-    public boolean delUser(UserInfoPo user) {
-    	return userInfoPoMapper.updateByPrimaryKeySelective(user) > 0;
+    public boolean delUser(UserInfoPo user, List<Long> userRoleIds) {
+    	boolean succFlag = Boolean.TRUE;
+    	succFlag = succFlag && userInfoPoMapper.updateByPrimaryKeySelective(user) > 0;
+    	
+    	if(CollectionUtils.isNotEmpty(userRoleIds)) {
+	    	UserRolePo record = UserRolePo.builder().deleteFlag(IntTypeEnum.TRUE.getValue())
+	    			.updateTime(LocalDateTime.now()).updateBy(WebHelper.getUserId()).build();
+	    	UserRolePoExample example = new UserRolePoExample();
+	    	example.createCriteria().andIdIn(userRoleIds);
+	    	succFlag = succFlag && userRolePoMapper.updateByExampleSelective(record, example) == userRoleIds.size();
+    	}
+    	
+    	return succFlag;
     }
     
     public boolean updateUser(UserInfoPo user) {
@@ -204,7 +217,7 @@ public class UserInfoDasImpl implements UserInfoDas{
     }
     
 	public boolean createConsAdmin(RolePo role, List<RolePermissionPo> permissionList, List<UserInfoPo> users,
-			List<UserRolePo> userRoles) {
+			List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs) {
 		
     	boolean succFlag =  Boolean.TRUE;
     	if(role != null) {
@@ -218,6 +231,9 @@ public class UserInfoDasImpl implements UserInfoDas{
     	}
     	if(CollectionUtils.isNotEmpty(userRoles)) {
     		succFlag = succFlag && userRolePoMapper.bulkInsert(userRoles) == userRoles.size();
+    	}
+    	if(CollectionUtils.isNotEmpty(userOrgs)) {
+    		succFlag = succFlag && userOrganizationPoMapper.bulkInsert(userOrgs) == userOrgs.size();
     	}
     	
     	return succFlag;

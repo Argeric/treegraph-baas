@@ -8,4 +8,6 @@ public interface TokenService {
 	UserInfoPo checkToken(String token);
 	
 	InviteUserPo checkInvitToken(String token);
+	
+	void authPermission(String userId, String uri);
 }

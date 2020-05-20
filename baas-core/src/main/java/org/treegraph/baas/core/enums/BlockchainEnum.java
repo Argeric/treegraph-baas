@@ -1,7 +1,5 @@
 package org.treegraph.baas.core.enums;
 
-import org.treegraph.baas.core.enums.ConsortiumEnum.Status;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

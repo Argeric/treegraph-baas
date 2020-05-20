@@ -38,6 +38,7 @@ public class NodeDasImpl implements NodeDas {
 			criteria.andNodeIpEqualTo(ip);
 		}
 		criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		example.setOrderByClause("create_time desc");
 		return nodePoMapper.selectByExample(example);
 	}
 
@@ -45,6 +46,7 @@ public class NodeDasImpl implements NodeDas {
 		NodePoExample example = new NodePoExample();
 		example.createCriteria().andConsortiumIdEqualTo(consId).andBlockchainIdEqualTo(chainId)
 				.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		example.setOrderByClause("create_time desc");
 		return nodePoMapper.selectByExample(example);
 	}
 
@@ -54,6 +56,7 @@ public class NodeDasImpl implements NodeDas {
 		}
 		NodePoExample example = new NodePoExample();
 		example.createCriteria().andBlockchainIdIn(chainIds).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		example.setOrderByClause("create_time desc");
 		return nodePoMapper.selectByExample(example);
 	}
 

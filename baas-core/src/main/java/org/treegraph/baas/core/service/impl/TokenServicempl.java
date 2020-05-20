@@ -16,14 +16,19 @@ import org.treegraph.baas.core.das.UserTokenDas;
 import org.treegraph.baas.core.domain.InviteUserPo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserTokenPo;
+import org.treegraph.baas.core.enums.UserEnum.PermissionPoint;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.TokenService;
 import org.treegraph.baas.core.util.JwtUtils;
 
+import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class TokenServicempl implements TokenService {
@@ -35,9 +40,55 @@ public class TokenServicempl implements TokenService {
     private InviteUserDas inviteUserDas;
     
     private PermissionDas permissionDas;
+    
+    private static Set<String> URI_PERMISSION_WHITELIST = Sets.newHashSet();
+    
+    private static Map<String, String> URI_PERMISSION_MAP = Maps.newHashMap();
+    
+    static {
+    	// white list
+    	URI_PERMISSION_WHITELIST.add("/user/invite/accept");
+    	URI_PERMISSION_WHITELIST.add("/user/pwd/modify");
+    	// user module
+    	URI_PERMISSION_MAP.put("/user/list", PermissionPoint.VIEW_CONS_USER.getCode());
+    	URI_PERMISSION_MAP.put("/user/query", PermissionPoint.VIEW_CONS_USER.getCode());
+    	URI_PERMISSION_MAP.put("/user/create", PermissionPoint.CREATE_CONS_USER.getCode());
+    	URI_PERMISSION_MAP.put("/user/modify", PermissionPoint.UPDATE_CONS_USER.getCode());
+    	URI_PERMISSION_MAP.put("/user/invite", PermissionPoint.CREATE_CONS_USER.getCode());
+    	URI_PERMISSION_MAP.put("/user/invite/accept", null);
+    	URI_PERMISSION_MAP.put("/user/pwd/modify", null);
+    	URI_PERMISSION_MAP.put("/user/del", PermissionPoint.UPDATE_CONS_USER.getCode());
+    	// role module
+    	URI_PERMISSION_MAP.put("/role/list", "");
+    	URI_PERMISSION_MAP.put("/role/query", "");
+    	URI_PERMISSION_MAP.put("/role/create", "");
+    	URI_PERMISSION_MAP.put("/role/modify", "");
+    	URI_PERMISSION_MAP.put("/role/del", "");
+    	// consortium module
+    	URI_PERMISSION_MAP.put("/cons/list", PermissionPoint.VIEW_CONS.getCode());
+    	URI_PERMISSION_MAP.put("/cons/query", PermissionPoint.VIEW_CONS.getCode());
+    	URI_PERMISSION_MAP.put("/cons/create", PermissionPoint.CREATE_CONS.getCode());
+    	URI_PERMISSION_MAP.put("/cons/modify", PermissionPoint.UPDATE_CONS.getCode());
+    	URI_PERMISSION_MAP.put("/cons/del", PermissionPoint.UPDATE_CONS.getCode());
+    	URI_PERMISSION_MAP.put("/cons/admin/create", PermissionPoint.CREATE_CONS_ADMIN.getCode());
+    	URI_PERMISSION_MAP.put("/cons/blockchain/create", PermissionPoint.CREATE_BLOCKCHAIN.getCode());
+    	URI_PERMISSION_MAP.put("/cons/node/create", PermissionPoint.CREATE_NODE.getCode());
+    	URI_PERMISSION_MAP.put("/cons/script/download", PermissionPoint.CREATE_BLOCKCHAIN.getCode());
+    	// blockchain module
+    	URI_PERMISSION_MAP.put("/blockchain/list", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
+    	URI_PERMISSION_MAP.put("/blockchain/detail", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
+    	URI_PERMISSION_MAP.put("/blockchain/ca/list", PermissionPoint.GENERATE_CA.getCode());
+    	URI_PERMISSION_MAP.put("/blockchain/ca/download", PermissionPoint.GENERATE_CA.getCode());
+    	URI_PERMISSION_MAP.put("/blockchain/stop", PermissionPoint.UPDATE_BLOCKCHAIN.getCode());
+    	URI_PERMISSION_MAP.put("/blockchain/start", PermissionPoint.UPDATE_BLOCKCHAIN.getCode());
+    	// node module
+    	URI_PERMISSION_MAP.put("/node/list", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
+    	URI_PERMISSION_MAP.put("/node/detail", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
+    	URI_PERMISSION_MAP.put("/node/log", PermissionPoint.VIEW_NODE_LOG.getCode());
+    	URI_PERMISSION_MAP.put("/node/modify", PermissionPoint.UPDATE_NODE.getCode());
+    }
 	
     public UserInfoPo checkToken(String token) {
-    	
     	// parse token
     	Map<String, Object> paraMap = JwtUtils.validateToken(token);
     	
@@ -62,7 +113,6 @@ public class TokenServicempl implements TokenService {
     }
     
     public InviteUserPo checkInvitToken(String token) {
-    	
     	// parse token
     	Map<String, Object> paraMap = JwtUtils.validateInviteToken(token);
     	
@@ -83,9 +133,15 @@ public class TokenServicempl implements TokenService {
     	return invite;
     }
     
-    public boolean authPermission(String userId, String uri) {
+    public void authPermission(String userId, String uri) {
+    	if(URI_PERMISSION_WHITELIST.contains(uri)) {
+    		return;
+    	}
+    	
     	List<String> permCodeList = permissionDas.findPermissionCodeByUserId(userId);
     	Set<String> permCodeSet = Sets.newHashSet(permCodeList);
-    	return false;
+    	String permissionCode = URI_PERMISSION_MAP.get(uri);
+    	//log.info("permissionCode======>"+permissionCode+",permCodeSet======>"+JSON.toJSONString(permCodeSet));
+    	//Assert.isTrue(permCodeSet.contains(permissionCode), "没有此访问权限");
     }
 }

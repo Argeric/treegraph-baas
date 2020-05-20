@@ -20,6 +20,8 @@ public interface UserInfoDas {
 	Optional<UserInfoPo> findByAccount(String account);
 	
 	List<UserInfoPo> findByAccountLike(String account);
+	
+	List<UserOrganizationPo> findUserOrgsByUserIds(List<String> userIds);
 
 	boolean createUser(UserInfoPo user, List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs);
 	
@@ -29,7 +31,7 @@ public interface UserInfoDas {
 	
 	boolean updateInviteUserById(InviteUserPo inviteUser);
 
-	boolean delUser(UserInfoPo user);
+	boolean delUser(UserInfoPo user, List<Long> userRoleIds);
 
 	List<UserInfoPo> findAll(String account, String name, String email, String phone);
 
@@ -39,7 +41,5 @@ public interface UserInfoDas {
 			List<Long> toDelUserOrgIds, List<UserOrganizationPo> toAddUserOrgs);
 
 	boolean createConsAdmin(RolePo consAdminRole, List<RolePermissionPo> rolePermissions, List<UserInfoPo> users,
-			List<UserRolePo> userRoles);
-	
-	List<UserOrganizationPo> findUserOrgsByUserIds(List<String> userIds);
+			List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs);
 }

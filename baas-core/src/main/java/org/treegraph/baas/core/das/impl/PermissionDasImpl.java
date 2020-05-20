@@ -42,6 +42,7 @@ public class PermissionDasImpl implements PermissionDas {
 		}
 		PermissionPoExample example = new PermissionPoExample();
 		example.createCriteria().andIdIn(permissionIds);
+		example.setOrderByClause("create_time desc");
 		return permissionPoMapper.selectByExample(example);
 	}
 
@@ -49,6 +50,7 @@ public class PermissionDasImpl implements PermissionDas {
 	public List<PermissionPo> findAll() {
 		PermissionPoExample example = new PermissionPoExample();
 		example.createCriteria().andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		example.setOrderByClause("create_time desc");
 		return permissionPoMapper.selectByExample(example);
 	}
 

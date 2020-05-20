@@ -7,16 +7,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.RolePermissionInfo;
 import org.treegraph.baas.api.dto.request.CreateRoleRequest;
+import org.treegraph.baas.api.dto.request.DeleteRoleRequest;
 import org.treegraph.baas.api.dto.request.ListRoleRequest;
 import org.treegraph.baas.api.dto.request.ModifyRoleRequest;
 import org.treegraph.baas.api.dto.request.QueryRoleRequest;
 import org.treegraph.baas.api.dto.response.ListRoleResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
+import org.treegraph.baas.core.constant.RoleConsts;
 import org.treegraph.baas.core.das.ConsortiumDas;
 import org.treegraph.baas.core.das.PermissionDas;
 import org.treegraph.baas.core.das.RoleDas;
@@ -24,10 +25,12 @@ import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.PermissionPo;
 import org.treegraph.baas.core.domain.RolePermissionPo;
 import org.treegraph.baas.core.domain.RolePo;
+import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.RoleService;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
+import org.treegraph.baas.core.util.Assert;
 import org.treegraph.baas.core.util.CollectionUtils;
 import org.treegraph.baas.core.util.DateTimeUtils;
 
@@ -72,8 +75,11 @@ public class RoleServicempl implements RoleService {
     }
 
 	public boolean createRole(CreateRoleRequest req) {
-		RoleInfoBo roleInfoBo = buildService.buildRole(UserEnum.Role.COMMON_USER.getCode(), req.getName(), req.getConsId(),
-				req.getPermissions());
+		Assert.isTrue(!RoleConsts.PREDEFINE_ROLE_NAME.contains(req.getName()), "预定义角色不可使用[" + req.getName() + "]");
+		List<RolePo> roles = roleDas.findAll(null, req.getConsId(), req.getName());
+		Assert.isTrue(CollectionUtils.isEmpty(roles), "同一联盟，角色名不可重复");
+		RoleInfoBo roleInfoBo = buildService.buildRole(UserEnum.Role.COMMON_USER.getCode(), req.getName(),
+				req.getConsId(), req.getPermissions());
 		return roleDas.createRole(roleInfoBo.getRole(), roleInfoBo.getRolePermissionList());
 	}
 
@@ -118,6 +124,13 @@ public class RoleServicempl implements RoleService {
    		}
    		
    		return roleDas.modifyRole(roleId, updateRole, toDelPermIds, toAddPerms);
+   	}
+   	
+   	public boolean deleteRole(DeleteRoleRequest req) {
+		RolePo role = roleDas.findById(req.getId()).orElseThrow(() -> new AlertException("role.not.found"));
+		List<UserRolePo> userRoles = roleDas.findUserRolesByRoleId(role.getId());
+		Assert.isTrue(CollectionUtils.isEmpty(userRoles), "此角色正在使用，不可删除");
+		return roleDas.deleteRole(role.getId());
    	}
 
 	private Map<String, Long> validatePermissions(List<String> reqPermissions) {

@@ -7,9 +7,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.core.das.NodeDas;
+import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.NodePoExample;
 import org.treegraph.baas.core.domain.NodePoExample.Criteria;
+import org.treegraph.baas.core.mapper.ConsortiumPoMapper;
 import org.treegraph.baas.core.mapper.NodePoMapper;
 import org.treegraph.baas.core.util.CollectionUtils;
 
@@ -22,6 +24,8 @@ import lombok.AllArgsConstructor;
 public class NodeDasImpl implements NodeDas {
 
 	private NodePoMapper nodePoMapper;
+	
+	private ConsortiumPoMapper consortiumPoMapper;
 
 	public Optional<NodePo> findById(String id) {
 		return nodePoMapper.selectByPrimaryKey(id);
@@ -59,9 +63,18 @@ public class NodeDasImpl implements NodeDas {
 		example.setOrderByClause("create_time desc");
 		return nodePoMapper.selectByExample(example);
 	}
+	
+	public long count() {
+		NodePoExample example = new NodePoExample();
+		example.createCriteria().andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		return nodePoMapper.countByExample(example);
+	}
 
-	public boolean addNodes(List<NodePo> list) {
-		return nodePoMapper.bulkInsert(list) == list.size();
+	public boolean addNodes(List<NodePo> list, ConsortiumPo cons) {
+		boolean succFlag =  Boolean.TRUE;
+		succFlag = succFlag && nodePoMapper.bulkInsert(list) == list.size();
+		succFlag = succFlag && consortiumPoMapper.updateByPrimaryKeySelective(cons) > 0;
+		return succFlag;
 	}
 
 	public boolean modifyNode(NodePo node) {

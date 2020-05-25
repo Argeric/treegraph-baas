@@ -1,7 +1,6 @@
 package org.treegraph.baas.core.mapper;
 
 import java.util.List;
-
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.UserOrganizationPo;
 import org.treegraph.baas.core.domain.UserOrganizationPoExample;

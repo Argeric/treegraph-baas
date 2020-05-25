@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.treegraph.baas.core.mapper.InviteUserPoMapper">
-  <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.InviteUserPo">
+<mapper namespace="org.treegraph.baas.core.mapper.UserInvitePoMapper">
+  <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.UserInvitePo">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="inviter" jdbcType="VARCHAR" property="inviter" />
     <result column="accepter" jdbcType="VARCHAR" property="accepter" />
@@ -72,13 +72,13 @@
   <sql id="Base_Column_List">
     id, inviter, accepter, token, expire, create_time, invite_time, accept_time
   </sql>
-  <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.InviteUserPoExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.UserInvitePoExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from invite_user
+    from user_invite
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -89,29 +89,29 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from invite_user
+    from user_invite
     where id = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-    delete from invite_user
+    delete from user_invite
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.InviteUserPoExample">
-    delete from invite_user
+  <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.UserInvitePoExample">
+    delete from user_invite
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.InviteUserPo" useGeneratedKeys="true">
-    insert into invite_user (inviter, accepter, token, 
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserInvitePo" useGeneratedKeys="true">
+    insert into user_invite (inviter, accepter, token, 
       expire, create_time, invite_time, 
       accept_time)
     values (#{inviter,jdbcType=VARCHAR}, #{accepter,jdbcType=VARCHAR}, #{token,jdbcType=VARCHAR}, 
       #{expire,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{inviteTime,jdbcType=TIMESTAMP}, 
       #{acceptTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.InviteUserPo" useGeneratedKeys="true">
-    insert into invite_user
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserInvitePo" useGeneratedKeys="true">
+    insert into user_invite
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="inviter != null">
         inviter,
@@ -159,14 +159,14 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="org.treegraph.baas.core.domain.InviteUserPoExample" resultType="java.lang.Long">
-    select count(*) from invite_user
+  <select id="countByExample" parameterType="org.treegraph.baas.core.domain.UserInvitePoExample" resultType="java.lang.Long">
+    select count(*) from user_invite
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update invite_user
+    update user_invite
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=BIGINT},
@@ -198,7 +198,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update invite_user
+    update user_invite
     set id = #{record.id,jdbcType=BIGINT},
       inviter = #{record.inviter,jdbcType=VARCHAR},
       accepter = #{record.accepter,jdbcType=VARCHAR},
@@ -211,8 +211,8 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="org.treegraph.baas.core.domain.InviteUserPo">
-    update invite_user
+  <update id="updateByPrimaryKeySelective" parameterType="org.treegraph.baas.core.domain.UserInvitePo">
+    update user_invite
     <set>
       <if test="inviter != null">
         inviter = #{inviter,jdbcType=VARCHAR},
@@ -238,8 +238,8 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.InviteUserPo">
-    update invite_user
+  <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.UserInvitePo">
+    update user_invite
     set inviter = #{inviter,jdbcType=VARCHAR},
       accepter = #{accepter,jdbcType=VARCHAR},
       token = #{token,jdbcType=VARCHAR},

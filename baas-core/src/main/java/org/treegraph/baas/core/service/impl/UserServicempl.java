@@ -31,11 +31,11 @@ import org.treegraph.baas.core.das.InviteUserDas;
 import org.treegraph.baas.core.das.RoleDas;
 import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.domain.ConsortiumPo;
-import org.treegraph.baas.core.domain.InviteUserPo;
-import org.treegraph.baas.core.domain.InviteUserRolePo;
 import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
+import org.treegraph.baas.core.domain.UserInvitePo;
 import org.treegraph.baas.core.domain.UserOrganizationPo;
+import org.treegraph.baas.core.domain.UserRoleInvitePo;
 import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.exception.AlertException;
@@ -93,48 +93,48 @@ public class UserServicempl implements UserService {
 		UserInfoPo userInfo = userInfoDas.findByAccount(req.getAccount())
 				.orElseThrow(() -> new AlertException("user.not.found"));
 		validateRoleIds(req.getRoles());
-		List<InviteUserRolePo> inviteUserRoles = Lists.newArrayList();
+		List<UserRoleInvitePo> userRoleInvites = Lists.newArrayList();
 		req.getRoles().stream().forEach(role -> {
-			List<InviteUserRolePo> inviteUserRoleList = role.getRoleIds().stream()
-					.map(roleId -> InviteUserRolePo.builder()
+			List<UserRoleInvitePo> userRoleInviteList = role.getRoleIds().stream()
+					.map(roleId -> UserRoleInvitePo.builder()
 							.inviteId(null)
 							.userId(userInfo.getId())
 							.roleId(roleId)
-							.consId(role.getConsId())
-							.orgName(role.getOrgName())
+							.consortiumId(role.getConsId())
+							.organizationName(role.getOrgName())
 							.status(UserEnum.InviteUserRoleStatus.NOT_ACCEPT.getCode())
 							.build())
 					.collect(Collectors.toList());
-			inviteUserRoles.addAll(inviteUserRoleList);
+			userRoleInvites.addAll(userRoleInviteList);
 		});
 		
 		String oper = WebHelper.getUserId();
 		LocalDateTime now = LocalDateTime.now();
-		InviteUserPo inviteUser = InviteUserPo.builder()
+		UserInvitePo userInvite = UserInvitePo.builder()
 				.inviter(oper)
 				.accepter(userInfo.getId())
 				.createTime(now)
 				.build();
-		userInfoDas.inviteUser(inviteUser, inviteUserRoles);
+		userInfoDas.inviteUser(userInvite, userRoleInvites);
 		
-		emailService.sendEmail(Lists.newArrayList(userInfo.getEmail()), InviteConsts.TITLE, inviteUser.getToken());
+		emailService.sendEmail(Lists.newArrayList(userInfo.getEmail()), InviteConsts.TITLE, userInvite.getToken());
 		
-		InviteUserPo updateInviteUser = InviteUserPo.builder()
-				.id(inviteUser.getId())
+		UserInvitePo updateInviteUser = UserInvitePo.builder()
+				.id(userInvite.getId())
 				.inviteTime(LocalDateTime.now())
 				.build();
 		userInfoDas.updateInviteUserById(updateInviteUser);
 		
-		return inviteUser.getToken();
+		return userInvite.getToken();
 	}
 	
 	public boolean acceptInvite(AcceptInviteRequest req) {
-		InviteUserPo invitUser = tokenService.checkInvitToken(req.getToken());
-		List<InviteUserRolePo> inviteUserRoles = inviteUserDas.findByInviteId(invitUser.getId());
+		UserInvitePo userInvite = tokenService.checkInvitToken(req.getToken());
+		List<UserRoleInvitePo> userRoleInvites = inviteUserDas.findByInviteId(userInvite.getId());
 
-		Map<String, List<String>> roleInfoMap = inviteUserRoles.stream()
-				.collect(Collectors.groupingBy(item -> item.getConsId() + "," + item.getOrgName(),
-						Collectors.mapping(InviteUserRolePo::getRoleId, Collectors.toList())));
+		Map<String, List<String>> roleInfoMap = userRoleInvites.stream()
+				.collect(Collectors.groupingBy(item -> item.getConsortiumId() + "," + item.getOrganizationName(),
+						Collectors.mapping(UserRoleInvitePo::getRoleId, Collectors.toList())));
 		List<RoleInfo> roleInfos = roleInfoMap.entrySet().stream().map(item -> {
 			List<String> paras = SplitterConsts.COMMA_SPLITTER.splitToList(item.getKey());
 			return RoleInfo.builder()
@@ -145,7 +145,7 @@ public class UserServicempl implements UserService {
 		}).collect(Collectors.toList());
 		List<String> roleIds = validateRoleIds(roleInfos);
 		
-		List<UserRolePo> userRoles = buildService.buildUserRoles(invitUser.getAccepter(), roleIds);
+		List<UserRolePo> userRoles = buildService.buildUserRoles(userInvite.getAccepter(), roleIds);
 		return userInfoDas.createUserRoles(userRoles);
 	}
 	
@@ -153,28 +153,28 @@ public class UserServicempl implements UserService {
 		UserInfoPo userInfo = userInfoDas.findByAccount(req.getAccount())
 				.orElseThrow(() -> new AlertException("user.not.found"));
 		List<String> roleIds = validateRoleIds(req.getRoles());
-		List<InviteUserRolePo> inviteUserRoles = roleIds.stream()
-				.map(item -> InviteUserRolePo.builder().inviteId(null).userId(userInfo.getId()).roleId(item).build())
+		List<UserRoleInvitePo> userRoleInvites = roleIds.stream()
+				.map(item -> UserRoleInvitePo.builder().inviteId(null).userId(userInfo.getId()).roleId(item).build())
 				.collect(Collectors.toList());
 		
 		String oper = WebHelper.getUserId();
 		LocalDateTime now = LocalDateTime.now();
-		InviteUserPo inviteUser = InviteUserPo.builder()
+		UserInvitePo userInvite = UserInvitePo.builder()
 				.inviter(oper)
 				.accepter(userInfo.getId())
 				.createTime(now)
 				.build();
-		userInfoDas.inviteUser(inviteUser, inviteUserRoles);
+		userInfoDas.inviteUser(userInvite, userRoleInvites);
 		
-		emailService.sendEmail(Lists.newArrayList(userInfo.getEmail()), InviteConsts.TITLE, inviteUser.getToken());
+		emailService.sendEmail(Lists.newArrayList(userInfo.getEmail()), InviteConsts.TITLE, userInvite.getToken());
 		
-		InviteUserPo updateInviteUser = InviteUserPo.builder()
-				.id(inviteUser.getId())
+		UserInvitePo updateInviteUser = UserInvitePo.builder()
+				.id(userInvite.getId())
 				.inviteTime(LocalDateTime.now())
 				.build();
 		userInfoDas.updateInviteUserById(updateInviteUser);
 		
-		return inviteUser.getToken();
+		return userInvite.getToken();
 	}
 	
 	public boolean deleteUser(DeleteUserRequest req){

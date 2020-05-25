@@ -8,23 +8,25 @@ import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.UserInfoDas;
-import org.treegraph.baas.core.domain.InviteUserPo;
-import org.treegraph.baas.core.domain.InviteUserRolePo;
+import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.RolePermissionPo;
 import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserInfoPoExample;
 import org.treegraph.baas.core.domain.UserInfoPoExample.Criteria;
+import org.treegraph.baas.core.domain.UserInvitePo;
 import org.treegraph.baas.core.domain.UserOrganizationPo;
 import org.treegraph.baas.core.domain.UserOrganizationPoExample;
+import org.treegraph.baas.core.domain.UserRoleInvitePo;
 import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.domain.UserRolePoExample;
-import org.treegraph.baas.core.mapper.InviteUserPoMapper;
-import org.treegraph.baas.core.mapper.InviteUserRolePoMapper;
+import org.treegraph.baas.core.mapper.ConsortiumPoMapper;
 import org.treegraph.baas.core.mapper.RolePermissionPoMapper;
 import org.treegraph.baas.core.mapper.RolePoMapper;
 import org.treegraph.baas.core.mapper.UserInfoPoMapper;
+import org.treegraph.baas.core.mapper.UserInvitePoMapper;
 import org.treegraph.baas.core.mapper.UserOrganizationPoMapper;
+import org.treegraph.baas.core.mapper.UserRoleInvitePoMapper;
 import org.treegraph.baas.core.mapper.UserRolePoMapper;
 import org.treegraph.baas.core.util.CacheTimeUtil;
 import org.treegraph.baas.core.util.CollectionUtils;
@@ -49,9 +51,11 @@ public class UserInfoDasImpl implements UserInfoDas{
     
     private RolePermissionPoMapper rolePermissionPoMapper;
     
-    private InviteUserPoMapper inviteUserPoMapper;
+    private UserInvitePoMapper userInvitePoMapper;
     
-    private InviteUserRolePoMapper inviteUserRolePoMapper;
+    private UserRoleInvitePoMapper userRoleInvitePoMapper;
+    
+    private ConsortiumPoMapper consortiumPoMapper;
     
     public Optional<UserInfoPo> findById(String userId) {
         return userInfoPoMapper.selectByPrimaryKey(userId);
@@ -113,6 +117,12 @@ public class UserInfoDasImpl implements UserInfoDas{
 		.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
 		return userOrganizationPoMapper.selectByExample(example);
 	}    
+	
+	public long count() {
+		UserInfoPoExample example = new UserInfoPoExample();
+		example.createCriteria().andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		return userInfoPoMapper.countByExample(example);
+	}
     
     public boolean createUser(UserInfoPo user, List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs) {
     	boolean succFlag = Boolean.TRUE;
@@ -139,30 +149,30 @@ public class UserInfoDasImpl implements UserInfoDas{
     }
     
     
-	public boolean inviteUser(InviteUserPo inviteUser, List<InviteUserRolePo> inviteUserRoles) {
+	public boolean inviteUser(UserInvitePo userInvite, List<UserRoleInvitePo> userRoleInvites) {
 		boolean succFlag = Boolean.TRUE;
 
-		succFlag = succFlag && inviteUserPoMapper.insert(inviteUser) > 0;
+		succFlag = succFlag && userInvitePoMapper.insert(userInvite) > 0;
 		
-		if (CollectionUtils.isNotEmpty(inviteUserRoles)) {
-			inviteUserRoles.stream().forEach(item -> item.setInviteId(inviteUser.getId()));
-			succFlag = succFlag && inviteUserRolePoMapper.bulkInsert(inviteUserRoles) == inviteUserRoles.size();
+		if (CollectionUtils.isNotEmpty(userRoleInvites)) {
+			userRoleInvites.stream().forEach(item -> item.setInviteId(userInvite.getId()));
+			succFlag = succFlag && userRoleInvitePoMapper.bulkInsert(userRoleInvites) == userRoleInvites.size();
 		}
 		
 		long expireSecs = CacheTimeUtil.getSecondToMorning();
-		String token = JwtUtils.generateInviteToken(inviteUser.getId(), inviteUser.getInviter(), inviteUser.getAccepter(), expireSecs);
-		InviteUserPo updateInviteUser = InviteUserPo.builder()
-				.id(inviteUser.getId())
+		String token = JwtUtils.generateInviteToken(userInvite.getId(), userInvite.getInviter(), userInvite.getAccepter(), expireSecs);
+		UserInvitePo updateInviteUser = UserInvitePo.builder()
+				.id(userInvite.getId())
 				.token(token)
 				.expire((int)expireSecs)
 				.build();
-		succFlag = succFlag && inviteUserPoMapper.updateByPrimaryKeySelective(updateInviteUser) > 0;
+		succFlag = succFlag && userInvitePoMapper.updateByPrimaryKeySelective(updateInviteUser) > 0;
 		
 		return succFlag;
 	}
 	
-	public boolean updateInviteUserById(InviteUserPo inviteUser) {
-		return inviteUserPoMapper.updateByPrimaryKeySelective(inviteUser) > 0;
+	public boolean updateInviteUserById(UserInvitePo userInvite) {
+		return userInvitePoMapper.updateByPrimaryKeySelective(userInvite) > 0;
 	}
     
     public boolean delUser(UserInfoPo user, List<Long> userRoleIds) {
@@ -217,7 +227,7 @@ public class UserInfoDasImpl implements UserInfoDas{
     }
     
 	public boolean createConsAdmin(RolePo role, List<RolePermissionPo> permissionList, List<UserInfoPo> users,
-			List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs) {
+			List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs, ConsortiumPo cons) {
 		
     	boolean succFlag =  Boolean.TRUE;
     	if(role != null) {
@@ -235,6 +245,7 @@ public class UserInfoDasImpl implements UserInfoDas{
     	if(CollectionUtils.isNotEmpty(userOrgs)) {
     		succFlag = succFlag && userOrganizationPoMapper.bulkInsert(userOrgs) == userOrgs.size();
     	}
+    	succFlag = succFlag && consortiumPoMapper.updateByPrimaryKeySelective(cons) > 0;
     	
     	return succFlag;
 	}

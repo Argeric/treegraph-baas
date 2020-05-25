@@ -16,7 +16,7 @@ public class NodeEnum {
         /**
          * 部署中
          */
-        DEPLOYING(0, "部署中"),
+        TO_DEPLOY(0, "待部署"),
 
         /**
          * 运行中
@@ -31,7 +31,7 @@ public class NodeEnum {
         /**
          * 异常
          */
-        EXCEPTION(2, "异常"),
+        EXCEPTION(3, "异常"),
 
         ;
 
@@ -49,7 +49,7 @@ public class NodeEnum {
         }
 
         public static boolean isRuningOrDeploying(int status) {
-            return RUNING.getCode() == status || DEPLOYING.getCode() == status;
+            return RUNING.getCode() == status;
         }
     }
 

@@ -1,10 +1,14 @@
 package org.treegraph.baas.web.rest;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.treegraph.baas.api.dto.BaasResult;
+import org.treegraph.baas.api.dto.ConsDetailInfo;
+import org.treegraph.baas.api.dto.ConsInfo;
 import org.treegraph.baas.api.dto.ListRequest;
 import org.treegraph.baas.api.dto.request.AddNodesRequest;
 import org.treegraph.baas.api.dto.request.CreateBlockchainRequest;
@@ -13,9 +17,9 @@ import org.treegraph.baas.api.dto.request.CreateConsRequest;
 import org.treegraph.baas.api.dto.request.DeleteConsRequest;
 import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
 import org.treegraph.baas.api.dto.request.ModifyConsRequest;
+import org.treegraph.baas.api.dto.request.QueryConsDetailRequest;
 import org.treegraph.baas.api.dto.request.QueryConsRequest;
 import org.treegraph.baas.api.dto.response.ListConsResponse;
-import org.treegraph.baas.api.dto.response.QueryConsResponse;
 import org.treegraph.baas.core.service.ConsortiumService;
 
 import io.swagger.annotations.Api;
@@ -42,10 +46,17 @@ public class ConsortiumController {
 		return BaasResult.success(data);
 	}
 	
+	@PostMapping("/detail")
+	@ApiOperation("联盟详情")
+	public BaasResult<List<ConsDetailInfo>> queryConsDetail(@RequestBody QueryConsDetailRequest queryConsDetailRequest) {
+		List<ConsDetailInfo> data = consortiumService.queryConsDetail(queryConsDetailRequest);
+		return BaasResult.success(data);
+	}
+	
 	@PostMapping("/query")
 	@ApiOperation("查询联盟")
-	public BaasResult<QueryConsResponse> queryCons(@RequestBody QueryConsRequest queryConsRequest) {
-		QueryConsResponse data = consortiumService.queryCons(queryConsRequest);
+	public BaasResult<List<ConsInfo>> queryCons(@RequestBody QueryConsRequest queryConsRequest) {
+		List<ConsInfo> data = consortiumService.queryCons(queryConsRequest);
 		return BaasResult.success(data);
 	}
 	

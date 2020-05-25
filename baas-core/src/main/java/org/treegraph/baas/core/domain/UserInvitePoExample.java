@@ -4,14 +4,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InviteUserPoExample {
+public class UserInvitePoExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public InviteUserPoExample() {
+    public UserInvitePoExample() {
         oredCriteria = new ArrayList<>();
     }
 

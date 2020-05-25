@@ -90,16 +90,16 @@
         </table>        
         <table tableName="consortium" domainObjectName="ConsortiumPo">
         </table>  
-        <table tableName="invite_user" domainObjectName="InviteUserPo">
-        <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table>   
-        <table tableName="invite_user_role" domainObjectName="InviteUserRolePo">
-       		<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table>
-        -->
         <table tableName="user_organization" domainObjectName="UserOrganizationPo">
        		<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>              
+        -->
+        <table tableName="user_invite" domainObjectName="UserInvitePo">
+        <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>   
+        <table tableName="user_role_invite" domainObjectName="UserRoleInvitePo">
+       		<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
 
     </context>
 

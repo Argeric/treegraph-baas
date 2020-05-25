@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.treegraph.baas.core.mapper.InviteUserRolePoMapper">
-  <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.InviteUserRolePo">
+<mapper namespace="org.treegraph.baas.core.mapper.UserRoleInvitePoMapper">
+  <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.UserRoleInvitePo">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="invite_id" jdbcType="BIGINT" property="inviteId" />
     <result column="user_id" jdbcType="VARCHAR" property="userId" />
     <result column="role_id" jdbcType="VARCHAR" property="roleId" />
-    <result column="cons_id" jdbcType="VARCHAR" property="consId" />
-    <result column="org_name" jdbcType="VARCHAR" property="orgName" />
+    <result column="consortium_id" jdbcType="VARCHAR" property="consortiumId" />
+    <result column="organization_name" jdbcType="VARCHAR" property="organizationName" />
     <result column="status" jdbcType="INTEGER" property="status" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -69,15 +69,15 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, invite_id, user_id, role_id, cons_id, org_name, `status`
+    id, invite_id, user_id, role_id, consortium_id, organization_name, `status`
   </sql>
-  <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.InviteUserRolePoExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.UserRoleInvitePoExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from invite_user_role
+    from user_role_invite
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -88,29 +88,29 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from invite_user_role
+    from user_role_invite
     where id = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-    delete from invite_user_role
+    delete from user_role_invite
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.InviteUserRolePoExample">
-    delete from invite_user_role
+  <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.UserRoleInvitePoExample">
+    delete from user_role_invite
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.InviteUserRolePo" useGeneratedKeys="true">
-    insert into invite_user_role (invite_id, user_id, role_id, 
-      cons_id, org_name, `status`
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserRoleInvitePo" useGeneratedKeys="true">
+    insert into user_role_invite (invite_id, user_id, role_id, 
+      consortium_id, organization_name, `status`
       )
     values (#{inviteId,jdbcType=BIGINT}, #{userId,jdbcType=VARCHAR}, #{roleId,jdbcType=VARCHAR}, 
-      #{consId,jdbcType=VARCHAR}, #{orgName,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}
+      #{consortiumId,jdbcType=VARCHAR}, #{organizationName,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}
       )
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.InviteUserRolePo" useGeneratedKeys="true">
-    insert into invite_user_role
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserRoleInvitePo" useGeneratedKeys="true">
+    insert into user_role_invite
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="inviteId != null">
         invite_id,
@@ -121,11 +121,11 @@
       <if test="roleId != null">
         role_id,
       </if>
-      <if test="consId != null">
-        cons_id,
+      <if test="consortiumId != null">
+        consortium_id,
       </if>
-      <if test="orgName != null">
-        org_name,
+      <if test="organizationName != null">
+        organization_name,
       </if>
       <if test="status != null">
         `status`,
@@ -141,25 +141,25 @@
       <if test="roleId != null">
         #{roleId,jdbcType=VARCHAR},
       </if>
-      <if test="consId != null">
-        #{consId,jdbcType=VARCHAR},
+      <if test="consortiumId != null">
+        #{consortiumId,jdbcType=VARCHAR},
       </if>
-      <if test="orgName != null">
-        #{orgName,jdbcType=VARCHAR},
+      <if test="organizationName != null">
+        #{organizationName,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         #{status,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="org.treegraph.baas.core.domain.InviteUserRolePoExample" resultType="java.lang.Long">
-    select count(*) from invite_user_role
+  <select id="countByExample" parameterType="org.treegraph.baas.core.domain.UserRoleInvitePoExample" resultType="java.lang.Long">
+    select count(*) from user_role_invite
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update invite_user_role
+    update user_role_invite
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=BIGINT},
@@ -173,11 +173,11 @@
       <if test="record.roleId != null">
         role_id = #{record.roleId,jdbcType=VARCHAR},
       </if>
-      <if test="record.consId != null">
-        cons_id = #{record.consId,jdbcType=VARCHAR},
+      <if test="record.consortiumId != null">
+        consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
       </if>
-      <if test="record.orgName != null">
-        org_name = #{record.orgName,jdbcType=VARCHAR},
+      <if test="record.organizationName != null">
+        organization_name = #{record.organizationName,jdbcType=VARCHAR},
       </if>
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=INTEGER},
@@ -188,20 +188,20 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update invite_user_role
+    update user_role_invite
     set id = #{record.id,jdbcType=BIGINT},
       invite_id = #{record.inviteId,jdbcType=BIGINT},
       user_id = #{record.userId,jdbcType=VARCHAR},
       role_id = #{record.roleId,jdbcType=VARCHAR},
-      cons_id = #{record.consId,jdbcType=VARCHAR},
-      org_name = #{record.orgName,jdbcType=VARCHAR},
+      consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      organization_name = #{record.organizationName,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=INTEGER}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="org.treegraph.baas.core.domain.InviteUserRolePo">
-    update invite_user_role
+  <update id="updateByPrimaryKeySelective" parameterType="org.treegraph.baas.core.domain.UserRoleInvitePo">
+    update user_role_invite
     <set>
       <if test="inviteId != null">
         invite_id = #{inviteId,jdbcType=BIGINT},
@@ -212,11 +212,11 @@
       <if test="roleId != null">
         role_id = #{roleId,jdbcType=VARCHAR},
       </if>
-      <if test="consId != null">
-        cons_id = #{consId,jdbcType=VARCHAR},
+      <if test="consortiumId != null">
+        consortium_id = #{consortiumId,jdbcType=VARCHAR},
       </if>
-      <if test="orgName != null">
-        org_name = #{orgName,jdbcType=VARCHAR},
+      <if test="organizationName != null">
+        organization_name = #{organizationName,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         `status` = #{status,jdbcType=INTEGER},
@@ -224,25 +224,25 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.InviteUserRolePo">
-    update invite_user_role
+  <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.UserRoleInvitePo">
+    update user_role_invite
     set invite_id = #{inviteId,jdbcType=BIGINT},
       user_id = #{userId,jdbcType=VARCHAR},
       role_id = #{roleId,jdbcType=VARCHAR},
-      cons_id = #{consId,jdbcType=VARCHAR},
-      org_name = #{orgName,jdbcType=VARCHAR},
+      consortium_id = #{consortiumId,jdbcType=VARCHAR},
+      organization_name = #{organizationName,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=INTEGER}
     where id = #{id,jdbcType=BIGINT}
   </update>
   
-  <insert id="bulkInsert" parameterType="org.treegraph.baas.core.domain.InviteUserRolePo">
-      INSERT INTO invite_user_role(
+ <insert id="bulkInsert" parameterType="org.treegraph.baas.core.domain.UserRoleInvitePo">
+      INSERT INTO user_role_invite(
           invite_id, 
           user_id, 
           role_id, 
       	  `status`,
-      	  cons_id,
-      	  org_name
+      	  consortium_id,
+      	  organization_name
       )
       VALUES
       <foreach collection="list" item="item" separator=",">
@@ -251,9 +251,9 @@
               #{item.userId},
               #{item.roleId},
               #{item.status},
-              #{item.consId},
-              #{item.orgName}
+              #{item.consortiumId},
+              #{item.organizationName}
           )
       </foreach>
-  </insert>      
+  </insert>     
 </mapper>

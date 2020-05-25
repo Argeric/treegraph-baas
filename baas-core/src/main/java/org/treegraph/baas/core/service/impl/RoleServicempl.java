@@ -69,7 +69,7 @@ public class RoleServicempl implements RoleService {
     			.build();
     }
     
-   public List<RolePermissionInfo> queryRole(QueryRoleRequest req) {
+    public List<RolePermissionInfo> queryRole(QueryRoleRequest req) {
     	List<RolePo> roleList = roleDas.findAll(req.getId(), req.getConsId(), null);
     	return getRolePermissionInfo(roleList);
     }

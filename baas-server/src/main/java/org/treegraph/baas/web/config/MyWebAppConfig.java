@@ -21,7 +21,9 @@ public class MyWebAppConfig /*extends WebMvcConfigurerAdapter*/ implements WebMv
                 "/role/**", "/treegraph/role/**",
                 "/cons/**", "/treegraph/cons/**",
                 "/blockchain/**", "/treegraph/blockchain/**",
-                "/node/**", "/treegraph/node/**"
+                "/node/**", "/treegraph/node/**",
+                "/sys/log/**", "/treegraph/sys/log/**",
+                "/stat/**", "/treegraph/stat/**"
         };
         
         registry.addInterceptor(loginAuthInterceptor).addPathPatterns(clientTokenAuthUrls);

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class InviteUserPo implements Serializable {
+public class UserInvitePo implements Serializable {
     /**
      * 主键
      */

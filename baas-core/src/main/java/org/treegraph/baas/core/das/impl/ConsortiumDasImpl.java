@@ -45,7 +45,7 @@ public class ConsortiumDasImpl implements ConsortiumDas{
 		ConsortiumPoExample example = new ConsortiumPoExample();
 		example.createCriteria().andIdIn(ids);
 		example.setOrderByClause("create_time desc");
-		return consortiumPoMapper.selectByExample(example);
+		return consortiumPoMapper.selectByExampleWithBLOBs(example);
 	}
 	
 	public List<ConsortiumPo> findAll(String id){
@@ -57,6 +57,12 @@ public class ConsortiumDasImpl implements ConsortiumDas{
 		}
 		example.setOrderByClause("create_time desc");
 		return consortiumPoMapper.selectByExampleWithBLOBs(example);
+	}
+	
+	public long count() {
+		ConsortiumPoExample example = new ConsortiumPoExample();
+		example.createCriteria().andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		return consortiumPoMapper.countByExample(example);
 	}
 	
 	public int createConsortium(ConsortiumPo cons) {

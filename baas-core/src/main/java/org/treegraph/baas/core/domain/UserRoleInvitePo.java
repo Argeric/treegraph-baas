@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class InviteUserRolePo implements Serializable {
+public class UserRoleInvitePo implements Serializable {
     /**
      * 主键
      */
@@ -34,12 +34,12 @@ public class InviteUserRolePo implements Serializable {
     /**
      * 联盟id
      */
-    private String consId;
+    private String consortiumId;
 
     /**
      * 组织名称
      */
-    private String orgName;
+    private String organizationName;
 
     /**
      * 邀请状态，0-未授角色，1-已授角色

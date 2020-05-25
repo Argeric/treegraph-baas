@@ -255,5 +255,5 @@
               #{item.updateTime}
           )
       </foreach>
-  </insert>    
+  </insert>   
 </mapper>

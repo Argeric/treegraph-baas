@@ -13,7 +13,7 @@ import org.treegraph.baas.core.das.InviteUserDas;
 import org.treegraph.baas.core.das.PermissionDas;
 import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.das.UserTokenDas;
-import org.treegraph.baas.core.domain.InviteUserPo;
+import org.treegraph.baas.core.domain.UserInvitePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserTokenPo;
 import org.treegraph.baas.core.enums.UserEnum.PermissionPoint;
@@ -112,7 +112,7 @@ public class TokenServicempl implements TokenService {
     	return user;
     }
     
-    public InviteUserPo checkInvitToken(String token) {
+    public UserInvitePo checkInvitToken(String token) {
     	// parse token
     	Map<String, Object> paraMap = JwtUtils.validateInviteToken(token);
     	
@@ -120,7 +120,7 @@ public class TokenServicempl implements TokenService {
     	Long inviteId = Long.parseLong(JwtUtils.getInviteId(paraMap));
     	String inviter = JwtUtils.getInviter(paraMap);
     	String accepter = JwtUtils.getAccepter(paraMap);
-    	InviteUserPo invite = inviteUserDas.findById(inviteId).orElseThrow(() -> new AlertException("邀请不存在["+inviteId+"]"));
+    	UserInvitePo invite = inviteUserDas.findById(inviteId).orElseThrow(() -> new AlertException("邀请不存在["+inviteId+"]"));
     	Assert.isTrue(invite.getInviter().equals(inviter), "邀请人不一致["+invite.getInviter()+"]");
     	Assert.isTrue(invite.getAccepter().equals(accepter), "被邀请人不一致["+invite.getAccepter()+"]");
     	Assert.isTrue(inviter.equals(WebHelper.getUserId()), "被邀请人和登陆用户不一致["+invite.getInviter()+"]["+WebHelper.getUserId()+"]");

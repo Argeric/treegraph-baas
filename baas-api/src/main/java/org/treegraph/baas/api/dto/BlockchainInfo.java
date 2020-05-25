@@ -22,9 +22,10 @@ public class BlockchainInfo {
 	private String consAvatar;//联盟头像	
 	private String createUser;//创建人	
 	private String createTime;//创建时间	
-	private String status;//区块链状态	
+	private Integer status;//区块链状态	
 	private String nodeCount;//节点数	
 	private String tps;//TPS	
 	private String contractCount;//合约数	
 	private String txCount;//日新增交易
+	private String alertEmail;//报警邮箱
 }

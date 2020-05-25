@@ -331,19 +331,18 @@
       VALUES
       <foreach collection="list" item="item" separator=",">
           (
-          	 (#{id,jdbcType=VARCHAR}, 
-             (#{consortiumId,jdbcType=VARCHAR}, 
-             #{blockchainId,jdbcType=VARCHAR}, 
-             #{nodeIp,jdbcType=VARCHAR}, 
-      		 #{nodePort,jdbcType=INTEGER}, 
-      		 #{organizationName,
-      		 jdbcType=VARCHAR}, 
-      		 #{status,jdbcType=INTEGER}, 
-             #{deleteFlag,jdbcType=INTEGER}, 
-             #{createTime,jdbcType=TIMESTAMP}, 
-             #{updateTime,jdbcType=TIMESTAMP}, 
-             #{createBy,jdbcType=VARCHAR}, 
-             #{updateBy,jdbcType=VARCHAR})
+          	 #{item.id,jdbcType=VARCHAR}, 
+             #{item.consortiumId,jdbcType=VARCHAR}, 
+             #{item.blockchainId,jdbcType=VARCHAR}, 
+             #{item.nodeIp,jdbcType=VARCHAR}, 
+      		 #{item.nodePort,jdbcType=INTEGER}, 
+      		 #{item.organizationName,jdbcType=VARCHAR}, 
+      		 #{item.status,jdbcType=INTEGER}, 
+             #{item.deleteFlag,jdbcType=INTEGER}, 
+             #{item.createTime,jdbcType=TIMESTAMP}, 
+             #{item.updateTime,jdbcType=TIMESTAMP}, 
+             #{item.createBy,jdbcType=VARCHAR}, 
+             #{item.updateBy,jdbcType=VARCHAR}
           )
       </foreach>
   </insert>    

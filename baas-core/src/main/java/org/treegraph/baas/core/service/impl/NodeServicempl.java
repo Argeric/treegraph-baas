@@ -96,7 +96,7 @@ public class NodeServicempl implements NodeService {
 
 	public boolean modifyNode(ModifyNodeRequest req) {
 		NodePo node = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
-		Assert.isTrue(NodeEnum.Status.isRuningOrDeploying(node.getStatus()),
+		Assert.isTrue(!NodeEnum.Status.isRuningOrDeploying(node.getStatus()),
 				"节点在运行中或部署中，不可修改[" + req.getIp() + ":" + req.getPort() + "]");
 		
 		NodePo nodePo = NodePo.builder().id(req.getId())

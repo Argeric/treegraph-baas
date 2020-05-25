@@ -16,7 +16,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.treegraph.baas.common.util.WebHelper;
-import org.treegraph.baas.core.das.UserOperLogDas;
+import org.treegraph.baas.core.service.LogService;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class LogAspect {
 	
-	private UserOperLogDas userOperLogDas;
+	private LogService logService;
 
     /**
      * @Description: 日志切点
@@ -91,7 +91,7 @@ public class LogAspect {
 			return;
 		}
 		StringBuilder info = new StringBuilder("req=").append(req).append(",resp=").append(resp);
-		userOperLogDas.addOperLog(WebHelper.getUserId(), WebHelper.getUserName(), WebHelper.getUserIp(),
+		logService.addOperLog(WebHelper.getUserId(), WebHelper.getUserName(), WebHelper.getUserIp(),
 				paras[1], info.toString());
 	}
 }

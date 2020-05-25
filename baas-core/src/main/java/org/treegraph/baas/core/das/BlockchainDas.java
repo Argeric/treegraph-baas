@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.treegraph.baas.core.domain.BlockChainPo;
+import org.treegraph.baas.core.domain.ConsortiumPo;
 
 public interface BlockchainDas {
 	
@@ -11,11 +12,15 @@ public interface BlockchainDas {
 	
 	Optional<BlockChainPo> findById(String id);
 	
-	List<BlockChainPo> findAll();
+	List<BlockChainPo> findAll(String id, String consId);
 	
 	List<BlockChainPo> findByConsId(String consId);
 	
-	boolean createBlockchain(BlockChainPo blockchain);
+	List<BlockChainPo> findByConsIds(List<String> consId);
+	
+	long count();
+	
+	boolean createBlockchain(BlockChainPo blockchain, ConsortiumPo cons);
 	
 	boolean modify(BlockChainPo blockChainPo);
 }

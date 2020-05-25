@@ -3,11 +3,11 @@ package org.treegraph.baas.core.das;
 import java.util.List;
 import java.util.Optional;
 
-import org.treegraph.baas.core.domain.InviteUserPo;
-import org.treegraph.baas.core.domain.InviteUserRolePo;
+import org.treegraph.baas.core.domain.UserInvitePo;
+import org.treegraph.baas.core.domain.UserRoleInvitePo;
 
 public interface InviteUserDas {
-	Optional<InviteUserPo> findById(Long inviteId);
+	Optional<UserInvitePo> findById(Long inviteId);
 	
-	List<InviteUserRolePo> findByInviteId(Long inviteId);
+	List<UserRoleInvitePo> findByInviteId(Long inviteId);
 }

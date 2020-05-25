@@ -20,6 +20,8 @@ public interface ConsortiumDas {
 	
 	List<ConsortiumPo> findAll(String id);
 	
+	long count();
+	
 	int createConsortium(ConsortiumPo cons);
 
 	int modifyCons(ConsortiumPo cons);

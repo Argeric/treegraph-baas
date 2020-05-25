@@ -13,11 +13,14 @@ import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.PermissionDas;
+import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.RolePermissionPo;
 import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserOrganizationPo;
 import org.treegraph.baas.core.domain.UserRolePo;
+import org.treegraph.baas.core.enums.ConsortiumEnum;
+import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.service.bo.OrgBo;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
@@ -179,6 +182,15 @@ public class BuildService {
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
 				.createTime(now)
 				.updateTime(now)
+				.build();
+	}
+	
+	public ConsortiumPo buildToUpdateCons(String consId, EstablishStep step) {
+		return ConsortiumPo.builder()
+				.id(consId)
+				.establishStep(step.getCode())
+				.updateTime(LocalDateTime.now())
+				.updateBy(WebHelper.getUserId())
 				.build();
 	}
 }

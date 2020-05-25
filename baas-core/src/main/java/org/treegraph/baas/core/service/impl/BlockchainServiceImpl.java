@@ -15,10 +15,12 @@ import org.treegraph.baas.api.dto.NodeInfo;
 import org.treegraph.baas.api.dto.request.DownloadCertRequest;
 import org.treegraph.baas.api.dto.request.ListCertRequest;
 import org.treegraph.baas.api.dto.request.QueryBlockchainDetailRequest;
+import org.treegraph.baas.api.dto.request.QueryBlockchainRequest;
 import org.treegraph.baas.api.dto.request.SwitchBlockchainStatusRequest;
 import org.treegraph.baas.api.dto.response.ListBlockchainResponse;
 import org.treegraph.baas.api.dto.response.ListCertResponse;
 import org.treegraph.baas.api.dto.response.QueryBlockchainDetailResponse;
+import org.treegraph.baas.api.dto.response.QueryBlockchainResponse;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.BlockchainDas;
 import org.treegraph.baas.core.das.CertDas;
@@ -35,15 +37,18 @@ import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.BlockchainService;
 import org.treegraph.baas.core.util.DateTimeUtils;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Validated
 @Service
 @AllArgsConstructor
-public class BlockchainServicempl implements BlockchainService {
+@Slf4j
+public class BlockchainServiceImpl implements BlockchainService {
 
 	private BlockchainDas blockchainDas;
 	
@@ -58,37 +63,44 @@ public class BlockchainServicempl implements BlockchainService {
 	public ListBlockchainResponse listBlockchain(ListRequest req) {
 		
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
-		List<BlockChainPo> chains = blockchainDas.findAll();
+		List<BlockChainPo> chains = blockchainDas.findAll(null, null);
 		PageInfo<BlockChainPo> pageInfo = new PageInfo<BlockChainPo>(chains);
 		
 		List<BlockChainPo> blockchains = pageInfo.getList();
 		List<String> consIdList = blockchains.stream().map(BlockChainPo::getConsortiumId).collect(Collectors.toList());
 		List<ConsortiumPo> consList = consortiumDas.findByIds(consIdList);
 		Map<String, ConsortiumPo> consMap = consList.stream().collect(Collectors.toMap(ConsortiumPo::getId, Function.identity()));
+		log.info("consMap:"+JSON.toJSONString(consMap));
 		
 		List<String> creatorIds = blockchains.stream().map(BlockChainPo::getCreateBy).collect(Collectors.toList());
 		List<UserInfoPo> users = userInfoDas.findByIds(creatorIds);
 		Map<String, UserInfoPo> userMap = users.stream().collect(Collectors.toMap(UserInfoPo::getId, Function.identity()));
+		log.info("userMap:"+JSON.toJSONString(userMap));
 		
 		List<String> chainIdList = blockchains.stream().map(BlockChainPo::getId).collect(Collectors.toList());
 		List<NodePo> nodes = nodeDas.findByChainIds(chainIdList);
 		Map<String, Long> chainCountMap = nodes.stream().collect(Collectors.groupingBy(NodePo::getBlockchainId, Collectors.counting()));
 		
-		List<BlockchainInfo> list = blockchains.stream().map(item -> BlockchainInfo.builder()
+		List<BlockchainInfo> list = blockchains.stream().map(item ->{ 
+			    log.info("item:"+JSON.toJSONString(item));
+				return BlockchainInfo.builder()
 				.id(item.getId())
 				.name(item.getBlockchainName())
 				.consId(item.getConsortiumId())
 				.consName(consMap.get(item.getConsortiumId()).getName())
-				.consAvatar(new String(consMap.get(item.getConsortiumId()).getAvatar()))
+				.consAvatar(consMap.get(item.getConsortiumId()).getAvatar() != null
+						? new String(consMap.get(item.getConsortiumId()).getAvatar())
+						: null)
 				.createUser(userMap.get(item.getCreateBy()).getName())
 				.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
-				.status(BlockchainEnum.Status.getByCode(item.getStatus()).getDesc())
-				.nodeCount(chainCountMap.get(item.getId())+"")
+				.status(BlockchainEnum.Status.getByCode(item.getStatus()).getCode())
+				.nodeCount(chainCountMap.get(item.getId()) == null ? "0" : chainCountMap.get(item.getId()) + "")
 				.tps(null)
 				.contractCount(null)
 				.txCount(null)
-				.build()
-				).collect(Collectors.toList());
+				.alertEmail(item.getAlarmEmail())
+				.build();
+		}).collect(Collectors.toList());
 
 		return ListBlockchainResponse.builder()
 				.current(req.getCurrent())
@@ -96,6 +108,17 @@ public class BlockchainServicempl implements BlockchainService {
 				.list(list)
 				.total(pageInfo.getTotal())
 				.build();
+	}
+	
+	public List<BlockchainInfo> queryBlockchain(QueryBlockchainRequest req){
+		List<BlockChainPo> blockchains = blockchainDas.findAll(req.getId(), req.getConsId());
+		return blockchains.stream().map(item ->
+			BlockchainInfo.builder()
+			.id(item.getId())
+			.name(item.getBlockchainName())
+			.status(BlockchainEnum.Status.getByCode(item.getStatus()).getCode())
+			.alertEmail(item.getAlarmEmail())
+			.build()).collect(Collectors.toList());
 	}
 
 	public QueryBlockchainDetailResponse getBlockchainDetail(QueryBlockchainDetailRequest req) {

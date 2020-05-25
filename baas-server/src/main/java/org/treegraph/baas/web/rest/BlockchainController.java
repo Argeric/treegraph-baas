@@ -1,14 +1,18 @@
 package org.treegraph.baas.web.rest;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.treegraph.baas.api.dto.BaasResult;
+import org.treegraph.baas.api.dto.BlockchainInfo;
 import org.treegraph.baas.api.dto.ListRequest;
 import org.treegraph.baas.api.dto.request.DownloadCertRequest;
 import org.treegraph.baas.api.dto.request.ListCertRequest;
 import org.treegraph.baas.api.dto.request.QueryBlockchainDetailRequest;
+import org.treegraph.baas.api.dto.request.QueryBlockchainRequest;
 import org.treegraph.baas.api.dto.request.SwitchBlockchainStatusRequest;
 import org.treegraph.baas.api.dto.response.ListBlockchainResponse;
 import org.treegraph.baas.api.dto.response.ListCertResponse;
@@ -40,9 +44,16 @@ public class BlockchainController {
 		return BaasResult.success(data);
 	}
 	
+	@PostMapping("/query")
+	@ApiOperation("区块链查询")
+	public BaasResult<List<BlockchainInfo>> queryBlockchain(@RequestBody QueryBlockchainRequest queryBlockchainRequest) {
+		List<BlockchainInfo> data = blockchainService.queryBlockchain(queryBlockchainRequest);
+		return BaasResult.success(data);
+	}
+	
 	@PostMapping("/detail")
 	@ApiOperation("区块链详情")
-	public BaasResult<QueryBlockchainDetailResponse> getBlockchainDetail(@RequestBody QueryBlockchainDetailRequest queryBlockchainDetailRequest) {
+	public BaasResult<QueryBlockchainDetailResponse> queryBlockchainDetail(@RequestBody QueryBlockchainDetailRequest queryBlockchainDetailRequest) {
 		QueryBlockchainDetailResponse data = blockchainService.getBlockchainDetail(queryBlockchainDetailRequest);
 		return BaasResult.success(data);
 	}

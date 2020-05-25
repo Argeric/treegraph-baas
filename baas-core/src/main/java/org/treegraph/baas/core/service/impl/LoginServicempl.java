@@ -26,8 +26,9 @@ import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.enums.LogEnum.Login;
-import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.enums.UserEnum;
+import org.treegraph.baas.core.exception.AlertException;
+import org.treegraph.baas.core.service.LogService;
 import org.treegraph.baas.core.service.LoginService;
 
 import com.google.common.collect.Lists;

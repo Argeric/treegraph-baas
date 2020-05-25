@@ -2,6 +2,7 @@ package org.treegraph.baas.core.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.ConsAdminInfo;
+import org.treegraph.baas.api.dto.ConsDetailInfo;
 import org.treegraph.baas.api.dto.ConsInfo;
 import org.treegraph.baas.api.dto.ListRequest;
 import org.treegraph.baas.api.dto.NodeInfo;
@@ -21,9 +23,9 @@ import org.treegraph.baas.api.dto.request.CreateConsRequest;
 import org.treegraph.baas.api.dto.request.DeleteConsRequest;
 import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
 import org.treegraph.baas.api.dto.request.ModifyConsRequest;
+import org.treegraph.baas.api.dto.request.QueryConsDetailRequest;
 import org.treegraph.baas.api.dto.request.QueryConsRequest;
 import org.treegraph.baas.api.dto.response.ListConsResponse;
-import org.treegraph.baas.api.dto.response.QueryConsResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.BlockchainDas;
@@ -40,6 +42,7 @@ import org.treegraph.baas.core.domain.UserOrganizationPo;
 import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.enums.BlockchainEnum;
 import org.treegraph.baas.core.enums.ConsortiumEnum;
+import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.service.ConsortiumService;
@@ -51,6 +54,7 @@ import org.treegraph.baas.core.util.DateTimeUtils;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 
 import lombok.AllArgsConstructor;
@@ -102,21 +106,48 @@ public class ConsortiumServicempl implements ConsortiumService {
 		return listConsResponse;
 	}
 	
-	public QueryConsResponse queryCons(QueryConsRequest req) {
+	public List<ConsDetailInfo> queryConsDetail(QueryConsDetailRequest req){
 		List<ConsortiumPo> consList = consortiumDas.findAll(req.getId());
-		List<ConsInfo> consInfoList = consList.stream().map(item -> ConsInfo.builder()
+		List<String> consIds = consList.stream().map(ConsortiumPo::getId).collect(Collectors.toList());
+		
+		List<BlockChainPo> blockchains = blockchainDas.findByConsIds(consIds);
+		Map<String, BlockChainPo> blockchainMap = blockchains.stream()
+				.collect(Collectors.toMap(BlockChainPo::getConsortiumId, Functions.identity()));
+		
+		List<String> chainIds = blockchains.stream().map(BlockChainPo::getId).collect(Collectors.toList());
+		List<NodePo> nodes = nodeDas.findByChainIds(chainIds);
+		Map<String, List<NodePo>> nodeMap = nodes.stream().collect(Collectors.groupingBy(NodePo::getBlockchainId));
+		
+		return consList.stream().map(item -> {
+			BlockChainPo blockChain = blockchainMap.get(item.getId());
+			String blockchainId = blockChain != null ? blockChain.getId() : null;
+			String blockchainName = blockChain != null ? blockChain.getBlockchainName() : null;
+			List<NodeInfo> nodeInfoList = Lists.newArrayList();
+			Optional.ofNullable(nodeMap.get(blockchainId)).ifPresent(nodeList -> nodeList.stream()
+					.forEach(node -> nodeInfoList.add(NodeInfo.builder().ip(node.getNodeIp())
+							.port(node.getNodePort() + "").org(node.getOrganizationName()).status(node.getStatus())
+							.createTime(DateTimeUtils.formatTime(node.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
+							.build())));
+
+			return ConsDetailInfo.builder()
+					.id(item.getId())
+					.name(item.getName())
+					.blockchainId(blockchainId)
+					.blockchainName(blockchainName)
+					.nodes(nodeInfoList)
+					.build();
+		}).collect(Collectors.toList());
+	}
+	
+	public List<ConsInfo> queryCons(QueryConsRequest req) {
+		List<ConsortiumPo> consList = consortiumDas.findAll(req.getId());
+		return consList.stream().map(item -> ConsInfo.builder()
 				.id(item.getId())
 				.name(item.getName())
 				.status(item.getStatus())
 				.step(item.getEstablishStep())
 				.remark(item.getDescription())
 				.build()).collect(Collectors.toList());
-		
-		QueryConsResponse queryConsResponse = QueryConsResponse.builder()
-				.list(consInfoList)
-				.build();
-		
-		return queryConsResponse;
 	}
 	
 	public String createCons(CreateConsRequest req) {
@@ -161,7 +192,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.contactEmail(req.getEmail())
 				.avatar(req.getAvatar() != null ? req.getAvatar().getBytes() : null)
 				.updateTime(LocalDateTime.now())
-				.updateBy( WebHelper.getUserId())
+				.updateBy(WebHelper.getUserId())
 				.build();
 		
 		return consortiumDas.modifyCons(cons) > 0;
@@ -212,8 +243,10 @@ public class ConsortiumServicempl implements ConsortiumService {
 		existUserIds.stream().filter(item -> !dbUserIdSet.contains(item))
 				.forEach(item -> userRoles.addAll(buildService.buildUserRoles(item, Lists.newArrayList(roleId))));
 		
+		ConsortiumPo cons = buildService.buildToUpdateCons(req.getConsId(), EstablishStep.TO_ESTAB_BLOCKCHAIN);
+		
 		return userInfoDas.createConsAdmin(roleBo != null ? roleBo.getRole() : null,
-				roleBo != null ? roleBo.getRolePermissionList() : null, users, userRoles, userOrgs);
+				roleBo != null ? roleBo.getRolePermissionList() : null, users, userRoles, userOrgs, cons);
 	}
 
 	public boolean createBlockchain(CreateBlockchainRequest req) {
@@ -231,6 +264,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 						: BlockchainEnum.Consensus.getByName(req.getConsensus()).getCode())
 				.encryptAlgorithm(req.getAlgorithm() == null ? BlockchainEnum.ALGORITHM.TREE_GRAPH.getCode()
 						: BlockchainEnum.ALGORITHM.getByName(req.getConsensus()).getCode())
+				.status(BlockchainEnum.Status.TO_DEPLOY.getCode())
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
 				.createTime(now)
 				.createBy(operUser)
@@ -238,7 +272,9 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.updateBy(operUser)
 				.build();
 		
-		return blockchainDas.createBlockchain(blockchain);
+		ConsortiumPo cons = buildService.buildToUpdateCons(req.getConsId(), EstablishStep.TO_ADD_NODE);
+		
+		return blockchainDas.createBlockchain(blockchain, cons);
 	}
 
 	public boolean addNodes(AddNodesRequest req) {
@@ -260,7 +296,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.organizationName(item.getOrg())
 				.nodeIp(item.getIp())
 				.nodePort(Integer.parseInt(item.getPort()))
-				.status(NodeEnum.Status.STOP.getCode())
+				.status(NodeEnum.Status.TO_DEPLOY.getCode())
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
 				.createTime(now)
 				.createBy(operUser)
@@ -268,7 +304,9 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.updateBy(operUser)
 				.build()).collect(Collectors.toList());
 		
-		return nodeDas.addNodes(nodes);
+		ConsortiumPo cons = buildService.buildToUpdateCons(req.getConsId(), EstablishStep.TO_DEPLOY);
+		
+		return nodeDas.addNodes(nodes, cons);
 	}
 
 	public void getDeployScript(DownloadDeployScriptRequest req) {

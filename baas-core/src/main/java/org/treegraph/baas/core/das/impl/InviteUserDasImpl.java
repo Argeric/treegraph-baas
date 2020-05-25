@@ -5,11 +5,11 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.core.das.InviteUserDas;
-import org.treegraph.baas.core.domain.InviteUserPo;
-import org.treegraph.baas.core.domain.InviteUserRolePo;
-import org.treegraph.baas.core.domain.InviteUserRolePoExample;
-import org.treegraph.baas.core.mapper.InviteUserPoMapper;
-import org.treegraph.baas.core.mapper.InviteUserRolePoMapper;
+import org.treegraph.baas.core.domain.UserInvitePo;
+import org.treegraph.baas.core.domain.UserRoleInvitePo;
+import org.treegraph.baas.core.domain.UserRoleInvitePoExample;
+import org.treegraph.baas.core.mapper.UserInvitePoMapper;
+import org.treegraph.baas.core.mapper.UserRoleInvitePoMapper;
 
 import lombok.AllArgsConstructor;
 
@@ -17,17 +17,17 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class InviteUserDasImpl implements InviteUserDas{
 	
-    private InviteUserPoMapper inviteUserPoMapper;
+    private UserInvitePoMapper userInvitePoMapper;
     
-    private InviteUserRolePoMapper inviteUserRolePoMapper;
+    private UserRoleInvitePoMapper userRoleInvitePoMapper;
     
-    public Optional<InviteUserPo> findById(Long inviteId) {
-        return inviteUserPoMapper.selectByPrimaryKey(inviteId);
+    public Optional<UserInvitePo> findById(Long inviteId) {
+        return userInvitePoMapper.selectByPrimaryKey(inviteId);
     }
     
-    public List<InviteUserRolePo> findByInviteId(Long inviteId){
-    	InviteUserRolePoExample example = new InviteUserRolePoExample();
+    public List<UserRoleInvitePo> findByInviteId(Long inviteId){
+    	UserRoleInvitePoExample example = new UserRoleInvitePoExample();
     	example.createCriteria().andInviteIdEqualTo(inviteId);
-    	return inviteUserRolePoMapper.selectByExample(example);
+    	return userRoleInvitePoMapper.selectByExample(example);
     }
 }

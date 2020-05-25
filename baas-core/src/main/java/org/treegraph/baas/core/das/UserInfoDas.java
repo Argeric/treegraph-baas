@@ -3,8 +3,9 @@ package org.treegraph.baas.core.das;
 import java.util.List;
 import java.util.Optional;
 
-import org.treegraph.baas.core.domain.InviteUserPo;
-import org.treegraph.baas.core.domain.InviteUserRolePo;
+import org.treegraph.baas.core.domain.ConsortiumPo;
+import org.treegraph.baas.core.domain.UserInvitePo;
+import org.treegraph.baas.core.domain.UserRoleInvitePo;
 import org.treegraph.baas.core.domain.RolePermissionPo;
 import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
@@ -22,14 +23,16 @@ public interface UserInfoDas {
 	List<UserInfoPo> findByAccountLike(String account);
 	
 	List<UserOrganizationPo> findUserOrgsByUserIds(List<String> userIds);
+	
+	long count();
 
 	boolean createUser(UserInfoPo user, List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs);
 	
 	boolean createUserRoles(List<UserRolePo> userRoles);
 	
-	boolean inviteUser(InviteUserPo inviteUser, List<InviteUserRolePo> inviteUserRoles);
+	boolean inviteUser(UserInvitePo userInvite, List<UserRoleInvitePo> userRoleInvites);
 	
-	boolean updateInviteUserById(InviteUserPo inviteUser);
+	boolean updateInviteUserById(UserInvitePo userInvite);
 
 	boolean delUser(UserInfoPo user, List<Long> userRoleIds);
 
@@ -41,5 +44,5 @@ public interface UserInfoDas {
 			List<Long> toDelUserOrgIds, List<UserOrganizationPo> toAddUserOrgs);
 
 	boolean createConsAdmin(RolePo consAdminRole, List<RolePermissionPo> rolePermissions, List<UserInfoPo> users,
-			List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs);
+			List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs, ConsortiumPo cons);
 }

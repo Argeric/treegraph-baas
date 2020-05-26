@@ -2,13 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.treegraph.baas.core.mapper.UserLoginLogPoMapper">
   <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.UserLoginLogPo">
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="user_id" jdbcType="VARCHAR" property="userId" />
-    <result column="device" jdbcType="VARCHAR" property="device" />
-    <result column="type" jdbcType="INTEGER" property="type" />
-    <result column="login_ip" jdbcType="VARCHAR" property="loginIp" />
-    <result column="login_time" jdbcType="TIMESTAMP" property="loginTime" />
-    <result column="ip_address" jdbcType="VARCHAR" property="ipAddress" />
+    <id column="userLoginLog_id" jdbcType="BIGINT" property="id" />
+    <result column="userLoginLog_user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="userLoginLog_device" jdbcType="VARCHAR" property="device" />
+    <result column="userLoginLog_type" jdbcType="INTEGER" property="type" />
+    <result column="userLoginLog_login_ip" jdbcType="VARCHAR" property="loginIp" />
+    <result column="userLoginLog_login_time" jdbcType="TIMESTAMP" property="loginTime" />
+    <result column="userLoginLog_ip_address" jdbcType="VARCHAR" property="ipAddress" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -69,7 +69,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, user_id, device, `type`, login_ip, login_time, ip_address
+    userLoginLog.id as userLoginLog_id, userLoginLog.user_id as userLoginLog_user_id, 
+    userLoginLog.device as userLoginLog_device, userLoginLog.`type` as `userLoginLog_type`, 
+    userLoginLog.login_ip as userLoginLog_login_ip, userLoginLog.login_time as userLoginLog_login_time, 
+    userLoginLog.ip_address as userLoginLog_ip_address
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.UserLoginLogPoExample" resultMap="BaseResultMap">
     select
@@ -77,7 +80,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from user_login_log
+    from user_login_log userLoginLog
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -88,15 +91,15 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from user_login_log
-    where id = #{id,jdbcType=BIGINT}
+    from user_login_log userLoginLog
+    where userLoginLog.id = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from user_login_log
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.UserLoginLogPoExample">
-    delete from user_login_log
+    delete from user_login_log userLoginLog
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -153,34 +156,34 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="org.treegraph.baas.core.domain.UserLoginLogPoExample" resultType="java.lang.Long">
-    select count(*) from user_login_log
+    select count(*) from user_login_log userLoginLog
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update user_login_log
+    update user_login_log userLoginLog
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=BIGINT},
+        userLoginLog.id = #{record.id,jdbcType=BIGINT},
       </if>
       <if test="record.userId != null">
-        user_id = #{record.userId,jdbcType=VARCHAR},
+        userLoginLog.user_id = #{record.userId,jdbcType=VARCHAR},
       </if>
       <if test="record.device != null">
-        device = #{record.device,jdbcType=VARCHAR},
+        userLoginLog.device = #{record.device,jdbcType=VARCHAR},
       </if>
       <if test="record.type != null">
-        `type` = #{record.type,jdbcType=INTEGER},
+        userLoginLog.`type` = #{record.type,jdbcType=INTEGER},
       </if>
       <if test="record.loginIp != null">
-        login_ip = #{record.loginIp,jdbcType=VARCHAR},
+        userLoginLog.login_ip = #{record.loginIp,jdbcType=VARCHAR},
       </if>
       <if test="record.loginTime != null">
-        login_time = #{record.loginTime,jdbcType=TIMESTAMP},
+        userLoginLog.login_time = #{record.loginTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.ipAddress != null">
-        ip_address = #{record.ipAddress,jdbcType=VARCHAR},
+        userLoginLog.ip_address = #{record.ipAddress,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -188,14 +191,14 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update user_login_log
-    set id = #{record.id,jdbcType=BIGINT},
-      user_id = #{record.userId,jdbcType=VARCHAR},
-      device = #{record.device,jdbcType=VARCHAR},
-      `type` = #{record.type,jdbcType=INTEGER},
-      login_ip = #{record.loginIp,jdbcType=VARCHAR},
-      login_time = #{record.loginTime,jdbcType=TIMESTAMP},
-      ip_address = #{record.ipAddress,jdbcType=VARCHAR}
+    update user_login_log userLoginLog
+    set userLoginLog.id = #{record.id,jdbcType=BIGINT},
+      userLoginLog.user_id = #{record.userId,jdbcType=VARCHAR},
+      userLoginLog.device = #{record.device,jdbcType=VARCHAR},
+      userLoginLog.`type` = #{record.type,jdbcType=INTEGER},
+      userLoginLog.login_ip = #{record.loginIp,jdbcType=VARCHAR},
+      userLoginLog.login_time = #{record.loginTime,jdbcType=TIMESTAMP},
+      userLoginLog.ip_address = #{record.ipAddress,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>

@@ -2,18 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.treegraph.baas.core.mapper.UserInfoPoMapper">
   <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.UserInfoPo">
-    <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="account" jdbcType="VARCHAR" property="account" />
-    <result column="email" jdbcType="VARCHAR" property="email" />
-    <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="phone" jdbcType="VARCHAR" property="phone" />
-    <result column="password" jdbcType="VARCHAR" property="password" />
-    <result column="status" jdbcType="INTEGER" property="status" />
-    <result column="delete_flag" jdbcType="INTEGER" property="deleteFlag" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-    <result column="create_by" jdbcType="VARCHAR" property="createBy" />
-    <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+    <id column="userInfo_id" jdbcType="VARCHAR" property="id" />
+    <result column="userInfo_account" jdbcType="VARCHAR" property="account" />
+    <result column="userInfo_email" jdbcType="VARCHAR" property="email" />
+    <result column="userInfo_name" jdbcType="VARCHAR" property="name" />
+    <result column="userInfo_phone" jdbcType="VARCHAR" property="phone" />
+    <result column="userInfo_password" jdbcType="VARCHAR" property="password" />
+    <result column="userInfo_status" jdbcType="INTEGER" property="status" />
+    <result column="userInfo_delete_flag" jdbcType="INTEGER" property="deleteFlag" />
+    <result column="userInfo_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="userInfo_update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="userInfo_create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="userInfo_update_by" jdbcType="VARCHAR" property="updateBy" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -74,8 +74,11 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, account, email, `name`, phone, `password`, `status`, delete_flag, create_time, 
-    update_time, create_by, update_by
+    userInfo.id as userInfo_id, userInfo.account as userInfo_account, userInfo.email as userInfo_email, 
+    userInfo.`name` as `userInfo_name`, userInfo.phone as userInfo_phone, userInfo.`password` as `userInfo_password`, 
+    userInfo.`status` as `userInfo_status`, userInfo.delete_flag as userInfo_delete_flag, 
+    userInfo.create_time as userInfo_create_time, userInfo.update_time as userInfo_update_time, 
+    userInfo.create_by as userInfo_create_by, userInfo.update_by as userInfo_update_by
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.UserInfoPoExample" resultMap="BaseResultMap">
     select
@@ -83,7 +86,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from user_info
+    from user_info userInfo
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -94,32 +97,37 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from user_info
-    where id = #{id,jdbcType=VARCHAR}
+    from user_info userInfo
+    where userInfo.id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from user_info
     where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.UserInfoPoExample">
-    delete from user_info
+    delete from user_info userInfo
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserInfoPo" useGeneratedKeys="true">
-    insert into user_info (id, account, email, `name`, 
-      phone, `password`, `status`, 
-      delete_flag, create_time, update_time, 
-      create_by, update_by)
-    values (#{id,jdbcType=VARCHAR}, #{account,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{phone,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
-      #{deleteFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
-      #{createBy,jdbcType=VARCHAR}, #{updateBy,jdbcType=VARCHAR})
+  <insert id="insert" parameterType="org.treegraph.baas.core.domain.UserInfoPo">
+    insert into user_info (id, account, email, 
+      `name`, phone, `password`, 
+      `status`, delete_flag, create_time, 
+      update_time, create_by, update_by
+      )
+    values (#{id,jdbcType=VARCHAR}, #{account,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{status,jdbcType=INTEGER}, #{deleteFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{updateBy,jdbcType=VARCHAR}
+      )
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserInfoPo" useGeneratedKeys="true">
+  <insert id="insertSelective" parameterType="org.treegraph.baas.core.domain.UserInfoPo">
     insert into user_info
     <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
       <if test="account != null">
         account,
       </if>
@@ -155,6 +163,9 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
       <if test="account != null">
         #{account,jdbcType=VARCHAR},
       </if>
@@ -191,49 +202,49 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="org.treegraph.baas.core.domain.UserInfoPoExample" resultType="java.lang.Long">
-    select count(*) from user_info
+    select count(*) from user_info userInfo
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update user_info
+    update user_info userInfo
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=VARCHAR},
+        userInfo.id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.account != null">
-        account = #{record.account,jdbcType=VARCHAR},
+        userInfo.account = #{record.account,jdbcType=VARCHAR},
       </if>
       <if test="record.email != null">
-        email = #{record.email,jdbcType=VARCHAR},
+        userInfo.email = #{record.email,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
-        `name` = #{record.name,jdbcType=VARCHAR},
+        userInfo.`name` = #{record.name,jdbcType=VARCHAR},
       </if>
       <if test="record.phone != null">
-        phone = #{record.phone,jdbcType=VARCHAR},
+        userInfo.phone = #{record.phone,jdbcType=VARCHAR},
       </if>
       <if test="record.password != null">
-        `password` = #{record.password,jdbcType=VARCHAR},
+        userInfo.`password` = #{record.password,jdbcType=VARCHAR},
       </if>
       <if test="record.status != null">
-        `status` = #{record.status,jdbcType=INTEGER},
+        userInfo.`status` = #{record.status,jdbcType=INTEGER},
       </if>
       <if test="record.deleteFlag != null">
-        delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+        userInfo.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       </if>
       <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+        userInfo.create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.updateTime != null">
-        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+        userInfo.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.createBy != null">
-        create_by = #{record.createBy,jdbcType=VARCHAR},
+        userInfo.create_by = #{record.createBy,jdbcType=VARCHAR},
       </if>
       <if test="record.updateBy != null">
-        update_by = #{record.updateBy,jdbcType=VARCHAR},
+        userInfo.update_by = #{record.updateBy,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -241,19 +252,19 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update user_info
-    set id = #{record.id,jdbcType=VARCHAR},
-      account = #{record.account,jdbcType=VARCHAR},
-      email = #{record.email,jdbcType=VARCHAR},
-      `name` = #{record.name,jdbcType=VARCHAR},
-      phone = #{record.phone,jdbcType=VARCHAR},
-      `password` = #{record.password,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=INTEGER},
-      delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
-      create_by = #{record.createBy,jdbcType=VARCHAR},
-      update_by = #{record.updateBy,jdbcType=VARCHAR}
+    update user_info userInfo
+    set userInfo.id = #{record.id,jdbcType=VARCHAR},
+      userInfo.account = #{record.account,jdbcType=VARCHAR},
+      userInfo.email = #{record.email,jdbcType=VARCHAR},
+      userInfo.`name` = #{record.name,jdbcType=VARCHAR},
+      userInfo.phone = #{record.phone,jdbcType=VARCHAR},
+      userInfo.`password` = #{record.password,jdbcType=VARCHAR},
+      userInfo.`status` = #{record.status,jdbcType=INTEGER},
+      userInfo.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      userInfo.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      userInfo.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      userInfo.create_by = #{record.createBy,jdbcType=VARCHAR},
+      userInfo.update_by = #{record.updateBy,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -312,6 +323,7 @@
       update_by = #{updateBy,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  
   <insert id="bulkInsert" parameterType="org.treegraph.baas.core.domain.UserInfoPo">
       INSERT INTO user_info(
       	  id,
@@ -344,5 +356,5 @@
               #{item.updateBy}
           )
       </foreach>
-  </insert>      
+  </insert>   
 </mapper>

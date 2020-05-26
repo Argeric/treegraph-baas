@@ -2,18 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.treegraph.baas.core.mapper.NodePoMapper">
   <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.NodePo">
-    <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="consortium_id" jdbcType="VARCHAR" property="consortiumId" />
-    <result column="blockchain_id" jdbcType="VARCHAR" property="blockchainId" />
-    <result column="node_ip" jdbcType="VARCHAR" property="nodeIp" />
-    <result column="node_port" jdbcType="INTEGER" property="nodePort" />
-    <result column="organization_name" jdbcType="VARCHAR" property="organizationName" />
-    <result column="status" jdbcType="INTEGER" property="status" />
-    <result column="delete_flag" jdbcType="INTEGER" property="deleteFlag" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-    <result column="create_by" jdbcType="VARCHAR" property="createBy" />
-    <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+    <id column="node_id" jdbcType="VARCHAR" property="id" />
+    <result column="node_consortium_id" jdbcType="VARCHAR" property="consortiumId" />
+    <result column="node_blockchain_id" jdbcType="VARCHAR" property="blockchainId" />
+    <result column="node_node_ip" jdbcType="VARCHAR" property="nodeIp" />
+    <result column="node_node_port" jdbcType="INTEGER" property="nodePort" />
+    <result column="node_organization_name" jdbcType="VARCHAR" property="organizationName" />
+    <result column="node_status" jdbcType="INTEGER" property="status" />
+    <result column="node_delete_flag" jdbcType="INTEGER" property="deleteFlag" />
+    <result column="node_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="node_update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="node_create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="node_update_by" jdbcType="VARCHAR" property="updateBy" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -74,8 +74,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, consortium_id, blockchain_id, node_ip, node_port, organization_name, `status`, 
-    delete_flag, create_time, update_time, create_by, update_by
+    node.id as node_id, node.consortium_id as node_consortium_id, node.blockchain_id as node_blockchain_id, 
+    node.node_ip as node_node_ip, node.node_port as node_node_port, node.organization_name as node_organization_name, 
+    node.`status` as `node_status`, node.delete_flag as node_delete_flag, node.create_time as node_create_time, 
+    node.update_time as node_update_time, node.create_by as node_create_by, node.update_by as node_update_by
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.NodePoExample" resultMap="BaseResultMap">
     select
@@ -83,7 +85,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from node
+    from node node
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -94,32 +96,37 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from node
-    where id = #{id,jdbcType=VARCHAR}
+    from node node
+    where node.id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from node
     where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.NodePoExample">
-    delete from node
+    delete from node node
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.NodePo" useGeneratedKeys="true">
-    insert into node (consortium_id, blockchain_id, node_ip, 
-      node_port, organization_name, `status`, 
-      delete_flag, create_time, update_time, 
-      create_by, update_by)
-    values (#{consortiumId,jdbcType=VARCHAR}, #{blockchainId,jdbcType=VARCHAR}, #{nodeIp,jdbcType=VARCHAR}, 
-      #{nodePort,jdbcType=INTEGER}, #{organizationName,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
-      #{deleteFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
-      #{createBy,jdbcType=VARCHAR}, #{updateBy,jdbcType=VARCHAR})
+  <insert id="insert" parameterType="org.treegraph.baas.core.domain.NodePo">
+    insert into node (id, consortium_id, blockchain_id, 
+      node_ip, node_port, organization_name, 
+      `status`, delete_flag, create_time, 
+      update_time, create_by, update_by
+      )
+    values (#{id,jdbcType=VARCHAR}, #{consortiumId,jdbcType=VARCHAR}, #{blockchainId,jdbcType=VARCHAR}, 
+      #{nodeIp,jdbcType=VARCHAR}, #{nodePort,jdbcType=INTEGER}, #{organizationName,jdbcType=VARCHAR}, 
+      #{status,jdbcType=INTEGER}, #{deleteFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{updateBy,jdbcType=VARCHAR}
+      )
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.NodePo" useGeneratedKeys="true">
+  <insert id="insertSelective" parameterType="org.treegraph.baas.core.domain.NodePo">
     insert into node
     <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
       <if test="consortiumId != null">
         consortium_id,
       </if>
@@ -155,6 +162,9 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
       <if test="consortiumId != null">
         #{consortiumId,jdbcType=VARCHAR},
       </if>
@@ -191,49 +201,49 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="org.treegraph.baas.core.domain.NodePoExample" resultType="java.lang.Long">
-    select count(*) from node
+    select count(*) from node node
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update node
+    update node node
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=VARCHAR},
+        node.id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.consortiumId != null">
-        consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+        node.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
       </if>
       <if test="record.blockchainId != null">
-        blockchain_id = #{record.blockchainId,jdbcType=VARCHAR},
+        node.blockchain_id = #{record.blockchainId,jdbcType=VARCHAR},
       </if>
       <if test="record.nodeIp != null">
-        node_ip = #{record.nodeIp,jdbcType=VARCHAR},
+        node.node_ip = #{record.nodeIp,jdbcType=VARCHAR},
       </if>
       <if test="record.nodePort != null">
-        node_port = #{record.nodePort,jdbcType=INTEGER},
+        node.node_port = #{record.nodePort,jdbcType=INTEGER},
       </if>
       <if test="record.organizationName != null">
-        organization_name = #{record.organizationName,jdbcType=VARCHAR},
+        node.organization_name = #{record.organizationName,jdbcType=VARCHAR},
       </if>
       <if test="record.status != null">
-        `status` = #{record.status,jdbcType=INTEGER},
+        node.`status` = #{record.status,jdbcType=INTEGER},
       </if>
       <if test="record.deleteFlag != null">
-        delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+        node.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       </if>
       <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+        node.create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.updateTime != null">
-        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+        node.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.createBy != null">
-        create_by = #{record.createBy,jdbcType=VARCHAR},
+        node.create_by = #{record.createBy,jdbcType=VARCHAR},
       </if>
       <if test="record.updateBy != null">
-        update_by = #{record.updateBy,jdbcType=VARCHAR},
+        node.update_by = #{record.updateBy,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -241,19 +251,19 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update node
-    set id = #{record.id,jdbcType=VARCHAR},
-      consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
-      blockchain_id = #{record.blockchainId,jdbcType=VARCHAR},
-      node_ip = #{record.nodeIp,jdbcType=VARCHAR},
-      node_port = #{record.nodePort,jdbcType=INTEGER},
-      organization_name = #{record.organizationName,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=INTEGER},
-      delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
-      create_by = #{record.createBy,jdbcType=VARCHAR},
-      update_by = #{record.updateBy,jdbcType=VARCHAR}
+    update node node
+    set node.id = #{record.id,jdbcType=VARCHAR},
+      node.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      node.blockchain_id = #{record.blockchainId,jdbcType=VARCHAR},
+      node.node_ip = #{record.nodeIp,jdbcType=VARCHAR},
+      node.node_port = #{record.nodePort,jdbcType=INTEGER},
+      node.organization_name = #{record.organizationName,jdbcType=VARCHAR},
+      node.`status` = #{record.status,jdbcType=INTEGER},
+      node.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      node.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      node.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      node.create_by = #{record.createBy,jdbcType=VARCHAR},
+      node.update_by = #{record.updateBy,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -312,7 +322,7 @@
       update_by = #{updateBy,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
- 
+  
   <insert id="bulkInsert" parameterType="org.treegraph.baas.core.domain.NodePo">
       INSERT INTO node(
           id, 
@@ -345,5 +355,5 @@
              #{item.updateBy,jdbcType=VARCHAR}
           )
       </foreach>
-  </insert>    
+  </insert>
 </mapper>

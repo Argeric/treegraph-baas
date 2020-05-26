@@ -2,15 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.treegraph.baas.core.mapper.CertificateRequestPoMapper">
   <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.CertificateRequestPo">
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="consortium_id" jdbcType="VARCHAR" property="consortiumId" />
-    <result column="blockchain_id" jdbcType="VARCHAR" property="blockchainId" />
-    <result column="apply_user_id" jdbcType="VARCHAR" property="applyUserId" />
-    <result column="certificate_url" jdbcType="VARCHAR" property="certificateUrl" />
-    <result column="generate_time" jdbcType="TIMESTAMP" property="generateTime" />
-    <result column="download_time" jdbcType="TIMESTAMP" property="downloadTime" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <id column="certificateRequest_id" jdbcType="BIGINT" property="id" />
+    <result column="certificateRequest_consortium_id" jdbcType="VARCHAR" property="consortiumId" />
+    <result column="certificateRequest_blockchain_id" jdbcType="VARCHAR" property="blockchainId" />
+    <result column="certificateRequest_apply_user_id" jdbcType="VARCHAR" property="applyUserId" />
+    <result column="certificateRequest_certificate_url" jdbcType="VARCHAR" property="certificateUrl" />
+    <result column="certificateRequest_generate_time" jdbcType="TIMESTAMP" property="generateTime" />
+    <result column="certificateRequest_download_time" jdbcType="TIMESTAMP" property="downloadTime" />
+    <result column="certificateRequest_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="certificateRequest_update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -71,8 +71,11 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, consortium_id, blockchain_id, apply_user_id, certificate_url, generate_time, 
-    download_time, create_time, update_time
+    certificateRequest.id as certificateRequest_id, certificateRequest.consortium_id as certificateRequest_consortium_id, 
+    certificateRequest.blockchain_id as certificateRequest_blockchain_id, certificateRequest.apply_user_id as certificateRequest_apply_user_id, 
+    certificateRequest.certificate_url as certificateRequest_certificate_url, certificateRequest.generate_time as certificateRequest_generate_time, 
+    certificateRequest.download_time as certificateRequest_download_time, certificateRequest.create_time as certificateRequest_create_time, 
+    certificateRequest.update_time as certificateRequest_update_time
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.CertificateRequestPoExample" resultMap="BaseResultMap">
     select
@@ -80,7 +83,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from certificate_request
+    from certificate_request certificateRequest
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -91,15 +94,15 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from certificate_request
-    where id = #{id,jdbcType=BIGINT}
+    from certificate_request certificateRequest
+    where certificateRequest.id = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from certificate_request
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.CertificateRequestPoExample">
-    delete from certificate_request
+    delete from certificate_request certificateRequest
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -168,40 +171,40 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="org.treegraph.baas.core.domain.CertificateRequestPoExample" resultType="java.lang.Long">
-    select count(*) from certificate_request
+    select count(*) from certificate_request certificateRequest
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update certificate_request
+    update certificate_request certificateRequest
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=BIGINT},
+        certificateRequest.id = #{record.id,jdbcType=BIGINT},
       </if>
       <if test="record.consortiumId != null">
-        consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+        certificateRequest.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
       </if>
       <if test="record.blockchainId != null">
-        blockchain_id = #{record.blockchainId,jdbcType=VARCHAR},
+        certificateRequest.blockchain_id = #{record.blockchainId,jdbcType=VARCHAR},
       </if>
       <if test="record.applyUserId != null">
-        apply_user_id = #{record.applyUserId,jdbcType=VARCHAR},
+        certificateRequest.apply_user_id = #{record.applyUserId,jdbcType=VARCHAR},
       </if>
       <if test="record.certificateUrl != null">
-        certificate_url = #{record.certificateUrl,jdbcType=VARCHAR},
+        certificateRequest.certificate_url = #{record.certificateUrl,jdbcType=VARCHAR},
       </if>
       <if test="record.generateTime != null">
-        generate_time = #{record.generateTime,jdbcType=TIMESTAMP},
+        certificateRequest.generate_time = #{record.generateTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.downloadTime != null">
-        download_time = #{record.downloadTime,jdbcType=TIMESTAMP},
+        certificateRequest.download_time = #{record.downloadTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+        certificateRequest.create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.updateTime != null">
-        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+        certificateRequest.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       </if>
     </set>
     <if test="_parameter != null">
@@ -209,16 +212,16 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update certificate_request
-    set id = #{record.id,jdbcType=BIGINT},
-      consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
-      blockchain_id = #{record.blockchainId,jdbcType=VARCHAR},
-      apply_user_id = #{record.applyUserId,jdbcType=VARCHAR},
-      certificate_url = #{record.certificateUrl,jdbcType=VARCHAR},
-      generate_time = #{record.generateTime,jdbcType=TIMESTAMP},
-      download_time = #{record.downloadTime,jdbcType=TIMESTAMP},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+    update certificate_request certificateRequest
+    set certificateRequest.id = #{record.id,jdbcType=BIGINT},
+      certificateRequest.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      certificateRequest.blockchain_id = #{record.blockchainId,jdbcType=VARCHAR},
+      certificateRequest.apply_user_id = #{record.applyUserId,jdbcType=VARCHAR},
+      certificateRequest.certificate_url = #{record.certificateUrl,jdbcType=VARCHAR},
+      certificateRequest.generate_time = #{record.generateTime,jdbcType=TIMESTAMP},
+      certificateRequest.download_time = #{record.downloadTime,jdbcType=TIMESTAMP},
+      certificateRequest.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      certificateRequest.update_time = #{record.updateTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>

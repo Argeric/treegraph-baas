@@ -106,442 +106,442 @@ public class PermissionPoExample {
         }
 
         public Criteria andIdIsNull() {
-            addCriterion("id is null");
+            addCriterion("permission.id is null");
             return (Criteria) this;
         }
 
         public Criteria andIdIsNotNull() {
-            addCriterion("id is not null");
+            addCriterion("permission.id is not null");
             return (Criteria) this;
         }
 
         public Criteria andIdEqualTo(Long value) {
-            addCriterion("id =", value, "id");
+            addCriterion("permission.id =", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotEqualTo(Long value) {
-            addCriterion("id <>", value, "id");
+            addCriterion("permission.id <>", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdGreaterThan(Long value) {
-            addCriterion("id >", value, "id");
+            addCriterion("permission.id >", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdGreaterThanOrEqualTo(Long value) {
-            addCriterion("id >=", value, "id");
+            addCriterion("permission.id >=", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdLessThan(Long value) {
-            addCriterion("id <", value, "id");
+            addCriterion("permission.id <", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdLessThanOrEqualTo(Long value) {
-            addCriterion("id <=", value, "id");
+            addCriterion("permission.id <=", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdIn(List<Long> values) {
-            addCriterion("id in", values, "id");
+            addCriterion("permission.id in", values, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotIn(List<Long> values) {
-            addCriterion("id not in", values, "id");
+            addCriterion("permission.id not in", values, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdBetween(Long value1, Long value2) {
-            addCriterion("id between", value1, value2, "id");
+            addCriterion("permission.id between", value1, value2, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotBetween(Long value1, Long value2) {
-            addCriterion("id not between", value1, value2, "id");
+            addCriterion("permission.id not between", value1, value2, "id");
             return (Criteria) this;
         }
 
         public Criteria andPermissionTypeIsNull() {
-            addCriterion("permission_type is null");
+            addCriterion("permission.permission_type is null");
             return (Criteria) this;
         }
 
         public Criteria andPermissionTypeIsNotNull() {
-            addCriterion("permission_type is not null");
+            addCriterion("permission.permission_type is not null");
             return (Criteria) this;
         }
 
         public Criteria andPermissionTypeEqualTo(Integer value) {
-            addCriterion("permission_type =", value, "permissionType");
+            addCriterion("permission.permission_type =", value, "permissionType");
             return (Criteria) this;
         }
 
         public Criteria andPermissionTypeNotEqualTo(Integer value) {
-            addCriterion("permission_type <>", value, "permissionType");
+            addCriterion("permission.permission_type <>", value, "permissionType");
             return (Criteria) this;
         }
 
         public Criteria andPermissionTypeGreaterThan(Integer value) {
-            addCriterion("permission_type >", value, "permissionType");
+            addCriterion("permission.permission_type >", value, "permissionType");
             return (Criteria) this;
         }
 
         public Criteria andPermissionTypeGreaterThanOrEqualTo(Integer value) {
-            addCriterion("permission_type >=", value, "permissionType");
+            addCriterion("permission.permission_type >=", value, "permissionType");
             return (Criteria) this;
         }
 
         public Criteria andPermissionTypeLessThan(Integer value) {
-            addCriterion("permission_type <", value, "permissionType");
+            addCriterion("permission.permission_type <", value, "permissionType");
             return (Criteria) this;
         }
 
         public Criteria andPermissionTypeLessThanOrEqualTo(Integer value) {
-            addCriterion("permission_type <=", value, "permissionType");
+            addCriterion("permission.permission_type <=", value, "permissionType");
             return (Criteria) this;
         }
 
         public Criteria andPermissionTypeIn(List<Integer> values) {
-            addCriterion("permission_type in", values, "permissionType");
+            addCriterion("permission.permission_type in", values, "permissionType");
             return (Criteria) this;
         }
 
         public Criteria andPermissionTypeNotIn(List<Integer> values) {
-            addCriterion("permission_type not in", values, "permissionType");
+            addCriterion("permission.permission_type not in", values, "permissionType");
             return (Criteria) this;
         }
 
         public Criteria andPermissionTypeBetween(Integer value1, Integer value2) {
-            addCriterion("permission_type between", value1, value2, "permissionType");
+            addCriterion("permission.permission_type between", value1, value2, "permissionType");
             return (Criteria) this;
         }
 
         public Criteria andPermissionTypeNotBetween(Integer value1, Integer value2) {
-            addCriterion("permission_type not between", value1, value2, "permissionType");
+            addCriterion("permission.permission_type not between", value1, value2, "permissionType");
             return (Criteria) this;
         }
 
         public Criteria andPermissionNameIsNull() {
-            addCriterion("permission_name is null");
+            addCriterion("permission.permission_name is null");
             return (Criteria) this;
         }
 
         public Criteria andPermissionNameIsNotNull() {
-            addCriterion("permission_name is not null");
+            addCriterion("permission.permission_name is not null");
             return (Criteria) this;
         }
 
         public Criteria andPermissionNameEqualTo(String value) {
-            addCriterion("permission_name =", value, "permissionName");
+            addCriterion("permission.permission_name =", value, "permissionName");
             return (Criteria) this;
         }
 
         public Criteria andPermissionNameNotEqualTo(String value) {
-            addCriterion("permission_name <>", value, "permissionName");
+            addCriterion("permission.permission_name <>", value, "permissionName");
             return (Criteria) this;
         }
 
         public Criteria andPermissionNameGreaterThan(String value) {
-            addCriterion("permission_name >", value, "permissionName");
+            addCriterion("permission.permission_name >", value, "permissionName");
             return (Criteria) this;
         }
 
         public Criteria andPermissionNameGreaterThanOrEqualTo(String value) {
-            addCriterion("permission_name >=", value, "permissionName");
+            addCriterion("permission.permission_name >=", value, "permissionName");
             return (Criteria) this;
         }
 
         public Criteria andPermissionNameLessThan(String value) {
-            addCriterion("permission_name <", value, "permissionName");
+            addCriterion("permission.permission_name <", value, "permissionName");
             return (Criteria) this;
         }
 
         public Criteria andPermissionNameLessThanOrEqualTo(String value) {
-            addCriterion("permission_name <=", value, "permissionName");
+            addCriterion("permission.permission_name <=", value, "permissionName");
             return (Criteria) this;
         }
 
         public Criteria andPermissionNameLike(String value) {
-            addCriterion("permission_name like", value, "permissionName");
+            addCriterion("permission.permission_name like", value, "permissionName");
             return (Criteria) this;
         }
 
         public Criteria andPermissionNameNotLike(String value) {
-            addCriterion("permission_name not like", value, "permissionName");
+            addCriterion("permission.permission_name not like", value, "permissionName");
             return (Criteria) this;
         }
 
         public Criteria andPermissionNameIn(List<String> values) {
-            addCriterion("permission_name in", values, "permissionName");
+            addCriterion("permission.permission_name in", values, "permissionName");
             return (Criteria) this;
         }
 
         public Criteria andPermissionNameNotIn(List<String> values) {
-            addCriterion("permission_name not in", values, "permissionName");
+            addCriterion("permission.permission_name not in", values, "permissionName");
             return (Criteria) this;
         }
 
         public Criteria andPermissionNameBetween(String value1, String value2) {
-            addCriterion("permission_name between", value1, value2, "permissionName");
+            addCriterion("permission.permission_name between", value1, value2, "permissionName");
             return (Criteria) this;
         }
 
         public Criteria andPermissionNameNotBetween(String value1, String value2) {
-            addCriterion("permission_name not between", value1, value2, "permissionName");
+            addCriterion("permission.permission_name not between", value1, value2, "permissionName");
             return (Criteria) this;
         }
 
         public Criteria andPermissionCodeIsNull() {
-            addCriterion("permission_code is null");
+            addCriterion("permission.permission_code is null");
             return (Criteria) this;
         }
 
         public Criteria andPermissionCodeIsNotNull() {
-            addCriterion("permission_code is not null");
+            addCriterion("permission.permission_code is not null");
             return (Criteria) this;
         }
 
         public Criteria andPermissionCodeEqualTo(String value) {
-            addCriterion("permission_code =", value, "permissionCode");
+            addCriterion("permission.permission_code =", value, "permissionCode");
             return (Criteria) this;
         }
 
         public Criteria andPermissionCodeNotEqualTo(String value) {
-            addCriterion("permission_code <>", value, "permissionCode");
+            addCriterion("permission.permission_code <>", value, "permissionCode");
             return (Criteria) this;
         }
 
         public Criteria andPermissionCodeGreaterThan(String value) {
-            addCriterion("permission_code >", value, "permissionCode");
+            addCriterion("permission.permission_code >", value, "permissionCode");
             return (Criteria) this;
         }
 
         public Criteria andPermissionCodeGreaterThanOrEqualTo(String value) {
-            addCriterion("permission_code >=", value, "permissionCode");
+            addCriterion("permission.permission_code >=", value, "permissionCode");
             return (Criteria) this;
         }
 
         public Criteria andPermissionCodeLessThan(String value) {
-            addCriterion("permission_code <", value, "permissionCode");
+            addCriterion("permission.permission_code <", value, "permissionCode");
             return (Criteria) this;
         }
 
         public Criteria andPermissionCodeLessThanOrEqualTo(String value) {
-            addCriterion("permission_code <=", value, "permissionCode");
+            addCriterion("permission.permission_code <=", value, "permissionCode");
             return (Criteria) this;
         }
 
         public Criteria andPermissionCodeLike(String value) {
-            addCriterion("permission_code like", value, "permissionCode");
+            addCriterion("permission.permission_code like", value, "permissionCode");
             return (Criteria) this;
         }
 
         public Criteria andPermissionCodeNotLike(String value) {
-            addCriterion("permission_code not like", value, "permissionCode");
+            addCriterion("permission.permission_code not like", value, "permissionCode");
             return (Criteria) this;
         }
 
         public Criteria andPermissionCodeIn(List<String> values) {
-            addCriterion("permission_code in", values, "permissionCode");
+            addCriterion("permission.permission_code in", values, "permissionCode");
             return (Criteria) this;
         }
 
         public Criteria andPermissionCodeNotIn(List<String> values) {
-            addCriterion("permission_code not in", values, "permissionCode");
+            addCriterion("permission.permission_code not in", values, "permissionCode");
             return (Criteria) this;
         }
 
         public Criteria andPermissionCodeBetween(String value1, String value2) {
-            addCriterion("permission_code between", value1, value2, "permissionCode");
+            addCriterion("permission.permission_code between", value1, value2, "permissionCode");
             return (Criteria) this;
         }
 
         public Criteria andPermissionCodeNotBetween(String value1, String value2) {
-            addCriterion("permission_code not between", value1, value2, "permissionCode");
+            addCriterion("permission.permission_code not between", value1, value2, "permissionCode");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagIsNull() {
-            addCriterion("delete_flag is null");
+            addCriterion("permission.delete_flag is null");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagIsNotNull() {
-            addCriterion("delete_flag is not null");
+            addCriterion("permission.delete_flag is not null");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagEqualTo(Integer value) {
-            addCriterion("delete_flag =", value, "deleteFlag");
+            addCriterion("permission.delete_flag =", value, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagNotEqualTo(Integer value) {
-            addCriterion("delete_flag <>", value, "deleteFlag");
+            addCriterion("permission.delete_flag <>", value, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagGreaterThan(Integer value) {
-            addCriterion("delete_flag >", value, "deleteFlag");
+            addCriterion("permission.delete_flag >", value, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagGreaterThanOrEqualTo(Integer value) {
-            addCriterion("delete_flag >=", value, "deleteFlag");
+            addCriterion("permission.delete_flag >=", value, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagLessThan(Integer value) {
-            addCriterion("delete_flag <", value, "deleteFlag");
+            addCriterion("permission.delete_flag <", value, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagLessThanOrEqualTo(Integer value) {
-            addCriterion("delete_flag <=", value, "deleteFlag");
+            addCriterion("permission.delete_flag <=", value, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagIn(List<Integer> values) {
-            addCriterion("delete_flag in", values, "deleteFlag");
+            addCriterion("permission.delete_flag in", values, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagNotIn(List<Integer> values) {
-            addCriterion("delete_flag not in", values, "deleteFlag");
+            addCriterion("permission.delete_flag not in", values, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagBetween(Integer value1, Integer value2) {
-            addCriterion("delete_flag between", value1, value2, "deleteFlag");
+            addCriterion("permission.delete_flag between", value1, value2, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagNotBetween(Integer value1, Integer value2) {
-            addCriterion("delete_flag not between", value1, value2, "deleteFlag");
+            addCriterion("permission.delete_flag not between", value1, value2, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeIsNull() {
-            addCriterion("create_time is null");
+            addCriterion("permission.create_time is null");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeIsNotNull() {
-            addCriterion("create_time is not null");
+            addCriterion("permission.create_time is not null");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeEqualTo(LocalDateTime value) {
-            addCriterion("create_time =", value, "createTime");
+            addCriterion("permission.create_time =", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeNotEqualTo(LocalDateTime value) {
-            addCriterion("create_time <>", value, "createTime");
+            addCriterion("permission.create_time <>", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeGreaterThan(LocalDateTime value) {
-            addCriterion("create_time >", value, "createTime");
+            addCriterion("permission.create_time >", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeGreaterThanOrEqualTo(LocalDateTime value) {
-            addCriterion("create_time >=", value, "createTime");
+            addCriterion("permission.create_time >=", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeLessThan(LocalDateTime value) {
-            addCriterion("create_time <", value, "createTime");
+            addCriterion("permission.create_time <", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeLessThanOrEqualTo(LocalDateTime value) {
-            addCriterion("create_time <=", value, "createTime");
+            addCriterion("permission.create_time <=", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeIn(List<LocalDateTime> values) {
-            addCriterion("create_time in", values, "createTime");
+            addCriterion("permission.create_time in", values, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeNotIn(List<LocalDateTime> values) {
-            addCriterion("create_time not in", values, "createTime");
+            addCriterion("permission.create_time not in", values, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("create_time between", value1, value2, "createTime");
+            addCriterion("permission.create_time between", value1, value2, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeNotBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("create_time not between", value1, value2, "createTime");
+            addCriterion("permission.create_time not between", value1, value2, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeIsNull() {
-            addCriterion("update_time is null");
+            addCriterion("permission.update_time is null");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeIsNotNull() {
-            addCriterion("update_time is not null");
+            addCriterion("permission.update_time is not null");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeEqualTo(LocalDateTime value) {
-            addCriterion("update_time =", value, "updateTime");
+            addCriterion("permission.update_time =", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeNotEqualTo(LocalDateTime value) {
-            addCriterion("update_time <>", value, "updateTime");
+            addCriterion("permission.update_time <>", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeGreaterThan(LocalDateTime value) {
-            addCriterion("update_time >", value, "updateTime");
+            addCriterion("permission.update_time >", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeGreaterThanOrEqualTo(LocalDateTime value) {
-            addCriterion("update_time >=", value, "updateTime");
+            addCriterion("permission.update_time >=", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeLessThan(LocalDateTime value) {
-            addCriterion("update_time <", value, "updateTime");
+            addCriterion("permission.update_time <", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeLessThanOrEqualTo(LocalDateTime value) {
-            addCriterion("update_time <=", value, "updateTime");
+            addCriterion("permission.update_time <=", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeIn(List<LocalDateTime> values) {
-            addCriterion("update_time in", values, "updateTime");
+            addCriterion("permission.update_time in", values, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeNotIn(List<LocalDateTime> values) {
-            addCriterion("update_time not in", values, "updateTime");
+            addCriterion("permission.update_time not in", values, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("update_time between", value1, value2, "updateTime");
+            addCriterion("permission.update_time between", value1, value2, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeNotBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("update_time not between", value1, value2, "updateTime");
+            addCriterion("permission.update_time not between", value1, value2, "updateTime");
             return (Criteria) this;
         }
     }

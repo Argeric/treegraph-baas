@@ -105,462 +105,462 @@ public class UserRoleInvitePoExample {
         }
 
         public Criteria andIdIsNull() {
-            addCriterion("id is null");
+            addCriterion("userRoleInvite.id is null");
             return (Criteria) this;
         }
 
         public Criteria andIdIsNotNull() {
-            addCriterion("id is not null");
+            addCriterion("userRoleInvite.id is not null");
             return (Criteria) this;
         }
 
         public Criteria andIdEqualTo(Long value) {
-            addCriterion("id =", value, "id");
+            addCriterion("userRoleInvite.id =", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotEqualTo(Long value) {
-            addCriterion("id <>", value, "id");
+            addCriterion("userRoleInvite.id <>", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdGreaterThan(Long value) {
-            addCriterion("id >", value, "id");
+            addCriterion("userRoleInvite.id >", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdGreaterThanOrEqualTo(Long value) {
-            addCriterion("id >=", value, "id");
+            addCriterion("userRoleInvite.id >=", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdLessThan(Long value) {
-            addCriterion("id <", value, "id");
+            addCriterion("userRoleInvite.id <", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdLessThanOrEqualTo(Long value) {
-            addCriterion("id <=", value, "id");
+            addCriterion("userRoleInvite.id <=", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdIn(List<Long> values) {
-            addCriterion("id in", values, "id");
+            addCriterion("userRoleInvite.id in", values, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotIn(List<Long> values) {
-            addCriterion("id not in", values, "id");
+            addCriterion("userRoleInvite.id not in", values, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdBetween(Long value1, Long value2) {
-            addCriterion("id between", value1, value2, "id");
+            addCriterion("userRoleInvite.id between", value1, value2, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotBetween(Long value1, Long value2) {
-            addCriterion("id not between", value1, value2, "id");
+            addCriterion("userRoleInvite.id not between", value1, value2, "id");
             return (Criteria) this;
         }
 
         public Criteria andInviteIdIsNull() {
-            addCriterion("invite_id is null");
+            addCriterion("userRoleInvite.invite_id is null");
             return (Criteria) this;
         }
 
         public Criteria andInviteIdIsNotNull() {
-            addCriterion("invite_id is not null");
+            addCriterion("userRoleInvite.invite_id is not null");
             return (Criteria) this;
         }
 
         public Criteria andInviteIdEqualTo(Long value) {
-            addCriterion("invite_id =", value, "inviteId");
+            addCriterion("userRoleInvite.invite_id =", value, "inviteId");
             return (Criteria) this;
         }
 
         public Criteria andInviteIdNotEqualTo(Long value) {
-            addCriterion("invite_id <>", value, "inviteId");
+            addCriterion("userRoleInvite.invite_id <>", value, "inviteId");
             return (Criteria) this;
         }
 
         public Criteria andInviteIdGreaterThan(Long value) {
-            addCriterion("invite_id >", value, "inviteId");
+            addCriterion("userRoleInvite.invite_id >", value, "inviteId");
             return (Criteria) this;
         }
 
         public Criteria andInviteIdGreaterThanOrEqualTo(Long value) {
-            addCriterion("invite_id >=", value, "inviteId");
+            addCriterion("userRoleInvite.invite_id >=", value, "inviteId");
             return (Criteria) this;
         }
 
         public Criteria andInviteIdLessThan(Long value) {
-            addCriterion("invite_id <", value, "inviteId");
+            addCriterion("userRoleInvite.invite_id <", value, "inviteId");
             return (Criteria) this;
         }
 
         public Criteria andInviteIdLessThanOrEqualTo(Long value) {
-            addCriterion("invite_id <=", value, "inviteId");
+            addCriterion("userRoleInvite.invite_id <=", value, "inviteId");
             return (Criteria) this;
         }
 
         public Criteria andInviteIdIn(List<Long> values) {
-            addCriterion("invite_id in", values, "inviteId");
+            addCriterion("userRoleInvite.invite_id in", values, "inviteId");
             return (Criteria) this;
         }
 
         public Criteria andInviteIdNotIn(List<Long> values) {
-            addCriterion("invite_id not in", values, "inviteId");
+            addCriterion("userRoleInvite.invite_id not in", values, "inviteId");
             return (Criteria) this;
         }
 
         public Criteria andInviteIdBetween(Long value1, Long value2) {
-            addCriterion("invite_id between", value1, value2, "inviteId");
+            addCriterion("userRoleInvite.invite_id between", value1, value2, "inviteId");
             return (Criteria) this;
         }
 
         public Criteria andInviteIdNotBetween(Long value1, Long value2) {
-            addCriterion("invite_id not between", value1, value2, "inviteId");
+            addCriterion("userRoleInvite.invite_id not between", value1, value2, "inviteId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdIsNull() {
-            addCriterion("user_id is null");
+            addCriterion("userRoleInvite.user_id is null");
             return (Criteria) this;
         }
 
         public Criteria andUserIdIsNotNull() {
-            addCriterion("user_id is not null");
+            addCriterion("userRoleInvite.user_id is not null");
             return (Criteria) this;
         }
 
         public Criteria andUserIdEqualTo(String value) {
-            addCriterion("user_id =", value, "userId");
+            addCriterion("userRoleInvite.user_id =", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotEqualTo(String value) {
-            addCriterion("user_id <>", value, "userId");
+            addCriterion("userRoleInvite.user_id <>", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdGreaterThan(String value) {
-            addCriterion("user_id >", value, "userId");
+            addCriterion("userRoleInvite.user_id >", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdGreaterThanOrEqualTo(String value) {
-            addCriterion("user_id >=", value, "userId");
+            addCriterion("userRoleInvite.user_id >=", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdLessThan(String value) {
-            addCriterion("user_id <", value, "userId");
+            addCriterion("userRoleInvite.user_id <", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdLessThanOrEqualTo(String value) {
-            addCriterion("user_id <=", value, "userId");
+            addCriterion("userRoleInvite.user_id <=", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdLike(String value) {
-            addCriterion("user_id like", value, "userId");
+            addCriterion("userRoleInvite.user_id like", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotLike(String value) {
-            addCriterion("user_id not like", value, "userId");
+            addCriterion("userRoleInvite.user_id not like", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdIn(List<String> values) {
-            addCriterion("user_id in", values, "userId");
+            addCriterion("userRoleInvite.user_id in", values, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotIn(List<String> values) {
-            addCriterion("user_id not in", values, "userId");
+            addCriterion("userRoleInvite.user_id not in", values, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdBetween(String value1, String value2) {
-            addCriterion("user_id between", value1, value2, "userId");
+            addCriterion("userRoleInvite.user_id between", value1, value2, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotBetween(String value1, String value2) {
-            addCriterion("user_id not between", value1, value2, "userId");
+            addCriterion("userRoleInvite.user_id not between", value1, value2, "userId");
             return (Criteria) this;
         }
 
         public Criteria andRoleIdIsNull() {
-            addCriterion("role_id is null");
+            addCriterion("userRoleInvite.role_id is null");
             return (Criteria) this;
         }
 
         public Criteria andRoleIdIsNotNull() {
-            addCriterion("role_id is not null");
+            addCriterion("userRoleInvite.role_id is not null");
             return (Criteria) this;
         }
 
         public Criteria andRoleIdEqualTo(String value) {
-            addCriterion("role_id =", value, "roleId");
+            addCriterion("userRoleInvite.role_id =", value, "roleId");
             return (Criteria) this;
         }
 
         public Criteria andRoleIdNotEqualTo(String value) {
-            addCriterion("role_id <>", value, "roleId");
+            addCriterion("userRoleInvite.role_id <>", value, "roleId");
             return (Criteria) this;
         }
 
         public Criteria andRoleIdGreaterThan(String value) {
-            addCriterion("role_id >", value, "roleId");
+            addCriterion("userRoleInvite.role_id >", value, "roleId");
             return (Criteria) this;
         }
 
         public Criteria andRoleIdGreaterThanOrEqualTo(String value) {
-            addCriterion("role_id >=", value, "roleId");
+            addCriterion("userRoleInvite.role_id >=", value, "roleId");
             return (Criteria) this;
         }
 
         public Criteria andRoleIdLessThan(String value) {
-            addCriterion("role_id <", value, "roleId");
+            addCriterion("userRoleInvite.role_id <", value, "roleId");
             return (Criteria) this;
         }
 
         public Criteria andRoleIdLessThanOrEqualTo(String value) {
-            addCriterion("role_id <=", value, "roleId");
+            addCriterion("userRoleInvite.role_id <=", value, "roleId");
             return (Criteria) this;
         }
 
         public Criteria andRoleIdLike(String value) {
-            addCriterion("role_id like", value, "roleId");
+            addCriterion("userRoleInvite.role_id like", value, "roleId");
             return (Criteria) this;
         }
 
         public Criteria andRoleIdNotLike(String value) {
-            addCriterion("role_id not like", value, "roleId");
+            addCriterion("userRoleInvite.role_id not like", value, "roleId");
             return (Criteria) this;
         }
 
         public Criteria andRoleIdIn(List<String> values) {
-            addCriterion("role_id in", values, "roleId");
+            addCriterion("userRoleInvite.role_id in", values, "roleId");
             return (Criteria) this;
         }
 
         public Criteria andRoleIdNotIn(List<String> values) {
-            addCriterion("role_id not in", values, "roleId");
+            addCriterion("userRoleInvite.role_id not in", values, "roleId");
             return (Criteria) this;
         }
 
         public Criteria andRoleIdBetween(String value1, String value2) {
-            addCriterion("role_id between", value1, value2, "roleId");
+            addCriterion("userRoleInvite.role_id between", value1, value2, "roleId");
             return (Criteria) this;
         }
 
         public Criteria andRoleIdNotBetween(String value1, String value2) {
-            addCriterion("role_id not between", value1, value2, "roleId");
+            addCriterion("userRoleInvite.role_id not between", value1, value2, "roleId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdIsNull() {
-            addCriterion("consortium_id is null");
+            addCriterion("userRoleInvite.consortium_id is null");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdIsNotNull() {
-            addCriterion("consortium_id is not null");
+            addCriterion("userRoleInvite.consortium_id is not null");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdEqualTo(String value) {
-            addCriterion("consortium_id =", value, "consortiumId");
+            addCriterion("userRoleInvite.consortium_id =", value, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdNotEqualTo(String value) {
-            addCriterion("consortium_id <>", value, "consortiumId");
+            addCriterion("userRoleInvite.consortium_id <>", value, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdGreaterThan(String value) {
-            addCriterion("consortium_id >", value, "consortiumId");
+            addCriterion("userRoleInvite.consortium_id >", value, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdGreaterThanOrEqualTo(String value) {
-            addCriterion("consortium_id >=", value, "consortiumId");
+            addCriterion("userRoleInvite.consortium_id >=", value, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdLessThan(String value) {
-            addCriterion("consortium_id <", value, "consortiumId");
+            addCriterion("userRoleInvite.consortium_id <", value, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdLessThanOrEqualTo(String value) {
-            addCriterion("consortium_id <=", value, "consortiumId");
+            addCriterion("userRoleInvite.consortium_id <=", value, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdLike(String value) {
-            addCriterion("consortium_id like", value, "consortiumId");
+            addCriterion("userRoleInvite.consortium_id like", value, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdNotLike(String value) {
-            addCriterion("consortium_id not like", value, "consortiumId");
+            addCriterion("userRoleInvite.consortium_id not like", value, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdIn(List<String> values) {
-            addCriterion("consortium_id in", values, "consortiumId");
+            addCriterion("userRoleInvite.consortium_id in", values, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdNotIn(List<String> values) {
-            addCriterion("consortium_id not in", values, "consortiumId");
+            addCriterion("userRoleInvite.consortium_id not in", values, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdBetween(String value1, String value2) {
-            addCriterion("consortium_id between", value1, value2, "consortiumId");
+            addCriterion("userRoleInvite.consortium_id between", value1, value2, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdNotBetween(String value1, String value2) {
-            addCriterion("consortium_id not between", value1, value2, "consortiumId");
+            addCriterion("userRoleInvite.consortium_id not between", value1, value2, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameIsNull() {
-            addCriterion("organization_name is null");
+            addCriterion("userRoleInvite.organization_name is null");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameIsNotNull() {
-            addCriterion("organization_name is not null");
+            addCriterion("userRoleInvite.organization_name is not null");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameEqualTo(String value) {
-            addCriterion("organization_name =", value, "organizationName");
+            addCriterion("userRoleInvite.organization_name =", value, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameNotEqualTo(String value) {
-            addCriterion("organization_name <>", value, "organizationName");
+            addCriterion("userRoleInvite.organization_name <>", value, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameGreaterThan(String value) {
-            addCriterion("organization_name >", value, "organizationName");
+            addCriterion("userRoleInvite.organization_name >", value, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameGreaterThanOrEqualTo(String value) {
-            addCriterion("organization_name >=", value, "organizationName");
+            addCriterion("userRoleInvite.organization_name >=", value, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameLessThan(String value) {
-            addCriterion("organization_name <", value, "organizationName");
+            addCriterion("userRoleInvite.organization_name <", value, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameLessThanOrEqualTo(String value) {
-            addCriterion("organization_name <=", value, "organizationName");
+            addCriterion("userRoleInvite.organization_name <=", value, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameLike(String value) {
-            addCriterion("organization_name like", value, "organizationName");
+            addCriterion("userRoleInvite.organization_name like", value, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameNotLike(String value) {
-            addCriterion("organization_name not like", value, "organizationName");
+            addCriterion("userRoleInvite.organization_name not like", value, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameIn(List<String> values) {
-            addCriterion("organization_name in", values, "organizationName");
+            addCriterion("userRoleInvite.organization_name in", values, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameNotIn(List<String> values) {
-            addCriterion("organization_name not in", values, "organizationName");
+            addCriterion("userRoleInvite.organization_name not in", values, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameBetween(String value1, String value2) {
-            addCriterion("organization_name between", value1, value2, "organizationName");
+            addCriterion("userRoleInvite.organization_name between", value1, value2, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameNotBetween(String value1, String value2) {
-            addCriterion("organization_name not between", value1, value2, "organizationName");
+            addCriterion("userRoleInvite.organization_name not between", value1, value2, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andStatusIsNull() {
-            addCriterion("`status` is null");
+            addCriterion("userRoleInvite.`status` is null");
             return (Criteria) this;
         }
 
         public Criteria andStatusIsNotNull() {
-            addCriterion("`status` is not null");
+            addCriterion("userRoleInvite.`status` is not null");
             return (Criteria) this;
         }
 
         public Criteria andStatusEqualTo(Integer value) {
-            addCriterion("`status` =", value, "status");
+            addCriterion("userRoleInvite.`status` =", value, "status");
             return (Criteria) this;
         }
 
         public Criteria andStatusNotEqualTo(Integer value) {
-            addCriterion("`status` <>", value, "status");
+            addCriterion("userRoleInvite.`status` <>", value, "status");
             return (Criteria) this;
         }
 
         public Criteria andStatusGreaterThan(Integer value) {
-            addCriterion("`status` >", value, "status");
+            addCriterion("userRoleInvite.`status` >", value, "status");
             return (Criteria) this;
         }
 
         public Criteria andStatusGreaterThanOrEqualTo(Integer value) {
-            addCriterion("`status` >=", value, "status");
+            addCriterion("userRoleInvite.`status` >=", value, "status");
             return (Criteria) this;
         }
 
         public Criteria andStatusLessThan(Integer value) {
-            addCriterion("`status` <", value, "status");
+            addCriterion("userRoleInvite.`status` <", value, "status");
             return (Criteria) this;
         }
 
         public Criteria andStatusLessThanOrEqualTo(Integer value) {
-            addCriterion("`status` <=", value, "status");
+            addCriterion("userRoleInvite.`status` <=", value, "status");
             return (Criteria) this;
         }
 
         public Criteria andStatusIn(List<Integer> values) {
-            addCriterion("`status` in", values, "status");
+            addCriterion("userRoleInvite.`status` in", values, "status");
             return (Criteria) this;
         }
 
         public Criteria andStatusNotIn(List<Integer> values) {
-            addCriterion("`status` not in", values, "status");
+            addCriterion("userRoleInvite.`status` not in", values, "status");
             return (Criteria) this;
         }
 
         public Criteria andStatusBetween(Integer value1, Integer value2) {
-            addCriterion("`status` between", value1, value2, "status");
+            addCriterion("userRoleInvite.`status` between", value1, value2, "status");
             return (Criteria) this;
         }
 
         public Criteria andStatusNotBetween(Integer value1, Integer value2) {
-            addCriterion("`status` not between", value1, value2, "status");
+            addCriterion("userRoleInvite.`status` not between", value1, value2, "status");
             return (Criteria) this;
         }
     }

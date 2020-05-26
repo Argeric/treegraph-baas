@@ -2,15 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.treegraph.baas.core.mapper.UserOperLogPoMapper">
   <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.UserOperLogPo">
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="user_id" jdbcType="VARCHAR" property="userId" />
-    <result column="user_name" jdbcType="VARCHAR" property="userName" />
-    <result column="user_ip" jdbcType="VARCHAR" property="userIp" />
-    <result column="oper_type" jdbcType="INTEGER" property="operType" />
-    <result column="oper_code" jdbcType="VARCHAR" property="operCode" />
-    <result column="oper_info" jdbcType="VARCHAR" property="operInfo" />
-    <result column="oper_time" jdbcType="TIMESTAMP" property="operTime" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <id column="userOperLog_id" jdbcType="BIGINT" property="id" />
+    <result column="userOperLog_user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="userOperLog_user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="userOperLog_user_ip" jdbcType="VARCHAR" property="userIp" />
+    <result column="userOperLog_oper_type" jdbcType="INTEGER" property="operType" />
+    <result column="userOperLog_oper_code" jdbcType="VARCHAR" property="operCode" />
+    <result column="userOperLog_oper_info" jdbcType="VARCHAR" property="operInfo" />
+    <result column="userOperLog_oper_time" jdbcType="TIMESTAMP" property="operTime" />
+    <result column="userOperLog_create_time" jdbcType="TIMESTAMP" property="createTime" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -71,7 +71,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, user_id, user_name, user_ip, oper_type, oper_code, oper_info, oper_time, create_time
+    userOperLog.id as userOperLog_id, userOperLog.user_id as userOperLog_user_id, userOperLog.user_name as userOperLog_user_name, 
+    userOperLog.user_ip as userOperLog_user_ip, userOperLog.oper_type as userOperLog_oper_type, 
+    userOperLog.oper_code as userOperLog_oper_code, userOperLog.oper_info as userOperLog_oper_info, 
+    userOperLog.oper_time as userOperLog_oper_time, userOperLog.create_time as userOperLog_create_time
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.UserOperLogPoExample" resultMap="BaseResultMap">
     select
@@ -79,7 +82,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from user_oper_log
+    from user_oper_log userOperLog
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -90,15 +93,15 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from user_oper_log
-    where id = #{id,jdbcType=BIGINT}
+    from user_oper_log userOperLog
+    where userOperLog.id = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from user_oper_log
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.UserOperLogPoExample">
-    delete from user_oper_log
+    delete from user_oper_log userOperLog
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -167,40 +170,40 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="org.treegraph.baas.core.domain.UserOperLogPoExample" resultType="java.lang.Long">
-    select count(*) from user_oper_log
+    select count(*) from user_oper_log userOperLog
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update user_oper_log
+    update user_oper_log userOperLog
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=BIGINT},
+        userOperLog.id = #{record.id,jdbcType=BIGINT},
       </if>
       <if test="record.userId != null">
-        user_id = #{record.userId,jdbcType=VARCHAR},
+        userOperLog.user_id = #{record.userId,jdbcType=VARCHAR},
       </if>
       <if test="record.userName != null">
-        user_name = #{record.userName,jdbcType=VARCHAR},
+        userOperLog.user_name = #{record.userName,jdbcType=VARCHAR},
       </if>
       <if test="record.userIp != null">
-        user_ip = #{record.userIp,jdbcType=VARCHAR},
+        userOperLog.user_ip = #{record.userIp,jdbcType=VARCHAR},
       </if>
       <if test="record.operType != null">
-        oper_type = #{record.operType,jdbcType=INTEGER},
+        userOperLog.oper_type = #{record.operType,jdbcType=INTEGER},
       </if>
       <if test="record.operCode != null">
-        oper_code = #{record.operCode,jdbcType=VARCHAR},
+        userOperLog.oper_code = #{record.operCode,jdbcType=VARCHAR},
       </if>
       <if test="record.operInfo != null">
-        oper_info = #{record.operInfo,jdbcType=VARCHAR},
+        userOperLog.oper_info = #{record.operInfo,jdbcType=VARCHAR},
       </if>
       <if test="record.operTime != null">
-        oper_time = #{record.operTime,jdbcType=TIMESTAMP},
+        userOperLog.oper_time = #{record.operTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+        userOperLog.create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
     </set>
     <if test="_parameter != null">
@@ -208,16 +211,16 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update user_oper_log
-    set id = #{record.id,jdbcType=BIGINT},
-      user_id = #{record.userId,jdbcType=VARCHAR},
-      user_name = #{record.userName,jdbcType=VARCHAR},
-      user_ip = #{record.userIp,jdbcType=VARCHAR},
-      oper_type = #{record.operType,jdbcType=INTEGER},
-      oper_code = #{record.operCode,jdbcType=VARCHAR},
-      oper_info = #{record.operInfo,jdbcType=VARCHAR},
-      oper_time = #{record.operTime,jdbcType=TIMESTAMP},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP}
+    update user_oper_log userOperLog
+    set userOperLog.id = #{record.id,jdbcType=BIGINT},
+      userOperLog.user_id = #{record.userId,jdbcType=VARCHAR},
+      userOperLog.user_name = #{record.userName,jdbcType=VARCHAR},
+      userOperLog.user_ip = #{record.userIp,jdbcType=VARCHAR},
+      userOperLog.oper_type = #{record.operType,jdbcType=INTEGER},
+      userOperLog.oper_code = #{record.operCode,jdbcType=VARCHAR},
+      userOperLog.oper_info = #{record.operInfo,jdbcType=VARCHAR},
+      userOperLog.oper_time = #{record.operTime,jdbcType=TIMESTAMP},
+      userOperLog.create_time = #{record.createTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>

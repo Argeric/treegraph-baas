@@ -2,14 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.treegraph.baas.core.mapper.UserRolePoMapper">
   <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.UserRolePo">
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="user_id" jdbcType="VARCHAR" property="userId" />
-    <result column="role_id" jdbcType="VARCHAR" property="roleId" />
-    <result column="delete_flag" jdbcType="INTEGER" property="deleteFlag" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="create_by" jdbcType="VARCHAR" property="createBy" />
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-    <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+    <id column="blockChain_id" jdbcType="BIGINT" property="id" />
+    <result column="blockChain_user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="blockChain_role_id" jdbcType="VARCHAR" property="roleId" />
+    <result column="blockChain_delete_flag" jdbcType="INTEGER" property="deleteFlag" />
+    <result column="blockChain_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="blockChain_create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="blockChain_update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="blockChain_update_by" jdbcType="VARCHAR" property="updateBy" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,7 +70,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, user_id, role_id, delete_flag, create_time, create_by, update_time, update_by
+    blockChain.id as blockChain_id, blockChain.user_id as blockChain_user_id, blockChain.role_id as blockChain_role_id, 
+    blockChain.delete_flag as blockChain_delete_flag, blockChain.create_time as blockChain_create_time, 
+    blockChain.create_by as blockChain_create_by, blockChain.update_time as blockChain_update_time, 
+    blockChain.update_by as blockChain_update_by
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.UserRolePoExample" resultMap="BaseResultMap">
     select
@@ -78,7 +81,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from user_role
+    from user_role blockChain
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -89,15 +92,15 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from user_role
-    where id = #{id,jdbcType=BIGINT}
+    from user_role blockChain
+    where blockChain.id = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from user_role
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.UserRolePoExample">
-    delete from user_role
+    delete from user_role blockChain
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -160,37 +163,37 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="org.treegraph.baas.core.domain.UserRolePoExample" resultType="java.lang.Long">
-    select count(*) from user_role
+    select count(*) from user_role blockChain
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update user_role
+    update user_role blockChain
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=BIGINT},
+        blockChain.id = #{record.id,jdbcType=BIGINT},
       </if>
       <if test="record.userId != null">
-        user_id = #{record.userId,jdbcType=VARCHAR},
+        blockChain.user_id = #{record.userId,jdbcType=VARCHAR},
       </if>
       <if test="record.roleId != null">
-        role_id = #{record.roleId,jdbcType=VARCHAR},
+        blockChain.role_id = #{record.roleId,jdbcType=VARCHAR},
       </if>
       <if test="record.deleteFlag != null">
-        delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+        blockChain.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       </if>
       <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+        blockChain.create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.createBy != null">
-        create_by = #{record.createBy,jdbcType=VARCHAR},
+        blockChain.create_by = #{record.createBy,jdbcType=VARCHAR},
       </if>
       <if test="record.updateTime != null">
-        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+        blockChain.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.updateBy != null">
-        update_by = #{record.updateBy,jdbcType=VARCHAR},
+        blockChain.update_by = #{record.updateBy,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -198,15 +201,15 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update user_role
-    set id = #{record.id,jdbcType=BIGINT},
-      user_id = #{record.userId,jdbcType=VARCHAR},
-      role_id = #{record.roleId,jdbcType=VARCHAR},
-      delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      create_by = #{record.createBy,jdbcType=VARCHAR},
-      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
-      update_by = #{record.updateBy,jdbcType=VARCHAR}
+    update user_role blockChain
+    set blockChain.id = #{record.id,jdbcType=BIGINT},
+      blockChain.user_id = #{record.userId,jdbcType=VARCHAR},
+      blockChain.role_id = #{record.roleId,jdbcType=VARCHAR},
+      blockChain.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      blockChain.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      blockChain.create_by = #{record.createBy,jdbcType=VARCHAR},
+      blockChain.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      blockChain.update_by = #{record.updateBy,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -272,5 +275,5 @@
               #{item.updateBy}
           )
       </foreach>
-  </insert>    
+  </insert>  
 </mapper>

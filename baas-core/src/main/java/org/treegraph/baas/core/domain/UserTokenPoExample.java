@@ -106,382 +106,382 @@ public class UserTokenPoExample {
         }
 
         public Criteria andIdIsNull() {
-            addCriterion("id is null");
+            addCriterion("blockChain.id is null");
             return (Criteria) this;
         }
 
         public Criteria andIdIsNotNull() {
-            addCriterion("id is not null");
+            addCriterion("blockChain.id is not null");
             return (Criteria) this;
         }
 
         public Criteria andIdEqualTo(Long value) {
-            addCriterion("id =", value, "id");
+            addCriterion("blockChain.id =", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotEqualTo(Long value) {
-            addCriterion("id <>", value, "id");
+            addCriterion("blockChain.id <>", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdGreaterThan(Long value) {
-            addCriterion("id >", value, "id");
+            addCriterion("blockChain.id >", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdGreaterThanOrEqualTo(Long value) {
-            addCriterion("id >=", value, "id");
+            addCriterion("blockChain.id >=", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdLessThan(Long value) {
-            addCriterion("id <", value, "id");
+            addCriterion("blockChain.id <", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdLessThanOrEqualTo(Long value) {
-            addCriterion("id <=", value, "id");
+            addCriterion("blockChain.id <=", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdIn(List<Long> values) {
-            addCriterion("id in", values, "id");
+            addCriterion("blockChain.id in", values, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotIn(List<Long> values) {
-            addCriterion("id not in", values, "id");
+            addCriterion("blockChain.id not in", values, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdBetween(Long value1, Long value2) {
-            addCriterion("id between", value1, value2, "id");
+            addCriterion("blockChain.id between", value1, value2, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotBetween(Long value1, Long value2) {
-            addCriterion("id not between", value1, value2, "id");
+            addCriterion("blockChain.id not between", value1, value2, "id");
             return (Criteria) this;
         }
 
         public Criteria andUserIdIsNull() {
-            addCriterion("user_id is null");
+            addCriterion("blockChain.user_id is null");
             return (Criteria) this;
         }
 
         public Criteria andUserIdIsNotNull() {
-            addCriterion("user_id is not null");
+            addCriterion("blockChain.user_id is not null");
             return (Criteria) this;
         }
 
         public Criteria andUserIdEqualTo(String value) {
-            addCriterion("user_id =", value, "userId");
+            addCriterion("blockChain.user_id =", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotEqualTo(String value) {
-            addCriterion("user_id <>", value, "userId");
+            addCriterion("blockChain.user_id <>", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdGreaterThan(String value) {
-            addCriterion("user_id >", value, "userId");
+            addCriterion("blockChain.user_id >", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdGreaterThanOrEqualTo(String value) {
-            addCriterion("user_id >=", value, "userId");
+            addCriterion("blockChain.user_id >=", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdLessThan(String value) {
-            addCriterion("user_id <", value, "userId");
+            addCriterion("blockChain.user_id <", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdLessThanOrEqualTo(String value) {
-            addCriterion("user_id <=", value, "userId");
+            addCriterion("blockChain.user_id <=", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdLike(String value) {
-            addCriterion("user_id like", value, "userId");
+            addCriterion("blockChain.user_id like", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotLike(String value) {
-            addCriterion("user_id not like", value, "userId");
+            addCriterion("blockChain.user_id not like", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdIn(List<String> values) {
-            addCriterion("user_id in", values, "userId");
+            addCriterion("blockChain.user_id in", values, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotIn(List<String> values) {
-            addCriterion("user_id not in", values, "userId");
+            addCriterion("blockChain.user_id not in", values, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdBetween(String value1, String value2) {
-            addCriterion("user_id between", value1, value2, "userId");
+            addCriterion("blockChain.user_id between", value1, value2, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotBetween(String value1, String value2) {
-            addCriterion("user_id not between", value1, value2, "userId");
+            addCriterion("blockChain.user_id not between", value1, value2, "userId");
             return (Criteria) this;
         }
 
         public Criteria andTokenIsNull() {
-            addCriterion("token is null");
+            addCriterion("blockChain.token is null");
             return (Criteria) this;
         }
 
         public Criteria andTokenIsNotNull() {
-            addCriterion("token is not null");
+            addCriterion("blockChain.token is not null");
             return (Criteria) this;
         }
 
         public Criteria andTokenEqualTo(String value) {
-            addCriterion("token =", value, "token");
+            addCriterion("blockChain.token =", value, "token");
             return (Criteria) this;
         }
 
         public Criteria andTokenNotEqualTo(String value) {
-            addCriterion("token <>", value, "token");
+            addCriterion("blockChain.token <>", value, "token");
             return (Criteria) this;
         }
 
         public Criteria andTokenGreaterThan(String value) {
-            addCriterion("token >", value, "token");
+            addCriterion("blockChain.token >", value, "token");
             return (Criteria) this;
         }
 
         public Criteria andTokenGreaterThanOrEqualTo(String value) {
-            addCriterion("token >=", value, "token");
+            addCriterion("blockChain.token >=", value, "token");
             return (Criteria) this;
         }
 
         public Criteria andTokenLessThan(String value) {
-            addCriterion("token <", value, "token");
+            addCriterion("blockChain.token <", value, "token");
             return (Criteria) this;
         }
 
         public Criteria andTokenLessThanOrEqualTo(String value) {
-            addCriterion("token <=", value, "token");
+            addCriterion("blockChain.token <=", value, "token");
             return (Criteria) this;
         }
 
         public Criteria andTokenLike(String value) {
-            addCriterion("token like", value, "token");
+            addCriterion("blockChain.token like", value, "token");
             return (Criteria) this;
         }
 
         public Criteria andTokenNotLike(String value) {
-            addCriterion("token not like", value, "token");
+            addCriterion("blockChain.token not like", value, "token");
             return (Criteria) this;
         }
 
         public Criteria andTokenIn(List<String> values) {
-            addCriterion("token in", values, "token");
+            addCriterion("blockChain.token in", values, "token");
             return (Criteria) this;
         }
 
         public Criteria andTokenNotIn(List<String> values) {
-            addCriterion("token not in", values, "token");
+            addCriterion("blockChain.token not in", values, "token");
             return (Criteria) this;
         }
 
         public Criteria andTokenBetween(String value1, String value2) {
-            addCriterion("token between", value1, value2, "token");
+            addCriterion("blockChain.token between", value1, value2, "token");
             return (Criteria) this;
         }
 
         public Criteria andTokenNotBetween(String value1, String value2) {
-            addCriterion("token not between", value1, value2, "token");
+            addCriterion("blockChain.token not between", value1, value2, "token");
             return (Criteria) this;
         }
 
         public Criteria andExpireIsNull() {
-            addCriterion("expire is null");
+            addCriterion("blockChain.expire is null");
             return (Criteria) this;
         }
 
         public Criteria andExpireIsNotNull() {
-            addCriterion("expire is not null");
+            addCriterion("blockChain.expire is not null");
             return (Criteria) this;
         }
 
         public Criteria andExpireEqualTo(Integer value) {
-            addCriterion("expire =", value, "expire");
+            addCriterion("blockChain.expire =", value, "expire");
             return (Criteria) this;
         }
 
         public Criteria andExpireNotEqualTo(Integer value) {
-            addCriterion("expire <>", value, "expire");
+            addCriterion("blockChain.expire <>", value, "expire");
             return (Criteria) this;
         }
 
         public Criteria andExpireGreaterThan(Integer value) {
-            addCriterion("expire >", value, "expire");
+            addCriterion("blockChain.expire >", value, "expire");
             return (Criteria) this;
         }
 
         public Criteria andExpireGreaterThanOrEqualTo(Integer value) {
-            addCriterion("expire >=", value, "expire");
+            addCriterion("blockChain.expire >=", value, "expire");
             return (Criteria) this;
         }
 
         public Criteria andExpireLessThan(Integer value) {
-            addCriterion("expire <", value, "expire");
+            addCriterion("blockChain.expire <", value, "expire");
             return (Criteria) this;
         }
 
         public Criteria andExpireLessThanOrEqualTo(Integer value) {
-            addCriterion("expire <=", value, "expire");
+            addCriterion("blockChain.expire <=", value, "expire");
             return (Criteria) this;
         }
 
         public Criteria andExpireIn(List<Integer> values) {
-            addCriterion("expire in", values, "expire");
+            addCriterion("blockChain.expire in", values, "expire");
             return (Criteria) this;
         }
 
         public Criteria andExpireNotIn(List<Integer> values) {
-            addCriterion("expire not in", values, "expire");
+            addCriterion("blockChain.expire not in", values, "expire");
             return (Criteria) this;
         }
 
         public Criteria andExpireBetween(Integer value1, Integer value2) {
-            addCriterion("expire between", value1, value2, "expire");
+            addCriterion("blockChain.expire between", value1, value2, "expire");
             return (Criteria) this;
         }
 
         public Criteria andExpireNotBetween(Integer value1, Integer value2) {
-            addCriterion("expire not between", value1, value2, "expire");
+            addCriterion("blockChain.expire not between", value1, value2, "expire");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeIsNull() {
-            addCriterion("create_time is null");
+            addCriterion("blockChain.create_time is null");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeIsNotNull() {
-            addCriterion("create_time is not null");
+            addCriterion("blockChain.create_time is not null");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeEqualTo(LocalDateTime value) {
-            addCriterion("create_time =", value, "createTime");
+            addCriterion("blockChain.create_time =", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeNotEqualTo(LocalDateTime value) {
-            addCriterion("create_time <>", value, "createTime");
+            addCriterion("blockChain.create_time <>", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeGreaterThan(LocalDateTime value) {
-            addCriterion("create_time >", value, "createTime");
+            addCriterion("blockChain.create_time >", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeGreaterThanOrEqualTo(LocalDateTime value) {
-            addCriterion("create_time >=", value, "createTime");
+            addCriterion("blockChain.create_time >=", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeLessThan(LocalDateTime value) {
-            addCriterion("create_time <", value, "createTime");
+            addCriterion("blockChain.create_time <", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeLessThanOrEqualTo(LocalDateTime value) {
-            addCriterion("create_time <=", value, "createTime");
+            addCriterion("blockChain.create_time <=", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeIn(List<LocalDateTime> values) {
-            addCriterion("create_time in", values, "createTime");
+            addCriterion("blockChain.create_time in", values, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeNotIn(List<LocalDateTime> values) {
-            addCriterion("create_time not in", values, "createTime");
+            addCriterion("blockChain.create_time not in", values, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("create_time between", value1, value2, "createTime");
+            addCriterion("blockChain.create_time between", value1, value2, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeNotBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("create_time not between", value1, value2, "createTime");
+            addCriterion("blockChain.create_time not between", value1, value2, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeIsNull() {
-            addCriterion("update_time is null");
+            addCriterion("blockChain.update_time is null");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeIsNotNull() {
-            addCriterion("update_time is not null");
+            addCriterion("blockChain.update_time is not null");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeEqualTo(LocalDateTime value) {
-            addCriterion("update_time =", value, "updateTime");
+            addCriterion("blockChain.update_time =", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeNotEqualTo(LocalDateTime value) {
-            addCriterion("update_time <>", value, "updateTime");
+            addCriterion("blockChain.update_time <>", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeGreaterThan(LocalDateTime value) {
-            addCriterion("update_time >", value, "updateTime");
+            addCriterion("blockChain.update_time >", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeGreaterThanOrEqualTo(LocalDateTime value) {
-            addCriterion("update_time >=", value, "updateTime");
+            addCriterion("blockChain.update_time >=", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeLessThan(LocalDateTime value) {
-            addCriterion("update_time <", value, "updateTime");
+            addCriterion("blockChain.update_time <", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeLessThanOrEqualTo(LocalDateTime value) {
-            addCriterion("update_time <=", value, "updateTime");
+            addCriterion("blockChain.update_time <=", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeIn(List<LocalDateTime> values) {
-            addCriterion("update_time in", values, "updateTime");
+            addCriterion("blockChain.update_time in", values, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeNotIn(List<LocalDateTime> values) {
-            addCriterion("update_time not in", values, "updateTime");
+            addCriterion("blockChain.update_time not in", values, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("update_time between", value1, value2, "updateTime");
+            addCriterion("blockChain.update_time between", value1, value2, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeNotBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("update_time not between", value1, value2, "updateTime");
+            addCriterion("blockChain.update_time not between", value1, value2, "updateTime");
             return (Criteria) this;
         }
     }

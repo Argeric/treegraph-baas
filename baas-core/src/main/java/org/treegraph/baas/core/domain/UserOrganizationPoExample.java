@@ -106,452 +106,452 @@ public class UserOrganizationPoExample {
         }
 
         public Criteria andIdIsNull() {
-            addCriterion("id is null");
+            addCriterion("userOrganization.id is null");
             return (Criteria) this;
         }
 
         public Criteria andIdIsNotNull() {
-            addCriterion("id is not null");
+            addCriterion("userOrganization.id is not null");
             return (Criteria) this;
         }
 
         public Criteria andIdEqualTo(Long value) {
-            addCriterion("id =", value, "id");
+            addCriterion("userOrganization.id =", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotEqualTo(Long value) {
-            addCriterion("id <>", value, "id");
+            addCriterion("userOrganization.id <>", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdGreaterThan(Long value) {
-            addCriterion("id >", value, "id");
+            addCriterion("userOrganization.id >", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdGreaterThanOrEqualTo(Long value) {
-            addCriterion("id >=", value, "id");
+            addCriterion("userOrganization.id >=", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdLessThan(Long value) {
-            addCriterion("id <", value, "id");
+            addCriterion("userOrganization.id <", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdLessThanOrEqualTo(Long value) {
-            addCriterion("id <=", value, "id");
+            addCriterion("userOrganization.id <=", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdIn(List<Long> values) {
-            addCriterion("id in", values, "id");
+            addCriterion("userOrganization.id in", values, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotIn(List<Long> values) {
-            addCriterion("id not in", values, "id");
+            addCriterion("userOrganization.id not in", values, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdBetween(Long value1, Long value2) {
-            addCriterion("id between", value1, value2, "id");
+            addCriterion("userOrganization.id between", value1, value2, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotBetween(Long value1, Long value2) {
-            addCriterion("id not between", value1, value2, "id");
+            addCriterion("userOrganization.id not between", value1, value2, "id");
             return (Criteria) this;
         }
 
         public Criteria andUserIdIsNull() {
-            addCriterion("user_id is null");
+            addCriterion("userOrganization.user_id is null");
             return (Criteria) this;
         }
 
         public Criteria andUserIdIsNotNull() {
-            addCriterion("user_id is not null");
+            addCriterion("userOrganization.user_id is not null");
             return (Criteria) this;
         }
 
         public Criteria andUserIdEqualTo(String value) {
-            addCriterion("user_id =", value, "userId");
+            addCriterion("userOrganization.user_id =", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotEqualTo(String value) {
-            addCriterion("user_id <>", value, "userId");
+            addCriterion("userOrganization.user_id <>", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdGreaterThan(String value) {
-            addCriterion("user_id >", value, "userId");
+            addCriterion("userOrganization.user_id >", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdGreaterThanOrEqualTo(String value) {
-            addCriterion("user_id >=", value, "userId");
+            addCriterion("userOrganization.user_id >=", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdLessThan(String value) {
-            addCriterion("user_id <", value, "userId");
+            addCriterion("userOrganization.user_id <", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdLessThanOrEqualTo(String value) {
-            addCriterion("user_id <=", value, "userId");
+            addCriterion("userOrganization.user_id <=", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdLike(String value) {
-            addCriterion("user_id like", value, "userId");
+            addCriterion("userOrganization.user_id like", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotLike(String value) {
-            addCriterion("user_id not like", value, "userId");
+            addCriterion("userOrganization.user_id not like", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdIn(List<String> values) {
-            addCriterion("user_id in", values, "userId");
+            addCriterion("userOrganization.user_id in", values, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotIn(List<String> values) {
-            addCriterion("user_id not in", values, "userId");
+            addCriterion("userOrganization.user_id not in", values, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdBetween(String value1, String value2) {
-            addCriterion("user_id between", value1, value2, "userId");
+            addCriterion("userOrganization.user_id between", value1, value2, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotBetween(String value1, String value2) {
-            addCriterion("user_id not between", value1, value2, "userId");
+            addCriterion("userOrganization.user_id not between", value1, value2, "userId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdIsNull() {
-            addCriterion("consortium_id is null");
+            addCriterion("userOrganization.consortium_id is null");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdIsNotNull() {
-            addCriterion("consortium_id is not null");
+            addCriterion("userOrganization.consortium_id is not null");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdEqualTo(String value) {
-            addCriterion("consortium_id =", value, "consortiumId");
+            addCriterion("userOrganization.consortium_id =", value, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdNotEqualTo(String value) {
-            addCriterion("consortium_id <>", value, "consortiumId");
+            addCriterion("userOrganization.consortium_id <>", value, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdGreaterThan(String value) {
-            addCriterion("consortium_id >", value, "consortiumId");
+            addCriterion("userOrganization.consortium_id >", value, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdGreaterThanOrEqualTo(String value) {
-            addCriterion("consortium_id >=", value, "consortiumId");
+            addCriterion("userOrganization.consortium_id >=", value, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdLessThan(String value) {
-            addCriterion("consortium_id <", value, "consortiumId");
+            addCriterion("userOrganization.consortium_id <", value, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdLessThanOrEqualTo(String value) {
-            addCriterion("consortium_id <=", value, "consortiumId");
+            addCriterion("userOrganization.consortium_id <=", value, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdLike(String value) {
-            addCriterion("consortium_id like", value, "consortiumId");
+            addCriterion("userOrganization.consortium_id like", value, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdNotLike(String value) {
-            addCriterion("consortium_id not like", value, "consortiumId");
+            addCriterion("userOrganization.consortium_id not like", value, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdIn(List<String> values) {
-            addCriterion("consortium_id in", values, "consortiumId");
+            addCriterion("userOrganization.consortium_id in", values, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdNotIn(List<String> values) {
-            addCriterion("consortium_id not in", values, "consortiumId");
+            addCriterion("userOrganization.consortium_id not in", values, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdBetween(String value1, String value2) {
-            addCriterion("consortium_id between", value1, value2, "consortiumId");
+            addCriterion("userOrganization.consortium_id between", value1, value2, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andConsortiumIdNotBetween(String value1, String value2) {
-            addCriterion("consortium_id not between", value1, value2, "consortiumId");
+            addCriterion("userOrganization.consortium_id not between", value1, value2, "consortiumId");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameIsNull() {
-            addCriterion("organization_name is null");
+            addCriterion("userOrganization.organization_name is null");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameIsNotNull() {
-            addCriterion("organization_name is not null");
+            addCriterion("userOrganization.organization_name is not null");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameEqualTo(String value) {
-            addCriterion("organization_name =", value, "organizationName");
+            addCriterion("userOrganization.organization_name =", value, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameNotEqualTo(String value) {
-            addCriterion("organization_name <>", value, "organizationName");
+            addCriterion("userOrganization.organization_name <>", value, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameGreaterThan(String value) {
-            addCriterion("organization_name >", value, "organizationName");
+            addCriterion("userOrganization.organization_name >", value, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameGreaterThanOrEqualTo(String value) {
-            addCriterion("organization_name >=", value, "organizationName");
+            addCriterion("userOrganization.organization_name >=", value, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameLessThan(String value) {
-            addCriterion("organization_name <", value, "organizationName");
+            addCriterion("userOrganization.organization_name <", value, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameLessThanOrEqualTo(String value) {
-            addCriterion("organization_name <=", value, "organizationName");
+            addCriterion("userOrganization.organization_name <=", value, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameLike(String value) {
-            addCriterion("organization_name like", value, "organizationName");
+            addCriterion("userOrganization.organization_name like", value, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameNotLike(String value) {
-            addCriterion("organization_name not like", value, "organizationName");
+            addCriterion("userOrganization.organization_name not like", value, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameIn(List<String> values) {
-            addCriterion("organization_name in", values, "organizationName");
+            addCriterion("userOrganization.organization_name in", values, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameNotIn(List<String> values) {
-            addCriterion("organization_name not in", values, "organizationName");
+            addCriterion("userOrganization.organization_name not in", values, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameBetween(String value1, String value2) {
-            addCriterion("organization_name between", value1, value2, "organizationName");
+            addCriterion("userOrganization.organization_name between", value1, value2, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andOrganizationNameNotBetween(String value1, String value2) {
-            addCriterion("organization_name not between", value1, value2, "organizationName");
+            addCriterion("userOrganization.organization_name not between", value1, value2, "organizationName");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagIsNull() {
-            addCriterion("delete_flag is null");
+            addCriterion("userOrganization.delete_flag is null");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagIsNotNull() {
-            addCriterion("delete_flag is not null");
+            addCriterion("userOrganization.delete_flag is not null");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagEqualTo(Integer value) {
-            addCriterion("delete_flag =", value, "deleteFlag");
+            addCriterion("userOrganization.delete_flag =", value, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagNotEqualTo(Integer value) {
-            addCriterion("delete_flag <>", value, "deleteFlag");
+            addCriterion("userOrganization.delete_flag <>", value, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagGreaterThan(Integer value) {
-            addCriterion("delete_flag >", value, "deleteFlag");
+            addCriterion("userOrganization.delete_flag >", value, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagGreaterThanOrEqualTo(Integer value) {
-            addCriterion("delete_flag >=", value, "deleteFlag");
+            addCriterion("userOrganization.delete_flag >=", value, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagLessThan(Integer value) {
-            addCriterion("delete_flag <", value, "deleteFlag");
+            addCriterion("userOrganization.delete_flag <", value, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagLessThanOrEqualTo(Integer value) {
-            addCriterion("delete_flag <=", value, "deleteFlag");
+            addCriterion("userOrganization.delete_flag <=", value, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagIn(List<Integer> values) {
-            addCriterion("delete_flag in", values, "deleteFlag");
+            addCriterion("userOrganization.delete_flag in", values, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagNotIn(List<Integer> values) {
-            addCriterion("delete_flag not in", values, "deleteFlag");
+            addCriterion("userOrganization.delete_flag not in", values, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagBetween(Integer value1, Integer value2) {
-            addCriterion("delete_flag between", value1, value2, "deleteFlag");
+            addCriterion("userOrganization.delete_flag between", value1, value2, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andDeleteFlagNotBetween(Integer value1, Integer value2) {
-            addCriterion("delete_flag not between", value1, value2, "deleteFlag");
+            addCriterion("userOrganization.delete_flag not between", value1, value2, "deleteFlag");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeIsNull() {
-            addCriterion("create_time is null");
+            addCriterion("userOrganization.create_time is null");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeIsNotNull() {
-            addCriterion("create_time is not null");
+            addCriterion("userOrganization.create_time is not null");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeEqualTo(LocalDateTime value) {
-            addCriterion("create_time =", value, "createTime");
+            addCriterion("userOrganization.create_time =", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeNotEqualTo(LocalDateTime value) {
-            addCriterion("create_time <>", value, "createTime");
+            addCriterion("userOrganization.create_time <>", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeGreaterThan(LocalDateTime value) {
-            addCriterion("create_time >", value, "createTime");
+            addCriterion("userOrganization.create_time >", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeGreaterThanOrEqualTo(LocalDateTime value) {
-            addCriterion("create_time >=", value, "createTime");
+            addCriterion("userOrganization.create_time >=", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeLessThan(LocalDateTime value) {
-            addCriterion("create_time <", value, "createTime");
+            addCriterion("userOrganization.create_time <", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeLessThanOrEqualTo(LocalDateTime value) {
-            addCriterion("create_time <=", value, "createTime");
+            addCriterion("userOrganization.create_time <=", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeIn(List<LocalDateTime> values) {
-            addCriterion("create_time in", values, "createTime");
+            addCriterion("userOrganization.create_time in", values, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeNotIn(List<LocalDateTime> values) {
-            addCriterion("create_time not in", values, "createTime");
+            addCriterion("userOrganization.create_time not in", values, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("create_time between", value1, value2, "createTime");
+            addCriterion("userOrganization.create_time between", value1, value2, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeNotBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("create_time not between", value1, value2, "createTime");
+            addCriterion("userOrganization.create_time not between", value1, value2, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeIsNull() {
-            addCriterion("update_time is null");
+            addCriterion("userOrganization.update_time is null");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeIsNotNull() {
-            addCriterion("update_time is not null");
+            addCriterion("userOrganization.update_time is not null");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeEqualTo(LocalDateTime value) {
-            addCriterion("update_time =", value, "updateTime");
+            addCriterion("userOrganization.update_time =", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeNotEqualTo(LocalDateTime value) {
-            addCriterion("update_time <>", value, "updateTime");
+            addCriterion("userOrganization.update_time <>", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeGreaterThan(LocalDateTime value) {
-            addCriterion("update_time >", value, "updateTime");
+            addCriterion("userOrganization.update_time >", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeGreaterThanOrEqualTo(LocalDateTime value) {
-            addCriterion("update_time >=", value, "updateTime");
+            addCriterion("userOrganization.update_time >=", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeLessThan(LocalDateTime value) {
-            addCriterion("update_time <", value, "updateTime");
+            addCriterion("userOrganization.update_time <", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeLessThanOrEqualTo(LocalDateTime value) {
-            addCriterion("update_time <=", value, "updateTime");
+            addCriterion("userOrganization.update_time <=", value, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeIn(List<LocalDateTime> values) {
-            addCriterion("update_time in", values, "updateTime");
+            addCriterion("userOrganization.update_time in", values, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeNotIn(List<LocalDateTime> values) {
-            addCriterion("update_time not in", values, "updateTime");
+            addCriterion("userOrganization.update_time not in", values, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("update_time between", value1, value2, "updateTime");
+            addCriterion("userOrganization.update_time between", value1, value2, "updateTime");
             return (Criteria) this;
         }
 
         public Criteria andUpdateTimeNotBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("update_time not between", value1, value2, "updateTime");
+            addCriterion("userOrganization.update_time not between", value1, value2, "updateTime");
             return (Criteria) this;
         }
     }

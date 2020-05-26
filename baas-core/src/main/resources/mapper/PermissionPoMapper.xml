@@ -2,13 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.treegraph.baas.core.mapper.PermissionPoMapper">
   <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.PermissionPo">
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="permission_type" jdbcType="INTEGER" property="permissionType" />
-    <result column="permission_name" jdbcType="VARCHAR" property="permissionName" />
-    <result column="permission_code" jdbcType="VARCHAR" property="permissionCode" />
-    <result column="delete_flag" jdbcType="INTEGER" property="deleteFlag" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <id column="permission_id" jdbcType="BIGINT" property="id" />
+    <result column="permission_permission_type" jdbcType="INTEGER" property="permissionType" />
+    <result column="permission_permission_name" jdbcType="VARCHAR" property="permissionName" />
+    <result column="permission_permission_code" jdbcType="VARCHAR" property="permissionCode" />
+    <result column="permission_delete_flag" jdbcType="INTEGER" property="deleteFlag" />
+    <result column="permission_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="permission_update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -69,8 +69,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, permission_type, permission_name, permission_code, delete_flag, create_time, 
-    update_time
+    permission.id as permission_id, permission.permission_type as permission_permission_type, 
+    permission.permission_name as permission_permission_name, permission.permission_code as permission_permission_code, 
+    permission.delete_flag as permission_delete_flag, permission.create_time as permission_create_time, 
+    permission.update_time as permission_update_time
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.PermissionPoExample" resultMap="BaseResultMap">
     select
@@ -78,7 +80,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from permission
+    from permission permission
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -89,15 +91,15 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from permission
-    where id = #{id,jdbcType=BIGINT}
+    from permission permission
+    where permission.id = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from permission
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.PermissionPoExample">
-    delete from permission
+    delete from permission permission
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -154,34 +156,34 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="org.treegraph.baas.core.domain.PermissionPoExample" resultType="java.lang.Long">
-    select count(*) from permission
+    select count(*) from permission permission
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update permission
+    update permission permission
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=BIGINT},
+        permission.id = #{record.id,jdbcType=BIGINT},
       </if>
       <if test="record.permissionType != null">
-        permission_type = #{record.permissionType,jdbcType=INTEGER},
+        permission.permission_type = #{record.permissionType,jdbcType=INTEGER},
       </if>
       <if test="record.permissionName != null">
-        permission_name = #{record.permissionName,jdbcType=VARCHAR},
+        permission.permission_name = #{record.permissionName,jdbcType=VARCHAR},
       </if>
       <if test="record.permissionCode != null">
-        permission_code = #{record.permissionCode,jdbcType=VARCHAR},
+        permission.permission_code = #{record.permissionCode,jdbcType=VARCHAR},
       </if>
       <if test="record.deleteFlag != null">
-        delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+        permission.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       </if>
       <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+        permission.create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.updateTime != null">
-        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+        permission.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       </if>
     </set>
     <if test="_parameter != null">
@@ -189,14 +191,14 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update permission
-    set id = #{record.id,jdbcType=BIGINT},
-      permission_type = #{record.permissionType,jdbcType=INTEGER},
-      permission_name = #{record.permissionName,jdbcType=VARCHAR},
-      permission_code = #{record.permissionCode,jdbcType=VARCHAR},
-      delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+    update permission permission
+    set permission.id = #{record.id,jdbcType=BIGINT},
+      permission.permission_type = #{record.permissionType,jdbcType=INTEGER},
+      permission.permission_name = #{record.permissionName,jdbcType=VARCHAR},
+      permission.permission_code = #{record.permissionCode,jdbcType=VARCHAR},
+      permission.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      permission.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      permission.update_time = #{record.updateTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -241,5 +243,5 @@
 		LEFT JOIN role_permission rp on ur.role_id = rp.role_id
 		LEFT JOIN permission p on rp.permission_id = p.id
 		where ur.user_id = #{userId}
-  </select>
+  </select>  
 </mapper>

@@ -2,16 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.treegraph.baas.core.mapper.RolePoMapper">
   <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.RolePo">
-    <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="consortium_id" jdbcType="VARCHAR" property="consortiumId" />
-    <result column="role_type" jdbcType="INTEGER" property="roleType" />
-    <result column="role_name" jdbcType="VARCHAR" property="roleName" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
-    <result column="delete_flag" jdbcType="INTEGER" property="deleteFlag" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-    <result column="create_by" jdbcType="VARCHAR" property="createBy" />
-    <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+    <id column="role_id" jdbcType="VARCHAR" property="id" />
+    <result column="role_consortium_id" jdbcType="VARCHAR" property="consortiumId" />
+    <result column="role_role_type" jdbcType="INTEGER" property="roleType" />
+    <result column="role_role_name" jdbcType="VARCHAR" property="roleName" />
+    <result column="role_description" jdbcType="VARCHAR" property="description" />
+    <result column="role_delete_flag" jdbcType="INTEGER" property="deleteFlag" />
+    <result column="role_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="role_update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="role_create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="role_update_by" jdbcType="VARCHAR" property="updateBy" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -72,8 +72,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, consortium_id, role_type, role_name, description, delete_flag, create_time, update_time, 
-    create_by, update_by
+    role.id as role_id, role.consortium_id as role_consortium_id, role.role_type as role_role_type, 
+    role.role_name as role_role_name, role.description as role_description, role.delete_flag as role_delete_flag, 
+    role.create_time as role_create_time, role.update_time as role_update_time, role.create_by as role_create_by, 
+    role.update_by as role_update_by
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.RolePoExample" resultMap="BaseResultMap">
     select
@@ -81,7 +83,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from role
+    from role role
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -92,32 +94,35 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from role
-    where id = #{id,jdbcType=VARCHAR}
+    from role role
+    where role.id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from role
     where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.RolePoExample">
-    delete from role
+    delete from role role
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.RolePo" useGeneratedKeys="true">
-    insert into role (id, consortium_id, role_type, role_name, 
-      description, delete_flag, create_time, 
-      update_time, create_by, update_by
-      )
-    values (#{id,jdbcType=VARCHAR}, #{consortiumId,jdbcType=VARCHAR}, #{roleType,jdbcType=INTEGER}, #{roleName,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{deleteFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{updateBy,jdbcType=VARCHAR}
-      )
+  <insert id="insert" parameterType="org.treegraph.baas.core.domain.RolePo">
+    insert into role (id, consortium_id, role_type, 
+      role_name, description, delete_flag, 
+      create_time, update_time, create_by, 
+      update_by)
+    values (#{id,jdbcType=VARCHAR}, #{consortiumId,jdbcType=VARCHAR}, #{roleType,jdbcType=INTEGER}, 
+      #{roleName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{deleteFlag,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateBy,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.RolePo" useGeneratedKeys="true">
+  <insert id="insertSelective" parameterType="org.treegraph.baas.core.domain.RolePo">
     insert into role
     <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
       <if test="consortiumId != null">
         consortium_id,
       </if>
@@ -147,6 +152,9 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
       <if test="consortiumId != null">
         #{consortiumId,jdbcType=VARCHAR},
       </if>
@@ -177,43 +185,43 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="org.treegraph.baas.core.domain.RolePoExample" resultType="java.lang.Long">
-    select count(*) from role
+    select count(*) from role role
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update role
+    update role role
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=VARCHAR},
+        role.id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.consortiumId != null">
-        consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+        role.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
       </if>
       <if test="record.roleType != null">
-        role_type = #{record.roleType,jdbcType=INTEGER},
+        role.role_type = #{record.roleType,jdbcType=INTEGER},
       </if>
       <if test="record.roleName != null">
-        role_name = #{record.roleName,jdbcType=VARCHAR},
+        role.role_name = #{record.roleName,jdbcType=VARCHAR},
       </if>
       <if test="record.description != null">
-        description = #{record.description,jdbcType=VARCHAR},
+        role.description = #{record.description,jdbcType=VARCHAR},
       </if>
       <if test="record.deleteFlag != null">
-        delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+        role.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       </if>
       <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+        role.create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.updateTime != null">
-        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+        role.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.createBy != null">
-        create_by = #{record.createBy,jdbcType=VARCHAR},
+        role.create_by = #{record.createBy,jdbcType=VARCHAR},
       </if>
       <if test="record.updateBy != null">
-        update_by = #{record.updateBy,jdbcType=VARCHAR},
+        role.update_by = #{record.updateBy,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -221,17 +229,17 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update role
-    set id = #{record.id,jdbcType=VARCHAR},
-      consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
-      role_type = #{record.roleType,jdbcType=INTEGER},
-      role_name = #{record.roleName,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
-      delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
-      create_by = #{record.createBy,jdbcType=VARCHAR},
-      update_by = #{record.updateBy,jdbcType=VARCHAR}
+    update role role
+    set role.id = #{record.id,jdbcType=VARCHAR},
+      role.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      role.role_type = #{record.roleType,jdbcType=INTEGER},
+      role.role_name = #{record.roleName,jdbcType=VARCHAR},
+      role.description = #{record.description,jdbcType=VARCHAR},
+      role.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      role.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      role.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      role.create_by = #{record.createBy,jdbcType=VARCHAR},
+      role.update_by = #{record.updateBy,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>

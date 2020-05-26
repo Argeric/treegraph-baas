@@ -2,14 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.treegraph.baas.core.mapper.UserInvitePoMapper">
   <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.UserInvitePo">
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="inviter" jdbcType="VARCHAR" property="inviter" />
-    <result column="accepter" jdbcType="VARCHAR" property="accepter" />
-    <result column="token" jdbcType="VARCHAR" property="token" />
-    <result column="expire" jdbcType="INTEGER" property="expire" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="invite_time" jdbcType="TIMESTAMP" property="inviteTime" />
-    <result column="accept_time" jdbcType="TIMESTAMP" property="acceptTime" />
+    <id column="userInvite_id" jdbcType="BIGINT" property="id" />
+    <result column="userInvite_inviter" jdbcType="VARCHAR" property="inviter" />
+    <result column="userInvite_accepter" jdbcType="VARCHAR" property="accepter" />
+    <result column="userInvite_token" jdbcType="VARCHAR" property="token" />
+    <result column="userInvite_expire" jdbcType="INTEGER" property="expire" />
+    <result column="userInvite_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="userInvite_invite_time" jdbcType="TIMESTAMP" property="inviteTime" />
+    <result column="userInvite_accept_time" jdbcType="TIMESTAMP" property="acceptTime" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,7 +70,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, inviter, accepter, token, expire, create_time, invite_time, accept_time
+    userInvite.id as userInvite_id, userInvite.inviter as userInvite_inviter, userInvite.accepter as userInvite_accepter, 
+    userInvite.token as userInvite_token, userInvite.expire as userInvite_expire, userInvite.create_time as userInvite_create_time, 
+    userInvite.invite_time as userInvite_invite_time, userInvite.accept_time as userInvite_accept_time
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.UserInvitePoExample" resultMap="BaseResultMap">
     select
@@ -78,7 +80,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from user_invite
+    from user_invite userInvite
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -89,15 +91,15 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from user_invite
-    where id = #{id,jdbcType=BIGINT}
+    from user_invite userInvite
+    where userInvite.id = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from user_invite
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.UserInvitePoExample">
-    delete from user_invite
+    delete from user_invite userInvite
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -160,37 +162,37 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="org.treegraph.baas.core.domain.UserInvitePoExample" resultType="java.lang.Long">
-    select count(*) from user_invite
+    select count(*) from user_invite userInvite
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update user_invite
+    update user_invite userInvite
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=BIGINT},
+        userInvite.id = #{record.id,jdbcType=BIGINT},
       </if>
       <if test="record.inviter != null">
-        inviter = #{record.inviter,jdbcType=VARCHAR},
+        userInvite.inviter = #{record.inviter,jdbcType=VARCHAR},
       </if>
       <if test="record.accepter != null">
-        accepter = #{record.accepter,jdbcType=VARCHAR},
+        userInvite.accepter = #{record.accepter,jdbcType=VARCHAR},
       </if>
       <if test="record.token != null">
-        token = #{record.token,jdbcType=VARCHAR},
+        userInvite.token = #{record.token,jdbcType=VARCHAR},
       </if>
       <if test="record.expire != null">
-        expire = #{record.expire,jdbcType=INTEGER},
+        userInvite.expire = #{record.expire,jdbcType=INTEGER},
       </if>
       <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+        userInvite.create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.inviteTime != null">
-        invite_time = #{record.inviteTime,jdbcType=TIMESTAMP},
+        userInvite.invite_time = #{record.inviteTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.acceptTime != null">
-        accept_time = #{record.acceptTime,jdbcType=TIMESTAMP},
+        userInvite.accept_time = #{record.acceptTime,jdbcType=TIMESTAMP},
       </if>
     </set>
     <if test="_parameter != null">
@@ -198,15 +200,15 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update user_invite
-    set id = #{record.id,jdbcType=BIGINT},
-      inviter = #{record.inviter,jdbcType=VARCHAR},
-      accepter = #{record.accepter,jdbcType=VARCHAR},
-      token = #{record.token,jdbcType=VARCHAR},
-      expire = #{record.expire,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      invite_time = #{record.inviteTime,jdbcType=TIMESTAMP},
-      accept_time = #{record.acceptTime,jdbcType=TIMESTAMP}
+    update user_invite userInvite
+    set userInvite.id = #{record.id,jdbcType=BIGINT},
+      userInvite.inviter = #{record.inviter,jdbcType=VARCHAR},
+      userInvite.accepter = #{record.accepter,jdbcType=VARCHAR},
+      userInvite.token = #{record.token,jdbcType=VARCHAR},
+      userInvite.expire = #{record.expire,jdbcType=INTEGER},
+      userInvite.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      userInvite.invite_time = #{record.inviteTime,jdbcType=TIMESTAMP},
+      userInvite.accept_time = #{record.acceptTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>

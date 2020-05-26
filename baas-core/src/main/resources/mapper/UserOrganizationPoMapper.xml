@@ -2,13 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.treegraph.baas.core.mapper.UserOrganizationPoMapper">
   <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.UserOrganizationPo">
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="user_id" jdbcType="VARCHAR" property="userId" />
-    <result column="consortium_id" jdbcType="VARCHAR" property="consortiumId" />
-    <result column="organization_name" jdbcType="VARCHAR" property="organizationName" />
-    <result column="delete_flag" jdbcType="INTEGER" property="deleteFlag" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <id column="userOrganization_id" jdbcType="BIGINT" property="id" />
+    <result column="userOrganization_user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="userOrganization_consortium_id" jdbcType="VARCHAR" property="consortiumId" />
+    <result column="userOrganization_organization_name" jdbcType="VARCHAR" property="organizationName" />
+    <result column="userOrganization_delete_flag" jdbcType="INTEGER" property="deleteFlag" />
+    <result column="userOrganization_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="userOrganization_update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -69,7 +69,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, user_id, consortium_id, organization_name, delete_flag, create_time, update_time
+    userOrganization.id as userOrganization_id, userOrganization.user_id as userOrganization_user_id, 
+    userOrganization.consortium_id as userOrganization_consortium_id, userOrganization.organization_name as userOrganization_organization_name, 
+    userOrganization.delete_flag as userOrganization_delete_flag, userOrganization.create_time as userOrganization_create_time, 
+    userOrganization.update_time as userOrganization_update_time
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.UserOrganizationPoExample" resultMap="BaseResultMap">
     select
@@ -77,7 +80,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from user_organization
+    from user_organization userOrganization
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -88,15 +91,15 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from user_organization
-    where id = #{id,jdbcType=BIGINT}
+    from user_organization userOrganization
+    where userOrganization.id = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from user_organization
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.UserOrganizationPoExample">
-    delete from user_organization
+    delete from user_organization userOrganization
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -153,34 +156,34 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="org.treegraph.baas.core.domain.UserOrganizationPoExample" resultType="java.lang.Long">
-    select count(*) from user_organization
+    select count(*) from user_organization userOrganization
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update user_organization
+    update user_organization userOrganization
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=BIGINT},
+        userOrganization.id = #{record.id,jdbcType=BIGINT},
       </if>
       <if test="record.userId != null">
-        user_id = #{record.userId,jdbcType=VARCHAR},
+        userOrganization.user_id = #{record.userId,jdbcType=VARCHAR},
       </if>
       <if test="record.consortiumId != null">
-        consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+        userOrganization.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
       </if>
       <if test="record.organizationName != null">
-        organization_name = #{record.organizationName,jdbcType=VARCHAR},
+        userOrganization.organization_name = #{record.organizationName,jdbcType=VARCHAR},
       </if>
       <if test="record.deleteFlag != null">
-        delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+        userOrganization.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       </if>
       <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+        userOrganization.create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.updateTime != null">
-        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+        userOrganization.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       </if>
     </set>
     <if test="_parameter != null">
@@ -188,14 +191,14 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update user_organization
-    set id = #{record.id,jdbcType=BIGINT},
-      user_id = #{record.userId,jdbcType=VARCHAR},
-      consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
-      organization_name = #{record.organizationName,jdbcType=VARCHAR},
-      delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+    update user_organization userOrganization
+    set userOrganization.id = #{record.id,jdbcType=BIGINT},
+      userOrganization.user_id = #{record.userId,jdbcType=VARCHAR},
+      userOrganization.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      userOrganization.organization_name = #{record.organizationName,jdbcType=VARCHAR},
+      userOrganization.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      userOrganization.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      userOrganization.update_time = #{record.updateTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -235,7 +238,7 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
   
- <insert id="bulkInsert" parameterType="org.treegraph.baas.core.domain.UserOrganizationPo">
+  <insert id="bulkInsert" parameterType="org.treegraph.baas.core.domain.UserOrganizationPo">
       INSERT INTO user_organization(
           user_id,
           consortium_id,
@@ -255,5 +258,5 @@
               #{item.updateTime}
           )
       </foreach>
-  </insert>   
+  </insert>  
 </mapper>

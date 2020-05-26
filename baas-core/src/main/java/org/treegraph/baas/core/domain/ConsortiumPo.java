@@ -2,9 +2,6 @@ package org.treegraph.baas.core.domain;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-
-import com.alibaba.fastjson.annotation.JSONField;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -83,7 +80,6 @@ public class ConsortiumPo implements Serializable {
     /**
      * 联盟头像
      */
-    @JSONField(serialize = false)
     private byte[] avatar;
 
     private static final long serialVersionUID = 1L;

@@ -33,12 +33,12 @@ public class BlockChainPo implements Serializable {
     private String alarmEmail;
 
     /**
-     * 共识策略，1-PBFT,2-RAFT,3-POW,4-POS
+     * 共识策略，1-treegraph
      */
     private Integer consensusAlgorithm;
 
     /**
-     * 底层加密算法，1-数图加密算法
+     * 底层加密算法，1-treegraph
      */
     private Integer encryptAlgorithm;
 

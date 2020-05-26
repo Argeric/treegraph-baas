@@ -2,22 +2,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.treegraph.baas.core.mapper.ConsortiumPoMapper">
   <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.ConsortiumPo">
-    <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
-    <result column="contact_name" jdbcType="VARCHAR" property="contactName" />
-    <result column="contact_email" jdbcType="VARCHAR" property="contactEmail" />
-    <result column="contact_phone" jdbcType="VARCHAR" property="contactPhone" />
-    <result column="status" jdbcType="INTEGER" property="status" />
-    <result column="establish_step" jdbcType="INTEGER" property="establishStep" />
-    <result column="delete_flag" jdbcType="INTEGER" property="deleteFlag" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-    <result column="create_by" jdbcType="VARCHAR" property="createBy" />
-    <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+    <id column="consortium_id" jdbcType="VARCHAR" property="id" />
+    <result column="consortium_name" jdbcType="VARCHAR" property="name" />
+    <result column="consortium_description" jdbcType="VARCHAR" property="description" />
+    <result column="consortium_contact_name" jdbcType="VARCHAR" property="contactName" />
+    <result column="consortium_contact_email" jdbcType="VARCHAR" property="contactEmail" />
+    <result column="consortium_contact_phone" jdbcType="VARCHAR" property="contactPhone" />
+    <result column="consortium_status" jdbcType="INTEGER" property="status" />
+    <result column="consortium_establish_step" jdbcType="INTEGER" property="establishStep" />
+    <result column="consortium_delete_flag" jdbcType="INTEGER" property="deleteFlag" />
+    <result column="consortium_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="consortium_update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="consortium_create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="consortium_update_by" jdbcType="VARCHAR" property="updateBy" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="org.treegraph.baas.core.domain.ConsortiumPo">
-    <result column="avatar" jdbcType="LONGVARBINARY" property="avatar" />
+    <result column="consortium_avatar" jdbcType="LONGVARBINARY" property="avatar" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -78,11 +78,15 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, description, contact_name, contact_email, contact_phone, `status`, establish_step, 
-    delete_flag, create_time, update_time, create_by, update_by
+    consortium.id as consortium_id, consortium.`name` as `consortium_name`, consortium.description as consortium_description, 
+    consortium.contact_name as consortium_contact_name, consortium.contact_email as consortium_contact_email, 
+    consortium.contact_phone as consortium_contact_phone, consortium.`status` as `consortium_status`, 
+    consortium.establish_step as consortium_establish_step, consortium.delete_flag as consortium_delete_flag, 
+    consortium.create_time as consortium_create_time, consortium.update_time as consortium_update_time, 
+    consortium.create_by as consortium_create_by, consortium.update_by as consortium_update_by
   </sql>
   <sql id="Blob_Column_List">
-    avatar
+    consortium.avatar as consortium_avatar
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="org.treegraph.baas.core.domain.ConsortiumPoExample" resultMap="ResultMapWithBLOBs">
     select
@@ -92,7 +96,7 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from consortium
+    from consortium consortium
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -106,7 +110,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from consortium
+    from consortium consortium
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -119,15 +123,15 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from consortium
-    where id = #{id,jdbcType=VARCHAR}
+    from consortium consortium
+    where consortium.id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from consortium
     where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.ConsortiumPoExample">
-    delete from consortium
+    delete from consortium consortium
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -236,55 +240,55 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="org.treegraph.baas.core.domain.ConsortiumPoExample" resultType="java.lang.Long">
-    select count(*) from consortium
+    select count(*) from consortium consortium
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update consortium
+    update consortium consortium
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=VARCHAR},
+        consortium.id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
-        `name` = #{record.name,jdbcType=VARCHAR},
+        consortium.`name` = #{record.name,jdbcType=VARCHAR},
       </if>
       <if test="record.description != null">
-        description = #{record.description,jdbcType=VARCHAR},
+        consortium.description = #{record.description,jdbcType=VARCHAR},
       </if>
       <if test="record.contactName != null">
-        contact_name = #{record.contactName,jdbcType=VARCHAR},
+        consortium.contact_name = #{record.contactName,jdbcType=VARCHAR},
       </if>
       <if test="record.contactEmail != null">
-        contact_email = #{record.contactEmail,jdbcType=VARCHAR},
+        consortium.contact_email = #{record.contactEmail,jdbcType=VARCHAR},
       </if>
       <if test="record.contactPhone != null">
-        contact_phone = #{record.contactPhone,jdbcType=VARCHAR},
+        consortium.contact_phone = #{record.contactPhone,jdbcType=VARCHAR},
       </if>
       <if test="record.status != null">
-        `status` = #{record.status,jdbcType=INTEGER},
+        consortium.`status` = #{record.status,jdbcType=INTEGER},
       </if>
       <if test="record.establishStep != null">
-        establish_step = #{record.establishStep,jdbcType=INTEGER},
+        consortium.establish_step = #{record.establishStep,jdbcType=INTEGER},
       </if>
       <if test="record.deleteFlag != null">
-        delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+        consortium.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       </if>
       <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+        consortium.create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.updateTime != null">
-        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+        consortium.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.createBy != null">
-        create_by = #{record.createBy,jdbcType=VARCHAR},
+        consortium.create_by = #{record.createBy,jdbcType=VARCHAR},
       </if>
       <if test="record.updateBy != null">
-        update_by = #{record.updateBy,jdbcType=VARCHAR},
+        consortium.update_by = #{record.updateBy,jdbcType=VARCHAR},
       </if>
       <if test="record.avatar != null">
-        avatar = #{record.avatar,jdbcType=LONGVARBINARY},
+        consortium.avatar = #{record.avatar,jdbcType=LONGVARBINARY},
       </if>
     </set>
     <if test="_parameter != null">
@@ -292,40 +296,40 @@
     </if>
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
-    update consortium
-    set id = #{record.id,jdbcType=VARCHAR},
-      `name` = #{record.name,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
-      contact_name = #{record.contactName,jdbcType=VARCHAR},
-      contact_email = #{record.contactEmail,jdbcType=VARCHAR},
-      contact_phone = #{record.contactPhone,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=INTEGER},
-      establish_step = #{record.establishStep,jdbcType=INTEGER},
-      delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
-      create_by = #{record.createBy,jdbcType=VARCHAR},
-      update_by = #{record.updateBy,jdbcType=VARCHAR},
-      avatar = #{record.avatar,jdbcType=LONGVARBINARY}
+    update consortium consortium
+    set consortium.id = #{record.id,jdbcType=VARCHAR},
+      consortium.`name` = #{record.name,jdbcType=VARCHAR},
+      consortium.description = #{record.description,jdbcType=VARCHAR},
+      consortium.contact_name = #{record.contactName,jdbcType=VARCHAR},
+      consortium.contact_email = #{record.contactEmail,jdbcType=VARCHAR},
+      consortium.contact_phone = #{record.contactPhone,jdbcType=VARCHAR},
+      consortium.`status` = #{record.status,jdbcType=INTEGER},
+      consortium.establish_step = #{record.establishStep,jdbcType=INTEGER},
+      consortium.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      consortium.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      consortium.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      consortium.create_by = #{record.createBy,jdbcType=VARCHAR},
+      consortium.update_by = #{record.updateBy,jdbcType=VARCHAR},
+      consortium.avatar = #{record.avatar,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update consortium
-    set id = #{record.id,jdbcType=VARCHAR},
-      `name` = #{record.name,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
-      contact_name = #{record.contactName,jdbcType=VARCHAR},
-      contact_email = #{record.contactEmail,jdbcType=VARCHAR},
-      contact_phone = #{record.contactPhone,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=INTEGER},
-      establish_step = #{record.establishStep,jdbcType=INTEGER},
-      delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
-      create_by = #{record.createBy,jdbcType=VARCHAR},
-      update_by = #{record.updateBy,jdbcType=VARCHAR}
+    update consortium consortium
+    set consortium.id = #{record.id,jdbcType=VARCHAR},
+      consortium.`name` = #{record.name,jdbcType=VARCHAR},
+      consortium.description = #{record.description,jdbcType=VARCHAR},
+      consortium.contact_name = #{record.contactName,jdbcType=VARCHAR},
+      consortium.contact_email = #{record.contactEmail,jdbcType=VARCHAR},
+      consortium.contact_phone = #{record.contactPhone,jdbcType=VARCHAR},
+      consortium.`status` = #{record.status,jdbcType=INTEGER},
+      consortium.establish_step = #{record.establishStep,jdbcType=INTEGER},
+      consortium.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      consortium.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      consortium.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      consortium.create_by = #{record.createBy,jdbcType=VARCHAR},
+      consortium.update_by = #{record.updateBy,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>

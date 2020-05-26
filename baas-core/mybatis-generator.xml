@@ -55,51 +55,47 @@
         </javaClientGenerator>
         
         <!-- 
-        <table tableName="blockchain" domainObjectName="BlockChainPo">
+        <table tableName="blockchain" domainObjectName="BlockChainPo" alias="blockChain">
+        </table>
+        <table tableName="certificate_request" domainObjectName="CertificateRequestPo" alias="certificateRequest">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
-        <table tableName="certificate_request" domainObjectName="CertificateRequestPo">
+        <table tableName="consortium" domainObjectName="ConsortiumPo" alias="consortium">
+        </table>          
+        <table tableName="node" domainObjectName="NodePo" alias="node">
+        </table>
+        <table tableName="role" domainObjectName="RolePo" alias="role">
+        </table>
+        <table tableName="role_permission" domainObjectName="RolePermissionPo" alias="rolePermission">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
-        <table tableName="node" domainObjectName="NodePo">
-        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        <table tableName="user_info" domainObjectName="UserInfoPo" alias="userInfo">
         </table>
-        <table tableName="permission" domainObjectName="PermissionPo">
-        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table>
-        <table tableName="role" domainObjectName="RolePo">
-        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table>
-        <table tableName="role_permission" domainObjectName="RolePermissionPo">
-        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table>
-        <table tableName="user_info" domainObjectName="UserInfoPo">
-        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table>
-        <table tableName="user_role" domainObjectName="UserRolePo">
-        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table>
-        <table tableName="user_token" domainObjectName="UserTokenPo">
-        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table> 
-        <table tableName="user_login_log" domainObjectName="UserLoginLogPo">
-        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table>
-        <table tableName="user_oper_log" domainObjectName="UserOperLogPo">
-        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table>        
-        <table tableName="consortium" domainObjectName="ConsortiumPo">
-        </table>  
-        <table tableName="user_organization" domainObjectName="UserOrganizationPo">
-       		<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table>              
-        -->
-        <table tableName="user_invite" domainObjectName="UserInvitePo">
+        <table tableName="user_invite" domainObjectName="UserInvitePo" alias="userInvite">
         <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>   
-        <table tableName="user_role_invite" domainObjectName="UserRoleInvitePo">
-       		<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        <table tableName="user_login_log" domainObjectName="UserLoginLogPo" alias="userLoginLog">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
+        <table tableName="user_oper_log" domainObjectName="UserOperLogPo" alias="userOperLog">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table> 
+        <table tableName="user_organization" domainObjectName="UserOrganizationPo" alias="userOrganization">
+       		<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>                               
+        <table tableName="user_role" domainObjectName="UserRolePo" alias="blockChain">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="user_role_invite" domainObjectName="UserRoleInvitePo" alias="userRoleInvite">
+       		<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>        
+        <table tableName="user_token" domainObjectName="UserTokenPo" alias="blockChain">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table> 
+        -->
+        <table tableName="permission" domainObjectName="PermissionPo" alias="permission">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>        
 
     </context>
 

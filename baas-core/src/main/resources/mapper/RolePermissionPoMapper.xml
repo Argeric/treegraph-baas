@@ -2,14 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.treegraph.baas.core.mapper.RolePermissionPoMapper">
   <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.RolePermissionPo">
-    <id column="id" jdbcType="BIGINT" property="id" />
-    <result column="role_id" jdbcType="VARCHAR" property="roleId" />
-    <result column="permission_id" jdbcType="BIGINT" property="permissionId" />
-    <result column="delete_flag" jdbcType="INTEGER" property="deleteFlag" />
-    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="create_by" jdbcType="VARCHAR" property="createBy" />
-    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-    <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+    <id column="rolePermission_id" jdbcType="BIGINT" property="id" />
+    <result column="rolePermission_role_id" jdbcType="VARCHAR" property="roleId" />
+    <result column="rolePermission_permission_id" jdbcType="BIGINT" property="permissionId" />
+    <result column="rolePermission_delete_flag" jdbcType="INTEGER" property="deleteFlag" />
+    <result column="rolePermission_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="rolePermission_create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="rolePermission_update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="rolePermission_update_by" jdbcType="VARCHAR" property="updateBy" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,7 +70,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, role_id, permission_id, delete_flag, create_time, create_by, update_time, update_by
+    rolePermission.id as rolePermission_id, rolePermission.role_id as rolePermission_role_id, 
+    rolePermission.permission_id as rolePermission_permission_id, rolePermission.delete_flag as rolePermission_delete_flag, 
+    rolePermission.create_time as rolePermission_create_time, rolePermission.create_by as rolePermission_create_by, 
+    rolePermission.update_time as rolePermission_update_time, rolePermission.update_by as rolePermission_update_by
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.RolePermissionPoExample" resultMap="BaseResultMap">
     select
@@ -78,7 +81,7 @@
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from role_permission
+    from role_permission rolePermission
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -89,15 +92,15 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from role_permission
-    where id = #{id,jdbcType=BIGINT}
+    from role_permission rolePermission
+    where rolePermission.id = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from role_permission
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.RolePermissionPoExample">
-    delete from role_permission
+    delete from role_permission rolePermission
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -160,37 +163,37 @@
     </trim>
   </insert>
   <select id="countByExample" parameterType="org.treegraph.baas.core.domain.RolePermissionPoExample" resultType="java.lang.Long">
-    select count(*) from role_permission
+    select count(*) from role_permission rolePermission
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update role_permission
+    update role_permission rolePermission
     <set>
       <if test="record.id != null">
-        id = #{record.id,jdbcType=BIGINT},
+        rolePermission.id = #{record.id,jdbcType=BIGINT},
       </if>
       <if test="record.roleId != null">
-        role_id = #{record.roleId,jdbcType=VARCHAR},
+        rolePermission.role_id = #{record.roleId,jdbcType=VARCHAR},
       </if>
       <if test="record.permissionId != null">
-        permission_id = #{record.permissionId,jdbcType=BIGINT},
+        rolePermission.permission_id = #{record.permissionId,jdbcType=BIGINT},
       </if>
       <if test="record.deleteFlag != null">
-        delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+        rolePermission.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       </if>
       <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+        rolePermission.create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.createBy != null">
-        create_by = #{record.createBy,jdbcType=VARCHAR},
+        rolePermission.create_by = #{record.createBy,jdbcType=VARCHAR},
       </if>
       <if test="record.updateTime != null">
-        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+        rolePermission.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.updateBy != null">
-        update_by = #{record.updateBy,jdbcType=VARCHAR},
+        rolePermission.update_by = #{record.updateBy,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -198,15 +201,15 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update role_permission
-    set id = #{record.id,jdbcType=BIGINT},
-      role_id = #{record.roleId,jdbcType=VARCHAR},
-      permission_id = #{record.permissionId,jdbcType=BIGINT},
-      delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      create_by = #{record.createBy,jdbcType=VARCHAR},
-      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
-      update_by = #{record.updateBy,jdbcType=VARCHAR}
+    update role_permission rolePermission
+    set rolePermission.id = #{record.id,jdbcType=BIGINT},
+      rolePermission.role_id = #{record.roleId,jdbcType=VARCHAR},
+      rolePermission.permission_id = #{record.permissionId,jdbcType=BIGINT},
+      rolePermission.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      rolePermission.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      rolePermission.create_by = #{record.createBy,jdbcType=VARCHAR},
+      rolePermission.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      rolePermission.update_by = #{record.updateBy,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>

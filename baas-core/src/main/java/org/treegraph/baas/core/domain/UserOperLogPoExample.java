@@ -106,592 +106,592 @@ public class UserOperLogPoExample {
         }
 
         public Criteria andIdIsNull() {
-            addCriterion("id is null");
+            addCriterion("userOperLog.id is null");
             return (Criteria) this;
         }
 
         public Criteria andIdIsNotNull() {
-            addCriterion("id is not null");
+            addCriterion("userOperLog.id is not null");
             return (Criteria) this;
         }
 
         public Criteria andIdEqualTo(Long value) {
-            addCriterion("id =", value, "id");
+            addCriterion("userOperLog.id =", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotEqualTo(Long value) {
-            addCriterion("id <>", value, "id");
+            addCriterion("userOperLog.id <>", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdGreaterThan(Long value) {
-            addCriterion("id >", value, "id");
+            addCriterion("userOperLog.id >", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdGreaterThanOrEqualTo(Long value) {
-            addCriterion("id >=", value, "id");
+            addCriterion("userOperLog.id >=", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdLessThan(Long value) {
-            addCriterion("id <", value, "id");
+            addCriterion("userOperLog.id <", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdLessThanOrEqualTo(Long value) {
-            addCriterion("id <=", value, "id");
+            addCriterion("userOperLog.id <=", value, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdIn(List<Long> values) {
-            addCriterion("id in", values, "id");
+            addCriterion("userOperLog.id in", values, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotIn(List<Long> values) {
-            addCriterion("id not in", values, "id");
+            addCriterion("userOperLog.id not in", values, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdBetween(Long value1, Long value2) {
-            addCriterion("id between", value1, value2, "id");
+            addCriterion("userOperLog.id between", value1, value2, "id");
             return (Criteria) this;
         }
 
         public Criteria andIdNotBetween(Long value1, Long value2) {
-            addCriterion("id not between", value1, value2, "id");
+            addCriterion("userOperLog.id not between", value1, value2, "id");
             return (Criteria) this;
         }
 
         public Criteria andUserIdIsNull() {
-            addCriterion("user_id is null");
+            addCriterion("userOperLog.user_id is null");
             return (Criteria) this;
         }
 
         public Criteria andUserIdIsNotNull() {
-            addCriterion("user_id is not null");
+            addCriterion("userOperLog.user_id is not null");
             return (Criteria) this;
         }
 
         public Criteria andUserIdEqualTo(String value) {
-            addCriterion("user_id =", value, "userId");
+            addCriterion("userOperLog.user_id =", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotEqualTo(String value) {
-            addCriterion("user_id <>", value, "userId");
+            addCriterion("userOperLog.user_id <>", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdGreaterThan(String value) {
-            addCriterion("user_id >", value, "userId");
+            addCriterion("userOperLog.user_id >", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdGreaterThanOrEqualTo(String value) {
-            addCriterion("user_id >=", value, "userId");
+            addCriterion("userOperLog.user_id >=", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdLessThan(String value) {
-            addCriterion("user_id <", value, "userId");
+            addCriterion("userOperLog.user_id <", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdLessThanOrEqualTo(String value) {
-            addCriterion("user_id <=", value, "userId");
+            addCriterion("userOperLog.user_id <=", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdLike(String value) {
-            addCriterion("user_id like", value, "userId");
+            addCriterion("userOperLog.user_id like", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotLike(String value) {
-            addCriterion("user_id not like", value, "userId");
+            addCriterion("userOperLog.user_id not like", value, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdIn(List<String> values) {
-            addCriterion("user_id in", values, "userId");
+            addCriterion("userOperLog.user_id in", values, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotIn(List<String> values) {
-            addCriterion("user_id not in", values, "userId");
+            addCriterion("userOperLog.user_id not in", values, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdBetween(String value1, String value2) {
-            addCriterion("user_id between", value1, value2, "userId");
+            addCriterion("userOperLog.user_id between", value1, value2, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserIdNotBetween(String value1, String value2) {
-            addCriterion("user_id not between", value1, value2, "userId");
+            addCriterion("userOperLog.user_id not between", value1, value2, "userId");
             return (Criteria) this;
         }
 
         public Criteria andUserNameIsNull() {
-            addCriterion("user_name is null");
+            addCriterion("userOperLog.user_name is null");
             return (Criteria) this;
         }
 
         public Criteria andUserNameIsNotNull() {
-            addCriterion("user_name is not null");
+            addCriterion("userOperLog.user_name is not null");
             return (Criteria) this;
         }
 
         public Criteria andUserNameEqualTo(String value) {
-            addCriterion("user_name =", value, "userName");
+            addCriterion("userOperLog.user_name =", value, "userName");
             return (Criteria) this;
         }
 
         public Criteria andUserNameNotEqualTo(String value) {
-            addCriterion("user_name <>", value, "userName");
+            addCriterion("userOperLog.user_name <>", value, "userName");
             return (Criteria) this;
         }
 
         public Criteria andUserNameGreaterThan(String value) {
-            addCriterion("user_name >", value, "userName");
+            addCriterion("userOperLog.user_name >", value, "userName");
             return (Criteria) this;
         }
 
         public Criteria andUserNameGreaterThanOrEqualTo(String value) {
-            addCriterion("user_name >=", value, "userName");
+            addCriterion("userOperLog.user_name >=", value, "userName");
             return (Criteria) this;
         }
 
         public Criteria andUserNameLessThan(String value) {
-            addCriterion("user_name <", value, "userName");
+            addCriterion("userOperLog.user_name <", value, "userName");
             return (Criteria) this;
         }
 
         public Criteria andUserNameLessThanOrEqualTo(String value) {
-            addCriterion("user_name <=", value, "userName");
+            addCriterion("userOperLog.user_name <=", value, "userName");
             return (Criteria) this;
         }
 
         public Criteria andUserNameLike(String value) {
-            addCriterion("user_name like", value, "userName");
+            addCriterion("userOperLog.user_name like", value, "userName");
             return (Criteria) this;
         }
 
         public Criteria andUserNameNotLike(String value) {
-            addCriterion("user_name not like", value, "userName");
+            addCriterion("userOperLog.user_name not like", value, "userName");
             return (Criteria) this;
         }
 
         public Criteria andUserNameIn(List<String> values) {
-            addCriterion("user_name in", values, "userName");
+            addCriterion("userOperLog.user_name in", values, "userName");
             return (Criteria) this;
         }
 
         public Criteria andUserNameNotIn(List<String> values) {
-            addCriterion("user_name not in", values, "userName");
+            addCriterion("userOperLog.user_name not in", values, "userName");
             return (Criteria) this;
         }
 
         public Criteria andUserNameBetween(String value1, String value2) {
-            addCriterion("user_name between", value1, value2, "userName");
+            addCriterion("userOperLog.user_name between", value1, value2, "userName");
             return (Criteria) this;
         }
 
         public Criteria andUserNameNotBetween(String value1, String value2) {
-            addCriterion("user_name not between", value1, value2, "userName");
+            addCriterion("userOperLog.user_name not between", value1, value2, "userName");
             return (Criteria) this;
         }
 
         public Criteria andUserIpIsNull() {
-            addCriterion("user_ip is null");
+            addCriterion("userOperLog.user_ip is null");
             return (Criteria) this;
         }
 
         public Criteria andUserIpIsNotNull() {
-            addCriterion("user_ip is not null");
+            addCriterion("userOperLog.user_ip is not null");
             return (Criteria) this;
         }
 
         public Criteria andUserIpEqualTo(String value) {
-            addCriterion("user_ip =", value, "userIp");
+            addCriterion("userOperLog.user_ip =", value, "userIp");
             return (Criteria) this;
         }
 
         public Criteria andUserIpNotEqualTo(String value) {
-            addCriterion("user_ip <>", value, "userIp");
+            addCriterion("userOperLog.user_ip <>", value, "userIp");
             return (Criteria) this;
         }
 
         public Criteria andUserIpGreaterThan(String value) {
-            addCriterion("user_ip >", value, "userIp");
+            addCriterion("userOperLog.user_ip >", value, "userIp");
             return (Criteria) this;
         }
 
         public Criteria andUserIpGreaterThanOrEqualTo(String value) {
-            addCriterion("user_ip >=", value, "userIp");
+            addCriterion("userOperLog.user_ip >=", value, "userIp");
             return (Criteria) this;
         }
 
         public Criteria andUserIpLessThan(String value) {
-            addCriterion("user_ip <", value, "userIp");
+            addCriterion("userOperLog.user_ip <", value, "userIp");
             return (Criteria) this;
         }
 
         public Criteria andUserIpLessThanOrEqualTo(String value) {
-            addCriterion("user_ip <=", value, "userIp");
+            addCriterion("userOperLog.user_ip <=", value, "userIp");
             return (Criteria) this;
         }
 
         public Criteria andUserIpLike(String value) {
-            addCriterion("user_ip like", value, "userIp");
+            addCriterion("userOperLog.user_ip like", value, "userIp");
             return (Criteria) this;
         }
 
         public Criteria andUserIpNotLike(String value) {
-            addCriterion("user_ip not like", value, "userIp");
+            addCriterion("userOperLog.user_ip not like", value, "userIp");
             return (Criteria) this;
         }
 
         public Criteria andUserIpIn(List<String> values) {
-            addCriterion("user_ip in", values, "userIp");
+            addCriterion("userOperLog.user_ip in", values, "userIp");
             return (Criteria) this;
         }
 
         public Criteria andUserIpNotIn(List<String> values) {
-            addCriterion("user_ip not in", values, "userIp");
+            addCriterion("userOperLog.user_ip not in", values, "userIp");
             return (Criteria) this;
         }
 
         public Criteria andUserIpBetween(String value1, String value2) {
-            addCriterion("user_ip between", value1, value2, "userIp");
+            addCriterion("userOperLog.user_ip between", value1, value2, "userIp");
             return (Criteria) this;
         }
 
         public Criteria andUserIpNotBetween(String value1, String value2) {
-            addCriterion("user_ip not between", value1, value2, "userIp");
+            addCriterion("userOperLog.user_ip not between", value1, value2, "userIp");
             return (Criteria) this;
         }
 
         public Criteria andOperTypeIsNull() {
-            addCriterion("oper_type is null");
+            addCriterion("userOperLog.oper_type is null");
             return (Criteria) this;
         }
 
         public Criteria andOperTypeIsNotNull() {
-            addCriterion("oper_type is not null");
+            addCriterion("userOperLog.oper_type is not null");
             return (Criteria) this;
         }
 
         public Criteria andOperTypeEqualTo(Integer value) {
-            addCriterion("oper_type =", value, "operType");
+            addCriterion("userOperLog.oper_type =", value, "operType");
             return (Criteria) this;
         }
 
         public Criteria andOperTypeNotEqualTo(Integer value) {
-            addCriterion("oper_type <>", value, "operType");
+            addCriterion("userOperLog.oper_type <>", value, "operType");
             return (Criteria) this;
         }
 
         public Criteria andOperTypeGreaterThan(Integer value) {
-            addCriterion("oper_type >", value, "operType");
+            addCriterion("userOperLog.oper_type >", value, "operType");
             return (Criteria) this;
         }
 
         public Criteria andOperTypeGreaterThanOrEqualTo(Integer value) {
-            addCriterion("oper_type >=", value, "operType");
+            addCriterion("userOperLog.oper_type >=", value, "operType");
             return (Criteria) this;
         }
 
         public Criteria andOperTypeLessThan(Integer value) {
-            addCriterion("oper_type <", value, "operType");
+            addCriterion("userOperLog.oper_type <", value, "operType");
             return (Criteria) this;
         }
 
         public Criteria andOperTypeLessThanOrEqualTo(Integer value) {
-            addCriterion("oper_type <=", value, "operType");
+            addCriterion("userOperLog.oper_type <=", value, "operType");
             return (Criteria) this;
         }
 
         public Criteria andOperTypeIn(List<Integer> values) {
-            addCriterion("oper_type in", values, "operType");
+            addCriterion("userOperLog.oper_type in", values, "operType");
             return (Criteria) this;
         }
 
         public Criteria andOperTypeNotIn(List<Integer> values) {
-            addCriterion("oper_type not in", values, "operType");
+            addCriterion("userOperLog.oper_type not in", values, "operType");
             return (Criteria) this;
         }
 
         public Criteria andOperTypeBetween(Integer value1, Integer value2) {
-            addCriterion("oper_type between", value1, value2, "operType");
+            addCriterion("userOperLog.oper_type between", value1, value2, "operType");
             return (Criteria) this;
         }
 
         public Criteria andOperTypeNotBetween(Integer value1, Integer value2) {
-            addCriterion("oper_type not between", value1, value2, "operType");
+            addCriterion("userOperLog.oper_type not between", value1, value2, "operType");
             return (Criteria) this;
         }
 
         public Criteria andOperCodeIsNull() {
-            addCriterion("oper_code is null");
+            addCriterion("userOperLog.oper_code is null");
             return (Criteria) this;
         }
 
         public Criteria andOperCodeIsNotNull() {
-            addCriterion("oper_code is not null");
+            addCriterion("userOperLog.oper_code is not null");
             return (Criteria) this;
         }
 
         public Criteria andOperCodeEqualTo(String value) {
-            addCriterion("oper_code =", value, "operCode");
+            addCriterion("userOperLog.oper_code =", value, "operCode");
             return (Criteria) this;
         }
 
         public Criteria andOperCodeNotEqualTo(String value) {
-            addCriterion("oper_code <>", value, "operCode");
+            addCriterion("userOperLog.oper_code <>", value, "operCode");
             return (Criteria) this;
         }
 
         public Criteria andOperCodeGreaterThan(String value) {
-            addCriterion("oper_code >", value, "operCode");
+            addCriterion("userOperLog.oper_code >", value, "operCode");
             return (Criteria) this;
         }
 
         public Criteria andOperCodeGreaterThanOrEqualTo(String value) {
-            addCriterion("oper_code >=", value, "operCode");
+            addCriterion("userOperLog.oper_code >=", value, "operCode");
             return (Criteria) this;
         }
 
         public Criteria andOperCodeLessThan(String value) {
-            addCriterion("oper_code <", value, "operCode");
+            addCriterion("userOperLog.oper_code <", value, "operCode");
             return (Criteria) this;
         }
 
         public Criteria andOperCodeLessThanOrEqualTo(String value) {
-            addCriterion("oper_code <=", value, "operCode");
+            addCriterion("userOperLog.oper_code <=", value, "operCode");
             return (Criteria) this;
         }
 
         public Criteria andOperCodeLike(String value) {
-            addCriterion("oper_code like", value, "operCode");
+            addCriterion("userOperLog.oper_code like", value, "operCode");
             return (Criteria) this;
         }
 
         public Criteria andOperCodeNotLike(String value) {
-            addCriterion("oper_code not like", value, "operCode");
+            addCriterion("userOperLog.oper_code not like", value, "operCode");
             return (Criteria) this;
         }
 
         public Criteria andOperCodeIn(List<String> values) {
-            addCriterion("oper_code in", values, "operCode");
+            addCriterion("userOperLog.oper_code in", values, "operCode");
             return (Criteria) this;
         }
 
         public Criteria andOperCodeNotIn(List<String> values) {
-            addCriterion("oper_code not in", values, "operCode");
+            addCriterion("userOperLog.oper_code not in", values, "operCode");
             return (Criteria) this;
         }
 
         public Criteria andOperCodeBetween(String value1, String value2) {
-            addCriterion("oper_code between", value1, value2, "operCode");
+            addCriterion("userOperLog.oper_code between", value1, value2, "operCode");
             return (Criteria) this;
         }
 
         public Criteria andOperCodeNotBetween(String value1, String value2) {
-            addCriterion("oper_code not between", value1, value2, "operCode");
+            addCriterion("userOperLog.oper_code not between", value1, value2, "operCode");
             return (Criteria) this;
         }
 
         public Criteria andOperInfoIsNull() {
-            addCriterion("oper_info is null");
+            addCriterion("userOperLog.oper_info is null");
             return (Criteria) this;
         }
 
         public Criteria andOperInfoIsNotNull() {
-            addCriterion("oper_info is not null");
+            addCriterion("userOperLog.oper_info is not null");
             return (Criteria) this;
         }
 
         public Criteria andOperInfoEqualTo(String value) {
-            addCriterion("oper_info =", value, "operInfo");
+            addCriterion("userOperLog.oper_info =", value, "operInfo");
             return (Criteria) this;
         }
 
         public Criteria andOperInfoNotEqualTo(String value) {
-            addCriterion("oper_info <>", value, "operInfo");
+            addCriterion("userOperLog.oper_info <>", value, "operInfo");
             return (Criteria) this;
         }
 
         public Criteria andOperInfoGreaterThan(String value) {
-            addCriterion("oper_info >", value, "operInfo");
+            addCriterion("userOperLog.oper_info >", value, "operInfo");
             return (Criteria) this;
         }
 
         public Criteria andOperInfoGreaterThanOrEqualTo(String value) {
-            addCriterion("oper_info >=", value, "operInfo");
+            addCriterion("userOperLog.oper_info >=", value, "operInfo");
             return (Criteria) this;
         }
 
         public Criteria andOperInfoLessThan(String value) {
-            addCriterion("oper_info <", value, "operInfo");
+            addCriterion("userOperLog.oper_info <", value, "operInfo");
             return (Criteria) this;
         }
 
         public Criteria andOperInfoLessThanOrEqualTo(String value) {
-            addCriterion("oper_info <=", value, "operInfo");
+            addCriterion("userOperLog.oper_info <=", value, "operInfo");
             return (Criteria) this;
         }
 
         public Criteria andOperInfoLike(String value) {
-            addCriterion("oper_info like", value, "operInfo");
+            addCriterion("userOperLog.oper_info like", value, "operInfo");
             return (Criteria) this;
         }
 
         public Criteria andOperInfoNotLike(String value) {
-            addCriterion("oper_info not like", value, "operInfo");
+            addCriterion("userOperLog.oper_info not like", value, "operInfo");
             return (Criteria) this;
         }
 
         public Criteria andOperInfoIn(List<String> values) {
-            addCriterion("oper_info in", values, "operInfo");
+            addCriterion("userOperLog.oper_info in", values, "operInfo");
             return (Criteria) this;
         }
 
         public Criteria andOperInfoNotIn(List<String> values) {
-            addCriterion("oper_info not in", values, "operInfo");
+            addCriterion("userOperLog.oper_info not in", values, "operInfo");
             return (Criteria) this;
         }
 
         public Criteria andOperInfoBetween(String value1, String value2) {
-            addCriterion("oper_info between", value1, value2, "operInfo");
+            addCriterion("userOperLog.oper_info between", value1, value2, "operInfo");
             return (Criteria) this;
         }
 
         public Criteria andOperInfoNotBetween(String value1, String value2) {
-            addCriterion("oper_info not between", value1, value2, "operInfo");
+            addCriterion("userOperLog.oper_info not between", value1, value2, "operInfo");
             return (Criteria) this;
         }
 
         public Criteria andOperTimeIsNull() {
-            addCriterion("oper_time is null");
+            addCriterion("userOperLog.oper_time is null");
             return (Criteria) this;
         }
 
         public Criteria andOperTimeIsNotNull() {
-            addCriterion("oper_time is not null");
+            addCriterion("userOperLog.oper_time is not null");
             return (Criteria) this;
         }
 
         public Criteria andOperTimeEqualTo(LocalDateTime value) {
-            addCriterion("oper_time =", value, "operTime");
+            addCriterion("userOperLog.oper_time =", value, "operTime");
             return (Criteria) this;
         }
 
         public Criteria andOperTimeNotEqualTo(LocalDateTime value) {
-            addCriterion("oper_time <>", value, "operTime");
+            addCriterion("userOperLog.oper_time <>", value, "operTime");
             return (Criteria) this;
         }
 
         public Criteria andOperTimeGreaterThan(LocalDateTime value) {
-            addCriterion("oper_time >", value, "operTime");
+            addCriterion("userOperLog.oper_time >", value, "operTime");
             return (Criteria) this;
         }
 
         public Criteria andOperTimeGreaterThanOrEqualTo(LocalDateTime value) {
-            addCriterion("oper_time >=", value, "operTime");
+            addCriterion("userOperLog.oper_time >=", value, "operTime");
             return (Criteria) this;
         }
 
         public Criteria andOperTimeLessThan(LocalDateTime value) {
-            addCriterion("oper_time <", value, "operTime");
+            addCriterion("userOperLog.oper_time <", value, "operTime");
             return (Criteria) this;
         }
 
         public Criteria andOperTimeLessThanOrEqualTo(LocalDateTime value) {
-            addCriterion("oper_time <=", value, "operTime");
+            addCriterion("userOperLog.oper_time <=", value, "operTime");
             return (Criteria) this;
         }
 
         public Criteria andOperTimeIn(List<LocalDateTime> values) {
-            addCriterion("oper_time in", values, "operTime");
+            addCriterion("userOperLog.oper_time in", values, "operTime");
             return (Criteria) this;
         }
 
         public Criteria andOperTimeNotIn(List<LocalDateTime> values) {
-            addCriterion("oper_time not in", values, "operTime");
+            addCriterion("userOperLog.oper_time not in", values, "operTime");
             return (Criteria) this;
         }
 
         public Criteria andOperTimeBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("oper_time between", value1, value2, "operTime");
+            addCriterion("userOperLog.oper_time between", value1, value2, "operTime");
             return (Criteria) this;
         }
 
         public Criteria andOperTimeNotBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("oper_time not between", value1, value2, "operTime");
+            addCriterion("userOperLog.oper_time not between", value1, value2, "operTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeIsNull() {
-            addCriterion("create_time is null");
+            addCriterion("userOperLog.create_time is null");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeIsNotNull() {
-            addCriterion("create_time is not null");
+            addCriterion("userOperLog.create_time is not null");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeEqualTo(LocalDateTime value) {
-            addCriterion("create_time =", value, "createTime");
+            addCriterion("userOperLog.create_time =", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeNotEqualTo(LocalDateTime value) {
-            addCriterion("create_time <>", value, "createTime");
+            addCriterion("userOperLog.create_time <>", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeGreaterThan(LocalDateTime value) {
-            addCriterion("create_time >", value, "createTime");
+            addCriterion("userOperLog.create_time >", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeGreaterThanOrEqualTo(LocalDateTime value) {
-            addCriterion("create_time >=", value, "createTime");
+            addCriterion("userOperLog.create_time >=", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeLessThan(LocalDateTime value) {
-            addCriterion("create_time <", value, "createTime");
+            addCriterion("userOperLog.create_time <", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeLessThanOrEqualTo(LocalDateTime value) {
-            addCriterion("create_time <=", value, "createTime");
+            addCriterion("userOperLog.create_time <=", value, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeIn(List<LocalDateTime> values) {
-            addCriterion("create_time in", values, "createTime");
+            addCriterion("userOperLog.create_time in", values, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeNotIn(List<LocalDateTime> values) {
-            addCriterion("create_time not in", values, "createTime");
+            addCriterion("userOperLog.create_time not in", values, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("create_time between", value1, value2, "createTime");
+            addCriterion("userOperLog.create_time between", value1, value2, "createTime");
             return (Criteria) this;
         }
 
         public Criteria andCreateTimeNotBetween(LocalDateTime value1, LocalDateTime value2) {
-            addCriterion("create_time not between", value1, value2, "createTime");
+            addCriterion("userOperLog.create_time not between", value1, value2, "createTime");
             return (Criteria) this;
         }
     }

@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
+import org.treegraph.baas.api.dto.Role;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.PermissionDas;
@@ -19,7 +20,6 @@ import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserOrganizationPo;
 import org.treegraph.baas.core.domain.UserRolePo;
-import org.treegraph.baas.core.enums.ConsortiumEnum;
 import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.service.bo.OrgBo;
@@ -82,7 +82,7 @@ public class BuildService {
 				.build();
 	}
 	
-	public UserInfoBo buildUser(String account, String name, String phone, String email, String pwd, List<String> roleIds, List<OrgBo> orgs) {
+	public UserInfoBo buildUser(String account, String name, String phone, String email, String pwd, List<Role> roles, List<OrgBo> orgs) {
 		
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
@@ -101,9 +101,10 @@ public class BuildService {
 				.updateBy(operUser)
 				.build();
 		
-		List<UserRolePo> userRoles = roleIds.stream().map(item -> UserRolePo.builder()
+		List<UserRolePo> userRoles = roles.stream().map(item -> UserRolePo.builder()
 				.userId(user.getId())
-				.roleId(item)
+				.roleId(item.getRoleId())
+				.consortiumId(item.getConsId())
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
 				.createTime(now)
 				.createBy(operUser)
@@ -127,13 +128,14 @@ public class BuildService {
 				.build();
 	}
 	
-	public List<UserRolePo> buildUserRoles(String userId, List<String> roleIds) {
+	public List<UserRolePo> buildUserRoles(String userId, List<Role> roles) {
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		
-		return roleIds.stream().map(roleId -> UserRolePo.builder()
+		return roles.stream().map(item -> UserRolePo.builder()
 				.userId(userId)
-				.roleId(roleId)
+				.roleId(item.getRoleId())
+				.consortiumId(item.getConsId())
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
 				.createTime(now)
 				.createBy(operUser)
@@ -187,7 +189,7 @@ public class BuildService {
 	
 	public ConsortiumPo buildToUpdateCons(String consId, EstablishStep step) {
 		return ConsortiumPo.builder()
-				.id(consId)
+				.consortiumId(consId)
 				.establishStep(step.getCode())
 				.updateTime(LocalDateTime.now())
 				.updateBy(WebHelper.getUserId())

@@ -12,7 +12,7 @@ public interface ConsortiumPoMapper {
 
     int deleteByExample(ConsortiumPoExample example);
 
-    int deleteByPrimaryKey(String id);
+    int deleteByPrimaryKey(String consortiumId);
 
     int insert(ConsortiumPo record);
 
@@ -22,7 +22,7 @@ public interface ConsortiumPoMapper {
 
     List<ConsortiumPo> selectByExample(ConsortiumPoExample example);
 
-    Optional<ConsortiumPo> selectByPrimaryKey(String id);
+    Optional<ConsortiumPo> selectByPrimaryKey(String consortiumId);
 
     int updateByExampleSelective(@Param("record") ConsortiumPo record, @Param("example") ConsortiumPoExample example);
 

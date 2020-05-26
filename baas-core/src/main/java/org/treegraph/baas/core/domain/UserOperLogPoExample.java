@@ -375,6 +375,76 @@ public class UserOperLogPoExample {
             return (Criteria) this;
         }
 
+        public Criteria andUserDeviceIsNull() {
+            addCriterion("userOperLog.user_device is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserDeviceIsNotNull() {
+            addCriterion("userOperLog.user_device is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserDeviceEqualTo(String value) {
+            addCriterion("userOperLog.user_device =", value, "userDevice");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserDeviceNotEqualTo(String value) {
+            addCriterion("userOperLog.user_device <>", value, "userDevice");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserDeviceGreaterThan(String value) {
+            addCriterion("userOperLog.user_device >", value, "userDevice");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserDeviceGreaterThanOrEqualTo(String value) {
+            addCriterion("userOperLog.user_device >=", value, "userDevice");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserDeviceLessThan(String value) {
+            addCriterion("userOperLog.user_device <", value, "userDevice");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserDeviceLessThanOrEqualTo(String value) {
+            addCriterion("userOperLog.user_device <=", value, "userDevice");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserDeviceLike(String value) {
+            addCriterion("userOperLog.user_device like", value, "userDevice");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserDeviceNotLike(String value) {
+            addCriterion("userOperLog.user_device not like", value, "userDevice");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserDeviceIn(List<String> values) {
+            addCriterion("userOperLog.user_device in", values, "userDevice");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserDeviceNotIn(List<String> values) {
+            addCriterion("userOperLog.user_device not in", values, "userDevice");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserDeviceBetween(String value1, String value2) {
+            addCriterion("userOperLog.user_device between", value1, value2, "userDevice");
+            return (Criteria) this;
+        }
+
+        public Criteria andUserDeviceNotBetween(String value1, String value2) {
+            addCriterion("userOperLog.user_device not between", value1, value2, "userDevice");
+            return (Criteria) this;
+        }
+
         public Criteria andOperTypeIsNull() {
             addCriterion("userOperLog.oper_type is null");
             return (Criteria) this;

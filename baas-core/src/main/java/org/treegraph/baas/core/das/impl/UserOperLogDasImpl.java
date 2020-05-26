@@ -5,11 +5,9 @@ import java.util.List;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.core.das.UserOperLogDas;
-import org.treegraph.baas.core.domain.UserLoginLogPo;
 import org.treegraph.baas.core.domain.UserOperLogPo;
 import org.treegraph.baas.core.domain.UserOperLogPoExample;
 import org.treegraph.baas.core.domain.UserOperLogPoExample.Criteria;
-import org.treegraph.baas.core.mapper.UserLoginLogPoMapper;
 import org.treegraph.baas.core.mapper.UserOperLogPoMapper;
 import org.treegraph.baas.core.util.LogSkip;
 
@@ -24,16 +22,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class UserOperLogDasImpl implements UserOperLogDas{
 	
-	private UserLoginLogPoMapper userLoginLogPoMapper;
-	
 	private UserOperLogPoMapper userOperLogPoMapper;
 	
-	@Async
-	@LogSkip
-	public boolean addLoginLog(UserLoginLogPo loginLog) {
-		return userLoginLogPoMapper.insertSelective(loginLog) > 0;
-	}
-
 	@Async
 	@LogSkip
 	public boolean addOperLog(UserOperLogPo userOperLog) {

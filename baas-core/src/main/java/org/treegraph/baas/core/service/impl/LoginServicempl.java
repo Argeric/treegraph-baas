@@ -90,7 +90,7 @@ public class LoginServicempl implements LoginService {
         String token = userTokenDas.createToken(user);
         userDetailInfo.setToken(token);
 
-        logService.addLoginLog(user.getId(), login, request);
+        logService.addLoginLog(user.getId(), user.getName(), login, request);
 
         return userDetailInfo;
     }

@@ -105,73 +105,73 @@ public class ConsortiumPoExample {
             criteria.add(new Criterion(condition, value1, value2));
         }
 
-        public Criteria andIdIsNull() {
-            addCriterion("consortium.id is null");
+        public Criteria andConsortiumIdIsNull() {
+            addCriterion("consortium.consortium_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andIdIsNotNull() {
-            addCriterion("consortium.id is not null");
+        public Criteria andConsortiumIdIsNotNull() {
+            addCriterion("consortium.consortium_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andIdEqualTo(String value) {
-            addCriterion("consortium.id =", value, "id");
+        public Criteria andConsortiumIdEqualTo(String value) {
+            addCriterion("consortium.consortium_id =", value, "consortiumId");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotEqualTo(String value) {
-            addCriterion("consortium.id <>", value, "id");
+        public Criteria andConsortiumIdNotEqualTo(String value) {
+            addCriterion("consortium.consortium_id <>", value, "consortiumId");
             return (Criteria) this;
         }
 
-        public Criteria andIdGreaterThan(String value) {
-            addCriterion("consortium.id >", value, "id");
+        public Criteria andConsortiumIdGreaterThan(String value) {
+            addCriterion("consortium.consortium_id >", value, "consortiumId");
             return (Criteria) this;
         }
 
-        public Criteria andIdGreaterThanOrEqualTo(String value) {
-            addCriterion("consortium.id >=", value, "id");
+        public Criteria andConsortiumIdGreaterThanOrEqualTo(String value) {
+            addCriterion("consortium.consortium_id >=", value, "consortiumId");
             return (Criteria) this;
         }
 
-        public Criteria andIdLessThan(String value) {
-            addCriterion("consortium.id <", value, "id");
+        public Criteria andConsortiumIdLessThan(String value) {
+            addCriterion("consortium.consortium_id <", value, "consortiumId");
             return (Criteria) this;
         }
 
-        public Criteria andIdLessThanOrEqualTo(String value) {
-            addCriterion("consortium.id <=", value, "id");
+        public Criteria andConsortiumIdLessThanOrEqualTo(String value) {
+            addCriterion("consortium.consortium_id <=", value, "consortiumId");
             return (Criteria) this;
         }
 
-        public Criteria andIdLike(String value) {
-            addCriterion("consortium.id like", value, "id");
+        public Criteria andConsortiumIdLike(String value) {
+            addCriterion("consortium.consortium_id like", value, "consortiumId");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotLike(String value) {
-            addCriterion("consortium.id not like", value, "id");
+        public Criteria andConsortiumIdNotLike(String value) {
+            addCriterion("consortium.consortium_id not like", value, "consortiumId");
             return (Criteria) this;
         }
 
-        public Criteria andIdIn(List<String> values) {
-            addCriterion("consortium.id in", values, "id");
+        public Criteria andConsortiumIdIn(List<String> values) {
+            addCriterion("consortium.consortium_id in", values, "consortiumId");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotIn(List<String> values) {
-            addCriterion("consortium.id not in", values, "id");
+        public Criteria andConsortiumIdNotIn(List<String> values) {
+            addCriterion("consortium.consortium_id not in", values, "consortiumId");
             return (Criteria) this;
         }
 
-        public Criteria andIdBetween(String value1, String value2) {
-            addCriterion("consortium.id between", value1, value2, "id");
+        public Criteria andConsortiumIdBetween(String value1, String value2) {
+            addCriterion("consortium.consortium_id between", value1, value2, "consortiumId");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotBetween(String value1, String value2) {
-            addCriterion("consortium.id not between", value1, value2, "id");
+        public Criteria andConsortiumIdNotBetween(String value1, String value2) {
+            addCriterion("consortium.consortium_id not between", value1, value2, "consortiumId");
             return (Criteria) this;
         }
 

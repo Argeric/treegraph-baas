@@ -9,18 +9,21 @@ public class LogEnum {
   @Getter
   public enum Login {
 
-    LOGIN(1),
+    LOGIN(1, "login"),
 
-    LOGOUT(2),
+    LOGOUT(2, "logout"),
 
-    NO_PWD_LOGIN(3),
+    NO_PWD_LOGIN(3, "noPwdLogin"),
 
     ;
 
-    private int type;
+    private int code;
+    
+    private String desc;
 
-    Login(int type) {
-      this.type = type;
+    Login(int code, String desc) {
+      this.code = code;
+      this.desc = desc;
     }
   }
 

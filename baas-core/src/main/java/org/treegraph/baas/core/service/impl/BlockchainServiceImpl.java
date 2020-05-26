@@ -20,7 +20,6 @@ import org.treegraph.baas.api.dto.request.SwitchBlockchainStatusRequest;
 import org.treegraph.baas.api.dto.response.ListBlockchainResponse;
 import org.treegraph.baas.api.dto.response.ListCertResponse;
 import org.treegraph.baas.api.dto.response.QueryBlockchainDetailResponse;
-import org.treegraph.baas.api.dto.response.QueryBlockchainResponse;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.BlockchainDas;
 import org.treegraph.baas.core.das.CertDas;
@@ -69,7 +68,7 @@ public class BlockchainServiceImpl implements BlockchainService {
 		List<BlockChainPo> blockchains = pageInfo.getList();
 		List<String> consIdList = blockchains.stream().map(BlockChainPo::getConsortiumId).collect(Collectors.toList());
 		List<ConsortiumPo> consList = consortiumDas.findByIds(consIdList);
-		Map<String, ConsortiumPo> consMap = consList.stream().collect(Collectors.toMap(ConsortiumPo::getId, Function.identity()));
+		Map<String, ConsortiumPo> consMap = consList.stream().collect(Collectors.toMap(ConsortiumPo::getConsortiumId, Function.identity()));
 		log.info("consMap:"+JSON.toJSONString(consMap));
 		
 		List<String> creatorIds = blockchains.stream().map(BlockChainPo::getCreateBy).collect(Collectors.toList());
@@ -125,7 +124,7 @@ public class BlockchainServiceImpl implements BlockchainService {
 		
 		BlockChainPo chain = blockchainDas.findById(req.getId()).orElseThrow(() -> new AlertException("blockchain.not.found"));
 		ConsortiumPo cons = consortiumDas.findById(chain.getConsortiumId()).orElseThrow(() -> new AlertException("consortium.not.found"));
-		List<NodePo> nodes = nodeDas.findByConsIdAndChainId(cons.getId(), chain.getId());
+		List<NodePo> nodes = nodeDas.findByConsIdAndChainId(cons.getConsortiumId(), chain.getId());
 		List<NodeInfo> nodeInfos = nodes.stream().map(item -> NodeInfo.builder()
 				.ip(item.getNodeIp())
 				.port(item.getNodePort()+"")

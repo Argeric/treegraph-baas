@@ -91,7 +91,7 @@ public class LogAspect {
 			return;
 		}
 		StringBuilder info = new StringBuilder("req=").append(req).append(",resp=").append(resp);
-		logService.addOperLog(WebHelper.getUserId(), WebHelper.getUserName(), WebHelper.getUserIp(),
-				paras[1], info.toString());
+		logService.addOperLog(WebHelper.getUserId(), WebHelper.getUserName(), WebHelper.getUserIp(), null, paras[1],
+				info.toString());
 	}
 }

@@ -51,7 +51,7 @@ public class NodeServicempl implements NodeService {
     	List<NodePo> nodeList = pageInfo.getList();
     	List<String> consIds = nodeList.stream().map(NodePo::getConsortiumId).collect(Collectors.toList());
     	List<ConsortiumPo> cons = consortiumDas.findByIds(consIds);
-    	Map<String, String> consIdNameMap = cons.stream().collect(Collectors.toMap(ConsortiumPo::getId, ConsortiumPo::getName));
+    	Map<String, String> consIdNameMap = cons.stream().collect(Collectors.toMap(ConsortiumPo::getConsortiumId, ConsortiumPo::getName));
     	
     	List<String> blockchainIds = nodeList.stream().map(NodePo::getBlockchainId).collect(Collectors.toList());
     	List<BlockChainPo> blockchains = blockchainDas.findByIds(blockchainIds);

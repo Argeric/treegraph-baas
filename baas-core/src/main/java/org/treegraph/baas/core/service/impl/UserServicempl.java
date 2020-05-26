@@ -78,13 +78,13 @@ public class UserServicempl implements UserService {
 	public boolean createUser(CreateUserRequest req) {
 		Optional<UserInfoPo> userInfoOp = userInfoDas.findByAccount(req.getAccount());
 		Assert.isTrue(!userInfoOp.isPresent(), "用户账号不可重复[" + req.getAccount() + "]");
-		List<String> roleIds = validateRoleIds(req.getRoles());
+		List<Role> roles = validateRoleInfo(req.getRoles());
 		List<OrgBo> orgs = req.getRoles().stream().map(item -> OrgBo.builder()
 				.consortiumId(item.getConsId())
 				.organizationName(item.getOrgName())
 				.build()).collect(Collectors.toList());
 		UserInfoBo user = buildService.buildUser(req.getAccount(), req.getName(), req.getPhone(), req.getEmail(),
-				req.getPwd(), roleIds, orgs);
+				req.getPwd(), roles, orgs);
 		
 		return userInfoDas.createUser(user.getUser(), user.getUserRoles(), user.getUserOrgs());
 	}
@@ -92,7 +92,7 @@ public class UserServicempl implements UserService {
 	public String inviteUser(InviteUserRequest req) {
 		UserInfoPo userInfo = userInfoDas.findByAccount(req.getAccount())
 				.orElseThrow(() -> new AlertException("user.not.found"));
-		validateRoleIds(req.getRoles());
+		validateRoleInfo(req.getRoles());
 		List<UserRoleInvitePo> userRoleInvites = Lists.newArrayList();
 		req.getRoles().stream().forEach(role -> {
 			List<UserRoleInvitePo> userRoleInviteList = role.getRoleIds().stream()
@@ -143,18 +143,18 @@ public class UserServicempl implements UserService {
 					.roleIds(item.getValue())
 					.build();
 		}).collect(Collectors.toList());
-		List<String> roleIds = validateRoleIds(roleInfos);
+		List<Role> roles = validateRoleInfo(roleInfos);
 		
-		List<UserRolePo> userRoles = buildService.buildUserRoles(userInvite.getAccepter(), roleIds);
+		List<UserRolePo> userRoles = buildService.buildUserRoles(userInvite.getAccepter(), roles);
 		return userInfoDas.createUserRoles(userRoles);
 	}
 	
 	public String acceptInvite(InviteUserRequest req) {
 		UserInfoPo userInfo = userInfoDas.findByAccount(req.getAccount())
 				.orElseThrow(() -> new AlertException("user.not.found"));
-		List<String> roleIds = validateRoleIds(req.getRoles());
-		List<UserRoleInvitePo> userRoleInvites = roleIds.stream()
-				.map(item -> UserRoleInvitePo.builder().inviteId(null).userId(userInfo.getId()).roleId(item).build())
+		List<Role> roles = validateRoleInfo(req.getRoles());
+		List<UserRoleInvitePo> userRoleInvites = roles.stream()
+				.map(item -> UserRoleInvitePo.builder().inviteId(null).userId(userInfo.getId()).roleId(item.getRoleId()).build())
 				.collect(Collectors.toList());
 		
 		String oper = WebHelper.getUserId();
@@ -266,7 +266,8 @@ public class UserServicempl implements UserService {
 				.updateBy(WebHelper.getUserId())
 				.build();
 		
-		List<String> reqRoleIds = validateRoleIds(req.getRoles());
+		List<Role> reqRoles = validateRoleInfo(req.getRoles());
+		List<String> reqRoleIds = reqRoles.stream().map(Role::getRoleId).collect(Collectors.toList());
 		List<UserRolePo> dbUserRoles = roleDas.findUserRolesByUserId(req.getId());
 		List<String> dbRoleIds = dbUserRoles.stream().map(UserRolePo::getRoleId).collect(Collectors.toList());
 		List<String> interset = Lists.newArrayList();
@@ -277,9 +278,11 @@ public class UserServicempl implements UserService {
 		
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
+		Map<String, String> roleMap = reqRoles.stream().collect(Collectors.toMap(Role::getRoleId, Role::getConsId));
 		List<UserRolePo> toAddUserRoles = reqRoleIds.stream().map(item -> UserRolePo.builder()
 				.userId(req.getId())
 				.roleId(item)
+				.consortiumId(roleMap.get(item))
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
 				.createTime(now)
 				.createBy(operUser)
@@ -302,8 +305,8 @@ public class UserServicempl implements UserService {
 		return userInfoDas.modifyUser(req.getId(), updateUser, toDelUserRoleIds, toAddUserRoles,
 				userOrgBo.getToDelUserOrgIds(), userOrgBo.getToAddUserOrgs());
 	}
-
-	private List<String> validateRoleIds(List<RoleInfo> roles) {
+	
+	private List<Role> validateRoleInfo(List<RoleInfo> roles) {
 		if(CollectionUtils.isEmpty(roles)) {
 			return Lists.newArrayList();
 		}
@@ -321,10 +324,15 @@ public class UserServicempl implements UserService {
 					.forEach(roleId -> Assert.isTrue(dbRoleIdList.contains(roleId), "给用户所授角色无效[" + roleId + "]"));
 		});
 		
-		List<String> roleIds = Lists.newArrayList();
-		roles.stream().forEach(item -> roleIds.addAll(item.getRoleIds()));
+		List<Role> userRoleList = Lists.newArrayList();
+		roles.stream().forEach(item -> {
+			List<Role> userRoles = item.getRoleIds().stream()
+					.map(roleId -> Role.builder().consId(item.getConsId()).roleId(roleId).build())
+					.collect(Collectors.toList());
+			userRoleList.addAll(userRoles);
+		});
 		
-		return roleIds;
+		return userRoleList;
 	}
 	
 	private Map<String, List<RoleDetailInfo>> getRolesByUserIds(List<String> userIds) {
@@ -335,7 +343,7 @@ public class UserServicempl implements UserService {
 		
 		List<String> allConsIds = allRolePos.stream().map(RolePo::getConsortiumId).collect(Collectors.toList());
 		List<ConsortiumPo> allCons = consortiumDas.findByIds(allConsIds);
-		Map<String, ConsortiumPo> allConsMap = allCons.stream().collect(Collectors.toMap(ConsortiumPo::getId, Functions.identity()));
+		Map<String, ConsortiumPo> allConsMap = allCons.stream().collect(Collectors.toMap(ConsortiumPo::getConsortiumId, Functions.identity()));
 		
 		List<UserOrganizationPo> allUserOrgs = userInfoDas.findUserOrgsByUserIds(userIds);
 		Map<String, List<UserOrganizationPo>> allOrgsMap = allUserOrgs.stream()

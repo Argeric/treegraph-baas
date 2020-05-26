@@ -4,7 +4,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import org.treegraph.baas.core.domain.UserInfoPo;
-import org.treegraph.baas.core.domain.UserTokenPo;
+import org.treegraph.baas.core.domain.UserLoginTokenPo;
 
 public interface UserTokenDas {
 
@@ -14,6 +14,6 @@ public interface UserTokenDas {
 
   boolean deleteByUserId(String userId);
   
-  UserTokenPo findByUserId(String userId);
+  UserLoginTokenPo findByUserId(String userId);
 
 }

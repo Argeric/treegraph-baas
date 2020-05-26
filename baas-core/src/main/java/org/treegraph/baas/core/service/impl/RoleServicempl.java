@@ -154,7 +154,7 @@ public class RoleServicempl implements RoleService {
     	List<String> consIds = roleList.stream().map(RolePo::getConsortiumId).collect(Collectors.toList());
     	List<ConsortiumPo> cons = consortiumDas.findByIds(consIds);
 		Map<String, String> consIdNameMap = cons.stream()
-				.collect(Collectors.toMap(ConsortiumPo::getId, ConsortiumPo::getName));
+				.collect(Collectors.toMap(ConsortiumPo::getConsortiumId, ConsortiumPo::getName));
     	
     	List<PermissionPo> allPerms = permissionDas.findAll();
 		Map<Long, String> allPermIdCodeMap = allPerms.stream()

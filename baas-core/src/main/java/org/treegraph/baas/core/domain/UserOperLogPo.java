@@ -33,6 +33,11 @@ public class UserOperLogPo implements Serializable {
     private String userIp;
 
     /**
+     * 用户设备信息
+     */
+    private String userDevice;
+
+    /**
      * 操作类型
      */
     private Integer operType;

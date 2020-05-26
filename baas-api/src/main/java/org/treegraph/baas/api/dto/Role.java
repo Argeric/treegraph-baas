@@ -11,6 +11,8 @@ import lombok.Data;
 @Data
 @Builder
 public class Role {
+	
+	private String consId;
 
 	private String roleId;
 	

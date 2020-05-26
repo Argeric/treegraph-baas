@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.treegraph.baas.core.mapper.UserTokenPoMapper">
-  <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.UserTokenPo">
-    <id column="blockChain_id" jdbcType="BIGINT" property="id" />
-    <result column="blockChain_user_id" jdbcType="VARCHAR" property="userId" />
-    <result column="blockChain_token" jdbcType="VARCHAR" property="token" />
-    <result column="blockChain_expire" jdbcType="INTEGER" property="expire" />
-    <result column="blockChain_create_time" jdbcType="TIMESTAMP" property="createTime" />
-    <result column="blockChain_update_time" jdbcType="TIMESTAMP" property="updateTime" />
+<mapper namespace="org.treegraph.baas.core.mapper.UserLoginTokenPoMapper">
+  <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.UserLoginTokenPo">
+    <id column="userLoginToken_id" jdbcType="BIGINT" property="id" />
+    <result column="userLoginToken_user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="userLoginToken_token" jdbcType="VARCHAR" property="token" />
+    <result column="userLoginToken_expire" jdbcType="INTEGER" property="expire" />
+    <result column="userLoginToken_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="userLoginToken_update_time" jdbcType="TIMESTAMP" property="updateTime" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -68,17 +68,17 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    blockChain.id as blockChain_id, blockChain.user_id as blockChain_user_id, blockChain.token as blockChain_token, 
-    blockChain.expire as blockChain_expire, blockChain.create_time as blockChain_create_time, 
-    blockChain.update_time as blockChain_update_time
+    userLoginToken.id as userLoginToken_id, userLoginToken.user_id as userLoginToken_user_id, 
+    userLoginToken.token as userLoginToken_token, userLoginToken.expire as userLoginToken_expire, 
+    userLoginToken.create_time as userLoginToken_create_time, userLoginToken.update_time as userLoginToken_update_time
   </sql>
-  <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.UserTokenPoExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.UserLoginTokenPoExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from user_token blockChain
+    from user_login_token userLoginToken
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -89,27 +89,27 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from user_token blockChain
-    where blockChain.id = #{id,jdbcType=BIGINT}
+    from user_login_token userLoginToken
+    where userLoginToken.id = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-    delete from user_token
+    delete from user_login_token
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.UserTokenPoExample">
-    delete from user_token blockChain
+  <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.UserLoginTokenPoExample">
+    delete from user_login_token userLoginToken
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserTokenPo" useGeneratedKeys="true">
-    insert into user_token (user_id, token, expire, 
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserLoginTokenPo" useGeneratedKeys="true">
+    insert into user_login_token (user_id, token, expire, 
       create_time, update_time)
     values (#{userId,jdbcType=VARCHAR}, #{token,jdbcType=VARCHAR}, #{expire,jdbcType=INTEGER}, 
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserTokenPo" useGeneratedKeys="true">
-    insert into user_token
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserLoginTokenPo" useGeneratedKeys="true">
+    insert into user_login_token
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="userId != null">
         user_id,
@@ -145,32 +145,32 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="org.treegraph.baas.core.domain.UserTokenPoExample" resultType="java.lang.Long">
-    select count(*) from user_token blockChain
+  <select id="countByExample" parameterType="org.treegraph.baas.core.domain.UserLoginTokenPoExample" resultType="java.lang.Long">
+    select count(*) from user_login_token userLoginToken
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update user_token blockChain
+    update user_login_token userLoginToken
     <set>
       <if test="record.id != null">
-        blockChain.id = #{record.id,jdbcType=BIGINT},
+        userLoginToken.id = #{record.id,jdbcType=BIGINT},
       </if>
       <if test="record.userId != null">
-        blockChain.user_id = #{record.userId,jdbcType=VARCHAR},
+        userLoginToken.user_id = #{record.userId,jdbcType=VARCHAR},
       </if>
       <if test="record.token != null">
-        blockChain.token = #{record.token,jdbcType=VARCHAR},
+        userLoginToken.token = #{record.token,jdbcType=VARCHAR},
       </if>
       <if test="record.expire != null">
-        blockChain.expire = #{record.expire,jdbcType=INTEGER},
+        userLoginToken.expire = #{record.expire,jdbcType=INTEGER},
       </if>
       <if test="record.createTime != null">
-        blockChain.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+        userLoginToken.create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.updateTime != null">
-        blockChain.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+        userLoginToken.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       </if>
     </set>
     <if test="_parameter != null">
@@ -178,19 +178,19 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update user_token blockChain
-    set blockChain.id = #{record.id,jdbcType=BIGINT},
-      blockChain.user_id = #{record.userId,jdbcType=VARCHAR},
-      blockChain.token = #{record.token,jdbcType=VARCHAR},
-      blockChain.expire = #{record.expire,jdbcType=INTEGER},
-      blockChain.create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      blockChain.update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+    update user_login_token userLoginToken
+    set userLoginToken.id = #{record.id,jdbcType=BIGINT},
+      userLoginToken.user_id = #{record.userId,jdbcType=VARCHAR},
+      userLoginToken.token = #{record.token,jdbcType=VARCHAR},
+      userLoginToken.expire = #{record.expire,jdbcType=INTEGER},
+      userLoginToken.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      userLoginToken.update_time = #{record.updateTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="org.treegraph.baas.core.domain.UserTokenPo">
-    update user_token
+  <update id="updateByPrimaryKeySelective" parameterType="org.treegraph.baas.core.domain.UserLoginTokenPo">
+    update user_login_token
     <set>
       <if test="userId != null">
         user_id = #{userId,jdbcType=VARCHAR},
@@ -210,8 +210,8 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.UserTokenPo">
-    update user_token
+  <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.UserLoginTokenPo">
+    update user_login_token
     set user_id = #{userId,jdbcType=VARCHAR},
       token = #{token,jdbcType=VARCHAR},
       expire = #{expire,jdbcType=INTEGER},

@@ -16,6 +16,7 @@ import org.treegraph.baas.api.dto.ConsDetailInfo;
 import org.treegraph.baas.api.dto.ConsInfo;
 import org.treegraph.baas.api.dto.ListRequest;
 import org.treegraph.baas.api.dto.NodeInfo;
+import org.treegraph.baas.api.dto.Role;
 import org.treegraph.baas.api.dto.request.AddNodesRequest;
 import org.treegraph.baas.api.dto.request.CreateBlockchainRequest;
 import org.treegraph.baas.api.dto.request.CreateConsAdminRequest;
@@ -83,7 +84,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		List<ConsortiumPo> conses = pageInfo.getList();
 		List<ConsInfo> consInfoList = conses.stream().map(item -> ConsInfo.builder()
-				.id(item.getId())
+				.id(item.getConsortiumId())
 				.name(item.getName())
 				.remark(item.getDescription())
 				.contact(item.getContactName())
@@ -108,7 +109,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 	
 	public List<ConsDetailInfo> queryConsDetail(QueryConsDetailRequest req){
 		List<ConsortiumPo> consList = consortiumDas.findAll(req.getId());
-		List<String> consIds = consList.stream().map(ConsortiumPo::getId).collect(Collectors.toList());
+		List<String> consIds = consList.stream().map(ConsortiumPo::getConsortiumId).collect(Collectors.toList());
 		
 		List<BlockChainPo> blockchains = blockchainDas.findByConsIds(consIds);
 		Map<String, BlockChainPo> blockchainMap = blockchains.stream()
@@ -119,7 +120,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		Map<String, List<NodePo>> nodeMap = nodes.stream().collect(Collectors.groupingBy(NodePo::getBlockchainId));
 		
 		return consList.stream().map(item -> {
-			BlockChainPo blockChain = blockchainMap.get(item.getId());
+			BlockChainPo blockChain = blockchainMap.get(item.getConsortiumId());
 			String blockchainId = blockChain != null ? blockChain.getId() : null;
 			String blockchainName = blockChain != null ? blockChain.getBlockchainName() : null;
 			List<NodeInfo> nodeInfoList = Lists.newArrayList();
@@ -130,7 +131,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 							.build())));
 
 			return ConsDetailInfo.builder()
-					.id(item.getId())
+					.id(item.getConsortiumId())
 					.name(item.getName())
 					.blockchainId(blockchainId)
 					.blockchainName(blockchainName)
@@ -142,7 +143,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 	public List<ConsInfo> queryCons(QueryConsRequest req) {
 		List<ConsortiumPo> consList = consortiumDas.findAll(req.getId());
 		return consList.stream().map(item -> ConsInfo.builder()
-				.id(item.getId())
+				.id(item.getConsortiumId())
 				.name(item.getName())
 				.status(item.getStatus())
 				.step(item.getEstablishStep())
@@ -157,7 +158,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		LocalDateTime now = LocalDateTime.now();
 		String oper = WebHelper.getUserId();
 		ConsortiumPo cons = ConsortiumPo.builder()
-				.id(UUID.randomUUID().toString())
+				.consortiumId(UUID.randomUUID().toString())
 				.name(req.getName())
 				.avatar(req.getAvatar() != null ? req.getAvatar().getBytes() : null)
 				.description(req.getRemark())
@@ -174,17 +175,17 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.build();
 		consortiumDas.createConsortium(cons);
 		
-		return cons.getId();
+		return cons.getConsortiumId();
 	}
 
 	public boolean modifyCons(ModifyConsRequest req) {
 		List<ConsortiumPo> consList = consortiumDas.findByName(req.getName());
-		List<ConsortiumPo> repeatNameConsList = consList.stream().filter(item -> !item.getId().equals(req.getId()))
+		List<ConsortiumPo> repeatNameConsList = consList.stream().filter(item -> !item.getConsortiumId().equals(req.getId()))
 				.collect(Collectors.toList());
 		Assert.isTrue(CollectionUtils.isEmpty(repeatNameConsList), "新创建联盟名称已被使用["+req.getName()+"]");
 		
 		ConsortiumPo cons = ConsortiumPo.builder()
-				.id(req.getId())
+				.consortiumId(req.getId())
 				.name(req.getName())
 				.description(req.getRemark())
 				.contactName(req.getContact())
@@ -200,7 +201,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 
 	public boolean deleteCons(DeleteConsRequest req) {
 		ConsortiumPo cons = ConsortiumPo.builder()
-				.id(req.getId())
+				.consortiumId(req.getId())
 				.deleteFlag(IntTypeEnum.TRUE.getValue())
 				.updateTime(LocalDateTime.now())
 				.updateBy( WebHelper.getUserId())
@@ -222,7 +223,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 		List<UserInfoBo> userBos = req.getUsers().stream().filter(item -> item.getUserId() == null).map(item -> {
 			OrgBo orgBo = OrgBo.builder().consortiumId(req.getConsId()).organizationName(item.getOrg()).build();
 			return buildService.buildUser(item.getAccount(), item.getName(), item.getPhone(), item.getEmail(),
-					item.getPwd(), Lists.newArrayList(roleId), Lists.newArrayList(orgBo));
+					item.getPwd(), Lists.newArrayList(Role.builder().consId(req.getConsId()).roleId(roleId).build()),
+					Lists.newArrayList(orgBo));
 		}).collect(Collectors.toList());
 		
 		List<UserInfoPo> users = Lists.newArrayList();
@@ -241,7 +243,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 		List<UserRolePo> dbUserRoles = roleDas.findUserRolesForConsAdmin(existUserIds, roleId);
 		Set<String> dbUserIdSet = dbUserRoles.stream().map(UserRolePo::getUserId).collect(Collectors.toSet());
 		existUserIds.stream().filter(item -> !dbUserIdSet.contains(item))
-				.forEach(item -> userRoles.addAll(buildService.buildUserRoles(item, Lists.newArrayList(roleId))));
+				.forEach(item -> userRoles.addAll(buildService.buildUserRoles(item,
+						Lists.newArrayList(Role.builder().consId(req.getConsId()).roleId(roleId).build()))));
 		
 		ConsortiumPo cons = buildService.buildToUpdateCons(req.getConsId(), EstablishStep.TO_ESTAB_BLOCKCHAIN);
 		

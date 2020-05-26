@@ -13,15 +13,14 @@ import org.treegraph.baas.core.das.InviteUserDas;
 import org.treegraph.baas.core.das.PermissionDas;
 import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.das.UserTokenDas;
-import org.treegraph.baas.core.domain.UserInvitePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
-import org.treegraph.baas.core.domain.UserTokenPo;
+import org.treegraph.baas.core.domain.UserInvitePo;
+import org.treegraph.baas.core.domain.UserLoginTokenPo;
 import org.treegraph.baas.core.enums.UserEnum.PermissionPoint;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.TokenService;
 import org.treegraph.baas.core.util.JwtUtils;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -101,7 +100,7 @@ public class TokenServicempl implements TokenService {
     	Assert.isTrue(user.getName().equals(name), "用户姓名不一致["+userId+"]");
     	
     	// check token value
-    	UserTokenPo userToken = userTokenDas.findByUserId(userId);
+    	UserLoginTokenPo userToken = userTokenDas.findByUserId(userId);
     	Assert.isTrue(userToken.getToken().equals(token), "token失效，请重新登陆["+userId+"]");
     	
     	// check token expire

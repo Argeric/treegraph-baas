@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserLoginLogPo implements Serializable {
+public class UserLoginTokenPo implements Serializable {
     /**
-     * id
+     * 主键
      */
     private Long id;
 
@@ -23,29 +23,24 @@ public class UserLoginLogPo implements Serializable {
     private String userId;
 
     /**
-     * 登录的设备，取userAgent信息
+     * 登陆后token
      */
-    private String device;
+    private String token;
 
     /**
-     * 1 h5 2 android  3ios 4 web
+     * 过期时间，单位秒
      */
-    private Integer type;
+    private Integer expire;
 
     /**
-     * 登录ip
+     * 创建时间
      */
-    private String loginIp;
+    private LocalDateTime createTime;
 
     /**
-     * 登录的时间
+     * 更新时间
      */
-    private LocalDateTime loginTime;
-
-    /**
-     * 登陆的地址
-     */
-    private String ipAddress;
+    private LocalDateTime updateTime;
 
     private static final long serialVersionUID = 1L;
 }

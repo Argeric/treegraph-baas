@@ -16,11 +16,9 @@ import org.treegraph.baas.api.dto.response.ListOperLogResponse;
 import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.das.UserOperLogDas;
 import org.treegraph.baas.core.domain.UserInfoPo;
-import org.treegraph.baas.core.domain.UserLoginLogPo;
 import org.treegraph.baas.core.domain.UserOperLogPo;
 import org.treegraph.baas.core.enums.LogEnum.Login;
 import org.treegraph.baas.core.service.LogService;
-import org.treegraph.baas.core.util.AddressUtils;
 import org.treegraph.baas.core.util.DateTimeUtils;
 import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.WebUtils;
@@ -42,28 +40,23 @@ public class LogServiceImpl implements LogService{
 	 * 添加登录日志
 	 */
 	@LogSkip
-	public void addLoginLog(String userId, Login login, HttpServletRequest request) {
-		UserLoginLogPo loginLog = new UserLoginLogPo();
+	public void addLoginLog(String userId, String userName, Login login, HttpServletRequest request) {
 		String ip = Objects.isNull(request) ? "" : WebUtils.getIpAddress(request);
-		loginLog.setUserId(userId);
-		loginLog.setLoginIp(ip);
-		loginLog.setIpAddress(AddressUtils.getAddressByIp(ip));
-		loginLog.setType(login.getType());
-		loginLog.setDevice(Objects.isNull(request) ? "" : WebUtils.getDeviceeInfo(request));
-		loginLog.setLoginTime(LocalDateTime.now());
-		userOperLogDas.addLoginLog(loginLog);
+		String device = Objects.isNull(request) ? "" : WebUtils.getDeviceeInfo(request);
+		this.addOperLog(userId, userName, ip, device, login.getDesc(), device);
 	}
 	
 	/**
 	 * 添加操作日志
 	 */
 	@LogSkip
-	public void addOperLog(String userId, String userName, String ip, String operCode, String operInfo) {
+	public void addOperLog(String userId, String userName, String ip, String device, String operCode, String operInfo) {
 		LocalDateTime now = LocalDateTime.now();
 		UserOperLogPo userOperLog =  UserOperLogPo.builder()
 				.userId(userId)
 				.userName(userName)
 				.userIp(ip)
+				.userDevice(device)
 				.operCode(operCode)
 				.operInfo(operInfo)
 				.operTime(now)

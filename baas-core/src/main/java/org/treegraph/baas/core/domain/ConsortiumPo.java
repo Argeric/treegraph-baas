@@ -15,7 +15,7 @@ public class ConsortiumPo implements Serializable {
     /**
      * 主键
      */
-    private String id;
+    private String consortiumId;
 
     /**
      * 联盟名称

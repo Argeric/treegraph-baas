@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.treegraph.baas.core.mapper.ConsortiumPoMapper">
   <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.ConsortiumPo">
-    <id column="consortium_id" jdbcType="VARCHAR" property="id" />
+    <id column="consortium_consortium_id" jdbcType="VARCHAR" property="consortiumId" />
     <result column="consortium_name" jdbcType="VARCHAR" property="name" />
     <result column="consortium_description" jdbcType="VARCHAR" property="description" />
     <result column="consortium_contact_name" jdbcType="VARCHAR" property="contactName" />
@@ -78,12 +78,13 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    consortium.id as consortium_id, consortium.`name` as `consortium_name`, consortium.description as consortium_description, 
-    consortium.contact_name as consortium_contact_name, consortium.contact_email as consortium_contact_email, 
-    consortium.contact_phone as consortium_contact_phone, consortium.`status` as `consortium_status`, 
-    consortium.establish_step as consortium_establish_step, consortium.delete_flag as consortium_delete_flag, 
-    consortium.create_time as consortium_create_time, consortium.update_time as consortium_update_time, 
-    consortium.create_by as consortium_create_by, consortium.update_by as consortium_update_by
+    consortium.consortium_id as consortium_consortium_id, consortium.`name` as `consortium_name`, 
+    consortium.description as consortium_description, consortium.contact_name as consortium_contact_name, 
+    consortium.contact_email as consortium_contact_email, consortium.contact_phone as consortium_contact_phone, 
+    consortium.`status` as `consortium_status`, consortium.establish_step as consortium_establish_step, 
+    consortium.delete_flag as consortium_delete_flag, consortium.create_time as consortium_create_time, 
+    consortium.update_time as consortium_update_time, consortium.create_by as consortium_create_by, 
+    consortium.update_by as consortium_update_by
   </sql>
   <sql id="Blob_Column_List">
     consortium.avatar as consortium_avatar
@@ -124,11 +125,11 @@
     ,
     <include refid="Blob_Column_List" />
     from consortium consortium
-    where consortium.id = #{id,jdbcType=VARCHAR}
+    where consortium.consortium_id = #{consortiumId,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from consortium
-    where id = #{id,jdbcType=VARCHAR}
+    where consortium_id = #{consortiumId,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.ConsortiumPoExample">
     delete from consortium consortium
@@ -137,12 +138,12 @@
     </if>
   </delete>
   <insert id="insert" parameterType="org.treegraph.baas.core.domain.ConsortiumPo">
-    insert into consortium (id, `name`, description, 
+    insert into consortium (consortium_id, `name`, description, 
       contact_name, contact_email, contact_phone, 
       `status`, establish_step, delete_flag, 
       create_time, update_time, create_by, 
       update_by, avatar)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+    values (#{consortiumId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
       #{contactName,jdbcType=VARCHAR}, #{contactEmail,jdbcType=VARCHAR}, #{contactPhone,jdbcType=VARCHAR}, 
       #{status,jdbcType=INTEGER}, #{establishStep,jdbcType=INTEGER}, #{deleteFlag,jdbcType=INTEGER}, 
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
@@ -151,8 +152,8 @@
   <insert id="insertSelective" parameterType="org.treegraph.baas.core.domain.ConsortiumPo">
     insert into consortium
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
+      <if test="consortiumId != null">
+        consortium_id,
       </if>
       <if test="name != null">
         `name`,
@@ -195,8 +196,8 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=VARCHAR},
+      <if test="consortiumId != null">
+        #{consortiumId,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -248,8 +249,8 @@
   <update id="updateByExampleSelective" parameterType="map">
     update consortium consortium
     <set>
-      <if test="record.id != null">
-        consortium.id = #{record.id,jdbcType=VARCHAR},
+      <if test="record.consortiumId != null">
+        consortium.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
         consortium.`name` = #{record.name,jdbcType=VARCHAR},
@@ -297,7 +298,7 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update consortium consortium
-    set consortium.id = #{record.id,jdbcType=VARCHAR},
+    set consortium.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
       consortium.`name` = #{record.name,jdbcType=VARCHAR},
       consortium.description = #{record.description,jdbcType=VARCHAR},
       consortium.contact_name = #{record.contactName,jdbcType=VARCHAR},
@@ -317,7 +318,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update consortium consortium
-    set consortium.id = #{record.id,jdbcType=VARCHAR},
+    set consortium.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
       consortium.`name` = #{record.name,jdbcType=VARCHAR},
       consortium.description = #{record.description,jdbcType=VARCHAR},
       consortium.contact_name = #{record.contactName,jdbcType=VARCHAR},
@@ -377,7 +378,7 @@
         avatar = #{avatar,jdbcType=LONGVARBINARY},
       </if>
     </set>
-    where id = #{id,jdbcType=VARCHAR}
+    where consortium_id = #{consortiumId,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="org.treegraph.baas.core.domain.ConsortiumPo">
     update consortium
@@ -394,7 +395,7 @@
       create_by = #{createBy,jdbcType=VARCHAR},
       update_by = #{updateBy,jdbcType=VARCHAR},
       avatar = #{avatar,jdbcType=LONGVARBINARY}
-    where id = #{id,jdbcType=VARCHAR}
+    where consortium_id = #{consortiumId,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.ConsortiumPo">
     update consortium
@@ -410,6 +411,6 @@
       update_time = #{updateTime,jdbcType=TIMESTAMP},
       create_by = #{createBy,jdbcType=VARCHAR},
       update_by = #{updateBy,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=VARCHAR}
+    where consortium_id = #{consortiumId,jdbcType=VARCHAR}
   </update>
 </mapper>

@@ -37,6 +37,8 @@ public interface UserInfoDas {
 	boolean delUser(UserInfoPo user, List<Long> userRoleIds);
 
 	List<UserInfoPo> findAll(String account, String name, String email, String phone);
+	
+	List<UserInfoPo> findAll(String account, String name, String phone, String email, String consIdCond, String createBy);
 
 	boolean updateUser(UserInfoPo user);
 

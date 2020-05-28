@@ -9,7 +9,7 @@ import java.util.StringJoiner;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.treegraph.baas.common.util.PermManager;
+import org.treegraph.baas.common.util.PermHelper;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.InviteUserDas;
 import org.treegraph.baas.core.das.PermissionDas;
@@ -23,6 +23,7 @@ import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.enums.UserEnum.PermissionPoint;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.TokenService;
+import org.treegraph.baas.core.util.CollectionUtils;
 import org.treegraph.baas.core.util.JwtUtils;
 
 import com.alibaba.fastjson.JSON;
@@ -166,7 +167,7 @@ public class TokenServicempl implements TokenService {
     		permSet.add(permCode);
     	}
     	String consIdsCond = getConsId(consIdSet);
-    	PermManager.init(sysAdminFlag, consAdminSet, consIdSet, consPermMap, consIdsCond);
+    	PermHelper.init(sysAdminFlag, consAdminSet, consIdSet, consPermMap, consIdsCond);
     	
     	Set<String> permCodeSet = Sets.newHashSet();
     	consPermMap.values().stream().forEach(item -> permCodeSet.addAll(item));
@@ -177,6 +178,9 @@ public class TokenServicempl implements TokenService {
     }
     
 	public String getConsId(Set<String> consIds) {
+		if(CollectionUtils.isEmpty(consIds)) {
+			return null;
+		}
 		StringJoiner cond = new StringJoiner(",", "(", ")");
 		consIds.stream().forEach(item -> cond.add(new StringJoiner("", "'", "'").add(item).toString()));
 		return cond.toString();

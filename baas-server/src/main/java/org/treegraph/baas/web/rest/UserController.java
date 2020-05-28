@@ -1,12 +1,15 @@
 package org.treegraph.baas.web.rest;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.treegraph.baas.api.dto.AuthInfo;
 import org.treegraph.baas.api.dto.BaasResult;
+import org.treegraph.baas.api.dto.RoleInfo;
 import org.treegraph.baas.api.dto.UserInfo;
 import org.treegraph.baas.api.dto.request.AcceptInviteRequest;
 import org.treegraph.baas.api.dto.request.CreateUserRequest;
@@ -17,7 +20,10 @@ import org.treegraph.baas.api.dto.request.ModifyPwdRequest;
 import org.treegraph.baas.api.dto.request.ModifyUserRequest;
 import org.treegraph.baas.api.dto.request.QueryUserRequest;
 import org.treegraph.baas.api.dto.response.ListUserResponse;
+import org.treegraph.baas.core.service.LoginService;
 import org.treegraph.baas.core.service.UserService;
+import org.treegraph.baas.core.util.CollectionUtils;
+import org.treegraph.baas.core.util.SysManager;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,6 +41,8 @@ import lombok.AllArgsConstructor;
 public class UserController {
 
 	private UserService userService;
+	
+	private LoginService loginService;
 
 	@PostMapping("/list")
 	@ApiOperation("用户列表")
@@ -53,6 +61,7 @@ public class UserController {
 	@PostMapping("/create")
 	@ApiOperation("创建用户")
 	public BaasResult<Void> createUser(@RequestBody CreateUserRequest createUserRequest) {
+		checkOwnCons(createUserRequest.getRoles());
 		userService.createUser(createUserRequest);
 		return BaasResult.success();
 	}
@@ -60,6 +69,7 @@ public class UserController {
 	@PostMapping("/modify")
 	@ApiOperation("修改用户")
 	public BaasResult<Void> modifyUser(@RequestBody ModifyUserRequest modifyUserRequest) {
+		checkOwnCons(modifyUserRequest.getRoles());
 		userService.modifyUser(modifyUserRequest);
 		return BaasResult.success();
 	}
@@ -88,7 +98,19 @@ public class UserController {
 	@PostMapping("/del")
 	@ApiOperation("删除用户")
 	public BaasResult<Void> deleteUser(@RequestBody DeleteUserRequest deleteUserRequest) {
+		List<AuthInfo> authInfos = loginService.getAuthInfos(deleteUserRequest.getId());
+		if(CollectionUtils.isNotEmpty(authInfos)) {
+			List<String> consIds = authInfos.stream().map(AuthInfo::getConsId).collect(Collectors.toList());
+			SysManager.checkOwnCons(consIds);
+		}
 		userService.deleteUser(deleteUserRequest);
 		return BaasResult.success();
+	}
+
+	private void checkOwnCons(List<RoleInfo> roles) {
+		if(CollectionUtils.isNotEmpty(roles)) {
+			List<String> consIds = roles.stream().map(RoleInfo::getConsId).collect(Collectors.toList());
+			SysManager.checkOwnCons(consIds);
+		}
 	}
 }

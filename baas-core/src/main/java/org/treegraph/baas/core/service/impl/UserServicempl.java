@@ -23,6 +23,7 @@ import org.treegraph.baas.api.dto.request.ModifyUserRequest;
 import org.treegraph.baas.api.dto.request.QueryUserRequest;
 import org.treegraph.baas.api.dto.response.ListUserResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
+import org.treegraph.baas.common.util.PermHelper;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.constant.InviteConsts;
 import org.treegraph.baas.core.constant.SplitterConsts;
@@ -208,7 +209,7 @@ public class UserServicempl implements UserService {
 	public ListUserResponse listUser(ListUserRequest req){
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
 		List<UserInfoPo> userList = userInfoDas.findAll(req.getAccount(), req.getName(), req.getEmail(),
-				req.getPhone());
+				req.getPhone(), PermHelper.getConsIdsCond(), WebHelper.getUserId());
 		PageInfo<UserInfoPo> pageInfo = new PageInfo<>(userList);
 		
 		List<UserInfoPo> list = pageInfo.getList();

@@ -108,6 +108,10 @@ public class UserInfoDasImpl implements UserInfoDas{
     	return userInfoPoMapper.selectByExample(example);
     }
     
+  public List<UserInfoPo> findAll(String account, String name, String email, String phone, String consIdCond, String createBy) {
+    	return userInfoPoMapper.selectUserList(account, name, email, phone, consIdCond, createBy);
+    }
+    
 	public List<UserOrganizationPo> findUserOrgsByUserIds(List<String> userIds) {
 		if(CollectionUtils.isEmpty(userIds)) {
 			return Lists.newArrayList();

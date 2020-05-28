@@ -31,4 +31,8 @@ public interface UserInfoPoMapper {
     int updateByPrimaryKey(UserInfoPo record);
     
     int bulkInsert(List<UserInfoPo> list);
+    
+	List<UserInfoPo> selectUserList(@Param("account") String account, @Param("name") String name,
+			@Param("email") String email, @Param("phone") String phone, @Param("consIdCond") String consIdCond,
+			@Param("createBy") String createBy);
 }

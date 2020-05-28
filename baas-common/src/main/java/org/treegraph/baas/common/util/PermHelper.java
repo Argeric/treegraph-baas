@@ -3,7 +3,7 @@ package org.treegraph.baas.common.util;
 import java.util.Map;
 import java.util.Set;
 
-public class PermManager {
+public class PermHelper {
 	
 	private static boolean loginRequrired = true;
 	private static final ThreadLocal<Boolean> sysAdminFlagThreadLocal = new ThreadLocal<>();
@@ -65,7 +65,7 @@ public class PermManager {
     }
     
     public static void setLoginRequrired(boolean loginRequrired) {
-        PermManager.loginRequrired = loginRequrired;
+        PermHelper.loginRequrired = loginRequrired;
     }
 
     public static boolean isLoginRequrired() {

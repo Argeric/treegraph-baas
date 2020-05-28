@@ -1,8 +1,7 @@
 package org.treegraph.baas.core.config;
 
-import org.treegraph.baas.core.persistence.DataScopePlugin;
-import com.alibaba.druid.pool.DruidDataSource;
-import com.github.pagehelper.PageInterceptor;
+import javax.sql.DataSource;
+
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
@@ -13,8 +12,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.treegraph.baas.core.persistence.DataScopePlugin;
 
-import javax.sql.DataSource;
+import com.alibaba.druid.pool.DruidDataSource;
 
 /**
  * 操作baas中数据库表，主要数据源
@@ -58,7 +58,7 @@ public class PrimaryDataSourceConfiguration {
 
     @Bean(name = "primarySqlSessionFactory")
     @Primary
-    public SqlSessionFactory primarySqlSessionFactory(@Qualifier("primaryDataSource") DataSource primaryDataSource, @Qualifier("dataScopePlugin") DataScopePlugin dataScopePlugin, /*@Qualifier("pageInterceptor")*/ PageInterceptor pageInterceptor)
+    public SqlSessionFactory primarySqlSessionFactory(@Qualifier("primaryDataSource") DataSource primaryDataSource, @Qualifier("dataScopePlugin") DataScopePlugin dataScopePlugin/*, @Qualifier("pageInterceptor") PageInterceptor pageInterceptor*/)
             throws Exception {
         final SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(primaryDataSource);
@@ -67,7 +67,7 @@ public class PrimaryDataSourceConfiguration {
         org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
         configuration.setMapUnderscoreToCamelCase(true);
         sessionFactory.setConfiguration(configuration);
-        sessionFactory.setPlugins(pageInterceptor, dataScopePlugin);
+        sessionFactory.setPlugins(/*pageInterceptor, */dataScopePlugin);
         return sessionFactory.getObject();
     }
 

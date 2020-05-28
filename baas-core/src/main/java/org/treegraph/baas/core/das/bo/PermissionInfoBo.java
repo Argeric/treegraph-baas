@@ -18,13 +18,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PermissionInfoBo implements Serializable {
 	
+	private String consId;
+	
 	private String roleId;
 	
 	private Integer roleType;
 	
 	private String roleName;
-	
-	private String consId;
 	
 	private String permId;
 	

@@ -20,6 +20,7 @@ import org.treegraph.baas.core.das.PermissionDas;
 import org.treegraph.baas.core.das.RoleDas;
 import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.das.UserTokenDas;
+import org.treegraph.baas.core.das.bo.PermissionInfoBo;
 import org.treegraph.baas.core.domain.PermissionPo;
 import org.treegraph.baas.core.domain.RolePermissionPo;
 import org.treegraph.baas.core.domain.RolePo;
@@ -85,7 +86,7 @@ public class LoginServicempl implements LoginService {
     			.isFirstLogin(needChangePwd)
     			.build();
 
-    	List<AuthInfo> authInfo = getAuthInfos(user);
+    	List<AuthInfo> authInfo = getAuthInfos(user.getId());
     	userDetailInfo.setAuth(authInfo);
         String token = userTokenDas.createToken(user);
         userDetailInfo.setToken(token);
@@ -95,7 +96,8 @@ public class LoginServicempl implements LoginService {
         return userDetailInfo;
     }
     
-    private List<AuthInfo> getAuthInfos(UserInfoPo user) {
+    @SuppressWarnings("unused")
+	private List<AuthInfo> getAuthInfos0(UserInfoPo user) {
 
 		List<AuthInfo> authInfos = new ArrayList<>();
 		List<UserRolePo> userRoles = roleDas.findUserRolesByUserId(user.getId());
@@ -128,6 +130,29 @@ public class LoginServicempl implements LoginService {
 					.permissions(permissionCodes).build();
 			authInfos.add(authInfo);
 		});
+
+		return authInfos;
+	}
+    
+    public List<AuthInfo> getAuthInfos(String userId) {
+		List<PermissionInfoBo> permInfos = permissionDas.findPermissionInfoByUserId(userId);
+		Map<String, List<PermissionInfoBo>> permMap = permInfos.stream()
+				.collect(Collectors.groupingBy(PermissionInfoBo::getConsId));
+		List<AuthInfo> authInfos = permMap.entrySet().stream().map(item -> {
+			Set<String> roleNames = Sets.newHashSet();
+			Set<String> permCodes = Sets.newHashSet();
+			List<PermissionInfoBo> permInfoList = item.getValue();
+			permInfoList.stream().forEach(permInfo -> {
+				roleNames.add(permInfo.getRoleName());
+				permCodes.add(permInfo.getPermCode());
+			});
+			AuthInfo authInfo = AuthInfo.builder()
+					.consId(item.getKey())
+					.roles(Lists.newArrayList(roleNames))
+					.permissions(Lists.newArrayList(permCodes))
+					.build();
+			return authInfo;
+		}).collect(Collectors.toList());
 
 		return authInfos;
 	}

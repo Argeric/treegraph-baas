@@ -247,10 +247,10 @@
   
   <select id="findPermissionInfoByUserId" resultType="org.treegraph.baas.core.das.bo.PermissionInfoBo">
 	SELECT 
-	r.id AS roldId
+	r.consortium_id AS consId
+	,r.id AS roldId
 	,r.role_type AS roleType
 	,r.role_name AS roleName
-	,r.consortium_id AS consId
 	,p.id AS permId
 	,p.permission_code AS permCode 
 	FROM user_role ur 

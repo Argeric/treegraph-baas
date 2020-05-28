@@ -18,6 +18,7 @@ spring:
       max-file-size: 50Mb
       max-request-size: 50Mb    
   datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
     druid:
       data-sources:
         primary: 
@@ -28,14 +29,13 @@ spring:
           initial-size: ${primary.jdbc.initialSize}
           max-active: ${primary.jdbc.maxActive}      
           min-idle: ${primary.jdbc.minIdle}
-          test-on-borrow: true
-          max-wait: 60000
-          timeBetweenEvictionRunsMillis: 60000
-          minEvictableIdleTimeMillis: 300000
-          validationQuery: SELECT 'x'
-          poolPreparedStatements: true
-          maxOpenPreparedStatements: 20
-          filters: stat, slf4j
+    initial-size: 10
+    min-idle: 10
+    max-active: 200
+    max-wait: 60000
+    time-between-eviction-runs-millis: 60000
+    min-evictable-idle-time-millis: 300000
+    test-on-borrow: true
   redis:
     host: ${redis.host}
     port: ${redis.port}    
@@ -70,16 +70,12 @@ mybatis:
     map-underscore-to-camel-case: true
 #  mapper-locations: classpath:mapper/*.xml
 #  type-aliases-package: org.treegraph.baas.core.mapper
-#pagehelper:
-#  helperDialect: mysql
-#  reasonable: true
-#  rowboundsWithCount: true
-#  offsetAsPageNum: true
-#  supportMethodsArguments: false  
-#mapper:
-#  identity: MYSQL
-#  not-empty: false
-#  mappers: com.mljr.repaytoolkit.core.dao.mapper.MybatisMapper
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  rowboundsWithCount: true
+  offsetAsPageNum: true
+  supportMethodsArguments: false  
 
 rest:
   httpclient:
@@ -101,12 +97,14 @@ topic:
     lyqcFinAccountNotify: ${topic.lyqcFinAccountNotify} 
     lyqcFinAccountCallBack: ${topic.lyqcFinAccountCallBack}
 
-#data scope white list
 data-scope:
-  appIdScopeModels:
-    - IvrFile
-  companyMap:
-    App: all
-    User: findByEmail
-    Tier: all
-    TtsVoice: all
+  globalMethod:
+    Permission: all
+    UserInfo: all
+    UserInvite: all
+    UserLoginToken: all
+    UserOperLog: all
+
+logging:
+    level:
+      org.treegraph.baas.core.mapper.primary: DEBUG

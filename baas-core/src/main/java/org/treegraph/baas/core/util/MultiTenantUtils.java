@@ -55,14 +55,14 @@ public class MultiTenantUtils {
      *
      * @param sqlCommandType     命令类型
      * @param rawSql             原始SQL
-     * @param isolatingCondition LIKE "company_id = "
-     * @param tenantId           公司ID
+     * @param isolatingCondition LIKE "consortium_id in "
+     * @param consIdCond         LIKE "('a','b','c')"
      * @return 处理过SQL
      */
-    public static String addTenantIsolatingCondition(SqlCommandType sqlCommandType, String rawSql, String isolatingCondition, String tenantId) {
-        return addTenantIsolatingConditionAndLimit(sqlCommandType, rawSql, isolatingCondition, StringUtils.join("'", tenantId, "'"), true, DEFAULT_LIMIT_THRESHOLD);
+    public static String addTenantIsolatingCondition(SqlCommandType sqlCommandType, String rawSql, String isolatingCondition, String consIdCond) {
+        return addTenantIsolatingConditionAndLimit(sqlCommandType, rawSql, isolatingCondition, consIdCond, true, DEFAULT_LIMIT_THRESHOLD);
     }
-
+    
     /**
      * 主表必须有别名，如果为子查询，最外层的语句不会拼查询条件，对没有WHERE条件的语句不会拼查询条件，批量更新，删除
      *

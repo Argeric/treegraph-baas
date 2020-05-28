@@ -295,6 +295,76 @@ public class RolePermissionPoExample {
             return (Criteria) this;
         }
 
+        public Criteria andConsortiumIdIsNull() {
+            addCriterion("rolePermission.consortium_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andConsortiumIdIsNotNull() {
+            addCriterion("rolePermission.consortium_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andConsortiumIdEqualTo(String value) {
+            addCriterion("rolePermission.consortium_id =", value, "consortiumId");
+            return (Criteria) this;
+        }
+
+        public Criteria andConsortiumIdNotEqualTo(String value) {
+            addCriterion("rolePermission.consortium_id <>", value, "consortiumId");
+            return (Criteria) this;
+        }
+
+        public Criteria andConsortiumIdGreaterThan(String value) {
+            addCriterion("rolePermission.consortium_id >", value, "consortiumId");
+            return (Criteria) this;
+        }
+
+        public Criteria andConsortiumIdGreaterThanOrEqualTo(String value) {
+            addCriterion("rolePermission.consortium_id >=", value, "consortiumId");
+            return (Criteria) this;
+        }
+
+        public Criteria andConsortiumIdLessThan(String value) {
+            addCriterion("rolePermission.consortium_id <", value, "consortiumId");
+            return (Criteria) this;
+        }
+
+        public Criteria andConsortiumIdLessThanOrEqualTo(String value) {
+            addCriterion("rolePermission.consortium_id <=", value, "consortiumId");
+            return (Criteria) this;
+        }
+
+        public Criteria andConsortiumIdLike(String value) {
+            addCriterion("rolePermission.consortium_id like", value, "consortiumId");
+            return (Criteria) this;
+        }
+
+        public Criteria andConsortiumIdNotLike(String value) {
+            addCriterion("rolePermission.consortium_id not like", value, "consortiumId");
+            return (Criteria) this;
+        }
+
+        public Criteria andConsortiumIdIn(List<String> values) {
+            addCriterion("rolePermission.consortium_id in", values, "consortiumId");
+            return (Criteria) this;
+        }
+
+        public Criteria andConsortiumIdNotIn(List<String> values) {
+            addCriterion("rolePermission.consortium_id not in", values, "consortiumId");
+            return (Criteria) this;
+        }
+
+        public Criteria andConsortiumIdBetween(String value1, String value2) {
+            addCriterion("rolePermission.consortium_id between", value1, value2, "consortiumId");
+            return (Criteria) this;
+        }
+
+        public Criteria andConsortiumIdNotBetween(String value1, String value2) {
+            addCriterion("rolePermission.consortium_id not between", value1, value2, "consortiumId");
+            return (Criteria) this;
+        }
+
         public Criteria andDeleteFlagIsNull() {
             addCriterion("rolePermission.delete_flag is null");
             return (Criteria) this;

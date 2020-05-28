@@ -28,6 +28,11 @@ public class RolePermissionPo implements Serializable {
     private Long permissionId;
 
     /**
+     * 联盟id
+     */
+    private String consortiumId;
+
+    /**
      * 0-未删除，1-已删除
      */
     private Integer deleteFlag;

@@ -114,6 +114,7 @@ public class RoleServicempl implements RoleService {
 	   		toAddPerms = reqPermissionCodes.stream().map(item -> RolePermissionPo.builder()
 	   				.roleId(roleId)
 	   				.permissionId(permissionCodeIdMap.get(item))
+	   				.consortiumId(req.getConsId())
 	   				.deleteFlag(IntTypeEnum.FALSE.getValue())
 					.createTime(now)
 					.createBy(WebHelper.getUserId())

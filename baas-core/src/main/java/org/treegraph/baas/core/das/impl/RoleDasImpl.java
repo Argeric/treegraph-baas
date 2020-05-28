@@ -15,11 +15,11 @@ import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.RolePoExample;
 import org.treegraph.baas.core.domain.RolePoExample.Criteria;
 import org.treegraph.baas.core.enums.UserEnum;
+import org.treegraph.baas.core.mapper.primary.RolePermissionPoMapper;
+import org.treegraph.baas.core.mapper.primary.RolePoMapper;
+import org.treegraph.baas.core.mapper.primary.UserRolePoMapper;
 import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.domain.UserRolePoExample;
-import org.treegraph.baas.core.mapper.RolePermissionPoMapper;
-import org.treegraph.baas.core.mapper.RolePoMapper;
-import org.treegraph.baas.core.mapper.UserRolePoMapper;
 import org.treegraph.baas.core.util.CollectionUtils;
 
 import com.google.common.collect.Lists;

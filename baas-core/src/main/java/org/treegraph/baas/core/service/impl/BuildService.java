@@ -66,6 +66,7 @@ public class BuildService {
    				RolePermissionPo rolePerm = RolePermissionPo.builder()
    						.roleId(role.getId())
    						.permissionId(permissionCodeIdMap.get(item))
+   						.consortiumId(consId)
    						.deleteFlag(IntTypeEnum.FALSE.getValue())
    						.createTime(now)
    						.createBy(oper)

@@ -31,13 +31,13 @@ public class UserEnum {
 
         ;
 
-        private Integer code;
+        private int code;
 
         private String desc;
 
         public static Status getByCode(int code) {
             for (Status s : Status.values()) {
-                if (s.code.equals(code)) {
+                if (s.code == code) {
                     return s;
                 }
             }
@@ -64,13 +64,13 @@ public class UserEnum {
 
         ;
 
-        private Integer code;
+        private int code;
 
         private String desc;
 
         public static Status getByCode(int code) {
             for (Status s : Status.values()) {
-                if (s.code.equals(code)) {
+                if (s.code  == code) {
                     return s;
                 }
             }
@@ -141,13 +141,13 @@ public class UserEnum {
 
         ;
 
-        private Integer code;
+        private int code;
 
         private String desc;
 
         public static Status getByCode(int code) {
             for (Status s : Status.values()) {
-                if (s.code.equals(code)) {
+                if (s.code == code) {
                     return s;
                 }
             }
@@ -168,13 +168,13 @@ public class UserEnum {
         
         ;
 
-        private Integer code;
+        private int code;
 
         private String desc;
 
         public static Status getByCode(int code) {
             for (Status s : Status.values()) {
-                if (s.code.equals(code)) {
+                if (s.code == code) {
                     return s;
                 }
             }

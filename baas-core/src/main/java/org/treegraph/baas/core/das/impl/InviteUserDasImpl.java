@@ -8,8 +8,8 @@ import org.treegraph.baas.core.das.InviteUserDas;
 import org.treegraph.baas.core.domain.UserInvitePo;
 import org.treegraph.baas.core.domain.UserRoleInvitePo;
 import org.treegraph.baas.core.domain.UserRoleInvitePoExample;
-import org.treegraph.baas.core.mapper.UserInvitePoMapper;
-import org.treegraph.baas.core.mapper.UserRoleInvitePoMapper;
+import org.treegraph.baas.core.mapper.primary.UserInvitePoMapper;
+import org.treegraph.baas.core.mapper.primary.UserRoleInvitePoMapper;
 
 import lombok.AllArgsConstructor;
 

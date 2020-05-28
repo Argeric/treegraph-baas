@@ -64,9 +64,6 @@
         </table>
         <table tableName="role" domainObjectName="RolePo" alias="role">
         </table>
-        <table tableName="role_permission" domainObjectName="RolePermissionPo" alias="rolePermission">
-        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table>
         <table tableName="user_info" domainObjectName="UserInfoPo" alias="userInfo">
         </table>
         <table tableName="user_invite" domainObjectName="UserInvitePo" alias="userInvite">
@@ -95,10 +92,13 @@
         <table tableName="user_oper_log" domainObjectName="UserOperLogPo" alias="userOperLog">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>         
-        -->
         <table tableName="user_role" domainObjectName="UserRolePo" alias="userRole">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
+        -->
+        <table tableName="role_permission" domainObjectName="RolePermissionPo" alias="rolePermission">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>        
 
     </context>
 

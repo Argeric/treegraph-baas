@@ -11,12 +11,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.core.das.PermissionDas;
+import org.treegraph.baas.core.das.bo.PermissionInfoBo;
 import org.treegraph.baas.core.domain.PermissionPo;
 import org.treegraph.baas.core.domain.PermissionPoExample;
 import org.treegraph.baas.core.domain.RolePermissionPo;
 import org.treegraph.baas.core.domain.RolePermissionPoExample;
-import org.treegraph.baas.core.mapper.PermissionPoMapper;
-import org.treegraph.baas.core.mapper.RolePermissionPoMapper;
+import org.treegraph.baas.core.mapper.primary.PermissionPoMapper;
+import org.treegraph.baas.core.mapper.primary.RolePermissionPoMapper;
 import org.treegraph.baas.core.util.CollectionUtils;
 
 import com.google.common.collect.Lists;
@@ -88,5 +89,10 @@ public class PermissionDasImpl implements PermissionDas {
 	@Override
 	public List<String> findPermissionCodeByUserId(String userId){
 		return permissionPoMapper.findPermissionCodeByUserId(userId);
+	}
+	
+	@Override
+	public List<PermissionInfoBo> findPermissionInfoByUserId(String userId){
+		return permissionPoMapper.findPermissionInfoByUserId(userId);
 	}
 }

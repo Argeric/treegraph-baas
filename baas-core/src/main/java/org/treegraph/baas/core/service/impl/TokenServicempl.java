@@ -5,22 +5,27 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringJoiner;
 
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.treegraph.baas.common.util.PermManager;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.InviteUserDas;
 import org.treegraph.baas.core.das.PermissionDas;
 import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.das.UserTokenDas;
+import org.treegraph.baas.core.das.bo.PermissionInfoBo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserInvitePo;
 import org.treegraph.baas.core.domain.UserLoginTokenPo;
+import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.enums.UserEnum.PermissionPoint;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.TokenService;
 import org.treegraph.baas.core.util.JwtUtils;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
@@ -137,10 +142,43 @@ public class TokenServicempl implements TokenService {
     		return;
     	}
     	
-    	List<String> permCodeList = permissionDas.findPermissionCodeByUserId(userId);
-    	Set<String> permCodeSet = Sets.newHashSet(permCodeList);
-    	String permissionCode = URI_PERMISSION_MAP.get(uri);
-    	//log.info("permissionCode======>"+permissionCode+",permCodeSet======>"+JSON.toJSONString(permCodeSet));
-    	//Assert.isTrue(permCodeSet.contains(permissionCode), "没有此访问权限");
+    	boolean sysAdminFlag = Boolean.FALSE;
+    	Set<String> consAdminSet = Sets.newHashSet();
+    	Set<String> consIdSet = Sets.newHashSet();
+    	Map<String, Set<String>> consPermMap = Maps.newHashMap();
+    	List<PermissionInfoBo> permInfos = permissionDas.findPermissionInfoByUserId(userId);
+    	for(PermissionInfoBo permInfo:permInfos){
+    		Integer roleType = permInfo.getRoleType();
+    		String consId = permInfo.getConsId();
+    		String permCode = permInfo.getPermCode();
+    		if(roleType == UserEnum.Role.SYS_ADMIN.getCode()) {
+    			sysAdminFlag = Boolean.TRUE;
+    		}
+    		if(roleType == UserEnum.Role.CONSORTIUM_ADMIN.getCode()) {
+    			consAdminSet.add(consId);
+    		}
+    		consIdSet.add(consId);
+    		Set<String> permSet = consPermMap.get(consId);
+    		if(permSet == null) {
+    			permSet = Sets.newHashSet();
+    			consPermMap.put(consId, permSet);
+    		}
+    		permSet.add(permCode);
+    	}
+    	String consIdsCond = getConsId(consIdSet);
+    	PermManager.init(sysAdminFlag, consAdminSet, consIdSet, consPermMap, consIdsCond);
+    	
+    	Set<String> permCodeSet = Sets.newHashSet();
+    	consPermMap.values().stream().forEach(item -> permCodeSet.addAll(item));
+    	String permCode = URI_PERMISSION_MAP.get(uri);
+    	boolean permit = permCodeSet.contains(permCode);
+    	log.info("permit======>"+permit+"\npermCode======>"+permCode+"\npermCodeSet======>"+JSON.toJSONString(permCodeSet));
+    	//Assert.isTrue(permit, "没有此访问权限");
     }
+    
+	public String getConsId(Set<String> consIds) {
+		StringJoiner cond = new StringJoiner(",", "(", ")");
+		consIds.stream().forEach(item -> cond.add(new StringJoiner("", "'", "'").add(item).toString()));
+		return cond.toString();
+	}
 }

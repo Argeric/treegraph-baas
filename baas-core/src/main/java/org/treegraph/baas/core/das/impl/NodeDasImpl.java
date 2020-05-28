@@ -11,8 +11,8 @@ import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.NodePoExample;
 import org.treegraph.baas.core.domain.NodePoExample.Criteria;
-import org.treegraph.baas.core.mapper.ConsortiumPoMapper;
-import org.treegraph.baas.core.mapper.NodePoMapper;
+import org.treegraph.baas.core.mapper.primary.ConsortiumPoMapper;
+import org.treegraph.baas.core.mapper.primary.NodePoMapper;
 import org.treegraph.baas.core.util.CollectionUtils;
 
 import com.google.common.collect.Lists;

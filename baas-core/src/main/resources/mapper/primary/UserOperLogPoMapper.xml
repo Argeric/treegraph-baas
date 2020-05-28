@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.treegraph.baas.core.mapper.primary.UserOperLogPoMapper">
+  <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.UserOperLogPo">
+    <id column="userOperLog_id" jdbcType="BIGINT" property="id" />
+    <result column="userOperLog_user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="userOperLog_user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="userOperLog_user_ip" jdbcType="VARCHAR" property="userIp" />
+    <result column="userOperLog_user_device" jdbcType="VARCHAR" property="userDevice" />
+    <result column="userOperLog_oper_type" jdbcType="INTEGER" property="operType" />
+    <result column="userOperLog_oper_code" jdbcType="VARCHAR" property="operCode" />
+    <result column="userOperLog_oper_info" jdbcType="VARCHAR" property="operInfo" />
+    <result column="userOperLog_oper_time" jdbcType="TIMESTAMP" property="operTime" />
+    <result column="userOperLog_create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    userOperLog.id as userOperLog_id, userOperLog.user_id as userOperLog_user_id, userOperLog.user_name as userOperLog_user_name, 
+    userOperLog.user_ip as userOperLog_user_ip, userOperLog.user_device as userOperLog_user_device, 
+    userOperLog.oper_type as userOperLog_oper_type, userOperLog.oper_code as userOperLog_oper_code, 
+    userOperLog.oper_info as userOperLog_oper_info, userOperLog.oper_time as userOperLog_oper_time, 
+    userOperLog.create_time as userOperLog_create_time
+  </sql>
+  <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.UserOperLogPoExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from user_oper_log userOperLog
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_oper_log userOperLog
+    where userOperLog.id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from user_oper_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.UserOperLogPoExample">
+    delete from user_oper_log userOperLog
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserOperLogPo" useGeneratedKeys="true">
+    insert into user_oper_log (user_id, user_name, user_ip, 
+      user_device, oper_type, oper_code, 
+      oper_info, oper_time, create_time
+      )
+    values (#{userId,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, #{userIp,jdbcType=VARCHAR}, 
+      #{userDevice,jdbcType=VARCHAR}, #{operType,jdbcType=INTEGER}, #{operCode,jdbcType=VARCHAR}, 
+      #{operInfo,jdbcType=VARCHAR}, #{operTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserOperLogPo" useGeneratedKeys="true">
+    insert into user_oper_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="userName != null">
+        user_name,
+      </if>
+      <if test="userIp != null">
+        user_ip,
+      </if>
+      <if test="userDevice != null">
+        user_device,
+      </if>
+      <if test="operType != null">
+        oper_type,
+      </if>
+      <if test="operCode != null">
+        oper_code,
+      </if>
+      <if test="operInfo != null">
+        oper_info,
+      </if>
+      <if test="operTime != null">
+        oper_time,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null">
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="userIp != null">
+        #{userIp,jdbcType=VARCHAR},
+      </if>
+      <if test="userDevice != null">
+        #{userDevice,jdbcType=VARCHAR},
+      </if>
+      <if test="operType != null">
+        #{operType,jdbcType=INTEGER},
+      </if>
+      <if test="operCode != null">
+        #{operCode,jdbcType=VARCHAR},
+      </if>
+      <if test="operInfo != null">
+        #{operInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="operTime != null">
+        #{operTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="org.treegraph.baas.core.domain.UserOperLogPoExample" resultType="java.lang.Long">
+    select count(*) from user_oper_log userOperLog
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update user_oper_log userOperLog
+    <set>
+      <if test="record.id != null">
+        userOperLog.id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.userId != null">
+        userOperLog.user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userName != null">
+        userOperLog.user_name = #{record.userName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userIp != null">
+        userOperLog.user_ip = #{record.userIp,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userDevice != null">
+        userOperLog.user_device = #{record.userDevice,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operType != null">
+        userOperLog.oper_type = #{record.operType,jdbcType=INTEGER},
+      </if>
+      <if test="record.operCode != null">
+        userOperLog.oper_code = #{record.operCode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operInfo != null">
+        userOperLog.oper_info = #{record.operInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operTime != null">
+        userOperLog.oper_time = #{record.operTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createTime != null">
+        userOperLog.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update user_oper_log userOperLog
+    set userOperLog.id = #{record.id,jdbcType=BIGINT},
+      userOperLog.user_id = #{record.userId,jdbcType=VARCHAR},
+      userOperLog.user_name = #{record.userName,jdbcType=VARCHAR},
+      userOperLog.user_ip = #{record.userIp,jdbcType=VARCHAR},
+      userOperLog.user_device = #{record.userDevice,jdbcType=VARCHAR},
+      userOperLog.oper_type = #{record.operType,jdbcType=INTEGER},
+      userOperLog.oper_code = #{record.operCode,jdbcType=VARCHAR},
+      userOperLog.oper_info = #{record.operInfo,jdbcType=VARCHAR},
+      userOperLog.oper_time = #{record.operTime,jdbcType=TIMESTAMP},
+      userOperLog.create_time = #{record.createTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="org.treegraph.baas.core.domain.UserOperLogPo">
+    update user_oper_log
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null">
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="userIp != null">
+        user_ip = #{userIp,jdbcType=VARCHAR},
+      </if>
+      <if test="userDevice != null">
+        user_device = #{userDevice,jdbcType=VARCHAR},
+      </if>
+      <if test="operType != null">
+        oper_type = #{operType,jdbcType=INTEGER},
+      </if>
+      <if test="operCode != null">
+        oper_code = #{operCode,jdbcType=VARCHAR},
+      </if>
+      <if test="operInfo != null">
+        oper_info = #{operInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="operTime != null">
+        oper_time = #{operTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.UserOperLogPo">
+    update user_oper_log
+    set user_id = #{userId,jdbcType=VARCHAR},
+      user_name = #{userName,jdbcType=VARCHAR},
+      user_ip = #{userIp,jdbcType=VARCHAR},
+      user_device = #{userDevice,jdbcType=VARCHAR},
+      oper_type = #{operType,jdbcType=INTEGER},
+      oper_code = #{operCode,jdbcType=VARCHAR},
+      oper_info = #{operInfo,jdbcType=VARCHAR},
+      oper_time = #{operTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

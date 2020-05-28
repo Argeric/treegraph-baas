@@ -8,7 +8,7 @@ import org.treegraph.baas.core.das.UserOperLogDas;
 import org.treegraph.baas.core.domain.UserOperLogPo;
 import org.treegraph.baas.core.domain.UserOperLogPoExample;
 import org.treegraph.baas.core.domain.UserOperLogPoExample.Criteria;
-import org.treegraph.baas.core.mapper.UserOperLogPoMapper;
+import org.treegraph.baas.core.mapper.primary.UserOperLogPoMapper;
 import org.treegraph.baas.core.util.LogSkip;
 
 import lombok.AllArgsConstructor;

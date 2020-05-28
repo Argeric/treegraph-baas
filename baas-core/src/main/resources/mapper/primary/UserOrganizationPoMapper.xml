@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.treegraph.baas.core.mapper.primary.UserOrganizationPoMapper">
+  <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.UserOrganizationPo">
+    <id column="userOrganization_id" jdbcType="BIGINT" property="id" />
+    <result column="userOrganization_user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="userOrganization_consortium_id" jdbcType="VARCHAR" property="consortiumId" />
+    <result column="userOrganization_organization_name" jdbcType="VARCHAR" property="organizationName" />
+    <result column="userOrganization_delete_flag" jdbcType="INTEGER" property="deleteFlag" />
+    <result column="userOrganization_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="userOrganization_update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    userOrganization.id as userOrganization_id, userOrganization.user_id as userOrganization_user_id, 
+    userOrganization.consortium_id as userOrganization_consortium_id, userOrganization.organization_name as userOrganization_organization_name, 
+    userOrganization.delete_flag as userOrganization_delete_flag, userOrganization.create_time as userOrganization_create_time, 
+    userOrganization.update_time as userOrganization_update_time
+  </sql>
+  <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.UserOrganizationPoExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from user_organization userOrganization
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from user_organization userOrganization
+    where userOrganization.id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from user_organization
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.UserOrganizationPoExample">
+    delete from user_organization userOrganization
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserOrganizationPo" useGeneratedKeys="true">
+    insert into user_organization (user_id, consortium_id, organization_name, 
+      delete_flag, create_time, update_time
+      )
+    values (#{userId,jdbcType=VARCHAR}, #{consortiumId,jdbcType=VARCHAR}, #{organizationName,jdbcType=VARCHAR}, 
+      #{deleteFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.UserOrganizationPo" useGeneratedKeys="true">
+    insert into user_organization
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="consortiumId != null">
+        consortium_id,
+      </if>
+      <if test="organizationName != null">
+        organization_name,
+      </if>
+      <if test="deleteFlag != null">
+        delete_flag,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="consortiumId != null">
+        #{consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationName != null">
+        #{organizationName,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteFlag != null">
+        #{deleteFlag,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="org.treegraph.baas.core.domain.UserOrganizationPoExample" resultType="java.lang.Long">
+    select count(*) from user_organization userOrganization
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update user_organization userOrganization
+    <set>
+      <if test="record.id != null">
+        userOrganization.id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.userId != null">
+        userOrganization.user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.consortiumId != null">
+        userOrganization.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.organizationName != null">
+        userOrganization.organization_name = #{record.organizationName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deleteFlag != null">
+        userOrganization.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        userOrganization.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null">
+        userOrganization.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update user_organization userOrganization
+    set userOrganization.id = #{record.id,jdbcType=BIGINT},
+      userOrganization.user_id = #{record.userId,jdbcType=VARCHAR},
+      userOrganization.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      userOrganization.organization_name = #{record.organizationName,jdbcType=VARCHAR},
+      userOrganization.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      userOrganization.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      userOrganization.update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="org.treegraph.baas.core.domain.UserOrganizationPo">
+    update user_organization
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="consortiumId != null">
+        consortium_id = #{consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="organizationName != null">
+        organization_name = #{organizationName,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteFlag != null">
+        delete_flag = #{deleteFlag,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.UserOrganizationPo">
+    update user_organization
+    set user_id = #{userId,jdbcType=VARCHAR},
+      consortium_id = #{consortiumId,jdbcType=VARCHAR},
+      organization_name = #{organizationName,jdbcType=VARCHAR},
+      delete_flag = #{deleteFlag,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <insert id="bulkInsert" parameterType="org.treegraph.baas.core.domain.UserOrganizationPo">
+      INSERT INTO user_organization(
+          user_id,
+          consortium_id,
+          organization_name,
+          delete_flag,
+          create_time,
+          update_time
+      )
+      VALUES
+      <foreach collection="list" item="item" separator=",">
+          (
+              #{item.userId},
+              #{item.consortiumId},
+              #{item.organizationName},
+              #{item.deleteFlag},
+              #{item.createTime},
+              #{item.updateTime}
+          )
+      </foreach>
+  </insert>  
+</mapper>

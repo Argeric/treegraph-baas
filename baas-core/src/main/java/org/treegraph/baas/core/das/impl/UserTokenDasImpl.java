@@ -9,7 +9,7 @@ import org.treegraph.baas.core.das.UserTokenDas;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserLoginTokenPo;
 import org.treegraph.baas.core.domain.UserLoginTokenPoExample;
-import org.treegraph.baas.core.mapper.UserLoginTokenPoMapper;
+import org.treegraph.baas.core.mapper.primary.UserLoginTokenPoMapper;
 import org.treegraph.baas.core.util.CacheTimeUtil;
 import org.treegraph.baas.core.util.JwtUtils;
 

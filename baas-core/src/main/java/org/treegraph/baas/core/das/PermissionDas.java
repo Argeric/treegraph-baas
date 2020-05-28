@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.treegraph.baas.core.das.bo.PermissionInfoBo;
 import org.treegraph.baas.core.domain.PermissionPo;
 import org.treegraph.baas.core.domain.RolePermissionPo;
 
@@ -22,4 +23,6 @@ public interface PermissionDas {
 	Map<String, Long> validatePermissions(List<String> reqPermissions);
 	
 	List<String> findPermissionCodeByUserId(String userId);
+	
+	List<PermissionInfoBo> findPermissionInfoByUserId(String userId);
 }

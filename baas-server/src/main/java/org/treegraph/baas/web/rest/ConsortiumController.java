@@ -2,6 +2,7 @@ package org.treegraph.baas.web.rest;
 
 import java.util.List;
 
+import org.assertj.core.util.Lists;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,10 @@ import org.treegraph.baas.api.dto.request.ModifyConsRequest;
 import org.treegraph.baas.api.dto.request.QueryConsDetailRequest;
 import org.treegraph.baas.api.dto.request.QueryConsRequest;
 import org.treegraph.baas.api.dto.response.ListConsResponse;
+import org.treegraph.baas.common.util.PermHelper;
 import org.treegraph.baas.core.service.ConsortiumService;
+import org.treegraph.baas.core.util.Assert;
+import org.treegraph.baas.core.util.SysManager;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -63,6 +67,7 @@ public class ConsortiumController {
 	@PostMapping("/create")
 	@ApiOperation("创建联盟")
 	public BaasResult<String> createCons(@RequestBody CreateConsRequest createConsRequest) {
+		checkCreateConsAndAdmin();
 		String consId = consortiumService.createCons(createConsRequest);
 		return BaasResult.success(consId);
 	}
@@ -84,6 +89,7 @@ public class ConsortiumController {
 	@PostMapping("/admin/create")
 	@ApiOperation("创建联盟管理员")
 	public BaasResult<Void> createConsAdmin(@RequestBody CreateConsAdminRequest createConsAdminRequest) {
+		checkCreateConsAndAdmin();
 		consortiumService.createConsAdmin(createConsAdminRequest);
 		return BaasResult.success();
 	}
@@ -91,6 +97,7 @@ public class ConsortiumController {
 	@PostMapping("/blockchain/create")
 	@ApiOperation("创建区块链")
 	public BaasResult<Void> createBlockchain(@RequestBody CreateBlockchainRequest createBlockchainRequest) {
+		checkCreateBlockchainAndNode(createBlockchainRequest.getConsId());
 		consortiumService.createBlockchain(createBlockchainRequest);
 		return BaasResult.success();
 	}
@@ -98,6 +105,7 @@ public class ConsortiumController {
 	@PostMapping("/node/create")
 	@ApiOperation("添加节点")
 	public BaasResult<Void> addNodes(@RequestBody AddNodesRequest addNodesRequest) {
+		checkCreateBlockchainAndNode(addNodesRequest.getConsId());
 		consortiumService.addNodes(addNodesRequest);
 		return BaasResult.success();
 	}
@@ -107,5 +115,13 @@ public class ConsortiumController {
 	public BaasResult<Void> getDeployScript(@RequestBody DownloadDeployScriptRequest getDeployScriptRequest) {
 		consortiumService.getDeployScript(getDeployScriptRequest);
 		return BaasResult.success();
+	}
+
+	private void checkCreateConsAndAdmin() {
+		Assert.isTrue(PermHelper.getSysAdminFlag(), "此操作需系统管理员权限");
+	}
+
+	private void checkCreateBlockchainAndNode(String consId) {
+		SysManager.checkOwnCons(Lists.newArrayList(consId));
 	}
 }

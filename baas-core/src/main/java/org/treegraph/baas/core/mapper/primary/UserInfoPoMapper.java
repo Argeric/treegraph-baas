@@ -33,6 +33,6 @@ public interface UserInfoPoMapper {
     int bulkInsert(List<UserInfoPo> list);
     
 	List<UserInfoPo> selectUserList(@Param("account") String account, @Param("name") String name,
-			@Param("email") String email, @Param("phone") String phone, @Param("consIdCond") String consIdCond,
+			@Param("email") String email, @Param("phone") String phone, @Param("consIds") List<String> consIds,
 			@Param("createBy") String createBy);
 }

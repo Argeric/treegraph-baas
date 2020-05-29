@@ -74,6 +74,10 @@ public class DataScopePlugin implements Interceptor {
     }
 
     private boolean ignore(String sign) {
+    	if(PermHelper.getSysAdminFlag()) {
+    		return true;
+    	}
+    	
         Boolean result = ignoreCache.get(sign);
         if (result == null) {
             try {

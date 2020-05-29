@@ -369,8 +369,11 @@
 			SELECT DISTINCT userRole.user_id
 			FROM user_role userRole
 			WHERE 1 = 1
-			<if test="consIdCond != null">
-			AND userRole.consortium_id IN #{consIdCond}
+			<if test="consIds != null">
+			AND userRole.consortium_id IN
+				<foreach collection="consIds" open="(" close=")" index="index" item="item" separator=",">
+	            #{item}
+	        	</foreach>
 			</if>
 			AND userRole.delete_flag = 0
 		)

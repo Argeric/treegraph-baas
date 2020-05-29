@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
+import org.treegraph.baas.common.util.PermHelper;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.domain.ConsortiumPo;
@@ -88,6 +89,10 @@ public class UserInfoDasImpl implements UserInfoDas{
     }
     
     public List<UserInfoPo> findAll(String account, String name, String email, String phone) {
+		if (!PermHelper.getSysAdminFlag()) {
+			return userInfoPoMapper.selectUserList(account, name, email, phone,
+					Lists.newArrayList(PermHelper.getConsIdSet()), WebHelper.getUserId());
+		}
     	
     	UserInfoPoExample example = new UserInfoPoExample();
     	Criteria criteria = example.createCriteria();
@@ -106,10 +111,6 @@ public class UserInfoDasImpl implements UserInfoDas{
     	criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
     	example.setOrderByClause("create_time desc");
     	return userInfoPoMapper.selectByExample(example);
-    }
-    
-  public List<UserInfoPo> findAll(String account, String name, String email, String phone, String consIdCond, String createBy) {
-    	return userInfoPoMapper.selectUserList(account, name, email, phone, consIdCond, createBy);
     }
     
 	public List<UserOrganizationPo> findUserOrgsByUserIds(List<String> userIds) {

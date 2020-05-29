@@ -61,7 +61,7 @@ public class UserController {
 	@PostMapping("/create")
 	@ApiOperation("创建用户")
 	public BaasResult<Void> createUser(@RequestBody CreateUserRequest createUserRequest) {
-		checkOwnCons(createUserRequest.getRoles());
+		checkCreatUser(createUserRequest.getRoles());
 		userService.createUser(createUserRequest);
 		return BaasResult.success();
 	}
@@ -69,7 +69,6 @@ public class UserController {
 	@PostMapping("/modify")
 	@ApiOperation("修改用户")
 	public BaasResult<Void> modifyUser(@RequestBody ModifyUserRequest modifyUserRequest) {
-		checkOwnCons(modifyUserRequest.getRoles());
 		userService.modifyUser(modifyUserRequest);
 		return BaasResult.success();
 	}
@@ -98,18 +97,22 @@ public class UserController {
 	@PostMapping("/del")
 	@ApiOperation("删除用户")
 	public BaasResult<Void> deleteUser(@RequestBody DeleteUserRequest deleteUserRequest) {
-		List<AuthInfo> authInfos = loginService.getAuthInfos(deleteUserRequest.getId());
-		if(CollectionUtils.isNotEmpty(authInfos)) {
-			List<String> consIds = authInfos.stream().map(AuthInfo::getConsId).collect(Collectors.toList());
-			SysManager.checkOwnCons(consIds);
-		}
+		checkDelUser(deleteUserRequest);
 		userService.deleteUser(deleteUserRequest);
 		return BaasResult.success();
 	}
-
-	private void checkOwnCons(List<RoleInfo> roles) {
+	
+	private void checkCreatUser(List<RoleInfo> roles) {
 		if(CollectionUtils.isNotEmpty(roles)) {
 			List<String> consIds = roles.stream().map(RoleInfo::getConsId).collect(Collectors.toList());
+			SysManager.checkOwnCons(consIds);
+		}
+	}
+
+	private void checkDelUser(DeleteUserRequest deleteUserRequest) {
+		List<AuthInfo> authInfos = loginService.getAuthInfos(deleteUserRequest.getId());
+		if(CollectionUtils.isNotEmpty(authInfos)) {
+			List<String> consIds = authInfos.stream().map(AuthInfo::getConsId).collect(Collectors.toList());
 			SysManager.checkOwnCons(consIds);
 		}
 	}

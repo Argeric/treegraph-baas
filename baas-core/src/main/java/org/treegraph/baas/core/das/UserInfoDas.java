@@ -38,8 +38,6 @@ public interface UserInfoDas {
 
 	List<UserInfoPo> findAll(String account, String name, String email, String phone);
 	
-	List<UserInfoPo> findAll(String account, String name, String phone, String email, String consIdCond, String createBy);
-
 	boolean updateUser(UserInfoPo user);
 
 	boolean modifyUser(String uesrId, UserInfoPo user, List<Long> toDelUserRoleIds, List<UserRolePo> toAddUserRoles,

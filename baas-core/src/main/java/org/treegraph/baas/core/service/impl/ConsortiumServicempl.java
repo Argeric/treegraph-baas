@@ -107,6 +107,17 @@ public class ConsortiumServicempl implements ConsortiumService {
 		return listConsResponse;
 	}
 	
+	public List<ConsInfo> queryCons(QueryConsRequest req) {
+		List<ConsortiumPo> consList = consortiumDas.findAll(req.getId());
+		return consList.stream().map(item -> ConsInfo.builder()
+				.id(item.getConsortiumId())
+				.name(item.getName())
+				.status(item.getStatus())
+				.step(item.getEstablishStep())
+				.remark(item.getDescription())
+				.build()).collect(Collectors.toList());
+	}
+	
 	public List<ConsDetailInfo> queryConsDetail(QueryConsDetailRequest req){
 		List<ConsortiumPo> consList = consortiumDas.findAll(req.getId());
 		List<String> consIds = consList.stream().map(ConsortiumPo::getConsortiumId).collect(Collectors.toList());
@@ -138,17 +149,6 @@ public class ConsortiumServicempl implements ConsortiumService {
 					.nodes(nodeInfoList)
 					.build();
 		}).collect(Collectors.toList());
-	}
-	
-	public List<ConsInfo> queryCons(QueryConsRequest req) {
-		List<ConsortiumPo> consList = consortiumDas.findAll(req.getId());
-		return consList.stream().map(item -> ConsInfo.builder()
-				.id(item.getConsortiumId())
-				.name(item.getName())
-				.status(item.getStatus())
-				.step(item.getEstablishStep())
-				.remark(item.getDescription())
-				.build()).collect(Collectors.toList());
 	}
 	
 	public String createCons(CreateConsRequest req) {

@@ -15,17 +15,21 @@ public class MyWebAppConfig /*extends WebMvcConfigurerAdapter*/ implements WebMv
     
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-    	
-        String[] clientTokenAuthUrls = new String[]{
+        String[] needTokenAuthUrls = new String[]{
+        		"/stat/**", "/treegraph/stat/**",
+        		"/sys/**", "/treegraph/sys/**",
                 "/user/**", "/treegraph/user/**",
                 "/role/**", "/treegraph/role/**",
                 "/cons/**", "/treegraph/cons/**",
                 "/blockchain/**", "/treegraph/blockchain/**",
-                "/node/**", "/treegraph/node/**",
-                "/sys/log/**", "/treegraph/sys/log/**",
-                "/stat/**", "/treegraph/stat/**"
+                "/node/**", "/treegraph/node/**"
         };
-        
-        registry.addInterceptor(loginAuthInterceptor).addPathPatterns(clientTokenAuthUrls);
+        String[] noneedTokenAuthUrls = new String[]{
+        		"/sys/login", "/treegraph/sys/login",
+        		"/user/pwd/modify", "/treegraph/user/pwd/modify",
+                "/user/invite/accept", "/treegraph/user/invite/accept"
+        };
+		registry.addInterceptor(loginAuthInterceptor).addPathPatterns(needTokenAuthUrls)
+				.excludePathPatterns(noneedTokenAuthUrls);
     }
 }

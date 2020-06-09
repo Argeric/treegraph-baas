@@ -50,17 +50,17 @@ public class ConsortiumController {
 		return BaasResult.success(data);
 	}
 	
-	@PostMapping("/detail")
-	@ApiOperation("联盟详情")
-	public BaasResult<List<ConsDetailInfo>> queryConsDetail(@RequestBody QueryConsDetailRequest queryConsDetailRequest) {
-		List<ConsDetailInfo> data = consortiumService.queryConsDetail(queryConsDetailRequest);
-		return BaasResult.success(data);
-	}
-	
 	@PostMapping("/query")
 	@ApiOperation("查询联盟")
 	public BaasResult<List<ConsInfo>> queryCons(@RequestBody QueryConsRequest queryConsRequest) {
 		List<ConsInfo> data = consortiumService.queryCons(queryConsRequest);
+		return BaasResult.success(data);
+	}
+	
+	@PostMapping("/detail")
+	@ApiOperation("联盟详情")
+	public BaasResult<List<ConsDetailInfo>> queryConsDetail(@RequestBody QueryConsDetailRequest queryConsDetailRequest) {
+		List<ConsDetailInfo> data = consortiumService.queryConsDetail(queryConsDetailRequest);
 		return BaasResult.success(data);
 	}
 	

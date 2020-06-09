@@ -46,32 +46,37 @@ public class TokenServicempl implements TokenService {
     
     private PermissionDas permissionDas;
     
-    private static Set<String> URI_PERMISSION_WHITELIST = Sets.newHashSet();
+    private static final String TAG_NO_LOGIN = "NO_LOGIN";
+    
+    private static final String TAG_DATA_PERMISSION = "DATA_PERM";
     
     private static Map<String, String> URI_PERMISSION_MAP = Maps.newHashMap();
     
+    private static Set<String> DATA_PERMISSION_SET = Sets.newHashSet();
+    
     static {
-    	// white list
-    	URI_PERMISSION_WHITELIST.add("/user/invite/accept");
-    	URI_PERMISSION_WHITELIST.add("/user/pwd/modify");
+    	// system module
+    	URI_PERMISSION_MAP.put("/sys/login", TAG_NO_LOGIN);
+    	URI_PERMISSION_MAP.put("/sys/log/list", TAG_DATA_PERMISSION);
     	// user module
     	URI_PERMISSION_MAP.put("/user/list", PermissionPoint.VIEW_CONS_USER.getCode());
     	URI_PERMISSION_MAP.put("/user/query", PermissionPoint.VIEW_CONS_USER.getCode());
     	URI_PERMISSION_MAP.put("/user/create", PermissionPoint.CREATE_CONS_USER.getCode());
     	URI_PERMISSION_MAP.put("/user/modify", PermissionPoint.UPDATE_CONS_USER.getCode());
     	URI_PERMISSION_MAP.put("/user/invite", PermissionPoint.CREATE_CONS_USER.getCode());
-    	URI_PERMISSION_MAP.put("/user/invite/accept", null);
-    	URI_PERMISSION_MAP.put("/user/pwd/modify", null);
+    	URI_PERMISSION_MAP.put("/user/invite/accept", TAG_NO_LOGIN);
+    	URI_PERMISSION_MAP.put("/user/pwd/modify", TAG_NO_LOGIN);
     	URI_PERMISSION_MAP.put("/user/del", PermissionPoint.UPDATE_CONS_USER.getCode());
     	// role module
-    	URI_PERMISSION_MAP.put("/role/list", "");
-    	URI_PERMISSION_MAP.put("/role/query", "");
-    	URI_PERMISSION_MAP.put("/role/create", "");
-    	URI_PERMISSION_MAP.put("/role/modify", "");
-    	URI_PERMISSION_MAP.put("/role/del", "");
+    	URI_PERMISSION_MAP.put("/role/list", TAG_DATA_PERMISSION);
+    	URI_PERMISSION_MAP.put("/role/query", TAG_DATA_PERMISSION);
+    	URI_PERMISSION_MAP.put("/role/create", TAG_DATA_PERMISSION);
+    	URI_PERMISSION_MAP.put("/role/modify", TAG_DATA_PERMISSION);
+    	URI_PERMISSION_MAP.put("/role/del", TAG_DATA_PERMISSION);
     	// consortium module
     	URI_PERMISSION_MAP.put("/cons/list", PermissionPoint.VIEW_CONS.getCode());
     	URI_PERMISSION_MAP.put("/cons/query", PermissionPoint.VIEW_CONS.getCode());
+    	URI_PERMISSION_MAP.put("/cons/detail", PermissionPoint.VIEW_CONS.getCode());
     	URI_PERMISSION_MAP.put("/cons/create", PermissionPoint.CREATE_CONS.getCode());
     	URI_PERMISSION_MAP.put("/cons/modify", PermissionPoint.UPDATE_CONS.getCode());
     	URI_PERMISSION_MAP.put("/cons/del", PermissionPoint.UPDATE_CONS.getCode());
@@ -81,6 +86,7 @@ public class TokenServicempl implements TokenService {
     	URI_PERMISSION_MAP.put("/cons/script/download", PermissionPoint.CREATE_BLOCKCHAIN.getCode());
     	// blockchain module
     	URI_PERMISSION_MAP.put("/blockchain/list", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
+    	URI_PERMISSION_MAP.put("/blockchain/query", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
     	URI_PERMISSION_MAP.put("/blockchain/detail", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
     	URI_PERMISSION_MAP.put("/blockchain/ca/list", PermissionPoint.GENERATE_CA.getCode());
     	URI_PERMISSION_MAP.put("/blockchain/ca/download", PermissionPoint.GENERATE_CA.getCode());
@@ -91,6 +97,13 @@ public class TokenServicempl implements TokenService {
     	URI_PERMISSION_MAP.put("/node/detail", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
     	URI_PERMISSION_MAP.put("/node/log", PermissionPoint.VIEW_NODE_LOG.getCode());
     	URI_PERMISSION_MAP.put("/node/modify", PermissionPoint.UPDATE_NODE.getCode());
+    	// data permission
+    	DATA_PERMISSION_SET.add("/sys/log/list");
+    	DATA_PERMISSION_SET.add("/role/list");
+    	DATA_PERMISSION_SET.add("/role/query");
+    	DATA_PERMISSION_SET.add("/role/create");
+    	DATA_PERMISSION_SET.add("/role/modify");
+    	DATA_PERMISSION_SET.add("/role/del");
     }
 	
     public UserInfoPo checkToken(String token) {
@@ -139,10 +152,6 @@ public class TokenServicempl implements TokenService {
     }
     
     public void authPermission(String userId, String uri) {
-    	if(URI_PERMISSION_WHITELIST.contains(uri)) {
-    		return;
-    	}
-    	
     	boolean sysAdminFlag = Boolean.FALSE;
     	Set<String> consAdminSet = Sets.newHashSet();
     	Set<String> consIdSet = Sets.newHashSet();
@@ -169,12 +178,12 @@ public class TokenServicempl implements TokenService {
     	String consIdsCond = getConsId(consIdSet);
     	PermHelper.init(sysAdminFlag, consAdminSet, consIdSet, consPermMap, consIdsCond);
     	
-    	Set<String> permCodeSet = Sets.newHashSet();
-    	consPermMap.values().stream().forEach(item -> permCodeSet.addAll(item));
-    	String permCode = URI_PERMISSION_MAP.get(uri);
-    	boolean permit = permCodeSet.contains(permCode);
-    	log.info("permit======>"+permit+"\npermCode======>"+permCode+"\npermCodeSet======>"+JSON.toJSONString(permCodeSet));
-    	//Assert.isTrue(permit, "没有此访问权限");
+    	Set<String> ownPerms = Sets.newHashSet();
+    	consPermMap.values().stream().forEach(item -> ownPerms.addAll(item));
+    	String reqPerm = URI_PERMISSION_MAP.get(uri);
+    	boolean permit = TAG_DATA_PERMISSION.equals(reqPerm) || ownPerms.contains(reqPerm);
+    	log.info("permit======>"+permit+"\nreqPerm======>"+reqPerm+"\nownPerms======>"+JSON.toJSONString(ownPerms));
+    	Assert.isTrue(permit, "没有此访问权限");
     }
     
 	public String getConsId(Set<String> consIds) {

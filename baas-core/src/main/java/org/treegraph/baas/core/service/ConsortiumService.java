@@ -20,9 +20,9 @@ public interface ConsortiumService {
 
 	ListConsResponse listCons(ListRequest listRequest);
 	
-	List<ConsDetailInfo> queryConsDetail(QueryConsDetailRequest req);
-	
 	List<ConsInfo> queryCons(QueryConsRequest req);
+	
+	List<ConsDetailInfo> queryConsDetail(QueryConsDetailRequest req);
 
 	String createCons(CreateConsRequest createConsRequest);
 

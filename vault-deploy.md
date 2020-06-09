@@ -15,15 +15,18 @@
 * vault -config vault.hcl
 * 或后端启动 nohup vault server -config=config.hcl &
 
+
+```
 vault.hcl
+
 storage "path" {
   path    = "${INSTALL_PATH}/data"
 }
-
 listener "tcp" {
  address     = "127.0.0.1:8200"
  tls_disable = 1
 }
+```
 
 ##四、初始化
 * 执行命令vault operator init，获得解封密钥和root token

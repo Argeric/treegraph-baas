@@ -28,15 +28,18 @@ import org.treegraph.baas.core.service.bo.UserInfoBo;
 import org.treegraph.baas.core.service.bo.UserOrgBo;
 import org.treegraph.baas.core.util.CollectionUtils;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Validated
 @Service
 @AllArgsConstructor
+@Slf4j
 public class BuildService {
 	
     private PermissionDas permissionDas;
@@ -154,8 +157,8 @@ public class BuildService {
 		Set<String> intersetOrgs = Sets.newHashSet();
 		intersetOrgs.addAll(dbOrgs);
 		intersetOrgs.retainAll(reqOrgs);
-		reqOrgs.removeAll(intersetOrgs);
-		dbOrgs.removeAll(intersetOrgs);
+		reqOrgs.removeAll(intersetOrgs);log.info("reqOrgs======>"+JSON.toJSONString(reqOrgs));
+		dbOrgs.removeAll(intersetOrgs);log.info("dbOrgs======>"+JSON.toJSONString(dbOrgs));
 		
 		List<UserOrganizationPo> toAddUserOrgs = reqOrgs.stream().map(item -> this.buildUserOrg(item))
 				.collect(Collectors.toList());
@@ -175,8 +178,10 @@ public class BuildService {
 				.append(usrOrg.getOrganizationName()).toString();
 	}
 	
-	private UserOrganizationPo buildUserOrg(String identifier) {
-		String[] params = StringUtils.split(identifier, ",");
+	private static UserOrganizationPo buildUserOrg(String identifier) {
+		//String[] params = StringUtils.split(identifier, ",");
+		String[] params = identifier.split(",");
+		System.out.println(JSON.toJSONString(params));
 		LocalDateTime now = LocalDateTime.now();
 		return UserOrganizationPo.builder()
 				.userId(params[0])
@@ -186,6 +191,11 @@ public class BuildService {
 				.createTime(now)
 				.updateTime(now)
 				.build();
+	}
+	
+	public static void main(String[] args) {
+		String s = "0c522bc4-a054-4ff3-a79e-276ad6bc9859,0fbe1ebc-3e4e-41ef-b3c2-43a4797ac578,ffsa";
+		System.out.println(buildUserOrg(s));
 	}
 	
 	public ConsortiumPo buildToUpdateCons(String consId, EstablishStep step) {

@@ -12,7 +12,7 @@
 	<artifactId>baas-server</artifactId>
 	<name>baas-server</name>
 	<url>http://maven.apache.org</url>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 
 	<dependencies>
 		<dependency>
@@ -182,6 +182,12 @@
 	
 	<build>
     	<finalName>treegraph-baas</finalName>
+    	<plugins>
+    		<plugin>
+	            <groupId>org.springframework.boot</groupId>
+	            <artifactId>spring-boot-maven-plugin</artifactId>
+	        </plugin>   
+    	</plugins>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>

@@ -5,9 +5,11 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+@ConditionalOnProperty(prefix = "redis", name = "enable", havingValue = "true", matchIfMissing = false)
 @Component
 public class RedisComponent {
     @Resource

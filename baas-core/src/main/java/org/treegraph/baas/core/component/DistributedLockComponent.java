@@ -6,11 +6,13 @@ import javax.annotation.Resource;
 
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@ConditionalOnProperty(prefix = "redis", name = "enable", havingValue = "true", matchIfMissing = false)
 @Component
 public class DistributedLockComponent {
 	

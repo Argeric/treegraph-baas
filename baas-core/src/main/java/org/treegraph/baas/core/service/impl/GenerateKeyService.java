@@ -196,18 +196,16 @@ public class GenerateKeyService {
 
 	@LogSkip
 	public String getECPublicKeyString(KeyPair keyPair) throws Exception {
-		ECPrivateKey ecPrivateKey = ECPrivateKey
+		ECPrivateKey privateKey = ECPrivateKey
 				.getInstance(PrivateKeyInfo.getInstance(keyPair.getPrivate().getEncoded()).parsePrivateKey());
-		byte[] originalBytes = ecPrivateKey.getPublicKey().getBytes();
-		byte[] transform = new byte[originalBytes.length - 1];
-		System.arraycopy(originalBytes, 1, transform, 0, transform.length);
-		return Hex.toHexString(transform);
+		String privateKeyString = Base64.toBase64String(privateKey.getEncoded());
+		return privateKeyString;
 	}
 
 	@LogSkip
 	public String getRsaPublicKeyString(KeyPair keyPair) throws Exception {
 		RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-		String publicKeyString = new String(Base64.toBase64String(publicKey.getEncoded()));
+		String publicKeyString = Base64.toBase64String(publicKey.getEncoded());
 		return publicKeyString;
 	}
 }

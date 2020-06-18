@@ -19,55 +19,56 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@PropertySource(value= {"classpath:config-biz.properties","classpath:config-yw.properties"})
-//@ImportResource(locations = "classpath:spring/dubbo-*.xml")
+@PropertySource(value = { "classpath:config-biz.properties", "classpath:config-yw.properties" })
+// @ImportResource(locations = "classpath:spring/dubbo-*.xml")
 @EnableConfigurationProperties
 @EnableScheduling
-public class  TreeGraphBaasApp extends SpringBootServletInitializer{
+public class TreeGraphBaasApp extends SpringBootServletInitializer {
 	static {
-	     int newMaxKeyLength;
-	     String errorString = "Failed manually overriding key-length permissions.";
-	     
-	     try {
-	       if ((newMaxKeyLength = Cipher.getMaxAllowedKeyLength("AES")) < 256) {
-	         System.out.println("will modify aes length");
-	         Class<?> c = Class.forName("javax.crypto.CryptoAllPermissionCollection");
-	         Constructor<?> con = c.getDeclaredConstructor(new Class[0]);
-	         con.setAccessible(true);
-	         Object allPermissionCollection = con.newInstance(new Object[0]);
-	         Field f = c.getDeclaredField("all_allowed");
-	         f.setAccessible(true);
-	         f.setBoolean(allPermissionCollection, true);
-	         c = Class.forName("javax.crypto.CryptoPermissions");
-	         con = c.getDeclaredConstructor(new Class[0]);
-	         con.setAccessible(true);
-	         Object allPermissions = con.newInstance(new Object[0]);
-	         f = c.getDeclaredField("perms");
-	         f.setAccessible(true);
-	         ((Map<String, Object>)f.get(allPermissions)).put("*", allPermissionCollection);
-	         c = Class.forName("javax.crypto.JceSecurityManager");
-	         f = c.getDeclaredField("defaultPolicy");
-	         f.setAccessible(true);
-	         Field mf = Field.class.getDeclaredField("modifiers");
-	         mf.setAccessible(true);
-	         mf.setInt(f, f.getModifiers() & 0xFFFFFFEF);
-	         f.set((Object)null, allPermissions);
-	         newMaxKeyLength = Cipher.getMaxAllowedKeyLength("AES");
-	         System.out.println("newMaxKeyLength:" + newMaxKeyLength);
-	       } 
-	     } catch (Exception e) {
-	       throw new RuntimeException(errorString, e);
-	     } 
-	     if (newMaxKeyLength < 256)
-	       throw new RuntimeException(errorString); 
-	   }
-	   public static void main(String[] args) {
-	     Security.addProvider((Provider)new BouncyCastleProvider());
-        SpringApplication.run(TreeGraphBaasApp.class, args);
-    }
-    
+		int newMaxKeyLength;
+		String errorString = "Failed manually overriding key-length permissions.";
+
+		try {
+			if ((newMaxKeyLength = Cipher.getMaxAllowedKeyLength("AES")) < 256) {
+				System.out.println("will modify aes length");
+				Class<?> c = Class.forName("javax.crypto.CryptoAllPermissionCollection");
+				Constructor<?> con = c.getDeclaredConstructor(new Class[0]);
+				con.setAccessible(true);
+				Object allPermissionCollection = con.newInstance(new Object[0]);
+				Field f = c.getDeclaredField("all_allowed");
+				f.setAccessible(true);
+				f.setBoolean(allPermissionCollection, true);
+				c = Class.forName("javax.crypto.CryptoPermissions");
+				con = c.getDeclaredConstructor(new Class[0]);
+				con.setAccessible(true);
+				Object allPermissions = con.newInstance(new Object[0]);
+				f = c.getDeclaredField("perms");
+				f.setAccessible(true);
+				((Map<String, Object>) f.get(allPermissions)).put("*", allPermissionCollection);
+				c = Class.forName("javax.crypto.JceSecurityManager");
+				f = c.getDeclaredField("defaultPolicy");
+				f.setAccessible(true);
+				Field mf = Field.class.getDeclaredField("modifiers");
+				mf.setAccessible(true);
+				mf.setInt(f, f.getModifiers() & 0xFFFFFFEF);
+				f.set((Object) null, allPermissions);
+				newMaxKeyLength = Cipher.getMaxAllowedKeyLength("AES");
+				System.out.println("newMaxKeyLength:" + newMaxKeyLength);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(errorString, e);
+		}
+		if (newMaxKeyLength < 256)
+			throw new RuntimeException(errorString);
+	}
+
+	public static void main(String[] args) {
+		Security.addProvider((Provider) new BouncyCastleProvider());
+		SpringApplication.run(TreeGraphBaasApp.class, args);
+	}
+
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        return builder.sources(TreeGraphBaasApp.class);
-    }
+		return builder.sources(TreeGraphBaasApp.class);
+	}
 }

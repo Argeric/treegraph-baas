@@ -30,7 +30,7 @@ public class CryptoController {
 			throws Exception {
 		// check
 		Algo alg = Algo.getByCode(algo);
-		Assert.isTrue(alg!=null, "only support[rsa  sm  ecdsa]");
+		Assert.isTrue(alg != null, "only support[rsa  sm  ecdsa]");
 		Pkcs pkcsType = Pkcs.getByCode(pkcs);
 		if (pkcsType != null && !GenerateKeyService.checkPassword(password)) {
 			throw new RuntimeException("password is too simple");
@@ -42,7 +42,7 @@ public class CryptoController {
 		ZipOutputStream zipOutputStream = new ZipOutputStream((OutputStream) response.getOutputStream());
 
 		// private key
-		zipOutputStream.putNextEntry(new ZipEntry("node.key"));
+		zipOutputStream.putNextEntry(new ZipEntry("private.keystore"));
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		KeyPair keyPair = null;
 		if (algo.equals("ec")) {
@@ -57,7 +57,7 @@ public class CryptoController {
 		byteArrayOutputStream.close();
 
 		// public key
-		zipOutputStream.putNextEntry(new ZipEntry("pub.txt"));
+		zipOutputStream.putNextEntry(new ZipEntry("public.keystore"));
 		if (algo.equals("ec") || algo.equals("sm")) {
 			zipOutputStream.write(this.generateKeyService.getECPublicKeyString(keyPair).getBytes());
 		} else if (algo.equals("rsa")) {

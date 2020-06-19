@@ -3,6 +3,7 @@ package org.treegraph.baas.web.rest;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.security.KeyPair;
+import java.time.temporal.ChronoUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -30,7 +31,7 @@ public class CryptoController {
 			throws Exception {
 		// check
 		Algo alg = Algo.getByCode(algo);
-		Assert.isTrue(alg != null, "only support[rsa  sm  ecdsa]");
+		Assert.isTrue(alg != null, "only support[ecdsa ec rsa]");
 		Pkcs pkcsType = Pkcs.getByCode(pkcs);
 		if (pkcsType != null && !GenerateKeyService.checkPassword(password)) {
 			throw new RuntimeException("password is too simple");
@@ -45,12 +46,12 @@ public class CryptoController {
 		zipOutputStream.putNextEntry(new ZipEntry("private.keystore"));
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		KeyPair keyPair = null;
-		if (algo.equals("ec")) {
-			keyPair = this.generateKeyService.generateEncryptedEcPrivateKey(password, pkcsType, byteArrayOutputStream);
-		} else if (algo.equals("sm")) {
-			keyPair = this.generateKeyService.generateEncryptedSmPrivateKey(password, pkcsType, byteArrayOutputStream);
-		} else if (algo.equals("rsa")) {
-			keyPair = this.generateKeyService.generateEncryptedRsaPrivateKey(password, pkcsType, byteArrayOutputStream);
+		if (Algo.ECDSA.getCode().equals(algo)) {
+			keyPair = generateKeyService.generateEncryptedEcPrivateKey(password, pkcsType, byteArrayOutputStream);
+		} else if (Algo.EC.getCode().equals(algo)) {
+			keyPair = generateKeyService.generateEncryptedSmPrivateKey(password, pkcsType, byteArrayOutputStream);
+		} else if (Algo.RSA.getCode().equals(algo)) {
+			keyPair = generateKeyService.generateEncryptedRsaPrivateKey(password, pkcsType, byteArrayOutputStream);
 		}
 		zipOutputStream.write(byteArrayOutputStream.toByteArray());
 		zipOutputStream.closeEntry();
@@ -58,12 +59,114 @@ public class CryptoController {
 
 		// public key
 		zipOutputStream.putNextEntry(new ZipEntry("public.keystore"));
-		if (algo.equals("ec") || algo.equals("sm")) {
-			zipOutputStream.write(this.generateKeyService.getECPublicKeyString(keyPair).getBytes());
-		} else if (algo.equals("rsa")) {
-			zipOutputStream.write(this.generateKeyService.getRsaPublicKeyString(keyPair).getBytes());
+		if (Algo.ECDSA.getCode().equals(algo) || Algo.EC.getCode().equals(algo)) {
+			zipOutputStream.write(generateKeyService.getECPublicKeyString(keyPair).getBytes());
+		} else if (Algo.RSA.getCode().equals(algo)) {
+			zipOutputStream.write(generateKeyService.getRsaPublicKeyString(keyPair).getBytes());
 		}
 		zipOutputStream.closeEntry();
+		zipOutputStream.close();
+	}
+	
+	@LogSkip
+	@RequestMapping({ "/generateRootCA" })
+	public void generateRootCA(String algo, String pkcs, String password, HttpServletResponse response)
+			throws Exception {
+		// check
+		Algo alg = Algo.getByCode(algo);
+		Assert.isTrue(alg != null, "only support[ecdsa ec rsa]");
+		Pkcs pkcsType = Pkcs.getByCode(pkcs);
+		if (pkcsType != null && !GenerateKeyService.checkPassword(password)) {
+			throw new RuntimeException("password is too simple");
+		}
+
+		// set header
+		response.setContentType("application/zip");
+		response.setHeader("Content-disposition", "attachment; filename=\"rootCA.zip\"");
+		ZipOutputStream zipOutputStream = new ZipOutputStream((OutputStream) response.getOutputStream());
+
+		// private key
+		zipOutputStream.putNextEntry(new ZipEntry("private.keystore"));
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		KeyPair keyPair = null;
+		if (Algo.ECDSA.getCode().equals(algo)) {
+			keyPair = generateKeyService.generateEncryptedEcPrivateKey(password, pkcsType, byteArrayOutputStream);
+		} else if (Algo.EC.getCode().equals(algo)) {
+			keyPair = generateKeyService.generateEncryptedSmPrivateKey(password, pkcsType, byteArrayOutputStream);
+		} else if (Algo.RSA.getCode().equals(algo)) {
+			keyPair = generateKeyService.generateEncryptedRsaPrivateKey(password, pkcsType, byteArrayOutputStream);
+		}
+		zipOutputStream.write(byteArrayOutputStream.toByteArray());
+		zipOutputStream.closeEntry();
+		byteArrayOutputStream.close();
+
+		// public key
+		zipOutputStream.putNextEntry(new ZipEntry("public.keystore"));
+		if (Algo.ECDSA.getCode().equals(algo) || Algo.EC.getCode().equals(algo)) {
+			zipOutputStream.write(generateKeyService.getECPublicKeyString(keyPair).getBytes());
+		} else if (Algo.RSA.getCode().equals(algo)) {
+			zipOutputStream.write(generateKeyService.getRsaPublicKeyString(keyPair).getBytes());
+		}
+		zipOutputStream.closeEntry();
+		
+		// rootCA
+		zipOutputStream.putNextEntry(new ZipEntry("rootCA.cer"));
+		ByteArrayOutputStream byteArrayOutputStream1 = new ByteArrayOutputStream();
+		generateKeyService.generateRootCA(alg, 1, ChronoUnit.YEARS, keyPair, byteArrayOutputStream1);
+		zipOutputStream.write(byteArrayOutputStream1.toByteArray());
+		zipOutputStream.closeEntry();
+		byteArrayOutputStream1.close();
+		zipOutputStream.close();
+	}
+	
+	@LogSkip
+	@RequestMapping({ "/generateConsortiumCSR" })
+	public void generateConsortiumCSR(String algo, String pkcs, String password, HttpServletResponse response)
+			throws Exception {
+		// check
+		Algo alg = Algo.getByCode(algo);
+		Assert.isTrue(alg != null, "only support[ecdsa ec rsa]");
+		Pkcs pkcsType = Pkcs.getByCode(pkcs);
+		if (pkcsType != null && !GenerateKeyService.checkPassword(password)) {
+			throw new RuntimeException("password is too simple");
+		}
+
+		// set header
+		response.setContentType("application/zip");
+		response.setHeader("Content-disposition", "attachment; filename=\"consortiumCSR.zip\"");
+		ZipOutputStream zipOutputStream = new ZipOutputStream((OutputStream) response.getOutputStream());
+
+		// private key
+		zipOutputStream.putNextEntry(new ZipEntry("private.keystore"));
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		KeyPair keyPair = null;
+		if (Algo.ECDSA == alg) {
+			keyPair = generateKeyService.generateEncryptedEcPrivateKey(password, pkcsType, byteArrayOutputStream);
+		} else if (Algo.EC == alg) {
+			keyPair = generateKeyService.generateEncryptedSmPrivateKey(password, pkcsType, byteArrayOutputStream);
+		} else if (Algo.RSA == alg) {
+			keyPair = generateKeyService.generateEncryptedRsaPrivateKey(password, pkcsType, byteArrayOutputStream);
+		}
+		zipOutputStream.write(byteArrayOutputStream.toByteArray());
+		zipOutputStream.closeEntry();
+		byteArrayOutputStream.close();
+
+		// public key
+		zipOutputStream.putNextEntry(new ZipEntry("public.keystore"));
+		if (Algo.ECDSA == alg || Algo.EC == alg) {
+			zipOutputStream.write(generateKeyService.getECPublicKeyString(keyPair).getBytes());
+		} else if (Algo.RSA == alg) {
+			zipOutputStream.write(generateKeyService.getRsaPublicKeyString(keyPair).getBytes());
+		}
+		zipOutputStream.closeEntry();
+		
+		// rootCA
+		zipOutputStream.putNextEntry(new ZipEntry("consortium.csr"));
+		ByteArrayOutputStream byteArrayOutputStream1 = new ByteArrayOutputStream();
+		generateKeyService.generateConsortiumCSR(alg, keyPair, byteArrayOutputStream1);
+		zipOutputStream.write(byteArrayOutputStream1.toByteArray());
+		zipOutputStream.closeEntry();
+		byteArrayOutputStream1.close();
 		zipOutputStream.close();
 	}
 }

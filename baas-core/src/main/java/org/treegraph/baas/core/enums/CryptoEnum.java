@@ -6,12 +6,12 @@ public class CryptoEnum {
 	
 	 @Getter
 	  public enum Algo {
+		 
+		ECDSA("ecdsa", "ecdsa算法"),
+		 
+		EC("ec", "ec算法"),
 
 	    RSA("rsa", "rsa算法"),
-
-	    SM("sm", "国标加密算法"),
-
-	    EC("ec", "椭圆曲线数字签名算法"),
 
 	    ;
 

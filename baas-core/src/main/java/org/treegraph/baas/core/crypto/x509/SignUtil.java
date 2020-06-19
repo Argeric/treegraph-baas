@@ -12,7 +12,7 @@ import java.security.PublicKey;
 import java.security.Security;
 import java.security.Signature;
 
-public class Signers {
+public class SignUtil {
     private static final byte[] SM2_ID = {
             (byte)0x31,(byte)0x32,(byte)0x33,(byte)0x34,(byte)0x35,(byte)0x36,(byte)0x37,(byte)0x38,
             (byte)0x31,(byte)0x32,(byte)0x33,(byte)0x34,(byte)0x35,(byte)0x36,(byte)0x37,(byte)0x38

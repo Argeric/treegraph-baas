@@ -11,8 +11,11 @@ import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.bc.BcX509ExtensionUtils;
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -20,7 +23,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
 
-public class CertUtils {
+public class CertUtil {
 	
 	public static Certificate generateRootCA(X500Name subject, KeyPair keyPair, Date notBefore, Date notAfter)
 			throws Exception {
@@ -54,11 +57,11 @@ public class CertUtils {
 			byte[] signature;
 			AlgorithmIdentifier signAlgo = getSignAlgo(subjectPublicKeyInfo.getAlgorithm());
 			if (signAlgo.getAlgorithm().equals(GMObjectIdentifiers.sm2sign_with_sm3)) {
-				signature = Signers.SM2Sign(info.getEncoded(ASN1Encoding.DER), privateKey);
+				signature = SignUtil.SM2Sign(info.getEncoded(ASN1Encoding.DER), privateKey);
 			} else if (signAlgo.getAlgorithm().equals(X9ObjectIdentifiers.ecdsa_with_SHA256)) {
-				signature = Signers.ECDSASign(info.getEncoded(ASN1Encoding.DER), privateKey);
+				signature = SignUtil.ECDSASign(info.getEncoded(ASN1Encoding.DER), privateKey);
 			} else if (signAlgo.getAlgorithm().equals(PKCSObjectIdentifiers.sha256WithRSAEncryption)) {
-				signature = Signers.RSASign(info.getEncoded(ASN1Encoding.DER), privateKey);
+				signature = SignUtil.RSASign(info.getEncoded(ASN1Encoding.DER), privateKey);
 			} else {
 				throw new IllegalArgumentException("密钥算法不支持");
 			}
@@ -97,6 +100,27 @@ public class CertUtils {
 		return assembleCert(tbs, issuer.getSubjectPublicKeyInfo(), issuerPrivateKey);
 	}
 	
+    public static String getCertStr(Certificate x509Certificate) throws Exception{
+    	X509CertificateHolder holder = new X509CertificateHolder(x509Certificate);
+    	
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        JcaPEMWriter pemWriter = new JcaPEMWriter(new OutputStreamWriter(bos));
+        pemWriter.writeObject(holder);
+        pemWriter.flush();
+        pemWriter.close();
+        
+        return bos.toString();
+    }
+    
+    public static String getCsrStr(Object obj) throws Exception{
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        JcaPEMWriter pemWriter = new JcaPEMWriter(new OutputStreamWriter(bos));
+        pemWriter.writeObject(obj);
+        pemWriter.flush();
+        pemWriter.close();
+        return bos.toString();
+    }
+	
 	public static AlgorithmIdentifier getSignAlgo(AlgorithmIdentifier asymAlgo) { // 根据公钥算法标识返回对应签名算法标识
 		if (asymAlgo.getAlgorithm().equals(X9ObjectIdentifiers.id_ecPublicKey)
 				&& asymAlgo.getParameters().equals(GMObjectIdentifiers.sm2p256v1)) {
@@ -115,14 +139,14 @@ public class CertUtils {
 		byte[] signature = null;
 		if (issuerPrivateKey.getAlgorithm().equalsIgnoreCase("ECDSA"))
 			if (issuerSubjectPublicKeyInfo.getAlgorithm().getParameters().equals(GMObjectIdentifiers.sm2p256v1)) {
-				signature = Signers.SM2Sign(tbsCertificate.getEncoded(), issuerPrivateKey);
+				signature = SignUtil.SM2Sign(tbsCertificate.getEncoded(), issuerPrivateKey);
 			} else if (issuerSubjectPublicKeyInfo.getAlgorithm().getParameters()
 					.equals(SECObjectIdentifiers.secp256k1)) {
-				signature = Signers.ECDSASign(tbsCertificate.getEncoded(), issuerPrivateKey);
+				signature = SignUtil.ECDSASign(tbsCertificate.getEncoded(), issuerPrivateKey);
 			} else
 				throw new IllegalArgumentException("不支持的曲线");
 		else if (issuerPrivateKey.getAlgorithm().equalsIgnoreCase("RSA")) {
-			signature = Signers.RSASign(tbsCertificate.getEncoded(), issuerPrivateKey);
+			signature = SignUtil.RSASign(tbsCertificate.getEncoded(), issuerPrivateKey);
 		} else
 			throw new IllegalArgumentException("不支持的密钥算法");
 		ASN1EncodableVector v = new ASN1EncodableVector();
@@ -135,17 +159,17 @@ public class CertUtils {
 	private static boolean verifyCSR(PKCS10CertificationRequest csr) throws Exception {
 		byte[] signature = csr.getSignature();
 		if (csr.getSignatureAlgorithm().getAlgorithm().equals(GMObjectIdentifiers.sm2sign_with_sm3)) {
-			return Signers.SM2VerifySign(
+			return SignUtil.SM2VerifySign(
 					csr.toASN1Structure().getCertificationRequestInfo().getEncoded(ASN1Encoding.DER), signature,
-					KeyUtils.getPublicKey(csr.getSubjectPublicKeyInfo()));
+					KeyUtil.getPublicKey(csr.getSubjectPublicKeyInfo()));
 		} else if (csr.getSignatureAlgorithm().getAlgorithm().equals(X9ObjectIdentifiers.ecdsa_with_SHA256)) {
-			return Signers.ECDSAVerifySign(
+			return SignUtil.ECDSAVerifySign(
 					csr.toASN1Structure().getCertificationRequestInfo().getEncoded(ASN1Encoding.DER), signature,
-					KeyUtils.getPublicKey(csr.getSubjectPublicKeyInfo()));
+					KeyUtil.getPublicKey(csr.getSubjectPublicKeyInfo()));
 		} else if (csr.getSignatureAlgorithm().getAlgorithm().equals(PKCSObjectIdentifiers.sha256WithRSAEncryption)) {
-			return Signers.RSAVerifySign(
+			return SignUtil.RSAVerifySign(
 					csr.toASN1Structure().getCertificationRequestInfo().getEncoded(ASN1Encoding.DER), signature,
-					KeyUtils.getPublicKey(csr.getSubjectPublicKeyInfo()));
+					KeyUtil.getPublicKey(csr.getSubjectPublicKeyInfo()));
 		} else {
 			throw new IllegalArgumentException("不支持的签名算法");
 		}

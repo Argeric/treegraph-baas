@@ -67,23 +67,23 @@ public class Tests {
         return bos.toString();
     }
 	
-	public static void test2() throws Exception{
+	public static void test2(String algo) throws Exception{
 		Date notBefore = new Date();
 		Date notAfter = new Date(System.currentTimeMillis() + 1000L*60L*60L*24L*365L);   //365天
 		
-		KeyPair rootKeyPair_ECC = KeyUtils.generateKeyPair("ecc");
-	    Certificate rootCA_ECC = CertUtils.generateRootCA(new X500Name("C=CN,CN=ECCRootCa"),rootKeyPair_ECC,notBefore,notAfter);
-	    System.out.println(getPublicKeyString(rootKeyPair_ECC));
-	    System.out.println(getPrivateKeyString(rootKeyPair_ECC));
-	    System.out.println(getCertStr(rootCA_ECC));
+		KeyPair rootKeyPair = KeyUtils.generateKeyPair(algo);
+	    Certificate rootCA = CertUtils.generateRootCA(new X500Name("C=CN,CN=ECCRootCa"),rootKeyPair,notBefore,notAfter);
+	    System.out.println(getPublicKeyString(rootKeyPair));
+	    System.out.println(getPrivateKeyString(rootKeyPair));
+	    System.out.println(getCertStr(rootCA));
 	    
-		KeyPair consortiumKeyPair_ECC = KeyUtils.generateKeyPair("ecc");
-		PKCS10CertificationRequest consortiumCsr_ECC = CertUtils.generateCSR(new X500Name("C=CN,CN=ECCEntityCert"),consortiumKeyPair_ECC.getPublic(),consortiumKeyPair_ECC.getPrivate());
-		Certificate consortiumCert_ECC = CertUtils.generateCert(consortiumCsr_ECC,rootKeyPair_ECC.getPrivate(),rootCA_ECC.getEncoded(),notBefore,notAfter);
-		System.out.println(getPublicKeyString(consortiumKeyPair_ECC));
-		System.out.println(getPrivateKeyString(consortiumKeyPair_ECC));
-		System.out.println(getCsrStr(consortiumCsr_ECC));
-		System.out.println(getCertStr(consortiumCert_ECC));
+		KeyPair consortiumKeyPair = KeyUtils.generateKeyPair(algo);
+		PKCS10CertificationRequest consortiumCsr = CertUtils.generateCSR(new X500Name("C=CN,CN=ECCEntityCert"),consortiumKeyPair.getPublic(),consortiumKeyPair.getPrivate());
+		Certificate consortiumCert = CertUtils.generateCert(consortiumCsr,rootKeyPair.getPrivate(),rootCA.getEncoded(),notBefore,notAfter);
+		System.out.println(getPublicKeyString(consortiumKeyPair));
+		System.out.println(getPrivateKeyString(consortiumKeyPair));
+		System.out.println(getCsrStr(consortiumCsr));
+		System.out.println(getCertStr(consortiumCert));
 	}
 
 	public static void test1() throws Exception{
@@ -134,6 +134,7 @@ public class Tests {
     }
     
     public static void main(String[] args) throws Exception{
-    	test2();
+    	String algo = "rsa";
+    	test2(algo);
     }
 }

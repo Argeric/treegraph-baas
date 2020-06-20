@@ -1,5 +1,6 @@
 package org.treegraph.baas.core.das.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,10 +8,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.core.das.KeypairDas;
+import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.KeypairPoExample;
 import org.treegraph.baas.core.domain.KeypairPoExample.Criteria;
+import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.mapper.primary.KeypairPoMapper;
+import org.treegraph.baas.core.mapper.primary.NodeKeyPoMapper;
 
 import lombok.AllArgsConstructor;
 
@@ -19,6 +23,8 @@ import lombok.AllArgsConstructor;
 public class KeypairDasImpl implements KeypairDas {
 
 	private KeypairPoMapper keypairPoMapper;
+	
+	private NodeKeyPoMapper nodeKeyPoMapper;
 	
 	public Optional<KeypairPo> findById(Long id) {
 		return keypairPoMapper.selectByPrimaryKey(id);
@@ -51,5 +57,31 @@ public class KeypairDasImpl implements KeypairDas {
 
 	public boolean modifyKeypair(KeypairPo keypair) {
 		return keypairPoMapper.updateByPrimaryKeySelective(keypair) > 0;
+	}
+	
+	public boolean addKeyPairInfo(KeypairPo rootKeypair, KeypairPo consortiumKeypair,
+			List<NodeKeypairBo> nodeKeypairBoList) {
+		// add key pair of consortium
+		boolean succFlag =  Boolean.TRUE;
+		List<KeypairPo> keypairList = new ArrayList<>();
+		if(rootKeypair.getId() == null){
+			keypairList.add(rootKeypair);
+		}
+		if(consortiumKeypair.getId() == null){
+			keypairList.add(consortiumKeypair);
+		}
+		succFlag = succFlag && keypairPoMapper.bulkInsert(keypairList) == keypairList.size();
+		
+		// add key pair of node
+		for(NodeKeypairBo nodeKeypairBo : nodeKeypairBoList){
+			if(nodeKeypairBo.getKeypair().getId() == null){
+				KeypairPo keypair = nodeKeypairBo.getKeypair();
+				NodeKeyPo nodeKey = nodeKeypairBo.getNodeKey();
+				succFlag = succFlag && keypairPoMapper.insert(keypair) > 0;
+				nodeKey.setKeypairId(keypair.getId());
+				succFlag = succFlag && nodeKeyPoMapper.insert(nodeKey) > 0;
+			}
+		}
+		return succFlag;
 	}
 }

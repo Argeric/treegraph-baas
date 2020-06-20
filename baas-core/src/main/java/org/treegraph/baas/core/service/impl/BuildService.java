@@ -8,7 +8,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.Role;
 import org.treegraph.baas.common.enums.IntTypeEnum;
@@ -178,8 +177,7 @@ public class BuildService {
 				.append(usrOrg.getOrganizationName()).toString();
 	}
 	
-	private static UserOrganizationPo buildUserOrg(String identifier) {
-		//String[] params = StringUtils.split(identifier, ",");
+	private UserOrganizationPo buildUserOrg(String identifier) {
 		String[] params = identifier.split(",");
 		System.out.println(JSON.toJSONString(params));
 		LocalDateTime now = LocalDateTime.now();
@@ -192,12 +190,7 @@ public class BuildService {
 				.updateTime(now)
 				.build();
 	}
-	
-	public static void main(String[] args) {
-		String s = "0c522bc4-a054-4ff3-a79e-276ad6bc9859,0fbe1ebc-3e4e-41ef-b3c2-43a4797ac578,ffsa";
-		System.out.println(buildUserOrg(s));
-	}
-	
+
 	public ConsortiumPo buildToUpdateCons(String consId, EstablishStep step) {
 		return ConsortiumPo.builder()
 				.consortiumId(consId)

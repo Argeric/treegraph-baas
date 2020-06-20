@@ -247,12 +247,12 @@
   
   <select id="findPermissionInfoByUserId" resultType="org.treegraph.baas.core.das.bo.PermissionInfoBo">
 	SELECT 
-	r.consortium_id AS consId
-	,r.id AS roldId
-	,r.role_type AS roleType
-	,r.role_name AS roleName
-	,p.id AS permId
-	,p.permission_code AS permCode 
+	r.consortium_id AS consId,
+	r.id AS roldId,
+	r.role_type AS roleType,
+	r.role_name AS roleName,
+	p.id AS permId,
+	p.permission_code AS permCode 
 	FROM user_role ur 
 	INNER JOIN role r ON ur.role_id = r.id
 	INNER JOIN role_permission rp ON r.id = rp.role_id

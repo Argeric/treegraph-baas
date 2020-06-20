@@ -3,6 +3,7 @@ package org.treegraph.baas.core.das;
 import java.util.List;
 import java.util.Optional;
 
+import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 
 public interface KeypairDas {
@@ -16,4 +17,6 @@ public interface KeypairDas {
 	boolean addKeypairs(List<KeypairPo> list);
 
 	boolean modifyKeypair(KeypairPo keypair);
+	
+	boolean addKeyPairInfo(KeypairPo rootKeypair, KeypairPo consortiumKeypair, List<NodeKeypairBo> nodeKeypairBoList);
 }

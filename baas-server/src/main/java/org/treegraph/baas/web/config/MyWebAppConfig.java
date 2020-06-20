@@ -25,6 +25,7 @@ public class MyWebAppConfig /*extends WebMvcConfigurerAdapter*/ implements WebMv
                 "/node/**", "/treegraph/node/**"
         };
         String[] noneedTokenAuthUrls = new String[]{
+        		"/cons/script/download", "/treegraph/cons/script/download",
         		"/sys/login", "/treegraph/sys/login",
         		"/user/pwd/modify", "/treegraph/user/pwd/modify",
                 "/user/invite/accept", "/treegraph/user/invite/accept"

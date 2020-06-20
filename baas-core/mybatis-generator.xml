@@ -3,7 +3,7 @@
         "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
         "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
 <generatorConfiguration>
-	<classPathEntry location="/Users/wangzhenting/Documents/tools/mysql-connector-java-5.1.49.jar"/>
+	<classPathEntry location="/Users/zhenting/Documents/tar/mysql-connector-java-5.1.21.jar"/>
     <context id="context" targetRuntime="MyBatis3">
 
         <!-- 识别关键字 -->
@@ -44,12 +44,12 @@
         </javaModelGenerator>
 
         <!-- xml生成地址 -->
-        <sqlMapGenerator targetPackage="mapper" targetProject="baas-core/src/main/resources">
+        <sqlMapGenerator targetPackage="mapper.primary" targetProject="baas-core/src/main/resources">
             <property name="enableSubPackages" value="false"/>
         </sqlMapGenerator>
 
         <!-- mapper接口地址 -->
-        <javaClientGenerator targetPackage="org.treegraph.baas.core.mapper" targetProject="baas-core/src/main/java"
+        <javaClientGenerator targetPackage="org.treegraph.baas.core.mapper.primary" targetProject="baas-core/src/main/java"
                              type="XMLMAPPER">
             <property name="enableSubPackages" value="false"/>
         </javaClientGenerator>
@@ -95,10 +95,16 @@
         <table tableName="user_role" domainObjectName="UserRolePo" alias="userRole">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
-        -->
         <table tableName="role_permission" domainObjectName="RolePermissionPo" alias="rolePermission">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>   
+        <table tableName="keypair" domainObjectName="KeypairPo" alias="keypair">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>        
+        -->
+        <table tableName="node_key" domainObjectName="NodeKeyPo" alias="nodeKey">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>                
 
     </context>
 

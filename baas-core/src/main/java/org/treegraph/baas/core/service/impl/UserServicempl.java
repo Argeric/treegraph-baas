@@ -24,8 +24,8 @@ import org.treegraph.baas.api.dto.request.QueryUserRequest;
 import org.treegraph.baas.api.dto.response.ListUserResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
-import org.treegraph.baas.core.constant.InviteConsts;
-import org.treegraph.baas.core.constant.SplitterConsts;
+import org.treegraph.baas.core.constant.InviteConstant;
+import org.treegraph.baas.core.constant.SplitterConstant;
 import org.treegraph.baas.core.das.ConsortiumDas;
 import org.treegraph.baas.core.das.InviteUserDas;
 import org.treegraph.baas.core.das.RoleDas;
@@ -117,7 +117,7 @@ public class UserServicempl implements UserService {
 				.build();
 		userInfoDas.inviteUser(userInvite, userRoleInvites);
 		
-		emailService.sendEmail(Lists.newArrayList(userInfo.getEmail()), InviteConsts.TITLE, userInvite.getToken());
+		emailService.sendEmail(Lists.newArrayList(userInfo.getEmail()), InviteConstant.TITLE, userInvite.getToken());
 		
 		UserInvitePo updateInviteUser = UserInvitePo.builder()
 				.id(userInvite.getId())
@@ -136,7 +136,7 @@ public class UserServicempl implements UserService {
 				.collect(Collectors.groupingBy(item -> item.getConsortiumId() + "," + item.getOrganizationName(),
 						Collectors.mapping(UserRoleInvitePo::getRoleId, Collectors.toList())));
 		List<RoleInfo> roleInfos = roleInfoMap.entrySet().stream().map(item -> {
-			List<String> paras = SplitterConsts.COMMA_SPLITTER.splitToList(item.getKey());
+			List<String> paras = SplitterConstant.COMMA_SPLITTER.splitToList(item.getKey());
 			return RoleInfo.builder()
 					.consId(paras.get(0))
 					.orgName(paras.get(1))
@@ -166,7 +166,7 @@ public class UserServicempl implements UserService {
 				.build();
 		userInfoDas.inviteUser(userInvite, userRoleInvites);
 		
-		emailService.sendEmail(Lists.newArrayList(userInfo.getEmail()), InviteConsts.TITLE, userInvite.getToken());
+		emailService.sendEmail(Lists.newArrayList(userInfo.getEmail()), InviteConstant.TITLE, userInvite.getToken());
 		
 		UserInvitePo updateInviteUser = UserInvitePo.builder()
 				.id(userInvite.getId())

@@ -15,8 +15,15 @@ import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
+import org.treegraph.baas.core.util.crypto.x509.CertUtil;
+import org.treegraph.baas.core.util.crypto.x509.EncryptUtil;
+import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 
 public class X509UtilTest {
+	
+	private static final String ROOT_CA_SUBJECT = "CN=rootCA,OU=it-dept,O=conflux-chain,L=SH,ST=SH,C=CN";
+	
+	private static final String CONSORTIUM_CERT_SUBJECT = "CN=consortiumCert,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN";
 	
     public static void test2(String algo) throws Exception{
     	KeyPair keyPair = KeyUtil.generateKeyPair(algo);
@@ -74,13 +81,13 @@ public class X509UtilTest {
 		Date notAfter = new Date(System.currentTimeMillis() + 1000L*60L*60L*24L*365L);   //365天
 		
 		KeyPair rootKeyPair = KeyUtil.generateKeyPair(algo);
-	    Certificate rootCA = CertUtil.generateRootCA(new X500Name("C=CN,CN=ECCRootCa"),rootKeyPair,notBefore,notAfter);
+	    Certificate rootCA = CertUtil.generateRootCA(new X500Name(ROOT_CA_SUBJECT),rootKeyPair,notBefore,notAfter);
 	    System.out.println(KeyUtil.getPublicKeyString(rootKeyPair));
 	    System.out.println(KeyUtil.getPrivateKeyString(rootKeyPair));
 	    System.out.println(CertUtil.getCertStr(rootCA));
 	    
 		KeyPair consortiumKeyPair = KeyUtil.generateKeyPair(algo);
-		PKCS10CertificationRequest consortiumCsr = CertUtil.generateCSR(new X500Name("C=CN,CN=ECCEntityCert"),consortiumKeyPair.getPublic(),consortiumKeyPair.getPrivate());
+		PKCS10CertificationRequest consortiumCsr = CertUtil.generateCSR(new X500Name(CONSORTIUM_CERT_SUBJECT),consortiumKeyPair.getPublic(),consortiumKeyPair.getPrivate());
 		Certificate consortiumCert = CertUtil.generateCert(consortiumCsr,rootKeyPair.getPrivate(),rootCA.getEncoded(),notBefore,notAfter);
 		System.out.println(KeyUtil.getPublicKeyString(consortiumKeyPair));
 		System.out.println(KeyUtil.getPrivateKeyString(consortiumKeyPair));

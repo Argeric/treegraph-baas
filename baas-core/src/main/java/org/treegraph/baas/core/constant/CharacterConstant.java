@@ -1,8 +1,5 @@
 package org.treegraph.baas.core.constant;
-/**
- * @author fanfeveryahoo@gmail.com
- * @date 2019/10/28
- */
+
 public interface CharacterConstant {
 
     String COMMA = ",";

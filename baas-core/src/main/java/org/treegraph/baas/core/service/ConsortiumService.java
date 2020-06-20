@@ -2,6 +2,8 @@ package org.treegraph.baas.core.service;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.treegraph.baas.api.dto.ConsDetailInfo;
 import org.treegraph.baas.api.dto.ConsInfo;
 import org.treegraph.baas.api.dto.ListRequest;
@@ -36,5 +38,5 @@ public interface ConsortiumService {
 
 	boolean addNodes(AddNodesRequest addNodesRequest);
 
-	void getDeployScript(DownloadDeployScriptRequest getDeployScriptRequest);
+	void getDeployScript(DownloadDeployScriptRequest downloadDeployScriptRequest, HttpServletResponse response) throws Exception;
 }

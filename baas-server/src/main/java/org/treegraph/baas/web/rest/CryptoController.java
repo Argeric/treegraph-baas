@@ -46,9 +46,9 @@ public class CryptoController {
 		zipOutputStream.putNextEntry(new ZipEntry("private.keystore"));
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		KeyPair keyPair = null;
-		if (Algo.ECDSA.getCode().equals(algo)) {
+		if (Algo.ECC.getCode().equals(algo)) {
 			keyPair = generateKeyService.generateEncryptedEcPrivateKey(password, pkcsType, byteArrayOutputStream);
-		} else if (Algo.EC.getCode().equals(algo)) {
+		} else if (Algo.SM2.getCode().equals(algo)) {
 			keyPair = generateKeyService.generateEncryptedSmPrivateKey(password, pkcsType, byteArrayOutputStream);
 		} else if (Algo.RSA.getCode().equals(algo)) {
 			keyPair = generateKeyService.generateEncryptedRsaPrivateKey(password, pkcsType, byteArrayOutputStream);
@@ -59,7 +59,7 @@ public class CryptoController {
 
 		// public key
 		zipOutputStream.putNextEntry(new ZipEntry("public.keystore"));
-		if (Algo.ECDSA.getCode().equals(algo) || Algo.EC.getCode().equals(algo)) {
+		if (Algo.ECC.getCode().equals(algo) || Algo.SM2.getCode().equals(algo)) {
 			zipOutputStream.write(generateKeyService.getECPublicKeyString(keyPair).getBytes());
 		} else if (Algo.RSA.getCode().equals(algo)) {
 			zipOutputStream.write(generateKeyService.getRsaPublicKeyString(keyPair).getBytes());
@@ -89,9 +89,9 @@ public class CryptoController {
 		zipOutputStream.putNextEntry(new ZipEntry("private.keystore"));
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		KeyPair keyPair = null;
-		if (Algo.ECDSA.getCode().equals(algo)) {
+		if (Algo.ECC.getCode().equals(algo)) {
 			keyPair = generateKeyService.generateEncryptedEcPrivateKey(password, pkcsType, byteArrayOutputStream);
-		} else if (Algo.EC.getCode().equals(algo)) {
+		} else if (Algo.SM2.getCode().equals(algo)) {
 			keyPair = generateKeyService.generateEncryptedSmPrivateKey(password, pkcsType, byteArrayOutputStream);
 		} else if (Algo.RSA.getCode().equals(algo)) {
 			keyPair = generateKeyService.generateEncryptedRsaPrivateKey(password, pkcsType, byteArrayOutputStream);
@@ -102,7 +102,7 @@ public class CryptoController {
 
 		// public key
 		zipOutputStream.putNextEntry(new ZipEntry("public.keystore"));
-		if (Algo.ECDSA.getCode().equals(algo) || Algo.EC.getCode().equals(algo)) {
+		if (Algo.ECC.getCode().equals(algo) || Algo.SM2.getCode().equals(algo)) {
 			zipOutputStream.write(generateKeyService.getECPublicKeyString(keyPair).getBytes());
 		} else if (Algo.RSA.getCode().equals(algo)) {
 			zipOutputStream.write(generateKeyService.getRsaPublicKeyString(keyPair).getBytes());
@@ -140,9 +140,9 @@ public class CryptoController {
 		zipOutputStream.putNextEntry(new ZipEntry("private.keystore"));
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 		KeyPair keyPair = null;
-		if (Algo.ECDSA == alg) {
+		if (Algo.ECC == alg) {
 			keyPair = generateKeyService.generateEncryptedEcPrivateKey(password, pkcsType, byteArrayOutputStream);
-		} else if (Algo.EC == alg) {
+		} else if (Algo.SM2 == alg) {
 			keyPair = generateKeyService.generateEncryptedSmPrivateKey(password, pkcsType, byteArrayOutputStream);
 		} else if (Algo.RSA == alg) {
 			keyPair = generateKeyService.generateEncryptedRsaPrivateKey(password, pkcsType, byteArrayOutputStream);
@@ -153,7 +153,7 @@ public class CryptoController {
 
 		// public key
 		zipOutputStream.putNextEntry(new ZipEntry("public.keystore"));
-		if (Algo.ECDSA == alg || Algo.EC == alg) {
+		if (Algo.ECC == alg || Algo.SM2 == alg) {
 			zipOutputStream.write(generateKeyService.getECPublicKeyString(keyPair).getBytes());
 		} else if (Algo.RSA == alg) {
 			zipOutputStream.write(generateKeyService.getRsaPublicKeyString(keyPair).getBytes());

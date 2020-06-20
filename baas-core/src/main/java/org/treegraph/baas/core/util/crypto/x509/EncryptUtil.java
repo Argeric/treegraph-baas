@@ -1,4 +1,4 @@
-package org.treegraph.baas.core.crypto.x509;
+package org.treegraph.baas.core.util.crypto.x509;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPrivateKey;
@@ -21,6 +22,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.NullCipher;
 
 import org.bouncycastle.util.encoders.Base64;
+import org.treegraph.baas.core.enums.CryptoEnum;
 
 public class EncryptUtil {
 
@@ -42,6 +44,22 @@ public class EncryptUtil {
 		} catch (NullPointerException e) {
 			throw new Exception("秘钥输入流为空");
 		}
+	}
+	
+	/**
+	 * 从字符串中加载私钥
+	 */
+	public static PrivateKey loadPrivateKey(String algo, String privateKeyStr) throws Exception {
+		PrivateKey privateKey = null;
+		if(algo.equalsIgnoreCase(CryptoEnum.Algo.ECC.getCode()) ||
+				algo.equalsIgnoreCase(CryptoEnum.Algo.SM2.getCode())){
+			privateKey = EncryptUtil.loadECPrivateKey(privateKeyStr);
+		} else if(algo.equalsIgnoreCase(CryptoEnum.Algo.RSA.getCode())){
+			privateKey = EncryptUtil.loadRSAPrivateKey(privateKeyStr);
+		} else{
+			throw new Exception("无此算法");
+		}
+		return privateKey;
 	}
 
 	/**

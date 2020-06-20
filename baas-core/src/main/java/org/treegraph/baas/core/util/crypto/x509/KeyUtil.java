@@ -1,4 +1,4 @@
-package org.treegraph.baas.core.crypto.x509;
+package org.treegraph.baas.core.util.crypto.x509;
 
 import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;

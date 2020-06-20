@@ -17,7 +17,7 @@ import org.treegraph.baas.api.dto.request.QueryRoleRequest;
 import org.treegraph.baas.api.dto.response.ListRoleResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
-import org.treegraph.baas.core.constant.RoleConsts;
+import org.treegraph.baas.core.constant.RoleConstant;
 import org.treegraph.baas.core.das.ConsortiumDas;
 import org.treegraph.baas.core.das.PermissionDas;
 import org.treegraph.baas.core.das.RoleDas;
@@ -75,7 +75,7 @@ public class RoleServicempl implements RoleService {
     }
 
 	public boolean createRole(CreateRoleRequest req) {
-		Assert.isTrue(!RoleConsts.PREDEFINE_ROLE_NAME.contains(req.getName()), "预定义角色不可使用[" + req.getName() + "]");
+		Assert.isTrue(!RoleConstant.PREDEFINE_ROLE_NAME.contains(req.getName()), "预定义角色不可使用[" + req.getName() + "]");
 		List<RolePo> roles = roleDas.findAll(null, req.getConsId(), req.getName());
 		Assert.isTrue(CollectionUtils.isEmpty(roles), "同一联盟，角色名不可重复");
 		RoleInfoBo roleInfoBo = buildService.buildRole(UserEnum.Role.COMMON_USER.getCode(), req.getName(),

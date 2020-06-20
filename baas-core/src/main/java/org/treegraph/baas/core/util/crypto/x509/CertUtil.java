@@ -1,4 +1,4 @@
-package org.treegraph.baas.core.crypto.x509;
+package org.treegraph.baas.core.util.crypto.x509;
 
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
@@ -132,6 +132,14 @@ public class CertUtil {
 			return new AlgorithmIdentifier(PKCSObjectIdentifiers.sha256WithRSAEncryption, DERNull.INSTANCE);
 		} else
 			throw new IllegalArgumentException("密钥算法不支持");
+	}
+	
+	public static Date getNotBefore(){
+		return new Date();
+	}
+	
+	public static Date getNotAfter(int days){
+		return new Date(System.currentTimeMillis() + 1000*60*60*24L*days);
 	}
 
 	private static Certificate assembleCert(TBSCertificate tbsCertificate,

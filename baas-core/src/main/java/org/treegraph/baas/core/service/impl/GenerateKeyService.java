@@ -145,7 +145,7 @@ public class GenerateKeyService {
 
 		// content signer
 		ContentSigner signer = null;
-		if(Algo.ECDSA.getCode().equals(algo)) {
+		if(Algo.ECC.getCode().equals(algo)) {
 			signer = new JcaContentSignerBuilder("SHA256withECDSA")
 					.setProvider("BC")
 					.build(keyPair.getPrivate());
@@ -174,7 +174,7 @@ public class GenerateKeyService {
 		
 		// content signer
 		ContentSigner signer = null;
-		if(Algo.ECDSA == alg) {
+		if(Algo.ECC == alg) {
 			signer = new JcaContentSignerBuilder("SHA256withECDSA")
 					.setProvider("BC")
 					.build(keyPair.getPrivate());

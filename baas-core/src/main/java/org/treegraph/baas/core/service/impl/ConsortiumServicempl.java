@@ -1,5 +1,11 @@
 package org.treegraph.baas.core.service.impl;
 
+import java.io.OutputStream;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -7,7 +13,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.Certificate;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
@@ -29,13 +42,20 @@ import org.treegraph.baas.api.dto.request.QueryConsRequest;
 import org.treegraph.baas.api.dto.response.ListConsResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
+import org.treegraph.baas.core.constant.ConsortiumConstant;
+import org.treegraph.baas.core.constant.SplitterConstant;
+import org.treegraph.baas.core.constant.X509CertConstant;
 import org.treegraph.baas.core.das.BlockchainDas;
 import org.treegraph.baas.core.das.ConsortiumDas;
+import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.das.NodeDas;
+import org.treegraph.baas.core.das.NodeKeyDas;
 import org.treegraph.baas.core.das.RoleDas;
 import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.domain.BlockChainPo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
+import org.treegraph.baas.core.domain.KeypairPo;
+import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
@@ -44,15 +64,22 @@ import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.enums.BlockchainEnum;
 import org.treegraph.baas.core.enums.ConsortiumEnum;
 import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
+import org.treegraph.baas.core.enums.CryptoEnum;
 import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.enums.UserEnum;
+import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.ConsortiumService;
 import org.treegraph.baas.core.service.bo.OrgBo;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
 import org.treegraph.baas.core.service.bo.UserInfoBo;
 import org.treegraph.baas.core.util.CollectionUtils;
 import org.treegraph.baas.core.util.DateTimeUtils;
+import org.treegraph.baas.core.util.LogSkip;
+import org.treegraph.baas.core.util.crypto.x509.CertUtil;
+import org.treegraph.baas.core.util.crypto.x509.EncryptUtil;
+import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Functions;
@@ -74,6 +101,10 @@ public class ConsortiumServicempl implements ConsortiumService {
     private BlockchainDas blockchainDas;
     
     private NodeDas nodeDas;
+    
+    private KeypairDas keypairDas;
+    
+    private NodeKeyDas nodeKeyDas;
     
     private BuildService buildService;
    
@@ -312,6 +343,157 @@ public class ConsortiumServicempl implements ConsortiumService {
 		return nodeDas.addNodes(nodes, cons);
 	}
 
-	public void getDeployScript(DownloadDeployScriptRequest req) {
+	// mock
+	//List<NodePo> nodes = new ArrayList<>();
+	//nodes.add(NodePo.builder().id("111").nodeIp("192.168.121.11").nodePort(9797).build());
+	//nodes.add(NodePo.builder().id("222").nodeIp("192.168.121.12").nodePort(9797).build());
+	
+	@LogSkip
+	public void getDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp) throws Exception {
+		// nodes
+		ConsortiumPo cons = consortiumDas.findById(req.getConsortiumId())
+				.orElseThrow(() -> new AlertException("consortium.not.found"));
+		List<NodePo> nodes = nodeDas.findByConsIdAndChainId(cons.getConsortiumId(), null);
+		Assert.notEmpty(nodes, "node.not.found");
+		List<String> consortiumNodeList = nodes.stream()
+				.map(item -> item.getId() + "-" + item.getNodeIp() + "-" + item.getNodePort())
+				.collect(Collectors.toList());
+		String consortiumNodes = JSON.toJSONString(consortiumNodeList);
+		
+		// certificate
+		KeypairPo rootKeypair = getRootKeypair();
+		KeypairPo consortiumKeypair = getConsortiumKeyPair(req.getConsortiumId(), rootKeypair);
+		
+		// build script
+		resp.setContentType("application/zip");
+		resp.setHeader("Content-disposition", "attachment; filename=\"deploy.zip\"");
+		ZipOutputStream zipOutputStream = new ZipOutputStream((OutputStream) resp.getOutputStream());
+		for(NodePo node:nodes){
+			String nodeIdentifier = node.getNodeIp()+"-"+node.getNodePort();
+			zipOutputStream.putNextEntry(new ZipEntry("deploy."+nodeIdentifier+".toml"));
+			String consortiumIdInfo = "consortium_id = " + req.getConsortiumId();
+			String consortiumCertInfo = "consortium_cert = " + consortiumKeypair.getCertStr();
+			String consortiumNodesInfo = "consortium_nodes = " + consortiumNodes;
+			String consortiumKeypairInfo = "consortium_keypair = " + getNodeKeypair(req.getConsortiumId(), node);
+			StringBuffer tomlFileContent = new StringBuffer();
+			tomlFileContent.append(consortiumIdInfo).append(SplitterConstant.LINE_SEP);
+			tomlFileContent.append(consortiumCertInfo).append(SplitterConstant.LINE_SEP);
+			tomlFileContent.append(consortiumNodesInfo).append(SplitterConstant.LINE_SEP);
+			tomlFileContent.append(consortiumKeypairInfo);
+			zipOutputStream.write(tomlFileContent.toString().getBytes());
+			zipOutputStream.closeEntry();
+		}
+		zipOutputStream.close();
+	}
+	
+	public KeypairPo getRootKeypair() throws Exception{
+		List<KeypairPo> rootKeypairs = keypairDas.findAll(ConsortiumConstant.DEFAULT_CONSORTIUM_ID,
+				CryptoEnum.KeyType.CONSORTIUM.getCode(), X509CertConstant.DEFAULT_ALGO);
+		if(CollectionUtils.isNotEmpty(rootKeypairs)){
+			return rootKeypairs.get(0);
+		}
+		
+		KeyPair rootKeyPair = KeyUtil.generateKeyPair(X509CertConstant.DEFAULT_ALGO);
+		Certificate rootCA = CertUtil.generateRootCA(new X500Name(X509CertConstant.ROOT_CA_SUBJECT), rootKeyPair,
+				CertUtil.getNotBefore(), CertUtil.getNotAfter(365 * 10));
+		String rootPublicKey = KeyUtil.getPublicKeyString(rootKeyPair);
+		String rootPrivateKey = KeyUtil.getPrivateKeyString(rootKeyPair);
+		String rootCa = CertUtil.getCertStr(rootCA);
+		
+		LocalDateTime now = LocalDateTime.now();
+		String operUser = WebHelper.getUserId();
+		KeypairPo keypair = KeypairPo.builder()
+				.publicKey(rootPublicKey)
+				.privateKey(rootPrivateKey)
+				.csrStr(null)
+				.certStr(rootCa)
+				.algorithm(X509CertConstant.DEFAULT_ALGO)
+				.consortiumId(ConsortiumConstant.DEFAULT_CONSORTIUM_ID)
+				.keyType(CryptoEnum.KeyType.CONSORTIUM.getCode())
+				.deleteFlag(IntTypeEnum.FALSE.getValue())
+				.createTime(now)
+				.createBy(operUser)
+				.updateTime(now)
+				.updateBy(operUser)
+				.build();
+		keypairDas.save(keypair);
+		
+		return keypair;
+	}
+	
+	private KeypairPo getConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair)
+			throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, Exception {
+		PrivateKey rootPrivateKey = EncryptUtil.loadPrivateKey(X509CertConstant.DEFAULT_ALGO, rootKeypair.getPrivateKey());
+		byte[] rootCertBytes = rootKeypair.getCertStr().getBytes();
+		
+		KeyPair consortiumKeyPair = KeyUtil.generateKeyPair(X509CertConstant.DEFAULT_ALGO);
+		PKCS10CertificationRequest consortiumCsr = CertUtil.generateCSR(
+				new X500Name(X509CertConstant.CONSORTIUM_CERT_SUBJECT), consortiumKeyPair.getPublic(),
+				consortiumKeyPair.getPrivate());
+		Certificate consortiumCert = CertUtil.generateCert(consortiumCsr, rootPrivateKey, rootCertBytes, CertUtil.getNotBefore(), CertUtil.getNotAfter(365));
+		
+		String consortiumPublicKey = KeyUtil.getPublicKeyString(consortiumKeyPair);
+		String consortiumPrivateKey = KeyUtil.getPrivateKeyString(consortiumKeyPair);
+		String consortiumCsrStr = CertUtil.getCsrStr(consortiumCsr);
+		String consortiumCertStr = CertUtil.getCertStr(consortiumCert);
+		
+		LocalDateTime now = LocalDateTime.now();
+		String operUser = WebHelper.getUserId();
+		KeypairPo keypair = KeypairPo.builder()
+				.publicKey(consortiumPublicKey)
+				.privateKey(consortiumPrivateKey)
+				.csrStr(consortiumCsrStr)
+				.certStr(consortiumCertStr)
+				.algorithm(X509CertConstant.DEFAULT_ALGO)
+				.consortiumId(consortiumId)
+				.keyType(CryptoEnum.KeyType.CONSORTIUM.getCode())
+				.deleteFlag(IntTypeEnum.FALSE.getValue())
+				.createTime(now)
+				.createBy(operUser)
+				.updateTime(now)
+				.updateBy(operUser)
+				.build();
+		keypairDas.save(keypair);
+		
+		return keypair;
+	}
+
+	private String getNodeKeypair(String consortiumId, NodePo node)
+			throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, Exception {
+		KeyPair keyPair = KeyUtil.generateKeyPair(X509CertConstant.DEFAULT_ALGO);
+		String nodePublicKey = KeyUtil.getPublicKeyString(keyPair);
+		String nodePrivateKey = KeyUtil.getPrivateKeyString(keyPair);
+		
+		LocalDateTime now = LocalDateTime.now();
+		String operUser = WebHelper.getUserId();
+		KeypairPo keypair = KeypairPo.builder()
+				.publicKey(nodePublicKey)
+				.privateKey(nodePrivateKey)
+				.csrStr(null)
+				.certStr(null)
+				.algorithm(X509CertConstant.DEFAULT_ALGO)
+				.consortiumId(consortiumId)
+				.keyType(CryptoEnum.KeyType.NODE.getCode())
+				.deleteFlag(IntTypeEnum.FALSE.getValue())
+				.createTime(now)
+				.createBy(operUser)
+				.updateTime(now)
+				.updateBy(operUser)
+				.build();
+		keypairDas.save(keypair);
+		
+		NodeKeyPo nodeKey = NodeKeyPo.builder()
+				.nodeId(node.getId())
+				.keypairId(keypair.getId())
+				.consortiumId(consortiumId)
+				.deleteFlag(IntTypeEnum.FALSE.getValue())
+				.createTime(now)
+				.createBy(operUser)
+				.updateTime(now)
+				.updateBy(operUser)
+				.build();
+		nodeKeyDas.save(nodeKey);
+		
+		return node.getId() + "-" + nodePublicKey + "-" + nodePrivateKey;
 	}
 }

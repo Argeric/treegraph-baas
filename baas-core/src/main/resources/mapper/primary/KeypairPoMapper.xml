@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.treegraph.baas.core.mapper.primary.KeypairPoMapper">
+  <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.KeypairPo">
+    <id column="keypair_id" jdbcType="BIGINT" property="id" />
+    <result column="keypair_public_key" jdbcType="VARCHAR" property="publicKey" />
+    <result column="keypair_private_key" jdbcType="VARCHAR" property="privateKey" />
+    <result column="keypair_csr_str" jdbcType="VARCHAR" property="csrStr" />
+    <result column="keypair_cert_str" jdbcType="VARCHAR" property="certStr" />
+    <result column="keypair_algorithm" jdbcType="VARCHAR" property="algorithm" />
+    <result column="keypair_consortium_id" jdbcType="VARCHAR" property="consortiumId" />
+    <result column="keypair_key_type" jdbcType="INTEGER" property="keyType" />
+    <result column="keypair_delete_flag" jdbcType="INTEGER" property="deleteFlag" />
+    <result column="keypair_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="keypair_create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="keypair_update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="keypair_update_by" jdbcType="VARCHAR" property="updateBy" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    keypair.id as keypair_id, keypair.public_key as keypair_public_key, keypair.private_key as keypair_private_key, 
+    keypair.csr_str as keypair_csr_str, keypair.cert_str as keypair_cert_str, keypair.algorithm as keypair_algorithm, 
+    keypair.consortium_id as keypair_consortium_id, keypair.`key_type` as `keypair_key_type`, 
+    keypair.delete_flag as keypair_delete_flag, keypair.create_time as keypair_create_time, 
+    keypair.create_by as keypair_create_by, keypair.update_time as keypair_update_time, 
+    keypair.update_by as keypair_update_by
+  </sql>
+  <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.KeypairPoExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from keypair keypair
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from keypair keypair
+    where keypair.id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from keypair
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.KeypairPoExample">
+    delete from keypair keypair
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.KeypairPo" useGeneratedKeys="true">
+    insert into keypair (public_key, private_key, csr_str, 
+      cert_str, algorithm, consortium_id, 
+      `key_type`, delete_flag, create_time, 
+      create_by, update_time, update_by
+      )
+    values (#{publicKey,jdbcType=VARCHAR}, #{privateKey,jdbcType=VARCHAR}, #{csrStr,jdbcType=VARCHAR}, 
+      #{certStr,jdbcType=VARCHAR}, #{algorithm,jdbcType=VARCHAR}, #{consortiumId,jdbcType=VARCHAR}, 
+      #{keyType,jdbcType=INTEGER}, #{deleteFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{createBy,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.KeypairPo" useGeneratedKeys="true">
+    insert into keypair
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="publicKey != null">
+        public_key,
+      </if>
+      <if test="privateKey != null">
+        private_key,
+      </if>
+      <if test="csrStr != null">
+        csr_str,
+      </if>
+      <if test="certStr != null">
+        cert_str,
+      </if>
+      <if test="algorithm != null">
+        algorithm,
+      </if>
+      <if test="consortiumId != null">
+        consortium_id,
+      </if>
+      <if test="keyType != null">
+        `key_type`,
+      </if>
+      <if test="deleteFlag != null">
+        delete_flag,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="createBy != null">
+        create_by,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="updateBy != null">
+        update_by,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="publicKey != null">
+        #{publicKey,jdbcType=VARCHAR},
+      </if>
+      <if test="privateKey != null">
+        #{privateKey,jdbcType=VARCHAR},
+      </if>
+      <if test="csrStr != null">
+        #{csrStr,jdbcType=VARCHAR},
+      </if>
+      <if test="certStr != null">
+        #{certStr,jdbcType=VARCHAR},
+      </if>
+      <if test="algorithm != null">
+        #{algorithm,jdbcType=VARCHAR},
+      </if>
+      <if test="consortiumId != null">
+        #{consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="keyType != null">
+        #{keyType,jdbcType=INTEGER},
+      </if>
+      <if test="deleteFlag != null">
+        #{deleteFlag,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null">
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="org.treegraph.baas.core.domain.KeypairPoExample" resultType="java.lang.Long">
+    select count(*) from keypair keypair
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update keypair keypair
+    <set>
+      <if test="record.id != null">
+        keypair.id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.publicKey != null">
+        keypair.public_key = #{record.publicKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.privateKey != null">
+        keypair.private_key = #{record.privateKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.csrStr != null">
+        keypair.csr_str = #{record.csrStr,jdbcType=VARCHAR},
+      </if>
+      <if test="record.certStr != null">
+        keypair.cert_str = #{record.certStr,jdbcType=VARCHAR},
+      </if>
+      <if test="record.algorithm != null">
+        keypair.algorithm = #{record.algorithm,jdbcType=VARCHAR},
+      </if>
+      <if test="record.consortiumId != null">
+        keypair.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.keyType != null">
+        keypair.`key_type` = #{record.keyType,jdbcType=INTEGER},
+      </if>
+      <if test="record.deleteFlag != null">
+        keypair.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        keypair.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createBy != null">
+        keypair.create_by = #{record.createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateTime != null">
+        keypair.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateBy != null">
+        keypair.update_by = #{record.updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update keypair keypair
+    set keypair.id = #{record.id,jdbcType=BIGINT},
+      keypair.public_key = #{record.publicKey,jdbcType=VARCHAR},
+      keypair.private_key = #{record.privateKey,jdbcType=VARCHAR},
+      keypair.csr_str = #{record.csrStr,jdbcType=VARCHAR},
+      keypair.cert_str = #{record.certStr,jdbcType=VARCHAR},
+      keypair.algorithm = #{record.algorithm,jdbcType=VARCHAR},
+      keypair.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      keypair.`key_type` = #{record.keyType,jdbcType=INTEGER},
+      keypair.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      keypair.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      keypair.create_by = #{record.createBy,jdbcType=VARCHAR},
+      keypair.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      keypair.update_by = #{record.updateBy,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="org.treegraph.baas.core.domain.KeypairPo">
+    update keypair
+    <set>
+      <if test="publicKey != null">
+        public_key = #{publicKey,jdbcType=VARCHAR},
+      </if>
+      <if test="privateKey != null">
+        private_key = #{privateKey,jdbcType=VARCHAR},
+      </if>
+      <if test="csrStr != null">
+        csr_str = #{csrStr,jdbcType=VARCHAR},
+      </if>
+      <if test="certStr != null">
+        cert_str = #{certStr,jdbcType=VARCHAR},
+      </if>
+      <if test="algorithm != null">
+        algorithm = #{algorithm,jdbcType=VARCHAR},
+      </if>
+      <if test="consortiumId != null">
+        consortium_id = #{consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="keyType != null">
+        `key_type` = #{keyType,jdbcType=INTEGER},
+      </if>
+      <if test="deleteFlag != null">
+        delete_flag = #{deleteFlag,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null">
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        update_by = #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.KeypairPo">
+    update keypair
+    set public_key = #{publicKey,jdbcType=VARCHAR},
+      private_key = #{privateKey,jdbcType=VARCHAR},
+      csr_str = #{csrStr,jdbcType=VARCHAR},
+      cert_str = #{certStr,jdbcType=VARCHAR},
+      algorithm = #{algorithm,jdbcType=VARCHAR},
+      consortium_id = #{consortiumId,jdbcType=VARCHAR},
+      `key_type` = #{keyType,jdbcType=INTEGER},
+      delete_flag = #{deleteFlag,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <insert id="bulkInsert" parameterType="org.treegraph.baas.core.domain.KeypairPo">
+      INSERT INTO node(
+         public_key, 
+         private_key, 
+         csr_str, 
+         cert_str, 
+         algorithm, 
+         consortium_id, 
+         `key_type`,
+      	 delete_flag, 
+      	 create_time, 
+      	 create_by, 
+         update_time, 
+         update_by
+      )
+      VALUES
+      <foreach collection="list" item="item" separator=",">
+          (
+             #{item.publicKey,jdbcType=VARCHAR}, 
+             #{item.privateKey,jdbcType=VARCHAR}, 
+             #{item.csrStr,jdbcType=VARCHAR}, 
+             #{item.certStr,jdbcType=VARCHAR}, 
+             #{item.algorithm,jdbcType=VARCHAR}, 
+             #{item.consortiumId,jdbcType=VARCHAR}, 
+             #{item.keyType,jdbcType=INTEGER}, 
+             #{item.deleteFlag,jdbcType=INTEGER}, 
+             #{item.createTime,jdbcType=TIMESTAMP}, 
+             #{item.createBy,jdbcType=VARCHAR}, 
+             #{item.updateTime,jdbcType=TIMESTAMP}, 
+             #{item.updateBy,jdbcType=VARCHAR}             
+          )
+      </foreach>
+  </insert>    
+</mapper>

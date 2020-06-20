@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class DownloadDeployScriptRequest {
 	
-	private String consId;
+	private String consortiumId;
 }

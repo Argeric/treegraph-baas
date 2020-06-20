@@ -2,7 +2,10 @@ package org.treegraph.baas.web.rest;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.assertj.core.util.Lists;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +27,7 @@ import org.treegraph.baas.api.dto.response.ListConsResponse;
 import org.treegraph.baas.common.util.PermHelper;
 import org.treegraph.baas.core.service.ConsortiumService;
 import org.treegraph.baas.core.util.Assert;
+import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.SysManager;
 
 import io.swagger.annotations.Api;
@@ -110,11 +114,11 @@ public class ConsortiumController {
 		return BaasResult.success();
 	}
 	
-	@PostMapping("/script/download")
+	@LogSkip
+	@GetMapping("/script/download")
 	@ApiOperation("获取部署脚本")
-	public BaasResult<Void> getDeployScript(@RequestBody DownloadDeployScriptRequest getDeployScriptRequest) {
-		consortiumService.getDeployScript(getDeployScriptRequest);
-		return BaasResult.success();
+	public void getDeployScript(DownloadDeployScriptRequest downloadDeployScriptRequest, HttpServletResponse response) throws Exception {
+		consortiumService.getDeployScript(downloadDeployScriptRequest, response);
 	}
 
 	private void checkCreateConsAndAdmin() {

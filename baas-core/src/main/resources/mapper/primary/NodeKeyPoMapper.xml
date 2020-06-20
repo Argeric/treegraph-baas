@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.treegraph.baas.core.mapper.primary.NodeKeyPoMapper">
+  <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.NodeKeyPo">
+    <id column="nodeKey_id" jdbcType="BIGINT" property="id" />
+    <result column="nodeKey_node_id" jdbcType="VARCHAR" property="nodeId" />
+    <result column="nodeKey_keypair_id" jdbcType="BIGINT" property="keypairId" />
+    <result column="nodeKey_consortium_id" jdbcType="VARCHAR" property="consortiumId" />
+    <result column="nodeKey_delete_flag" jdbcType="INTEGER" property="deleteFlag" />
+    <result column="nodeKey_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="nodeKey_create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="nodeKey_update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="nodeKey_update_by" jdbcType="VARCHAR" property="updateBy" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    nodeKey.id as nodeKey_id, nodeKey.node_id as nodeKey_node_id, nodeKey.keypair_id as nodeKey_keypair_id, 
+    nodeKey.consortium_id as nodeKey_consortium_id, nodeKey.delete_flag as nodeKey_delete_flag, 
+    nodeKey.create_time as nodeKey_create_time, nodeKey.create_by as nodeKey_create_by, 
+    nodeKey.update_time as nodeKey_update_time, nodeKey.update_by as nodeKey_update_by
+  </sql>
+  <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.NodeKeyPoExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from node_key nodeKey
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from node_key nodeKey
+    where nodeKey.id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from node_key
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.NodeKeyPoExample">
+    delete from node_key nodeKey
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.NodeKeyPo" useGeneratedKeys="true">
+    insert into node_key (node_id, keypair_id, consortium_id, 
+      delete_flag, create_time, create_by, 
+      update_time, update_by)
+    values (#{nodeId,jdbcType=VARCHAR}, #{keypairId,jdbcType=BIGINT}, #{consortiumId,jdbcType=VARCHAR}, 
+      #{deleteFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.NodeKeyPo" useGeneratedKeys="true">
+    insert into node_key
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="nodeId != null">
+        node_id,
+      </if>
+      <if test="keypairId != null">
+        keypair_id,
+      </if>
+      <if test="consortiumId != null">
+        consortium_id,
+      </if>
+      <if test="deleteFlag != null">
+        delete_flag,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="createBy != null">
+        create_by,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="updateBy != null">
+        update_by,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="nodeId != null">
+        #{nodeId,jdbcType=VARCHAR},
+      </if>
+      <if test="keypairId != null">
+        #{keypairId,jdbcType=BIGINT},
+      </if>
+      <if test="consortiumId != null">
+        #{consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteFlag != null">
+        #{deleteFlag,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null">
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="org.treegraph.baas.core.domain.NodeKeyPoExample" resultType="java.lang.Long">
+    select count(*) from node_key nodeKey
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update node_key nodeKey
+    <set>
+      <if test="record.id != null">
+        nodeKey.id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.nodeId != null">
+        nodeKey.node_id = #{record.nodeId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.keypairId != null">
+        nodeKey.keypair_id = #{record.keypairId,jdbcType=BIGINT},
+      </if>
+      <if test="record.consortiumId != null">
+        nodeKey.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deleteFlag != null">
+        nodeKey.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        nodeKey.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createBy != null">
+        nodeKey.create_by = #{record.createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateTime != null">
+        nodeKey.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateBy != null">
+        nodeKey.update_by = #{record.updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update node_key nodeKey
+    set nodeKey.id = #{record.id,jdbcType=BIGINT},
+      nodeKey.node_id = #{record.nodeId,jdbcType=VARCHAR},
+      nodeKey.keypair_id = #{record.keypairId,jdbcType=BIGINT},
+      nodeKey.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      nodeKey.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      nodeKey.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      nodeKey.create_by = #{record.createBy,jdbcType=VARCHAR},
+      nodeKey.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      nodeKey.update_by = #{record.updateBy,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="org.treegraph.baas.core.domain.NodeKeyPo">
+    update node_key
+    <set>
+      <if test="nodeId != null">
+        node_id = #{nodeId,jdbcType=VARCHAR},
+      </if>
+      <if test="keypairId != null">
+        keypair_id = #{keypairId,jdbcType=BIGINT},
+      </if>
+      <if test="consortiumId != null">
+        consortium_id = #{consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteFlag != null">
+        delete_flag = #{deleteFlag,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null">
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null">
+        update_by = #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.NodeKeyPo">
+    update node_key
+    set node_id = #{nodeId,jdbcType=VARCHAR},
+      keypair_id = #{keypairId,jdbcType=BIGINT},
+      consortium_id = #{consortiumId,jdbcType=VARCHAR},
+      delete_flag = #{deleteFlag,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

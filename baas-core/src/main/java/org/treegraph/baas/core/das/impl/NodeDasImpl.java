@@ -32,7 +32,6 @@ public class NodeDasImpl implements NodeDas {
 	}
 	
 	public List<NodePo> findAll(String consId, String ip) {
-
 		NodePoExample example = new NodePoExample();
 		Criteria criteria = example.createCriteria();
 		if (StringUtils.isNotBlank(consId)) {

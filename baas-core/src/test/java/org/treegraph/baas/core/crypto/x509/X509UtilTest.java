@@ -25,6 +25,21 @@ public class X509UtilTest {
 	
 	private static final String CONSORTIUM_CERT_SUBJECT = "CN=consortiumCert,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN";
 	
+//	public static void test3(){
+//		for(NodePo node : nodes){
+//			String nodeInfo = node.getId() + "-" + node.getNodeIp() + "-" + node.getNodePort();
+//			byte[] cipher = EncryptUtil.decodeByPrivateKey(algo, true, privateKey, nodeInfo.getBytes());
+//			String cipherNodeInfo = Base64.toBase64String(cipher);
+//			System.out.println("cipher node info====>"+cipherNodeInfo);//test data
+//			consortiumNodeList.add(cipherNodeInfo);
+//			
+//			PublicKey publicKey = EncryptUtil.loadPublicKey(algo, consortiumKeypair.getPublicKey());//test data
+//			byte[] plain = EncryptUtil.decodeByPublicKey(algo, false, publicKey, Base64.decode(cipherNodeInfo));//test data
+//			String plainNodeInfo = new String(plain);
+//			System.out.println("plain node info====>"+plainNodeInfo);//test data
+//		}
+//	}
+	
     public static void test2(String algo) throws Exception{
     	KeyPair keyPair = KeyUtil.generateKeyPair(algo);
 	    String publicKeyString = KeyUtil.getPublicKeyString(keyPair);
@@ -36,18 +51,19 @@ public class X509UtilTest {
 		if (signAlgo.getAlgorithm().equals(GMObjectIdentifiers.sm2sign_with_sm3) ||
 				signAlgo.getAlgorithm().equals(X9ObjectIdentifiers.ecdsa_with_SHA256)) {
 			String plainText = algo + "_测试_公钥加密私钥解密1";
-			byte[] cipherData = EncryptUtil.decodeByECPublicKey(true, EncryptUtil.loadECPublicKey(publicKeyString), plainText.getBytes());
+			plainText = "111-192.168.121.11-9797";
+			byte[] cipherData = EncryptUtil.decodeByPublicKey(algo, true, EncryptUtil.loadPublicKey(algo, publicKeyString), plainText.getBytes());
 			String cipher = Base64.toBase64String(cipherData);
-			byte[] res = EncryptUtil.decodeByECPrivateKey(false, EncryptUtil.loadECPrivateKey(privateKeyString),Base64.decode(cipher));
+			byte[] res = EncryptUtil.decodeByPrivateKey(algo, false, EncryptUtil.loadPrivateKey(algo, privateKeyString),Base64.decode(cipher));
 			String restr = new String(res);
 			System.out.println("原文：" + plainText);
 			System.out.println("加密：" + cipher);
 			System.out.println("解密：" + restr);
 			
 			String plainText2 = algo + "_测试_私钥加密公钥解密2";
-			byte[] cipherData2 = EncryptUtil.decodeByECPrivateKey(true, EncryptUtil.loadECPrivateKey(privateKeyString), plainText2.getBytes());
+			byte[] cipherData2 = EncryptUtil.decodeByPrivateKey(algo, true, EncryptUtil.loadPrivateKey(algo, privateKeyString), plainText2.getBytes());
 			String cipher2 = Base64.toBase64String(cipherData2);
-			byte[] res2 = EncryptUtil.decodeByECPublicKey(false, EncryptUtil.loadECPublicKey(publicKeyString), Base64.decode(cipher2));
+			byte[] res2 = EncryptUtil.decodeByPublicKey(algo, false, EncryptUtil.loadPublicKey(algo, publicKeyString), Base64.decode(cipher2));
 			String restr2 = new String(res2);
 			System.out.println("原文：" + plainText2);
 			System.out.println("加密：" + cipher2);
@@ -55,18 +71,18 @@ public class X509UtilTest {
 			
 		} else if (signAlgo.getAlgorithm().equals(PKCSObjectIdentifiers.sha256WithRSAEncryption)) {
 			String plainText = algo + "_测试_公钥加密私钥解密1";
-			byte[] cipherData = EncryptUtil.decodeByRSAPublicKey(true, EncryptUtil.loadRSAPublicKey(publicKeyString), plainText.getBytes());
+			byte[] cipherData = EncryptUtil.decodeByPublicKey(algo, true, EncryptUtil.loadPublicKey(algo, publicKeyString), plainText.getBytes());
 			String cipher = Base64.toBase64String(cipherData);
-			byte[] res = EncryptUtil.decodeByRSAPrivateKey(false, EncryptUtil.loadRSAPrivateKey(privateKeyString),Base64.decode(cipher));
+			byte[] res = EncryptUtil.decodeByPrivateKey(algo, false, EncryptUtil.loadPrivateKey(algo, privateKeyString),Base64.decode(cipher));
 			String restr = new String(res);
 			System.out.println("原文：" + plainText);
 			System.out.println("加密：" + cipher);
 			System.out.println("解密：" + restr);
 			
 			String plainText2 = algo + "_测试_私钥加密公钥解密2";
-			byte[] cipherData2 = EncryptUtil.decodeByRSAPrivateKey(true, EncryptUtil.loadRSAPrivateKey(privateKeyString), plainText2.getBytes());
+			byte[] cipherData2 = EncryptUtil.decodeByPrivateKey(algo, true, EncryptUtil.loadPrivateKey(algo, privateKeyString), plainText2.getBytes());
 			String cipher2 = Base64.toBase64String(cipherData2);
-			byte[] res2 = EncryptUtil.decodeByRSAPublicKey(false, EncryptUtil.loadRSAPublicKey(publicKeyString), Base64.decode(cipher2));
+			byte[] res2 = EncryptUtil.decodeByPublicKey(algo, false, EncryptUtil.loadPublicKey(algo, publicKeyString), Base64.decode(cipher2));
 			String restr2 = new String(res2);
 			System.out.println("原文：" + plainText2);
 			System.out.println("加密：" + cipher2);
@@ -96,8 +112,8 @@ public class X509UtilTest {
 	}
     
     public static void main(String[] args) throws Exception{
-    	String algo = "rsa";
-    	test1(algo);
+    	String algo = "sm2";
+    	//test1(algo);
     	test2(algo);
     }
 }

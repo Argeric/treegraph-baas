@@ -1,8 +1,10 @@
 package org.treegraph.baas.core.service.impl;
 
 import java.io.OutputStream;
+import java.security.PrivateKey;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,6 +16,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.bouncycastle.util.encoders.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
@@ -57,7 +60,6 @@ import org.treegraph.baas.core.enums.ConsortiumEnum;
 import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.enums.UserEnum;
-import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.ConsortiumService;
 import org.treegraph.baas.core.service.bo.OrgBo;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
@@ -65,6 +67,7 @@ import org.treegraph.baas.core.service.bo.UserInfoBo;
 import org.treegraph.baas.core.util.CollectionUtils;
 import org.treegraph.baas.core.util.DateTimeUtils;
 import org.treegraph.baas.core.util.LogSkip;
+import org.treegraph.baas.core.util.crypto.x509.EncryptUtil;
 
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
@@ -334,56 +337,53 @@ public class ConsortiumServicempl implements ConsortiumService {
 
 	@LogSkip
 	public void getDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp) throws Exception {
-//		// nodes
-//		ConsortiumPo cons = consortiumDas.findById(req.getConsortiumId())
-//				.orElseThrow(() -> new AlertException("consortium.not.found"));
-//		List<NodePo> nodes = nodeDas.findByConsIdAndChainId(cons.getConsortiumId(), null);
-//		Assert.notEmpty(nodes, "node.not.found");
-		
-		// mock nodes
-		List<NodePo> nodes = new ArrayList<>();
-		nodes.add(NodePo.builder().id("111").nodeIp("192.168.121.11").nodePort(9797).build());
-		nodes.add(NodePo.builder().id("222").nodeIp("192.168.121.12").nodePort(9797).build());
-		
-		// nodes info
-		List<String> consortiumNodeList = nodes.stream()
-				.map(item -> item.getId() + "-" + item.getNodeIp() + "-" + item.getNodePort())
-				.collect(Collectors.toList());
-		String consortiumNodes = JSON.toJSONString(consortiumNodeList);
+		List<NodePo> nodes = nodeDas.findAll(req.getConsortiumId(), null);
+		Assert.notEmpty(nodes, "node.not.found");
 		
 		// certificate info
 		String algo = X509CertConstant.DEFAULT_ALGO;
 		KeypairPo rootKeypair = keypairBuildService.getRootKeypair(algo);
 		KeypairPo consortiumKeypair = keypairBuildService.getConsortiumKeyPair(req.getConsortiumId(), algo, rootKeypair);
+		PrivateKey privateKey = EncryptUtil.loadPrivateKey(algo, consortiumKeypair.getPrivateKey());
 		
-		// build script
-		resp.setContentType("application/zip");
-		resp.setHeader("Content-disposition", "attachment; filename=\"deploy.zip\"");
-		ZipOutputStream zipOutputStream = new ZipOutputStream((OutputStream) resp.getOutputStream());
+		// nodes info
+		List<String> consortiumNodeList = new ArrayList<>();
+		for(NodePo node : nodes){
+			String nodeInfo = node.getId() + "-" + node.getNodeIp() + "-" + node.getNodePort();
+			byte[] cipher = EncryptUtil.decodeByPrivateKey(algo, true, privateKey, nodeInfo.getBytes());
+			consortiumNodeList.add(Base64.toBase64String(cipher));
+		}
+		String consortiumNodes = JSON.toJSONString(consortiumNodeList);
+		
+		// script content
 		List<NodeKeypairBo> nodeKeypairBoList = new ArrayList<>();
+		Map<String, String> nodeScriptContentMap = new HashMap<>();
 		for(NodePo node:nodes){
-			String nodeIdentifier = node.getNodeIp()+"-"+node.getNodePort();
-			zipOutputStream.putNextEntry(new ZipEntry("deploy."+nodeIdentifier+".toml"));
-			String consortiumIdInfo = "consortium_id = " + req.getConsortiumId();
-			String consortiumCertInfo = "consortium_cert = " + consortiumKeypair.getCertStr();
-			String consortiumNodesInfo = "consortium_nodes = " + consortiumNodes;
 			NodeKeypairBo nodeKeypairInfo = keypairBuildService.getNodeKeypair(req.getConsortiumId(), algo, node);
 			nodeKeypairBoList.add(nodeKeypairInfo);
 			KeypairPo nodeKeypair = nodeKeypairInfo.getKeypair();
-			String consortiumKeypairInfo = "consortium_keypair = " + node.getId() + "-" + nodeKeypair.getPublicKey()
-					+ "-" + nodeKeypair.getPrivateKey();
-			StringBuffer tomlFileContent = new StringBuffer();
-			tomlFileContent.append(consortiumIdInfo).append(SplitterConstant.LINE_SEP);
-			tomlFileContent.append(consortiumCertInfo).append(SplitterConstant.LINE_SEP);
-			tomlFileContent.append(consortiumNodesInfo).append(SplitterConstant.LINE_SEP);
-			tomlFileContent.append(consortiumKeypairInfo);
-			zipOutputStream.write(tomlFileContent.toString().getBytes());
+			StringBuffer scriptContent = new StringBuffer();
+			scriptContent.append("consortium_id = " + req.getConsortiumId()).append(SplitterConstant.LINE_SEP);
+			scriptContent.append("consortium_cert = " + consortiumKeypair.getCertStr()).append(SplitterConstant.LINE_SEP);
+			scriptContent.append("consortium_nodes = " + consortiumNodes).append(SplitterConstant.LINE_SEP);
+			String keypairInfo = node.getId() + "-" + nodeKeypair.getPublicKey() + "-" + nodeKeypair.getPrivateKey();
+			byte[] cipher = EncryptUtil.decodeByPrivateKey(algo, true, privateKey, keypairInfo.getBytes());
+			scriptContent.append("consortium_keypair = " + Base64.toBase64String(cipher));
+			nodeScriptContentMap.put(node.getNodeIp()+"-"+node.getNodePort(), scriptContent.toString());
+		}
+		
+		// save key and write script
+		keypairDas.addKeyPairInfo(rootKeypair, consortiumKeypair, nodeKeypairBoList);
+		log.info("build deploy script finished["+req.getConsortiumId()+"]");
+		resp.setContentType("application/zip");
+		resp.setHeader("Content-disposition", "attachment; filename=\"deploy.zip\"");
+		ZipOutputStream zipOutputStream = new ZipOutputStream((OutputStream) resp.getOutputStream());
+		for(Map.Entry<String, String> item : nodeScriptContentMap.entrySet()){
+			zipOutputStream.putNextEntry(new ZipEntry("deploy."+item.getKey()+".toml"));
+			zipOutputStream.write(item.getValue().getBytes());
 			zipOutputStream.closeEntry();
 		}
 		zipOutputStream.close();
-		
-		// save key pair info
-		keypairDas.addKeyPairInfo(rootKeypair, consortiumKeypair, nodeKeypairBoList);
-		log.info("build deploy script finished["+req.getConsortiumId()+"]");
+		log.info("write deploy script finished["+req.getConsortiumId()+"]");
 	}
 }

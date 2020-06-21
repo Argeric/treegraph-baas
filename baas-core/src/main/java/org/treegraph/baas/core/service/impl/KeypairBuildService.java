@@ -37,6 +37,18 @@ public class KeypairBuildService {
 	
     private KeypairDas keypairDas;
     
+//    public static void main(String[] args) throws Exception{
+//    	String algo = X509CertConstant.DEFAULT_ALGO;
+//    	
+//    	KeyPair rootKeyPair = KeyUtil.generateKeyPair(algo);
+//    	PrivateKey rootPrivateKeyBefore = rootKeyPair.getPrivate();
+//		String rootPrivateKeyStr = KeyUtil.getPrivateKeyString(rootKeyPair);
+//		System.out.println(rootPrivateKeyBefore.getAlgorithm());
+//		
+//		PrivateKey rootPrivateKeyAfter = EncryptUtil.loadPrivateKey(algo, rootPrivateKeyStr);
+//		System.out.println(rootPrivateKeyAfter.getAlgorithm());
+//	}
+    
 	public KeypairPo getRootKeypair(String algo) throws Exception{
 		List<KeypairPo> rootKeypairs = keypairDas.findAll(ConsortiumConstant.DEFAULT_CONSORTIUM_ID,
 				CryptoEnum.KeyType.CONSORTIUM.getCode(), algo);
@@ -78,7 +90,7 @@ public class KeypairBuildService {
 		}
 		
 		PrivateKey rootPrivateKey = EncryptUtil.loadPrivateKey(algo, rootKeypair.getPrivateKey());
-		byte[] rootCertBytes = rootKeypair.getCertStr().getBytes();
+		byte[] rootCertBytes = CertUtil.loadCertByString(rootKeypair.getCertStr()).getEncoded();
 		KeyPair consortiumKeyPair = KeyUtil.generateKeyPair(algo);
 		PKCS10CertificationRequest consortiumCsr = CertUtil.generateCSR(
 				new X500Name(X509CertConstant.CONSORTIUM_CERT_SUBJECT), consortiumKeyPair.getPublic(),

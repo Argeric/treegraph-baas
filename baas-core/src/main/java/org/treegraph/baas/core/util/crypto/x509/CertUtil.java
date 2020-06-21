@@ -1,27 +1,47 @@
 package org.treegraph.baas.core.util.crypto.x509;
 
-import org.bouncycastle.asn1.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+import java.util.Locale;
+import java.util.UUID;
+
+import org.bouncycastle.asn1.ASN1EncodableVector;
+import org.bouncycastle.asn1.ASN1Encoding;
+import org.bouncycastle.asn1.ASN1Integer;
+import org.bouncycastle.asn1.DERBitString;
+import org.bouncycastle.asn1.DERNull;
+import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.DERSet;
 import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.CertificationRequest;
 import org.bouncycastle.asn1.pkcs.CertificationRequestInfo;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.sec.SECObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x509.*;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.BasicConstraints;
+import org.bouncycastle.asn1.x509.Certificate;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.ExtensionsGenerator;
+import org.bouncycastle.asn1.x509.KeyUsage;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.asn1.x509.TBSCertificate;
+import org.bouncycastle.asn1.x509.Time;
+import org.bouncycastle.asn1.x509.V3TBSCertificateGenerator;
 import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.bc.BcX509ExtensionUtils;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
-
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStreamWriter;
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.util.Date;
-import java.util.Locale;
-import java.util.UUID;
 
 public class CertUtil {
 	
@@ -141,6 +161,20 @@ public class CertUtil {
 	public static Date getNotAfter(int days){
 		return new Date(System.currentTimeMillis() + 1000*60*60*24L*days);
 	}
+	
+	public static X509Certificate loadCertByString(String certString) throws Exception {
+		CertificateFactory certificate_factory = CertificateFactory.getInstance("X.509");
+		InputStream is = new ByteArrayInputStream(certString.getBytes("UTF-8"));
+		X509Certificate x509certificate = (X509Certificate) certificate_factory.generateCertificate(is);
+		return x509certificate;
+	}
+	
+	public static X509Certificate loadCertByFile(String pathToCert) throws Exception {
+		CertificateFactory certificate_factory = CertificateFactory.getInstance("X.509");
+		FileInputStream file_inputstream = new FileInputStream(pathToCert);
+		X509Certificate x509certificate = (X509Certificate) certificate_factory.generateCertificate(file_inputstream);
+		return x509certificate;
+	}
 
 	private static Certificate assembleCert(TBSCertificate tbsCertificate,
 			SubjectPublicKeyInfo issuerSubjectPublicKeyInfo, PrivateKey issuerPrivateKey) throws Exception {
@@ -156,7 +190,7 @@ public class CertUtil {
 		else if (issuerPrivateKey.getAlgorithm().equalsIgnoreCase("RSA")) {
 			signature = SignUtil.RSASign(tbsCertificate.getEncoded(), issuerPrivateKey);
 		} else
-			throw new IllegalArgumentException("不支持的密钥算法");
+			throw new IllegalArgumentException("不支持的密钥算法["+issuerPrivateKey.getAlgorithm()+"]");
 		ASN1EncodableVector v = new ASN1EncodableVector();
 		v.add(tbsCertificate);
 		v.add(getSignAlgo(issuerSubjectPublicKeyInfo.getAlgorithm()));

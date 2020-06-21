@@ -15,6 +15,7 @@ import org.treegraph.baas.core.domain.KeypairPoExample.Criteria;
 import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.mapper.primary.KeypairPoMapper;
 import org.treegraph.baas.core.mapper.primary.NodeKeyPoMapper;
+import org.treegraph.baas.core.util.CollectionUtils;
 
 import lombok.AllArgsConstructor;
 
@@ -70,7 +71,9 @@ public class KeypairDasImpl implements KeypairDas {
 		if(consortiumKeypair.getId() == null){
 			keypairList.add(consortiumKeypair);
 		}
-		succFlag = succFlag && keypairPoMapper.bulkInsert(keypairList) == keypairList.size();
+		if(CollectionUtils.isNotEmpty(keypairList)){
+			succFlag = succFlag && keypairPoMapper.bulkInsert(keypairList) == keypairList.size();
+		}
 		
 		// add key pair of node
 		for(NodeKeypairBo nodeKeypairBo : nodeKeypairBoList){

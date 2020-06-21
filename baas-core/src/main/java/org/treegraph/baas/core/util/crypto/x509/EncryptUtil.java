@@ -68,7 +68,7 @@ public class EncryptUtil {
 	public static ECPublicKey loadECPublicKey(String publicKeyStr) throws Exception {
 		try {
 			byte[] buffer = Base64.decode(publicKeyStr);
-			KeyFactory keyFactory = KeyFactory.getInstance("EC");
+			KeyFactory keyFactory = KeyFactory.getInstance("ECDSA");
 			X509EncodedKeySpec keySpec = new X509EncodedKeySpec(buffer);
 			return (ECPublicKey) keyFactory.generatePublic(keySpec);
 		} catch (NoSuchAlgorithmException e) {
@@ -86,7 +86,7 @@ public class EncryptUtil {
 	public static ECPrivateKey loadECPrivateKey(String privateKeyStr) throws Exception {
 		try {
 			byte[] buffer = Base64.decode(privateKeyStr);
-			KeyFactory keyFactory = KeyFactory.getInstance("EC");
+			KeyFactory keyFactory = KeyFactory.getInstance("ECDSA");
 			PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(buffer);
 			return (ECPrivateKey) keyFactory.generatePrivate(keySpec);
 		} catch (NoSuchAlgorithmException e) {

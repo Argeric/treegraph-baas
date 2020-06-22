@@ -1,5 +1,6 @@
 
 SET FOREIGN_KEY_CHECKS = 0;
+
 -- ----------------------------
 -- Table structure for blockchain
 -- ----------------------------
@@ -60,6 +61,27 @@ CREATE TABLE `consortium` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='联盟表';
 
 -- ----------------------------
+-- Table structure for keypair
+-- ----------------------------
+DROP TABLE IF EXISTS `keypair`;
+CREATE TABLE `keypair` (
+  `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `public_key` varchar(2000) DEFAULT NULL COMMENT '公钥',
+  `private_key` varchar(2000) DEFAULT NULL COMMENT '私钥',
+  `csr_str` varchar(2000) DEFAULT NULL COMMENT '证书签名请求',
+  `cert_str` varchar(2000) DEFAULT NULL COMMENT '证书',
+  `algorithm` varchar(10) DEFAULT NULL COMMENT '生成密钥算法',
+  `consortium_id` varchar(36) DEFAULT NULL COMMENT '联盟id',
+  `key_type` int(2) DEFAULT NULL COMMENT '1-联盟，2-节点',
+  `delete_flag` int(2) DEFAULT NULL COMMENT '0-未删除，1-已删除',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `create_by` varchar(36) DEFAULT NULL COMMENT '创建者',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `update_by` varchar(36) DEFAULT NULL COMMENT '更新者',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
 -- Table structure for node
 -- ----------------------------
 DROP TABLE IF EXISTS `node`;
@@ -78,6 +100,23 @@ CREATE TABLE `node` (
   `update_by` varchar(36) DEFAULT NULL COMMENT '更新人',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='节点表';
+
+-- ----------------------------
+-- Table structure for node_key
+-- ----------------------------
+DROP TABLE IF EXISTS `node_key`;
+CREATE TABLE `node_key` (
+  `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `node_id` varchar(36) DEFAULT NULL COMMENT '节点id',
+  `keypair_id` bigint(11) DEFAULT NULL COMMENT '密钥id',
+  `consortium_id` varchar(36) DEFAULT NULL COMMENT '联盟id',
+  `delete_flag` int(2) DEFAULT NULL COMMENT '0-未删除，1-已删除',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `create_by` varchar(36) DEFAULT NULL COMMENT '创建者',
+  `update_time` datetime DEFAULT NULL COMMENT '修改时间',
+  `update_by` varchar(36) DEFAULT NULL COMMENT '修改者',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Table structure for permission
@@ -129,7 +168,7 @@ CREATE TABLE `role_permission` (
   `update_by` varchar(36) DEFAULT NULL COMMENT '更新者',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_role_permission` (`role_id`,`permission_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8 COMMENT='角色权限信息';
+) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8 COMMENT='角色权限信息';
 
 -- ----------------------------
 -- Table structure for user_info
@@ -181,7 +220,7 @@ CREATE TABLE `user_login_token` (
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_employeeId` (`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='用户访问token信息';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='用户访问token信息';
 
 -- ----------------------------
 -- Table structure for user_oper_log
@@ -200,7 +239,7 @@ CREATE TABLE `user_oper_log` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`),
   KEY `idx_employeeId` (`user_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1587 DEFAULT CHARSET=utf8 COMMENT='用户操作日志';
+) ENGINE=InnoDB AUTO_INCREMENT=1830 DEFAULT CHARSET=utf8 COMMENT='用户操作日志';
 
 -- ----------------------------
 -- Table structure for user_organization
@@ -215,7 +254,7 @@ CREATE TABLE `user_organization` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COMMENT='用户机构表';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='用户机构表';
 
 -- ----------------------------
 -- Table structure for user_role
@@ -234,7 +273,7 @@ CREATE TABLE `user_role` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_employeeId_roleId` (`user_id`,`role_id`) USING BTREE,
   KEY `idx_roleId` (`role_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8 COMMENT='用户角色表';
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8 COMMENT='用户角色表';
 
 -- ----------------------------
 -- Table structure for user_role_invite

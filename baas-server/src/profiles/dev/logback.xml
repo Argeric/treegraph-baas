@@ -2,9 +2,9 @@
 
 <configuration>
 	<!-- 
-    <property name="LOG_HOME" value="/opt/service/treegraph-baas/log"/>
+    <property name="LOG_HOME" value="/Users/wangzhenting/Documents/project_log/treegraph_baas"/>
     -->
-    <property name="LOG_HOME" value="/Users/zhenting/Documents/project_log/treegraph_baas"/>
+    <property name="LOG_HOME" value="/opt/service/treegraph-baas/log"/>
     <property name="LOG_NAME" value="treegraph-baas"/>
 
     <appender name="CONSOLE_INFO" class="ch.qos.logback.core.ConsoleAppender">

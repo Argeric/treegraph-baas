@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.NodeInfo;
 import org.treegraph.baas.api.dto.request.ListNodeRequest;
 import org.treegraph.baas.api.dto.request.ModifyNodeRequest;
@@ -31,7 +31,6 @@ import com.github.pagehelper.PageInfo;
 
 import lombok.AllArgsConstructor;
 
-@Validated
 @Service
 @AllArgsConstructor
 public class NodeServicempl implements NodeService {
@@ -41,6 +40,8 @@ public class NodeServicempl implements NodeService {
     private ConsortiumDas consortiumDas;
     
     private BlockchainDas blockchainDas;
+    
+    private HeartbeatService heartbeatService;
  
 	public ListNodeResponse listNodes(ListNodeRequest req) {
 		
@@ -68,7 +69,7 @@ public class NodeServicempl implements NodeService {
     			.blockchainId(item.getBlockchainId())
     			.blockchainName(blockchainIdNameMap.get(item.getBlockchainId()))
     			.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
-    			.status(item.getStatus())
+    			.status(getNodeStatus(item.getStatus(), item.getNodeIp(), item.getNodePort()))
     			.build()).collect(Collectors.toList());
     	
     	return ListNodeResponse.builder()
@@ -85,7 +86,7 @@ public class NodeServicempl implements NodeService {
 				.ip(nodePo.getNodeIp())
 				.port(nodePo.getNodePort()+"")
 				.org(nodePo.getOrganizationName())
-				.status(nodePo.getStatus())
+				.status(getNodeStatus(nodePo.getStatus(), nodePo.getNodeIp(), nodePo.getNodePort()))
 				.build();
 	}
 
@@ -108,5 +109,18 @@ public class NodeServicempl implements NodeService {
 				.build();
 		
 		return nodeDas.modifyNode(nodePo);
+	}
+	
+	private int getNodeStatus(int dbStatus, String nodeIp, int nodePort) {
+		if (dbStatus == NodeEnum.Status.TO_DEPLOY.getCode() || dbStatus == NodeEnum.Status.STOP.getCode()) {
+			return dbStatus;
+		}
+
+		boolean heartbeat = heartbeatService.sendNodeHeartbeat(nodeIp, nodePort, HttpMethod.POST);
+		if (heartbeat) {
+			return NodeEnum.Status.RUNING.getCode();
+		} else {
+			return NodeEnum.Status.EXCEPTION.getCode();
+		}
 	}
 }

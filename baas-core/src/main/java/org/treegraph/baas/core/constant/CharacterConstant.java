@@ -1,15 +1,15 @@
 package org.treegraph.baas.core.constant;
 
-public interface CharacterConstant {
+public class CharacterConstant {
 
-    String COMMA = ",";
-    String DOT = ".";
-    String COLON = ":";
-    String SEMICOLON = ";";
-    String QUESTION_MARK = "?";
-    String BLANK = " ";
-    String OPEN_BRAKET = "(";
-    String CLOSE_BRAKET = ")";
-    String UNDERSCORE = "_";
+	public static final String COMMA = ",";
+	public static final String DOT = ".";
+	public static final String COLON = ":";
+	public static final String SEMICOLON = ";";
+	public static final String QUESTION_MARK = "?";
+	public static final String BLANK = " ";
+	public static final String OPEN_BRAKET = "(";
+	public static final String CLOSE_BRAKET = ")";
+	public static final String UNDERSCORE = "_";
 
 }

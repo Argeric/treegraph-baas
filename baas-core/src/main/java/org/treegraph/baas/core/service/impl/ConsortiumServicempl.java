@@ -338,6 +338,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 	@LogSkip
 	public void getDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp) throws Exception {
 		List<NodePo> nodes = nodeDas.findAll(req.getConsortiumId(), null);
+		nodes.add(NodePo.builder().id("111").nodeIp("219.123.56.101").nodePort(9797).build());
+		nodes.add(NodePo.builder().id("222").nodeIp("219.123.56.102").nodePort(9797).build());
 		Assert.notEmpty(nodes, "node.not.found");
 		
 		// certificate info

@@ -5,7 +5,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import org.assertj.core.util.Lists;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -115,9 +114,9 @@ public class ConsortiumController {
 	}
 	
 	@LogSkip
-	@GetMapping("/script/download")
+	@PostMapping("/script/download")
 	@ApiOperation("获取部署脚本")
-	public void getDeployScript(DownloadDeployScriptRequest downloadDeployScriptRequest, HttpServletResponse response) throws Exception {
+	public void getDeployScript(@RequestBody DownloadDeployScriptRequest downloadDeployScriptRequest, HttpServletResponse response) throws Exception {
 		consortiumService.getDeployScript(downloadDeployScriptRequest, response);
 	}
 

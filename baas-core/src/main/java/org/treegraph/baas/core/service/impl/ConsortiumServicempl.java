@@ -365,12 +365,12 @@ public class ConsortiumServicempl implements ConsortiumService {
 			nodeKeypairBoList.add(nodeKeypairInfo);
 			KeypairPo nodeKeypair = nodeKeypairInfo.getKeypair();
 			StringBuffer scriptContent = new StringBuffer();
-			scriptContent.append("consortium_id = " + req.getConsortiumId()).append(SplitterConstant.LINE_SEP);
-			scriptContent.append("consortium_cert = " + consortiumKeypair.getCertStr()).append(SplitterConstant.LINE_SEP);
+			scriptContent.append("consortium_id = \"" + req.getConsortiumId()+"\"").append(SplitterConstant.LINE_SEP);
+			scriptContent.append("consortium_cert = \"\"\"" + consortiumKeypair.getCertStr() + "\"\"\"").append(SplitterConstant.LINE_SEP);
 			scriptContent.append("consortium_nodes = " + consortiumNodes).append(SplitterConstant.LINE_SEP);
 			String keypairInfo = node.getId() + "-" + nodeKeypair.getPublicKey() + "-" + nodeKeypair.getPrivateKey();
 			byte[] cipher = EncryptUtil.decodeByPrivateKey(algo, true, privateKey, keypairInfo.getBytes());
-			scriptContent.append("consortium_keypair = " + Base64.toBase64String(cipher));
+			scriptContent.append("consortium_keypair = \"" + Base64.toBase64String(cipher) + "\"");
 			nodeScriptContentMap.put(node.getNodeIp()+"-"+node.getNodePort(), scriptContent.toString());
 		}
 		
@@ -388,4 +388,5 @@ public class ConsortiumServicempl implements ConsortiumService {
 		zipOutputStream.close();
 		log.info("write deploy script finished["+req.getConsortiumId()+"]");
 	}
+
 }

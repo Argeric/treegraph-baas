@@ -252,3 +252,60 @@ CREATE TABLE `user_role_invite` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='用户角色邀请表';
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ----------------------------
+-- Init data---permission
+-- ----------------------------
+INSERT INTO `permission` VALUES (1, 1, '创建联盟', 'createCons', 0, '2020-05-06 15:01:04', '2020-05-06 15:01:07');
+INSERT INTO `permission` VALUES (2, 1, '修改联盟', 'updateCons', 0, '2020-05-06 15:01:27', '2020-05-06 15:01:30');
+INSERT INTO `permission` VALUES (3, 1, '查看联盟', 'viewCons', 0, '2020-05-06 15:01:54', '2020-05-06 15:01:56');
+INSERT INTO `permission` VALUES (4, 1, '创建联盟管理员', 'createConsAdmin', 0, '2020-05-06 15:02:17', '2020-05-06 15:02:27');
+INSERT INTO `permission` VALUES (5, 1, '创建联盟用户', 'createConsUser', 0, '2020-05-06 15:02:42', '2020-05-06 15:02:50');
+INSERT INTO `permission` VALUES (6, 1, '修改联盟用户', 'updateConsUser', 0, '2020-05-06 15:03:05', '2020-05-06 15:03:17');
+INSERT INTO `permission` VALUES (7, 1, '给联盟用户分配权限', 'authConsUser', 0, '2020-05-06 15:03:31', '2020-05-06 15:03:34');
+INSERT INTO `permission` VALUES (8, 1, '查看联盟用户', 'viewConsUser', 0, '2020-05-06 15:03:51', '2020-05-06 15:04:02');
+INSERT INTO `permission` VALUES (9, 1, '创建区块链', 'createBlockchain', 0, '2020-05-06 15:04:20', '2020-05-06 15:04:23');
+INSERT INTO `permission` VALUES (10, 1, '修改区块链', 'updateBlockchain', 0, '2020-05-06 15:04:44', '2020-05-06 15:04:47');
+INSERT INTO `permission` VALUES (11, 1, '查看区块链信息', 'viewBlockchain', 0, '2020-05-06 15:05:05', '2020-05-06 15:05:07');
+INSERT INTO `permission` VALUES (12, 1, '查看区块链浏览器', 'viewBlockchainScan', 0, '2020-05-06 15:05:27', '2020-05-06 15:05:30');
+INSERT INTO `permission` VALUES (13, 1, '申请证书', 'generateCA', 0, '2020-05-06 15:05:48', '2020-05-06 15:05:51');
+INSERT INTO `permission` VALUES (14, 1, '创建节点', 'createNode', 0, '2020-05-06 15:06:09', '2020-05-06 15:06:12');
+INSERT INTO `permission` VALUES (15, 1, '修改节点', 'updateNode', 0, '2020-05-06 15:06:30', '2020-05-06 15:06:38');
+INSERT INTO `permission` VALUES (16, 1, '查看节点日志', 'viewNodeLog', 0, '2020-05-06 15:06:55', '2020-05-06 15:06:58');
+INSERT INTO `permission` VALUES (17, 1, '查看节点运维信息', 'viewNodeMonitor', 0, '2020-05-06 15:07:18', '2020-05-06 15:07:21');
+
+-- ----------------------------
+-- Init data---role
+-- ----------------------------
+INSERT INTO `role` VALUES (1, '0', 1, '系统管理员', NULL, 0, '2020-05-06 15:11:20', '2020-05-06 15:11:23', NULL, NULL);
+
+-- ----------------------------
+-- Init data---role permission
+-- ----------------------------
+INSERT INTO `role_permission` VALUES (1, 1, 1, '0',0, '2020-05-06 15:08:03','0', '2020-05-06 15:08:03','0');
+INSERT INTO `role_permission` VALUES (2, 1, 2, '0',0, '2020-05-06 15:08:16','0', '2020-05-06 15:08:03','0');
+INSERT INTO `role_permission` VALUES (3, 1, 3, '0',0, '2020-05-06 15:08:26','0', '2020-05-06 15:08:03','0');
+INSERT INTO `role_permission` VALUES (4, 1, 4, '0',0, '2020-05-06 15:08:35','0', '2020-05-06 15:08:03','0');
+INSERT INTO `role_permission` VALUES (5, 1, 5, '0',0, '2020-05-06 15:08:44','0', '2020-05-06 15:08:03','0');
+INSERT INTO `role_permission` VALUES (6, 1, 6, '0',0, '2020-05-06 15:08:54','0', '2020-05-06 15:08:03','0');
+INSERT INTO `role_permission` VALUES (7, 1, 7, '0',0, '2020-05-06 15:09:05','0', '2020-05-06 15:08:03','0');
+INSERT INTO `role_permission` VALUES (8, 1, 8, '0',0, '2020-05-06 15:09:15','0', '2020-05-06 15:08:03','0');
+INSERT INTO `role_permission` VALUES (9, 1, 9, '0',0, '2020-05-06 15:09:24','0', '2020-05-06 15:08:03','0');
+INSERT INTO `role_permission` VALUES (10, 1, 10, '0',0, '2020-05-06 15:09:33','0', '2020-05-06 15:08:03','0');
+INSERT INTO `role_permission` VALUES (11, 1, 11, '0',0, '2020-05-06 15:09:41','0', '2020-05-06 15:08:03','0');
+INSERT INTO `role_permission` VALUES (12, 1, 12, '0',0, '2020-05-06 15:09:48','0', '2020-05-06 15:08:03','0');
+INSERT INTO `role_permission` VALUES (13, 1, 13, '0',0, '2020-05-06 15:09:57','0', '2020-05-06 15:08:03','0');
+INSERT INTO `role_permission` VALUES (14, 1, 14, '0',0, '2020-05-06 15:10:07','0', '2020-05-06 15:08:03','0');
+INSERT INTO `role_permission` VALUES (15, 1, 15, '0',0, '2020-05-06 15:10:16','0', '2020-05-06 15:08:03','0');
+INSERT INTO `role_permission` VALUES (16, 1, 16, '0',0, '2020-05-06 15:10:26','0', '2020-05-06 15:08:03','0');
+INSERT INTO `role_permission` VALUES (17, 1, 17, '0',0, '2020-05-06 15:10:35','0', '2020-05-06 15:08:03','0');
+
+-- ----------------------------
+-- Init data---user info
+-- ----------------------------
+INSERT INTO `user_info` VALUES ('1', 'sys-admin', '系统管理员邮箱', '系统管理员姓名', '系统管理员电话', '$2a$10$//HbOAwBibqQa5oTqKu68.Lg6QnEF94JcPB.cV8Hp5Bn2aj8SRlBK', 1, 0, '2020-05-06 15:15:45', '2020-05-06 16:17:11', NULL, NULL);
+
+-- ----------------------------
+-- Init data---user role
+-- ----------------------------
+INSERT INTO `user_role` VALUES (1, '1', 1, '0', 0, '2020-05-06 15:16:25','0','2020-05-06 15:16:25','0');

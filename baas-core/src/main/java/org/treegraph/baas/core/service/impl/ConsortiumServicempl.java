@@ -366,7 +366,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			KeypairPo nodeKeypair = nodeKeypairInfo.getKeypair();
 			StringBuffer scriptContent = new StringBuffer();
 			scriptContent.append("consortium_id = \"" + req.getConsortiumId()+"\"").append(SplitterConstant.LINE_SEP);
-			scriptContent.append("consortium_cert = \"\"\"" + consortiumKeypair.getCertStr() + "\"\"\"").append(SplitterConstant.LINE_SEP);
+			scriptContent.append("consortium_cert = '''" + consortiumKeypair.getCertStr() + "'''").append(SplitterConstant.LINE_SEP);
 			scriptContent.append("consortium_nodes = " + consortiumNodes).append(SplitterConstant.LINE_SEP);
 			String keypairInfo = node.getId() + "-" + nodeKeypair.getPublicKey() + "-" + nodeKeypair.getPrivateKey();
 			byte[] cipher = EncryptUtil.decodeByPrivateKey(algo, true, privateKey, keypairInfo.getBytes());

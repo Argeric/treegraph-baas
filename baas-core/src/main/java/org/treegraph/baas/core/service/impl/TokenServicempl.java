@@ -46,17 +46,13 @@ public class TokenServicempl implements TokenService {
     
     private PermissionDas permissionDas;
     
-    private static final String TAG_NO_LOGIN = "NO_LOGIN";
+    private static final Map<String, String> URI_PERMISSION_MAP = Maps.newHashMap();
     
     private static final String TAG_DATA_PERMISSION = "DATA_PERM";
     
-    private static Map<String, String> URI_PERMISSION_MAP = Maps.newHashMap();
-    
-    private static Set<String> DATA_PERMISSION_SET = Sets.newHashSet();
-    
     static {
     	// system module
-    	URI_PERMISSION_MAP.put("/sys/login", TAG_NO_LOGIN);
+    	URI_PERMISSION_MAP.put("/sys/login", null);
     	URI_PERMISSION_MAP.put("/sys/log/list", TAG_DATA_PERMISSION);
     	// user module
     	URI_PERMISSION_MAP.put("/user/list", PermissionPoint.VIEW_CONS_USER.getCode());
@@ -64,8 +60,8 @@ public class TokenServicempl implements TokenService {
     	URI_PERMISSION_MAP.put("/user/create", PermissionPoint.CREATE_CONS_USER.getCode());
     	URI_PERMISSION_MAP.put("/user/modify", PermissionPoint.UPDATE_CONS_USER.getCode());
     	URI_PERMISSION_MAP.put("/user/invite", PermissionPoint.CREATE_CONS_USER.getCode());
-    	URI_PERMISSION_MAP.put("/user/invite/accept", TAG_NO_LOGIN);
-    	URI_PERMISSION_MAP.put("/user/pwd/modify", TAG_NO_LOGIN);
+    	URI_PERMISSION_MAP.put("/user/invite/accept", null);
+    	URI_PERMISSION_MAP.put("/user/pwd/modify", null);
     	URI_PERMISSION_MAP.put("/user/del", PermissionPoint.UPDATE_CONS_USER.getCode());
     	// role module
     	URI_PERMISSION_MAP.put("/role/list", TAG_DATA_PERMISSION);
@@ -97,13 +93,8 @@ public class TokenServicempl implements TokenService {
     	URI_PERMISSION_MAP.put("/node/detail", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
     	URI_PERMISSION_MAP.put("/node/log", PermissionPoint.VIEW_NODE_LOG.getCode());
     	URI_PERMISSION_MAP.put("/node/modify", PermissionPoint.UPDATE_NODE.getCode());
-    	// data permission
-    	DATA_PERMISSION_SET.add("/sys/log/list");
-    	DATA_PERMISSION_SET.add("/role/list");
-    	DATA_PERMISSION_SET.add("/role/query");
-    	DATA_PERMISSION_SET.add("/role/create");
-    	DATA_PERMISSION_SET.add("/role/modify");
-    	DATA_PERMISSION_SET.add("/role/del");
+    	// dashboard
+    	URI_PERMISSION_MAP.put("/stat/dashboard", TAG_DATA_PERMISSION);
     }
 	
     public UserInfoPo checkToken(String token) {

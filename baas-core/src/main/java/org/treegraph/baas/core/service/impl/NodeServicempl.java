@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.treegraph.baas.api.dto.NodeInfo;
@@ -28,6 +27,7 @@ import org.treegraph.baas.core.util.DateTimeUtils;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 
 import lombok.AllArgsConstructor;
 
@@ -58,6 +58,7 @@ public class NodeServicempl implements NodeService {
     	List<BlockChainPo> blockchains = blockchainDas.findByIds(blockchainIds);
     	Map<String, String> blockchainIdNameMap = blockchains.stream().collect(Collectors.toMap(BlockChainPo::getId, BlockChainPo::getBlockchainName));
     	
+		Map<String, Boolean> nodeHeartbeatMap = getHeartbeatMap(nodeList);
     	
     	List<NodeInfo> nodeInfos = nodeList.stream().map(item -> NodeInfo.builder()
     			.id(item.getId())
@@ -69,7 +70,7 @@ public class NodeServicempl implements NodeService {
     			.blockchainId(item.getBlockchainId())
     			.blockchainName(blockchainIdNameMap.get(item.getBlockchainId()))
     			.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
-    			.status(getNodeStatus(item.getStatus(), item.getNodeIp(), item.getNodePort()))
+    			.status(getNodeStatus(item.getStatus(), nodeHeartbeatMap.get(item.getNodeIp()+item.getNodePort())))
     			.build()).collect(Collectors.toList());
     	
     	return ListNodeResponse.builder()
@@ -82,16 +83,16 @@ public class NodeServicempl implements NodeService {
 	
 	public NodeInfo getNodeDetail(QueryNodeDetailRequest req) {
 		NodePo nodePo = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
+		Map<String, Boolean> nodeHeartbeatMap = getHeartbeatMap(Lists.newArrayList(nodePo));
 		return NodeInfo.builder()
 				.ip(nodePo.getNodeIp())
 				.port(nodePo.getNodePort()+"")
 				.org(nodePo.getOrganizationName())
-				.status(getNodeStatus(nodePo.getStatus(), nodePo.getNodeIp(), nodePo.getNodePort()))
+				.status(getNodeStatus(nodePo.getStatus(), nodeHeartbeatMap.get(nodePo.getNodeIp()+nodePo.getNodePort())))
 				.build();
 	}
 
 	public String getNodeLog(QueryNodeLogRequest req) {
-		
 		return null;
 	}
 
@@ -110,13 +111,21 @@ public class NodeServicempl implements NodeService {
 		
 		return nodeDas.modifyNode(nodePo);
 	}
+
+	private Map<String, Boolean> getHeartbeatMap(List<NodePo> nodeList) {
+		List<NodePo> heartbeatNodeList = nodeList.stream()
+				.filter(item -> item.getStatus() != NodeEnum.Status.TO_DEPLOY.getCode()
+						&& item.getStatus() != NodeEnum.Status.STOP.getCode())
+				.collect(Collectors.toList());
+    	Map<String, Boolean> nodeHeartbeatMap = heartbeatService.batchNodeHeartbeat(heartbeatNodeList);
+		return nodeHeartbeatMap;
+	}
 	
-	private int getNodeStatus(int dbStatus, String nodeIp, int nodePort) {
+	private int getNodeStatus(int dbStatus, Boolean heartbeat) {
 		if (dbStatus == NodeEnum.Status.TO_DEPLOY.getCode() || dbStatus == NodeEnum.Status.STOP.getCode()) {
 			return dbStatus;
 		}
 
-		boolean heartbeat = heartbeatService.sendNodeHeartbeat(nodeIp, nodePort, HttpMethod.POST);
 		if (heartbeat) {
 			return NodeEnum.Status.RUNING.getCode();
 		} else {

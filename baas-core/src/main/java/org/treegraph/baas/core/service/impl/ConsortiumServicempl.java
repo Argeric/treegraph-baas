@@ -388,5 +388,4 @@ public class ConsortiumServicempl implements ConsortiumService {
 		zipOutputStream.close();
 		log.info("write deploy script finished["+req.getConsortiumId()+"]");
 	}
-
 }

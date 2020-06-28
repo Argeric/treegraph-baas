@@ -2,6 +2,8 @@ package org.treegraph.baas.web.rest;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.vault.core.VaultPkiOperations;
+import org.springframework.vault.core.VaultTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,20 +20,27 @@ import org.treegraph.baas.core.util.LogSkip;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Api(tags = "系统模块", description = "登录管理相关")
 @RequestMapping("/sys")
 @AllArgsConstructor
+@Slf4j
 public class SysController {
 
 	private LoginService loginService;
 	
 	private LogService logService;
+	
+	private VaultTemplate vaultTemplate;
 
 	@PostMapping("/login")
 	@ApiOperation("用户登陆接口")
 	public BaasResult<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
+		
+		VaultPkiOperations opsForPki = vaultTemplate.opsForPki();
+		log.info("opsForPki===>"+opsForPki.toString());
 
 		LoginResponse userDetailInfo = loginService.login(loginRequest.getAccount(), loginRequest.getPassword(),
 				request);

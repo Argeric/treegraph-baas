@@ -8,5 +8,5 @@ import lombok.Data;
 public class NodeBo {
     private String nodeIp;
     private int nodePort;
-    private boolean runningStatus;
+    private boolean status;//运行状态
 }

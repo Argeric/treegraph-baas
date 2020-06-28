@@ -4,6 +4,8 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpEntity;
@@ -30,9 +32,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HeartbeatService {
 
-	public final static String MEDIA_TYPE_FORM = "application/x-www-form-urlencoded; charset=UTF-8";
-
-	public final static String MEDIA_TYPE_JSON = "application/json; charset=UTF-8";
+	private final static String MEDIA_TYPE_JSON = "application/json; charset=UTF-8";
+	
+	private final static ExecutorService executor = Executors.newFixedThreadPool(5);
 
 	private RestTemplate restTemplate;
 	
@@ -41,38 +43,38 @@ public class HeartbeatService {
 			return Maps.newHashMap();
 		}
 		
-		List<CompletableFuture<NodeBo>> completableFutureList = nodes.stream()
-				.map(node -> CompletableFuture.supplyAsync(() -> {
-					String ip = node.getNodeIp();
-					int port = node.getNodePort();
-					boolean status = nodeHeartbeat(ip, port);
-					return NodeBo.builder().nodeIp(ip).nodePort(port).runningStatus(status).build();
-				})).collect(Collectors.toList());
-		List<NodeBo> nodeBoList = completableFutureList.stream().map(CompletableFuture::join)
+		List<CompletableFuture<NodeBo>> futureList = nodes.stream().map(node -> {
+			String ip = node.getNodeIp();
+			int port = node.getNodePort();
+			return CompletableFuture.supplyAsync(() -> {
+				boolean status = nodeHeartbeat(ip, port);
+				return NodeBo.builder().nodeIp(ip).nodePort(port).status(status).build();
+			}, executor).exceptionally(e -> {
+				log.error("节点心跳检测异常[" + node.getNodeIp() + ":" + node.getNodePort() + "]", e);
+				return NodeBo.builder().nodeIp(ip).nodePort(port).status(false).build();
+			});
+		}).collect(Collectors.toList());
+		List<NodeBo> nodeBoList = futureList.stream().map(CompletableFuture::join)
 				.collect(Collectors.toList());
 		
 		return nodeBoList.stream().collect(
-				Collectors.toMap(item -> item.getNodeIp() + item.getNodePort(), item -> item.isRunningStatus()));
+				Collectors.toMap(item -> item.getNodeIp() + item.getNodePort(), item -> item.isStatus()));
 	}
 
 	public boolean nodeHeartbeat(String nodeIp, int nodePort) {
 		HttpHeaders requestHeader = buildHttpHeader(MEDIA_TYPE_JSON);
 		HttpEntity<String> request = new HttpEntity<String>(null, requestHeader);
 		
-		ResponseEntity<String> response = null;
 		HttpMethod defaultMethod = HttpMethod.GET;
-		try {
-			String uri = MessageFormat.format(HeartbeatConstant.URI_HEARTBEAT_NODE,
-					new Object[] { nodeIp, Integer.toString(nodePort) });
-			if (defaultMethod == HttpMethod.POST) {
-				response = restTemplate.postForEntity(uri, request, String.class);
-			} else if (defaultMethod == HttpMethod.GET) {
-				response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
-			} else {
-				Assert.isTrue(defaultMethod == HttpMethod.POST || defaultMethod == HttpMethod.GET, "不支持的http method");
-			}
-		} catch(Exception e) {
-			log.error("节点心跳检测异常["+nodeIp+":"+nodePort+"]", e);
+		String uri = MessageFormat.format(HeartbeatConstant.URI_HEARTBEAT_NODE,
+				new Object[] { nodeIp, Integer.toString(nodePort) });
+		ResponseEntity<String> response = null;
+		if (defaultMethod == HttpMethod.POST) {
+			response = restTemplate.postForEntity(uri, request, String.class);
+		} else if (defaultMethod == HttpMethod.GET) {
+			response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
+		} else {
+			Assert.isTrue(defaultMethod == HttpMethod.POST || defaultMethod == HttpMethod.GET, "不支持的http method");
 		}
 		
 		return response != null && response.getStatusCode() == HttpStatus.OK;
@@ -83,5 +85,15 @@ public class HeartbeatService {
 		MediaType type = MediaType.parseMediaType(mediaType);
 		headers.setContentType(type);
 		return headers;
+	}
+	
+	public static void main(String[] args) {
+		CompletableFuture<String> thenApplyAsync = CompletableFuture.supplyAsync(() -> {
+			return "Hello ";
+		}).thenApplyAsync(v -> v + "world");
+		String result = CompletableFuture.supplyAsync(() -> {
+			return "Hello ";
+		}).thenApplyAsync(v -> v + "world").join();
+		System.out.println(result);
 	}
 }

@@ -17,9 +17,12 @@ import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.Certificate;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.vault.core.VaultOperations;
+import org.springframework.vault.core.VaultSysOperations;
 import org.springframework.vault.support.VaultCertificateRequest;
+import org.springframework.vault.support.VaultMount;
 import org.springframework.vault.support.VaultResponse;
 import org.springframework.vault.support.VaultSignCertificateRequestResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
@@ -172,22 +175,42 @@ public class VaultKeypairBuildService {
 		return NodeKeypairBo.builder().keypair(keypair).nodeKey(nodeKey).build();
 	}
 	
+	private void vaultMount() {
+		VaultSysOperations adminOperations = vaultOperations.opsForSys();
+		if (adminOperations.getMounts().containsKey(X509CertConstant.VAULT_PKI_PATH + "/")) {
+			return;
+		}
+
+		VaultMount mount = VaultMount.builder().type("pki")
+				.config(Collections.singletonMap("default_lease_ttl", "87600h")).description("bass pki").build();
+		adminOperations.mount(X509CertConstant.VAULT_PKI_PATH, mount);
+
+		Map<String, VaultMount> mounts = adminOperations.getMounts();
+		log.info("vaultMounts resp:{}", JSON.toJSONString(mounts));
+		Assert.isTrue(mounts.containsKey(X509CertConstant.VAULT_PKI_PATH + "/"), "vault mount pki path error");
+	}
+	
 	private void writeRootCaToVault(String certPem, String keyPem) {
+		vaultMount();
+		
 		Map<String, String> pembundle = Collections.singletonMap("pem_bundle", certPem + keyPem);
-		vaultOperations.write(X509CertConstant.VAULT_PKI_PATH + "/config/ca", pembundle);
+		VaultResponse writeCaToVaultResponse = vaultOperations.write(X509CertConstant.VAULT_PKI_PATH + "/config/ca",
+				pembundle);
+		log.info("writeCaResponse resp:{}", JSON.toJSONString(writeCaToVaultResponse));
+
 		Map<String, String> role = new HashMap<String, String>();
 		role.put("allowed_domains", "localhost,conflux-chain.org");
 		role.put("allow_subdomains", "true");
 		role.put("allow_localhost", "true");
 		role.put("allow_ip_sans", "true");
 		role.put("max_ttl", "87600h");
-		VaultResponse writeResponse = vaultOperations.write(
+		VaultResponse writeRoleToVaultResponse = vaultOperations.write(
 				X509CertConstant.VAULT_PKI_PATH + "/roles/" + X509CertConstant.VAULT_ROLE_ISSUE_CERTIFICATE, role);
-		log.info("writeRootCaToVault resp:{}", JSON.toJSONString(writeResponse));
+		log.info("writeRoleResponse resp:{}", JSON.toJSONString(writeRoleToVaultResponse));
 	}
 
-	private String signCertificateRequestByBC(String algo, KeypairPo rootKeypair, PKCS10CertificationRequest consortiumCsr)
-			throws Exception, CertificateEncodingException {
+	private String signCertificateRequestByBC(String algo, KeypairPo rootKeypair,
+			PKCS10CertificationRequest consortiumCsr) throws Exception, CertificateEncodingException {
 		PrivateKey rootPrivateKey = KeyUtil.privateKeyFromBase64(algo, rootKeypair.getPrivateKey());
 		byte[] rootCertBytes = CertUtil.certFromPem(rootKeypair.getCertStr()).getEncoded();
 		Certificate consortiumCert = CertUtil.generateCert(consortiumCsr, rootPrivateKey, rootCertBytes,
@@ -199,8 +222,9 @@ public class VaultKeypairBuildService {
 		VaultCertificateRequest request = VaultCertificateRequest.builder()
 				.ttl(Duration.ofDays(X509CertConstant.CONSORTIUM_CERT_EXPIRE_DYAS))
 				.commonName(X509CertConstant.CONSORTIUM_CERT_COMMON_NAME).build();
-		VaultSignCertificateRequestResponse certificateResponse = vaultOperations.opsForPki().signCertificateRequest(
-				X509CertConstant.VAULT_ROLE_ISSUE_CERTIFICATE, CertUtil.csrToPem(consortiumCsr), request);
+		VaultSignCertificateRequestResponse certificateResponse = vaultOperations
+				.opsForPki(X509CertConstant.VAULT_PKI_PATH).signCertificateRequest(
+						X509CertConstant.VAULT_ROLE_ISSUE_CERTIFICATE, CertUtil.csrToPem(consortiumCsr), request);
 		org.springframework.vault.support.Certificate consortiumCert = certificateResponse.getRequiredData();
 		log.info("signCertificateRequestByVault resp:{}", JSON.toJSONString(consortiumCert));
 		return consortiumCert.getCertificate();

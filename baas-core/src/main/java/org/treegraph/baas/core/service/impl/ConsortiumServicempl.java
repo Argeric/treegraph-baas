@@ -68,6 +68,7 @@ import org.treegraph.baas.core.util.CollectionUtils;
 import org.treegraph.baas.core.util.DateTimeUtils;
 import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.crypto.x509.EncryptUtil;
+import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
@@ -98,7 +99,7 @@ public class ConsortiumServicempl implements ConsortiumService {
     
     private BuildService buildService;
     
-    private KeypairBuildService keypairBuildService;
+    private VaultKeypairBuildService vaultKeypairBuildService;
    
 	public ListConsResponse listCons(ListRequest req) {
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
@@ -344,15 +345,15 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		// certificate info
 		String algo = X509CertConstant.DEFAULT_ALGO;
-		KeypairPo rootKeypair = keypairBuildService.getRootKeypair(algo);
-		KeypairPo consortiumKeypair = keypairBuildService.getConsortiumKeyPair(req.getConsortiumId(), algo, rootKeypair);
-		PrivateKey privateKey = EncryptUtil.loadPrivateKey(algo, consortiumKeypair.getPrivateKey());
+		KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair(algo);
+		KeypairPo consortiumKeypair = vaultKeypairBuildService.getConsortiumKeyPair(req.getConsortiumId(), algo, rootKeypair);
+		PrivateKey privateKey = KeyUtil.privateKeyFromBase64(algo, consortiumKeypair.getPrivateKey());
 		
 		// nodes info
 		List<String> consortiumNodeList = new ArrayList<>();
 		for(NodePo node : nodes){
 			String nodeInfo = node.getId() + "-" + node.getNodeIp() + "-" + node.getNodePort();
-			byte[] cipher = EncryptUtil.decodeByPrivateKey(algo, true, privateKey, nodeInfo.getBytes());
+			byte[] cipher = EncryptUtil.codecByPrivateKey(algo, true, privateKey, nodeInfo.getBytes());
 			consortiumNodeList.add(Base64.toBase64String(cipher));
 		}
 		String consortiumNodes = JSON.toJSONString(consortiumNodeList);
@@ -361,7 +362,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		List<NodeKeypairBo> nodeKeypairBoList = new ArrayList<>();
 		Map<String, String> nodeScriptContentMap = new HashMap<>();
 		for(NodePo node:nodes){
-			NodeKeypairBo nodeKeypairInfo = keypairBuildService.getNodeKeypair(req.getConsortiumId(), algo, node);
+			NodeKeypairBo nodeKeypairInfo = vaultKeypairBuildService.getNodeKeypair(req.getConsortiumId(), algo, node);
 			nodeKeypairBoList.add(nodeKeypairInfo);
 			KeypairPo nodeKeypair = nodeKeypairInfo.getKeypair();
 			StringBuffer scriptContent = new StringBuffer();
@@ -369,7 +370,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			scriptContent.append("consortium_cert = '''" + consortiumKeypair.getCertStr() + "'''").append(SplitterConstant.LINE_SEP);
 			scriptContent.append("consortium_nodes = " + consortiumNodes).append(SplitterConstant.LINE_SEP);
 			String keypairInfo = node.getId() + "-" + nodeKeypair.getPublicKey() + "-" + nodeKeypair.getPrivateKey();
-			byte[] cipher = EncryptUtil.decodeByPrivateKey(algo, true, privateKey, keypairInfo.getBytes());
+			byte[] cipher = EncryptUtil.codecByPrivateKey(algo, true, privateKey, keypairInfo.getBytes());
 			scriptContent.append("consortium_keypair = \"" + Base64.toBase64String(cipher) + "\"");
 			nodeScriptContentMap.put(node.getNodeIp()+"-"+node.getNodePort(), scriptContent.toString());
 		}

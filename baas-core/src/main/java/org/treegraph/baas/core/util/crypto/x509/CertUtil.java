@@ -120,7 +120,7 @@ public class CertUtil {
 		return assembleCert(tbs, issuer.getSubjectPublicKeyInfo(), issuerPrivateKey);
 	}
 	
-    public static String getCertStr(Certificate x509Certificate) throws Exception{
+    public static String certToPem(Certificate x509Certificate) throws Exception{
     	X509CertificateHolder holder = new X509CertificateHolder(x509Certificate);
     	
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -131,8 +131,22 @@ public class CertUtil {
         
         return bos.toString();
     }
+	
+	public static X509Certificate certFromPem(String certString) throws Exception {
+		CertificateFactory certificate_factory = CertificateFactory.getInstance("X.509");
+		InputStream is = new ByteArrayInputStream(certString.getBytes("UTF-8"));
+		X509Certificate x509certificate = (X509Certificate) certificate_factory.generateCertificate(is);
+		return x509certificate;
+	}
+	
+	public static X509Certificate certFromPemFile(String pathToCert) throws Exception {
+		CertificateFactory certificate_factory = CertificateFactory.getInstance("X.509");
+		FileInputStream file_inputstream = new FileInputStream(pathToCert);
+		X509Certificate x509certificate = (X509Certificate) certificate_factory.generateCertificate(file_inputstream);
+		return x509certificate;
+	}
     
-    public static String getCsrStr(Object obj) throws Exception{
+    public static String csrToPem(PKCS10CertificationRequest obj) throws Exception{
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         JcaPEMWriter pemWriter = new JcaPEMWriter(new OutputStreamWriter(bos));
         pemWriter.writeObject(obj);
@@ -160,20 +174,6 @@ public class CertUtil {
 	
 	public static Date getNotAfter(int days){
 		return new Date(System.currentTimeMillis() + 1000*60*60*24L*days);
-	}
-	
-	public static X509Certificate loadCertByString(String certString) throws Exception {
-		CertificateFactory certificate_factory = CertificateFactory.getInstance("X.509");
-		InputStream is = new ByteArrayInputStream(certString.getBytes("UTF-8"));
-		X509Certificate x509certificate = (X509Certificate) certificate_factory.generateCertificate(is);
-		return x509certificate;
-	}
-	
-	public static X509Certificate loadCertByFile(String pathToCert) throws Exception {
-		CertificateFactory certificate_factory = CertificateFactory.getInstance("X.509");
-		FileInputStream file_inputstream = new FileInputStream(pathToCert);
-		X509Certificate x509certificate = (X509Certificate) certificate_factory.generateCertificate(file_inputstream);
-		return x509certificate;
 	}
 
 	private static Certificate assembleCert(TBSCertificate tbsCertificate,

@@ -87,4 +87,29 @@ public class CryptoEnum {
 			return null;
 		}
 	}
+	
+	/**
+	 * 签发证书的类型
+	 */
+	@Getter
+	@AllArgsConstructor
+	public enum SignCertificateRequest {
+
+		BC(1, "bounce castle"),
+
+		VAULT(2, "hashicorp vault"),;
+
+		private Integer code;
+
+		private String desc;
+
+		public static KeyType getByCode(int code) {
+			for (KeyType s : KeyType.values()) {
+				if (s.code == code) {
+					return s;
+				}
+			}
+			return null;
+		}
+	}
 }

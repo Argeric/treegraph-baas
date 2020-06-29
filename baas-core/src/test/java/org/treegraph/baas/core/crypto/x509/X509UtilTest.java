@@ -42,8 +42,8 @@ public class X509UtilTest {
 	
     public static void test2(String algo) throws Exception{
     	KeyPair keyPair = KeyUtil.generateKeyPair(algo);
-	    String publicKeyString = KeyUtil.getPublicKeyString(keyPair);
-	    String privateKeyString = KeyUtil.getPrivateKeyString(keyPair);
+	    String publicKeyString = KeyUtil.publicKeyToBase64(keyPair.getPublic());
+	    String privateKeyString = KeyUtil.privateKeyToBase64(keyPair.getPrivate());
 
 	    SubjectPublicKeyInfo subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(keyPair.getPublic().getEncoded());
 	    AlgorithmIdentifier signAlgo = CertUtil.getSignAlgo(subjectPublicKeyInfo.getAlgorithm());
@@ -52,18 +52,18 @@ public class X509UtilTest {
 				signAlgo.getAlgorithm().equals(X9ObjectIdentifiers.ecdsa_with_SHA256)) {
 			String plainText = algo + "_测试_公钥加密私钥解密1";
 			plainText = "111-192.168.121.11-9797";
-			byte[] cipherData = EncryptUtil.decodeByPublicKey(algo, true, EncryptUtil.loadPublicKey(algo, publicKeyString), plainText.getBytes());
+			byte[] cipherData = EncryptUtil.codecByPublicKey(algo, true, KeyUtil.publicKeyFromBase64(algo, publicKeyString), plainText.getBytes());
 			String cipher = Base64.toBase64String(cipherData);
-			byte[] res = EncryptUtil.decodeByPrivateKey(algo, false, EncryptUtil.loadPrivateKey(algo, privateKeyString),Base64.decode(cipher));
+			byte[] res = EncryptUtil.codecByPrivateKey(algo, false, KeyUtil.privateKeyFromBase64(algo, privateKeyString),Base64.decode(cipher));
 			String restr = new String(res);
 			System.out.println("原文：" + plainText);
 			System.out.println("加密：" + cipher);
 			System.out.println("解密：" + restr);
 			
 			String plainText2 = algo + "_测试_私钥加密公钥解密2";
-			byte[] cipherData2 = EncryptUtil.decodeByPrivateKey(algo, true, EncryptUtil.loadPrivateKey(algo, privateKeyString), plainText2.getBytes());
+			byte[] cipherData2 = EncryptUtil.codecByPrivateKey(algo, true, KeyUtil.privateKeyFromBase64(algo, privateKeyString), plainText2.getBytes());
 			String cipher2 = Base64.toBase64String(cipherData2);
-			byte[] res2 = EncryptUtil.decodeByPublicKey(algo, false, EncryptUtil.loadPublicKey(algo, publicKeyString), Base64.decode(cipher2));
+			byte[] res2 = EncryptUtil.codecByPublicKey(algo, false, KeyUtil.publicKeyFromBase64(algo, publicKeyString), Base64.decode(cipher2));
 			String restr2 = new String(res2);
 			System.out.println("原文：" + plainText2);
 			System.out.println("加密：" + cipher2);
@@ -71,18 +71,18 @@ public class X509UtilTest {
 			
 		} else if (signAlgo.getAlgorithm().equals(PKCSObjectIdentifiers.sha256WithRSAEncryption)) {
 			String plainText = algo + "_测试_公钥加密私钥解密1";
-			byte[] cipherData = EncryptUtil.decodeByPublicKey(algo, true, EncryptUtil.loadPublicKey(algo, publicKeyString), plainText.getBytes());
+			byte[] cipherData = EncryptUtil.codecByPublicKey(algo, true, KeyUtil.publicKeyFromBase64(algo, publicKeyString), plainText.getBytes());
 			String cipher = Base64.toBase64String(cipherData);
-			byte[] res = EncryptUtil.decodeByPrivateKey(algo, false, EncryptUtil.loadPrivateKey(algo, privateKeyString),Base64.decode(cipher));
+			byte[] res = EncryptUtil.codecByPrivateKey(algo, false, KeyUtil.privateKeyFromBase64(algo, privateKeyString),Base64.decode(cipher));
 			String restr = new String(res);
 			System.out.println("原文：" + plainText);
 			System.out.println("加密：" + cipher);
 			System.out.println("解密：" + restr);
 			
 			String plainText2 = algo + "_测试_私钥加密公钥解密2";
-			byte[] cipherData2 = EncryptUtil.decodeByPrivateKey(algo, true, EncryptUtil.loadPrivateKey(algo, privateKeyString), plainText2.getBytes());
+			byte[] cipherData2 = EncryptUtil.codecByPrivateKey(algo, true, KeyUtil.privateKeyFromBase64(algo, privateKeyString), plainText2.getBytes());
 			String cipher2 = Base64.toBase64String(cipherData2);
-			byte[] res2 = EncryptUtil.decodeByPublicKey(algo, false, EncryptUtil.loadPublicKey(algo, publicKeyString), Base64.decode(cipher2));
+			byte[] res2 = EncryptUtil.codecByPublicKey(algo, false, KeyUtil.publicKeyFromBase64(algo, publicKeyString), Base64.decode(cipher2));
 			String restr2 = new String(res2);
 			System.out.println("原文：" + plainText2);
 			System.out.println("加密：" + cipher2);
@@ -98,17 +98,17 @@ public class X509UtilTest {
 		
 		KeyPair rootKeyPair = KeyUtil.generateKeyPair(algo);
 	    Certificate rootCA = CertUtil.generateRootCA(new X500Name(ROOT_CA_SUBJECT),rootKeyPair,notBefore,notAfter);
-	    System.out.println(KeyUtil.getPublicKeyString(rootKeyPair));
-	    System.out.println(KeyUtil.getPrivateKeyString(rootKeyPair));
-	    System.out.println(CertUtil.getCertStr(rootCA));
+	    System.out.println(KeyUtil.publicKeyToBase64(rootKeyPair.getPublic()));
+	    System.out.println(KeyUtil.privateKeyToBase64(rootKeyPair.getPrivate()));
+	    System.out.println(CertUtil.certToPem(rootCA));
 	    
 		KeyPair consortiumKeyPair = KeyUtil.generateKeyPair(algo);
 		PKCS10CertificationRequest consortiumCsr = CertUtil.generateCSR(new X500Name(CONSORTIUM_CERT_SUBJECT),consortiumKeyPair.getPublic(),consortiumKeyPair.getPrivate());
 		Certificate consortiumCert = CertUtil.generateCert(consortiumCsr,rootKeyPair.getPrivate(),rootCA.getEncoded(),notBefore,notAfter);
-		System.out.println(KeyUtil.getPublicKeyString(consortiumKeyPair));
-		System.out.println(KeyUtil.getPrivateKeyString(consortiumKeyPair));
-		System.out.println(CertUtil.getCsrStr(consortiumCsr));
-		System.out.println(CertUtil.getCertStr(consortiumCert));
+		System.out.println(KeyUtil.publicKeyToBase64(consortiumKeyPair.getPublic()));
+		System.out.println(KeyUtil.privateKeyToBase64(consortiumKeyPair.getPrivate()));
+		System.out.println(CertUtil.csrToPem(consortiumCsr));
+		System.out.println(CertUtil.certToPem(consortiumCert));
 	}
     
     public static void main(String[] args) throws Exception{

@@ -25,7 +25,6 @@ import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.CryptoEnum;
 import org.treegraph.baas.core.util.CollectionUtils;
 import org.treegraph.baas.core.util.crypto.x509.CertUtil;
-import org.treegraph.baas.core.util.crypto.x509.EncryptUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 
 import lombok.AllArgsConstructor;
@@ -37,18 +36,6 @@ public class KeypairBuildService {
 	
     private KeypairDas keypairDas;
     
-//    public static void main(String[] args) throws Exception{
-//    	String algo = X509CertConstant.DEFAULT_ALGO;
-//    	
-//    	KeyPair rootKeyPair = KeyUtil.generateKeyPair(algo);
-//    	PrivateKey rootPrivateKeyBefore = rootKeyPair.getPrivate();
-//		String rootPrivateKeyStr = KeyUtil.getPrivateKeyString(rootKeyPair);
-//		System.out.println(rootPrivateKeyBefore.getAlgorithm());
-//		
-//		PrivateKey rootPrivateKeyAfter = EncryptUtil.loadPrivateKey(algo, rootPrivateKeyStr);
-//		System.out.println(rootPrivateKeyAfter.getAlgorithm());
-//	}
-    
 	public KeypairPo getRootKeypair(String algo) throws Exception{
 		List<KeypairPo> rootKeypairs = keypairDas.findAll(ConsortiumConstant.DEFAULT_CONSORTIUM_ID,
 				CryptoEnum.KeyType.CONSORTIUM.getCode(), algo);
@@ -59,9 +46,9 @@ public class KeypairBuildService {
 		KeyPair rootKeyPair = KeyUtil.generateKeyPair(algo);
 		Certificate rootCA = CertUtil.generateRootCA(new X500Name(X509CertConstant.ROOT_CA_SUBJECT), rootKeyPair,
 				CertUtil.getNotBefore(), CertUtil.getNotAfter(365 * 10));
-		String rootPublicKey = KeyUtil.getPublicKeyString(rootKeyPair);
-		String rootPrivateKey = KeyUtil.getPrivateKeyString(rootKeyPair);
-		String rootCa = CertUtil.getCertStr(rootCA);
+		String rootPublicKey = KeyUtil.publicKeyToBase64(rootKeyPair.getPublic());
+		String rootPrivateKey = KeyUtil.privateKeyToBase64(rootKeyPair.getPrivate());
+		String rootCa = CertUtil.certToPem(rootCA);
 		
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
@@ -89,18 +76,19 @@ public class KeypairBuildService {
 			return consortiumKeypairs.get(0);
 		}
 		
-		PrivateKey rootPrivateKey = EncryptUtil.loadPrivateKey(algo, rootKeypair.getPrivateKey());
-		byte[] rootCertBytes = CertUtil.loadCertByString(rootKeypair.getCertStr()).getEncoded();
 		KeyPair consortiumKeyPair = KeyUtil.generateKeyPair(algo);
 		PKCS10CertificationRequest consortiumCsr = CertUtil.generateCSR(
 				new X500Name(X509CertConstant.CONSORTIUM_CERT_SUBJECT), consortiumKeyPair.getPublic(),
 				consortiumKeyPair.getPrivate());
+		String consortiumPublicKey = KeyUtil.publicKeyToBase64(consortiumKeyPair.getPublic());
+		String consortiumPrivateKey = KeyUtil.privateKeyToBase64(consortiumKeyPair.getPrivate());
+		String consortiumCsrStr = CertUtil.csrToPem(consortiumCsr);
+		
+		PrivateKey rootPrivateKey = KeyUtil.privateKeyFromBase64(algo, rootKeypair.getPrivateKey());
+		byte[] rootCertBytes = CertUtil.certFromPem(rootKeypair.getCertStr()).getEncoded();
 		Certificate consortiumCert = CertUtil.generateCert(consortiumCsr, rootPrivateKey, rootCertBytes,
 				CertUtil.getNotBefore(), CertUtil.getNotAfter(365));
-		String consortiumPublicKey = KeyUtil.getPublicKeyString(consortiumKeyPair);
-		String consortiumPrivateKey = KeyUtil.getPrivateKeyString(consortiumKeyPair);
-		String consortiumCsrStr = CertUtil.getCsrStr(consortiumCsr);
-		String consortiumCertStr = CertUtil.getCertStr(consortiumCert);
+		String consortiumCertStr = CertUtil.certToPem(consortiumCert);
 		
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
@@ -129,8 +117,8 @@ public class KeypairBuildService {
 		}
 		
 		KeyPair keyPair = KeyUtil.generateKeyPair(algo);
-		String nodePublicKey = KeyUtil.getPublicKeyString(keyPair);
-		String nodePrivateKey = KeyUtil.getPrivateKeyString(keyPair);
+		String nodePublicKey = KeyUtil.publicKeyToBase64(keyPair.getPublic());
+		String nodePrivateKey = KeyUtil.privateKeyToBase64(keyPair.getPrivate());
 		
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();

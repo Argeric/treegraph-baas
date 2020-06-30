@@ -17,6 +17,8 @@ import org.treegraph.baas.core.mapper.primary.KeypairPoMapper;
 import org.treegraph.baas.core.mapper.primary.NodeKeyPoMapper;
 import org.treegraph.baas.core.util.CollectionUtils;
 
+import com.google.common.collect.Lists;
+
 import lombok.AllArgsConstructor;
 
 @Service
@@ -29,6 +31,17 @@ public class KeypairDasImpl implements KeypairDas {
 	
 	public Optional<KeypairPo> findById(Long id) {
 		return keypairPoMapper.selectByPrimaryKey(id);
+	}
+	
+	public List<KeypairPo> findByIds(List<Long> ids) {
+		if(CollectionUtils.isEmpty(ids)) {
+			return Lists.newArrayList();
+		}
+		
+		KeypairPoExample example = new KeypairPoExample();
+		example.createCriteria().andIdIn(ids);
+		example.setOrderByClause("create_time desc");
+		return keypairPoMapper.selectByExample(example);
 	}
 	
 	public List<KeypairPo> findAll(String consId, Integer keyType, String algo) {

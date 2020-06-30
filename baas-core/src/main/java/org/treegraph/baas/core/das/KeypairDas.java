@@ -10,6 +10,8 @@ public interface KeypairDas {
 	
 	Optional<KeypairPo> findById(Long id);
 	
+	List<KeypairPo> findByIds(List<Long> ids);
+	
 	List<KeypairPo> findAll(String consId, Integer keyType, String algo);
 	
 	boolean save(KeypairPo keypair);

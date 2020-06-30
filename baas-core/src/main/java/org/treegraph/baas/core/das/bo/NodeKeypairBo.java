@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodeKeyPo;
+import org.treegraph.baas.core.domain.NodePo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +25,8 @@ public class NodeKeypairBo implements Serializable {
 	private KeypairPo keypair;
 	
 	private NodeKeyPo nodeKey;
+	
+	private NodePo node;
 	
     private static final long serialVersionUID = 1L;
 }

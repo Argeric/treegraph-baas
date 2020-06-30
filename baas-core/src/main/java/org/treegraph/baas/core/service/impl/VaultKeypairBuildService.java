@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.Certificate;
@@ -30,6 +32,7 @@ import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.constant.ConsortiumConstant;
 import org.treegraph.baas.core.constant.X509CertConstant;
 import org.treegraph.baas.core.das.KeypairDas;
+import org.treegraph.baas.core.das.NodeKeyDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodeKeyPo;
@@ -40,6 +43,7 @@ import org.treegraph.baas.core.util.crypto.x509.CertUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.base.Splitter;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +55,8 @@ import lombok.extern.slf4j.Slf4j;
 public class VaultKeypairBuildService {
 	
     private KeypairDas keypairDas;
+    
+    private NodeKeyDas nodeKeyDas;
     
     private VaultOperations vaultOperations;
     
@@ -135,10 +141,14 @@ public class VaultKeypairBuildService {
 
 	public NodeKeypairBo getNodeKeypair(String consortiumId, String algo, NodePo node)
 			throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, Exception {
-		List<KeypairPo> nodeKeypairs = keypairDas.findAll(consortiumId,
-				CryptoEnum.KeyType.NODE.getCode(), algo);
-		if(CollectionUtils.isNotEmpty(nodeKeypairs)){
-			return NodeKeypairBo.builder().keypair(nodeKeypairs.get(0)).build();
+		List<NodeKeyPo> nodeKeys = nodeKeyDas.findAll(consortiumId, node.getId());
+		if(CollectionUtils.isNotEmpty(nodeKeys)) {
+			List<Long> keypairIds = nodeKeys.stream().map(item -> item.getKeypairId()).collect(Collectors.toList());
+			List<KeypairPo> nodeKeypairs = keypairDas.findByIds(keypairIds);
+			Optional<KeypairPo> keypairOp = nodeKeypairs.stream().filter(item -> item.getAlgorithm().equalsIgnoreCase(algo)).findFirst();
+			if(keypairOp.isPresent()){
+				return NodeKeypairBo.builder().keypair(keypairOp.get()).node(node).build();
+			}
 		}
 		
 		KeyPair keyPair = KeyUtil.generateKeyPair(algo);
@@ -172,7 +182,7 @@ public class VaultKeypairBuildService {
 				.updateBy(operUser)
 				.build();
 		
-		return NodeKeypairBo.builder().keypair(keypair).nodeKey(nodeKey).build();
+		return NodeKeypairBo.builder().keypair(keypair).nodeKey(nodeKey).node(node).build();
 	}
 	
 	private void vaultMount() {
@@ -182,7 +192,7 @@ public class VaultKeypairBuildService {
 		}
 
 		VaultMount mount = VaultMount.builder().type("pki")
-				.config(Collections.singletonMap("default_lease_ttl", "87600h")).description("bass pki").build();
+				.config(Collections.singletonMap("max_lease_ttl", "87600h")).description("bass pki").build();
 		adminOperations.mount(X509CertConstant.VAULT_PKI_PATH, mount);
 
 		Map<String, VaultMount> mounts = adminOperations.getMounts();
@@ -227,6 +237,20 @@ public class VaultKeypairBuildService {
 						X509CertConstant.VAULT_ROLE_ISSUE_CERTIFICATE, CertUtil.csrToPem(consortiumCsr), request);
 		org.springframework.vault.support.Certificate consortiumCert = certificateResponse.getRequiredData();
 		log.info("signCertificateRequestByVault resp:{}", JSON.toJSONString(consortiumCert));
-		return consortiumCert.getCertificate();
+		return generatePem(consortiumCert.getCertificate());
 	}
+	
+	private static String generatePem(String base64Str) {  
+        Iterable<String> lines = Splitter.fixedLength(64).split(base64Str);
+        StringBuffer content = new StringBuffer();  
+        for (String line : lines) {  
+        	content.append(line).append("\n");  
+        }
+        
+        StringBuffer code = new StringBuffer("-----BEGIN CERTIFICATE-----\n");  
+        code.append(content.toString());
+        code.append("-----END CERTIFICATE-----"); 
+        
+        return code.toString();  
+    }   
 }

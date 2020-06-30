@@ -1,5 +1,7 @@
 package org.treegraph.baas.core.util.crypto.x509;
 
+import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.digests.SHA3Digest;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithID;
 import org.bouncycastle.crypto.signers.SM2Signer;
@@ -59,6 +61,14 @@ public class SignUtil {
         signer.initVerify(publicKey);
         signer.update(inData);
         return signer.verify(signature);
+    }
+    
+    public static byte[] SHA3Digest(byte[] data) {
+    	Digest bcSHA3 = new SHA3Digest();
+		bcSHA3.update(data, 0, data.length);
+		byte[] byteFinal = new byte[bcSHA3.getDigestSize()];
+		bcSHA3.doFinal(byteFinal, 0);
+		return byteFinal;
     }
 
 }

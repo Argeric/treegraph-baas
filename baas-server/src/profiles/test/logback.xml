@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <configuration>
-
-    <property name="LOG_HOME" value="/home/mljr/logs/car-repayment"/>
-    <property name="LOG_NAME" value="car-repayment"/>
+    <property name="LOG_HOME" value="/opt/service/treegraph-baas/log"/>
+    <property name="LOG_NAME" value="treegraph-baas"/>
 
     <appender name="CONSOLE_INFO" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -20,8 +19,7 @@
         <File>${LOG_HOME}/${LOG_NAME}.log</File>
 
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>[%thread] |-|%level |-|%d{yyyy-MM-dd'T'HH:mm:ss.SSS+08:00}
-                |-|%logger{5}[%L] |-|%msg |-|%n
+            <pattern>[%thread] |-|%level |-|%d{yyyy-MM-dd'T'HH:mm:ss.SSS+08:00} |-|%logger{5}[%L] |-|%msg |-|%n
             </pattern>
         </encoder>
 
@@ -40,8 +38,7 @@
         <File>${LOG_HOME}/${LOG_NAME}-error.log</File>
 
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>[%thread] |-|%level |-|%d{yyyy-MM-dd'T'HH:mm:ss.SSS+08:00}
-                |-|%logger{5}[%L] |-|%msg |-|%n
+            <pattern>[%thread] |-|%level |-|%d{yyyy-MM-dd'T'HH:mm:ss.SSS+08:00} |-|%logger{5}[%L] |-|%msg |-|%n
             </pattern>
         </encoder>
 
@@ -56,7 +53,7 @@
     </appender>
 
     <!-- mybatis debug sql -->
-    <logger name="com.mljr.protoss.repayment.mapper" level="DEBUG"/>
+    <logger name="org.treegraph.baas.core.dao.mapper" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="CONSOLE_INFO"/>

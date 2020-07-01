@@ -21,5 +21,5 @@ public class X509CertConstant {
 	
 	public static final String VAULT_ROLE_ISSUE_CERTIFICATE = "baasroot";
 	
-	public static final String VAULT_PKI_PATH = "pki_baas4";
+	public static final String VAULT_PKI_PATH = "pki_baas_" + DEFAULT_ALGO_CONS;
 }

@@ -365,7 +365,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		}
 		
 		// nodes info digest
-		byte[] consortiumNodesSHA3 = SignUtil.SHA3Digest(consortiumNodes.toString().getBytes());
+		byte[] consortiumNodesSHA3 = SignUtil.SHA256Digest(consortiumNodes.toString().getBytes());
 		byte[] consortiumNodesDigestCipher = EncryptUtil.codecByPrivateKey(algoCons, true, privateKey, consortiumNodesSHA3);
 		String consortiumNodesDigest = Base64.toBase64String(consortiumNodesDigestCipher);
 		

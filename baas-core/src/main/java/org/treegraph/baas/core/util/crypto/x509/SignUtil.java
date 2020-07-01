@@ -9,6 +9,8 @@ import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.jcajce.provider.asymmetric.util.ECUtil;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
@@ -70,5 +72,10 @@ public class SignUtil {
 		bcSHA3.doFinal(byteFinal, 0);
 		return byteFinal;
     }
-
+    
+    public static byte[] SHA256Digest(byte[] data) throws NoSuchAlgorithmException {
+		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+		messageDigest.update(data);
+		return messageDigest.digest();
+    }
 }

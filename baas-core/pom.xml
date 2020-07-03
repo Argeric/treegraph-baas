@@ -248,6 +248,12 @@
 	        <artifactId>spring-vault-core</artifactId>
 		    <version>2.2.2.RELEASE</version>
 		</dependency>
+              		
+		<dependency>
+		    <groupId>org.web3j</groupId>
+		    <artifactId>crypto</artifactId>
+		    <version>5.0.0</version>
+		</dependency>
               						            						 		
   </dependencies>
 </project>

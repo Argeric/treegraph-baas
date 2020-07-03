@@ -71,6 +71,7 @@ import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.crypto.x509.EncryptUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.treegraph.baas.core.util.crypto.x509.SignUtil;
+import org.web3j.crypto.ECKeyPair;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -357,7 +358,9 @@ public class ConsortiumServicempl implements ConsortiumService {
 		for(NodePo node:nodes){
 			NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypair(req.getConsortiumId(), algoNode, node);
 			nodeKeypairBoList.add(nodeKeypairBo);
-			consortiumNodes.append(nodeKeypairBo.getKeypair().getPublicKey() + CharacterConstant.AT + nodeKeypairBo.getNode().getNodeIp()
+			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
+					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
+			consortiumNodes.append(ecKeypair.getPublicKey().toString(16) + CharacterConstant.AT + nodeKeypairBo.getNode().getNodeIp()
 					+ CharacterConstant.COLON + nodeKeypairBo.getNode().getNodePort());
 			if(!node.getId().equalsIgnoreCase(nodes.get(nodes.size()-1).getId())) {
 				consortiumNodes.append(CharacterConstant.COMMA);
@@ -379,8 +382,10 @@ public class ConsortiumServicempl implements ConsortiumService {
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			scriptContent.append("consortium_nodes_digest = \"" + consortiumNodesDigest + "\"")
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-			scriptContent.append("consortium_keypair = \"" + nodeKeypairBo.getKeypair().getPublicKey() + CharacterConstant.COMMA
-					+ nodeKeypairBo.getKeypair().getPrivateKey() + "\"");
+			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
+					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
+			scriptContent.append("consortium_keypair = \"" + ecKeypair.getPublicKey().toString(16) + CharacterConstant.COMMA
+					+ ecKeypair.getPrivateKey().toString(16) + "\"");
 			nodeScriptContentMap.put(nodeKeypairBo.getNode().getNodeIp() + "-" + nodeKeypairBo.getNode().getNodePort(),
 					scriptContent.toString());
 		}

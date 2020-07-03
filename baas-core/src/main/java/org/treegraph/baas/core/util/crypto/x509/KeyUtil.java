@@ -1,5 +1,29 @@
 package org.treegraph.baas.core.util.crypto.x509;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.StringReader;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.Security;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+
 import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
@@ -14,21 +38,7 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.util.encoders.Base64;
 import org.treegraph.baas.core.enums.CryptoEnum;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.StringReader;
-import java.security.*;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
+import org.web3j.crypto.ECKeyPair;
 
 public class KeyUtil {
 	
@@ -216,5 +226,16 @@ public class KeyUtil {
 		} catch (NullPointerException e) {
 			throw new Exception("公钥数据为空");
 		}
+	}
+	
+	public static ECKeyPair loadECKeyPairFromBase64(String pubBase64, String privBase64, String algo)
+			throws Exception {
+		if (!"ECC".equalsIgnoreCase(algo)) {
+			throw new IllegalArgumentException("算法不支持");
+		}
+		ECPublicKey pub = loadECDSAPublicKey(pubBase64);
+		ECPrivateKey priv = loadECDSAPrivateKey(privBase64);
+		KeyPair keyPair = new KeyPair(pub, priv);
+		return ECKeyPair.create(keyPair);
 	}
 }

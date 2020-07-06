@@ -206,6 +206,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                	<contextDirectory>${project.basedir}</contextDirectory>
                     <dockerfile>Dockerfile</dockerfile>
                     <repository>${docker.registry}/${docker.image.prefix}/${project.artifactId}</repository>
                     <tag>${project.version}</tag>

@@ -7,7 +7,7 @@ HOST_PORT=19797
 #dockerfile expose
 CONTAINER_PORT=9797
 
-old_container_ids=`docker ps|grep $IMAGE_NAME|grep -v $IMAGE_TAG|awk '{print $1}'`
+old_container_ids=`docker ps -a|grep $IMAGE_NAME|grep -v $IMAGE_TAG|awk '{print $1}'`
 if [ -n "$old_container_ids" ]; then
         docker rm -f $old_container_ids
 fi
@@ -16,7 +16,7 @@ if [ -n "$old_image_ids" ]; then
         docker rmi $old_image_ids
 fi
 
-container_id=`docker ps|grep $IMAGE_NAME:$IMAGE_TAG|awk '{print $1}'`
+container_id=`docker ps -a|grep $IMAGE_NAME:$IMAGE_TAG|awk '{print $1}'`
 if [ -n "$container_id" ]; then
         echo "$IMAGE_NAME:$IMAGE_TAG is already running. containerId=$container_id. restart..."
         docker restart $container_id

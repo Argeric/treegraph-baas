@@ -7,7 +7,7 @@ HOST_PORT=19797
 #dockerfile expose
 CONTAINER_PORT=9797
 
-old_container_ids=`docker ps -a|grep $IMAGE_NAME|grep -v $IMAGE_TAG|awk '{print $1}'`
+old_container_ids=`docker ps -a|grep $IMAGE_NAME|grep -v $IMAGE_NAME:$IMAGE_TAG|awk '{print $1}'`
 if [ -n "$old_container_ids" ]; then
         docker rm -f $old_container_ids
 fi

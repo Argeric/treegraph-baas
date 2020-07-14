@@ -3,11 +3,11 @@
 
 ##二、配置环境变量
 * 为了方便CLI使用vault命令，建议配置环境变量；安全起见，建议设置环境变量只在当前客户端生效
-* export VAULT_ADDR='http://127.0.0.1:8200'
+* export VAULT_ADDR='http://101.200.183.108:8200'
 * export PATH=$PATH:${INSTALL_PATH}
 * export VAULT_SKIP_VERIFY=false
 或
-* echo "export VAULT_ADDR=http://127.0.0.1:8200" >> /etc/profile
+* echo "export VAULT_ADDR=http://101.200.183.108:8200" >> /etc/profile
 * echo "export VAULT_SKIP_VERIFY=false" >> /etc/profile
 * source /etc/profile
 
@@ -23,7 +23,7 @@ storage "file" {
   path    = "${INSTALL_PATH}/data"
 }
 listener "tcp" {
- address     = "127.0.0.1:8200"
+ address     = "0.0.0.0:8200"
  tls_disable = 1
 }
 disable_mlock = true

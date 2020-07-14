@@ -3,7 +3,7 @@
 
 ##二、配置环境变量
 * 为了方便CLI使用vault命令，建议配置环境变量；安全起见，建议设置环境变量只在当前客户端生效
-* export VAULT_ADDR=’http://127.0.0.1:8200’
+* export VAULT_ADDR='http://127.0.0.1:8200'
 * export PATH=$PATH:${INSTALL_PATH}
 * export VAULT_SKIP_VERIFY=false
 或
@@ -13,13 +13,13 @@
 
 ##三、启动vault
 * vault -config vault.hcl
-* 或后端启动 nohup vault server -config=config.hcl &
+* 或后端启动 nohup vault server -config=vault.hcl &
 
 
 ```
 vault.hcl
 
-storage "path" {
+storage "file" {
   path    = "${INSTALL_PATH}/data"
 }
 listener "tcp" {

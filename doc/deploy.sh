@@ -1,7 +1,7 @@
 #!/bin/bash
 
 APP_NAME=baas-server.jar
-SOURCE_PATH=/opt/software/maven-repo/org/treegraph/baas/baas-server/1.0.0-SNAPSHOT/baas-server-1.0.0-SNAPSHOT.jar
+SOURCE_PATH=/root/.jenkins/workspace/treegraph-baas/baas-server/target/treegraph-baas.jar
 TARGET_PATH=/opt/service/treegraph-baas/$APP_NAME
 BUILD_ID=dontKillMe
 source /etc/profile
@@ -13,7 +13,7 @@ start(){
                 echo "$APP_NAME is already running. pid=$pid ."
         else
                 rm -rf nohup.out
-                rm -rf $APP_NAME
+                rm -rf ../$APP_NAME
                 cp $SOURCE_PATH $TARGET_PATH
                 nohup java -Xms1024m -Xmx2048m -jar ../$APP_NAME 2>&1 &
                 sleep 30

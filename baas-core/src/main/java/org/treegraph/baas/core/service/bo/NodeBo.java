@@ -1,4 +1,4 @@
-package org.treegraph.baas.core.entity.bo;
+package org.treegraph.baas.core.service.bo;
 
 import lombok.Builder;
 import lombok.Data;

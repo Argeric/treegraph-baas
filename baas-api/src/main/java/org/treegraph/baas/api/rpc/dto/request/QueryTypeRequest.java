@@ -1,0 +1,9 @@
+package org.treegraph.baas.api.rpc.dto.request;
+
+import lombok.Data;
+
+@Data
+public class QueryTypeRequest {
+	
+	private String value;
+}

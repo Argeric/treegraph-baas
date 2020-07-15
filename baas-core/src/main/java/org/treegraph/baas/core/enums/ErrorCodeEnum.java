@@ -20,7 +20,7 @@ public enum ErrorCodeEnum {
 	ALLOW_REPAY_AMT_CHANGED(3002,"最大可还金额发生变化，请返回合同列表"),
 	PRODUCT_NOT_EXIST_EXCEPTION(3003,"无合同产品信息"),
 	MPAY_EXCEPTION(4000, "调用mpay接口异常"),
-	FOOTSTONE_EXCEPTION(4001, "调用footStone接口异常"),
+	SCAN_EXCEPTION(4001, "调用scan接口异常"),
 	INVALID_PARAMS(9000, "输入参数错误"),
 	SMS_SEND_FAST(9001, "短信发送频繁"),
 	SMS_SEND_ERROR(9002, "短信发送异常"),

@@ -19,7 +19,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 import org.treegraph.baas.core.constant.HeartbeatConstant;
 import org.treegraph.baas.core.domain.NodePo;
-import org.treegraph.baas.core.entity.bo.NodeBo;
+import org.treegraph.baas.core.service.bo.NodeBo;
 import org.treegraph.baas.core.util.CollectionUtils;
 
 import com.google.common.collect.Maps;

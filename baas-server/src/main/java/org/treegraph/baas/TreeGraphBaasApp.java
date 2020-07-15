@@ -18,9 +18,9 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+@SuppressWarnings("unchecked")
 @SpringBootApplication
 @PropertySource(value = { "classpath:config-biz.properties", "classpath:config-yw.properties" })
-// @ImportResource(locations = "classpath:spring/dubbo-*.xml")
 @EnableConfigurationProperties
 @EnableScheduling
 public class TreeGraphBaasApp extends SpringBootServletInitializer {

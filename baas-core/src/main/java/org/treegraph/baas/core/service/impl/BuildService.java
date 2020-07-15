@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.Role;
@@ -25,7 +26,6 @@ import org.treegraph.baas.core.service.bo.OrgBo;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
 import org.treegraph.baas.core.service.bo.UserInfoBo;
 import org.treegraph.baas.core.service.bo.UserOrgBo;
-import org.treegraph.baas.core.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Functions;

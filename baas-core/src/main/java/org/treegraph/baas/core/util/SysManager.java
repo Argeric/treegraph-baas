@@ -3,6 +3,7 @@ package org.treegraph.baas.core.util;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.util.Assert;
 import org.treegraph.baas.common.util.PermHelper;
 
 /**

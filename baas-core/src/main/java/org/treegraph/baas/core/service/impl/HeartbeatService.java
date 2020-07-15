@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -20,7 +21,6 @@ import org.springframework.web.client.RestTemplate;
 import org.treegraph.baas.core.constant.HeartbeatConstant;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.service.bo.NodeBo;
-import org.treegraph.baas.core.util.CollectionUtils;
 
 import com.google.common.collect.Maps;
 

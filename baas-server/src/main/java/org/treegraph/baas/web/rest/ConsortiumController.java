@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import org.assertj.core.util.Lists;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +26,6 @@ import org.treegraph.baas.api.dto.request.QueryConsRequest;
 import org.treegraph.baas.api.dto.response.ListConsResponse;
 import org.treegraph.baas.common.util.PermHelper;
 import org.treegraph.baas.core.service.ConsortiumService;
-import org.treegraph.baas.core.util.Assert;
 import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.SysManager;
 

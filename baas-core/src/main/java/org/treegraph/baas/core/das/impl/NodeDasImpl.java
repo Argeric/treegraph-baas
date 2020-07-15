@@ -3,6 +3,7 @@ package org.treegraph.baas.core.das.impl;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
@@ -13,7 +14,6 @@ import org.treegraph.baas.core.domain.NodePoExample;
 import org.treegraph.baas.core.domain.NodePoExample.Criteria;
 import org.treegraph.baas.core.mapper.primary.ConsortiumPoMapper;
 import org.treegraph.baas.core.mapper.primary.NodePoMapper;
-import org.treegraph.baas.core.util.CollectionUtils;
 
 import com.google.common.collect.Lists;
 

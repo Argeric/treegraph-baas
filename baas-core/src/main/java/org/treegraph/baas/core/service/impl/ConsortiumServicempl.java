@@ -16,6 +16,7 @@ import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.bouncycastle.util.encoders.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -65,7 +66,6 @@ import org.treegraph.baas.core.service.ConsortiumService;
 import org.treegraph.baas.core.service.bo.OrgBo;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
 import org.treegraph.baas.core.service.bo.UserInfoBo;
-import org.treegraph.baas.core.util.CollectionUtils;
 import org.treegraph.baas.core.util.DateTimeUtils;
 import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.crypto.x509.EncryptUtil;

@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.Certificate;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
@@ -38,7 +39,6 @@ import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.CryptoEnum;
-import org.treegraph.baas.core.util.CollectionUtils;
 import org.treegraph.baas.core.util.crypto.x509.CertUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 

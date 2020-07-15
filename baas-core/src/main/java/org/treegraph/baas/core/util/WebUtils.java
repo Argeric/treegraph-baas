@@ -7,6 +7,9 @@ import java.util.regex.Pattern;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.common.collect.Lists;
 
 import eu.bitwalker.useragentutils.Browser;
@@ -61,7 +64,7 @@ public class WebUtils extends org.springframework.web.util.WebUtils {
 	 */
 	public static String getCookiesValue(HttpServletRequest request, String cookiesName) {
 		Cookie[] cookies = request.getCookies();
-		if (CollectionUtils.isEmpty(cookies)) {
+		if (cookies != null && cookies.length > 0) {
 			return null;
 		}
 		for (Cookie cookie : cookies) {

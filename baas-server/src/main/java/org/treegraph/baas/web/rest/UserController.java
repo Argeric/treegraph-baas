@@ -3,6 +3,7 @@ package org.treegraph.baas.web.rest;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +23,6 @@ import org.treegraph.baas.api.dto.request.QueryUserRequest;
 import org.treegraph.baas.api.dto.response.ListUserResponse;
 import org.treegraph.baas.core.service.LoginService;
 import org.treegraph.baas.core.service.UserService;
-import org.treegraph.baas.core.util.CollectionUtils;
 import org.treegraph.baas.core.util.SysManager;
 
 import io.swagger.annotations.Api;

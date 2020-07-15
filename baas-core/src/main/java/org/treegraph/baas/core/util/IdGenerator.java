@@ -11,13 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 /**
- * 
- * ClassName:IdGenerator <br/>
- * Function: 生产主键，生成策略为：时间戳 + 机器id + 自增id. <br/>
- * Date:     2016年4月11日 下午4:36:29 <br/>
- * @author   tongzheng.zhang
- * @version  1.0
- * @since    JDK 1.8
+ * 生产主键，生成策略为：时间戳 + 机器id + 自增id. <br/>
  */
 @SuppressWarnings("serial")
 public class IdGenerator implements Serializable {

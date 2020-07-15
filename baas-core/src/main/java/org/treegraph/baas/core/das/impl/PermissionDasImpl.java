@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -18,7 +19,6 @@ import org.treegraph.baas.core.domain.RolePermissionPo;
 import org.treegraph.baas.core.domain.RolePermissionPoExample;
 import org.treegraph.baas.core.mapper.primary.PermissionPoMapper;
 import org.treegraph.baas.core.mapper.primary.RolePermissionPoMapper;
-import org.treegraph.baas.core.util.CollectionUtils;
 
 import com.google.common.collect.Lists;
 

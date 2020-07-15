@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.treegraph.baas.common.util.PermHelper;
@@ -23,7 +24,6 @@ import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.enums.UserEnum.PermissionPoint;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.TokenService;
-import org.treegraph.baas.core.util.CollectionUtils;
 import org.treegraph.baas.core.util.JwtUtils;
 
 import com.alibaba.fastjson.JSON;

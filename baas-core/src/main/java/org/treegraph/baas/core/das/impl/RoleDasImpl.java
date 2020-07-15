@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
@@ -14,13 +15,12 @@ import org.treegraph.baas.core.domain.RolePermissionPoExample;
 import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.RolePoExample;
 import org.treegraph.baas.core.domain.RolePoExample.Criteria;
+import org.treegraph.baas.core.domain.UserRolePo;
+import org.treegraph.baas.core.domain.UserRolePoExample;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.mapper.primary.RolePermissionPoMapper;
 import org.treegraph.baas.core.mapper.primary.RolePoMapper;
 import org.treegraph.baas.core.mapper.primary.UserRolePoMapper;
-import org.treegraph.baas.core.domain.UserRolePo;
-import org.treegraph.baas.core.domain.UserRolePoExample;
-import org.treegraph.baas.core.util.CollectionUtils;
 
 import com.google.common.collect.Lists;
 

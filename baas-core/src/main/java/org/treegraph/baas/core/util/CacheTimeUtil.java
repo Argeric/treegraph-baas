@@ -2,9 +2,6 @@ package org.treegraph.baas.core.util;
 
 import java.util.Calendar;
 
-/**
- * 
- */
 public class CacheTimeUtil {
 
   public static final int SECOND = 1;

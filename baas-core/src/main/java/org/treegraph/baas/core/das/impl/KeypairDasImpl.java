@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
@@ -15,7 +16,6 @@ import org.treegraph.baas.core.domain.KeypairPoExample.Criteria;
 import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.mapper.primary.KeypairPoMapper;
 import org.treegraph.baas.core.mapper.primary.NodeKeyPoMapper;
-import org.treegraph.baas.core.util.CollectionUtils;
 
 import com.google.common.collect.Lists;
 

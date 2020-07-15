@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -57,7 +58,7 @@ public class LogAspect {
         
 		Object[] argArrays = null;
 		Object[] originalArrays = joinPoint.getArgs();
-		if (!CollectionUtils.isEmpty(originalArrays)) {
+		if (originalArrays != null && originalArrays.length > 0) {
 			List<Object> argList = Lists.newArrayList(originalArrays).stream()
 					.filter(item -> isShowArg(item)).collect(Collectors.toList());
 			argArrays = CollectionUtils.isNotEmpty(argList) ? argList.toArray() : null;

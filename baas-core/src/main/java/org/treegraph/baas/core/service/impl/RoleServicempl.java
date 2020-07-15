@@ -6,7 +6,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.RolePermissionInfo;
 import org.treegraph.baas.api.dto.request.CreateRoleRequest;
@@ -30,8 +32,6 @@ import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.RoleService;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
-import org.treegraph.baas.core.util.Assert;
-import org.treegraph.baas.core.util.CollectionUtils;
 import org.treegraph.baas.core.util.DateTimeUtils;
 
 import com.github.pagehelper.PageHelper;

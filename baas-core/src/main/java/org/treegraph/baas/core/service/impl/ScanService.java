@@ -22,6 +22,18 @@ public class ScanService {
 
 	private RestTemplate restTemplate;
 
+	public Object invoke(String url, Map<String, ?> uriVariables) {
+		HttpHeaders header = new HttpHeaders();
+		header.setContentType(MediaType.parseMediaType("application/json; charset=UTF-8"));
+		HttpEntity<Object> requestEntity = new HttpEntity<Object>(null, header);
+		ResponseEntity<Object> resp = restTemplate.exchange(url, HttpMethod.GET, requestEntity, Object.class, uriVariables);
+		if (resp.getStatusCode() != HttpStatus.OK) {
+			throw new BusinessException(ErrorCodeEnum.SCAN_EXCEPTION);
+		} else {
+			return resp.getBody();
+		}
+	}
+	
 	public <T> T invoke(String url, Map<String, ?> uriVariables, ParameterizedTypeReference<T> responseType) {
 		HttpHeaders header = new HttpHeaders();
 		header.setContentType(MediaType.parseMediaType("application/json; charset=UTF-8"));

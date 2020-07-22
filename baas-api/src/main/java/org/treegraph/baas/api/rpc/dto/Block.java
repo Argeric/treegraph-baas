@@ -17,7 +17,7 @@ public class Block {
 	
 	private String difficulty;
 	
-	private Long timestamp;
+	private String timestamp;
 	
 	private Long transactionCount;
 	

@@ -87,6 +87,7 @@ public class HeartbeatService {
 		return headers;
 	}
 	
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		CompletableFuture<String> thenApplyAsync = CompletableFuture.supplyAsync(() -> {
 			return "Hello ";

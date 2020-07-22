@@ -26,14 +26,30 @@ public class ScanController {
     @Resource
 	private ScanService scanService;
 	
-	@Value("${scan.api.uri}")
-	String uriApi;
+	@Value("${uri.scan.scan}")
+	String uriScan;
 	
-	@PostMapping(value = {"/api/block/list"
-			,"/api/block/query"
+	@Value("${uri.scan.contract}")
+	String uriContract;
+	
+	@PostMapping(value = {"/scan/dashboard/trend",
+			"/scan/block/list",
+			"/scan/transaction/list",
+			"/contract/contract/list",
+			"/scan/transfer/list",
+			"/scan/util/type",
+			"/scan/transaction/query",
+			"/scan/block/query",
+			"/scan/token/query",
+			"/scan/address/query",
+			"/contract/account/token/list",
+			"/contract/contract/query"
 	})
 	@ApiOperation("scan请求转发")
 	public Object listBlock(HttpServletRequest request, @RequestBody Map<String, String> requestParams) throws Exception {
-		return scanService.invoke(uriApi + request.getRequestURI(), requestParams);
+		String requestUri = request.getRequestURI();
+		String scanUri = uriScan + (requestUri.startsWith("/scan") ? requestUri.replaceFirst("scan", "api")
+				: requestUri.replaceFirst("contract", "api"));
+		return scanService.invoke(scanUri, requestParams);
 	}
 }

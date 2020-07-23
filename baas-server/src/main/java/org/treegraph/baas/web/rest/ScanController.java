@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,21 +33,21 @@ public class ScanController {
 	@Value("${uri.scan.contract}")
 	String uriContract;
 	
-	@PostMapping(value = {"/scan/dashboard/trend",
-			"/scan/block/list",
-			"/scan/transaction/list",
-			"/contract/contract/list",
-			"/scan/transfer/list",
-			"/scan/util/type",
-			"/scan/transaction/query",
-			"/scan/block/query",
-			"/scan/token/query",
-			"/scan/address/query",
-			"/contract/account/token/list",
-			"/contract/contract/query"
+	@PostMapping(value = {"/scan/dashboard/trend/{chain}",
+			"/scan/block/list/{chain}",
+			"/scan/transaction/list/{chain}",
+			"/contract/contract/list/{chain}",
+			"/scan/transfer/list/{chain}",
+			"/scan/util/type/{chain}",
+			"/scan/transaction/query/{chain}",
+			"/scan/block/query/{chain}",
+			"/scan/token/query/{chain}",
+			"/scan/address/query/{chain}",
+			"/contract/account/token/list/{chain}",
+			"/contract/contract/query/{chain}"
 	})
 	@ApiOperation("scan请求转发")
-	public Object listBlock(HttpServletRequest request, @RequestBody Map<String, String> requestParams) throws Exception {
+	public Object listBlock(HttpServletRequest request, @PathVariable("chain") String chainId, @RequestBody Map<String, String> requestParams) throws Exception {
 		String requestUri = request.getRequestURI();
 		String scanUri = uriScan + (requestUri.startsWith("/scan") ? requestUri.replaceFirst("scan", "api")
 				: requestUri.replaceFirst("contract", "api"));

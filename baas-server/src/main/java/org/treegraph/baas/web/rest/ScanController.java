@@ -50,8 +50,8 @@ public class ScanController {
 	public Object listBlock(HttpServletRequest request, @PathVariable("chain") String chainId, @RequestBody Map<String, String> requestParams) throws Exception {
 		String requestUri = request.getRequestURI();
 		requestUri = requestUri.replace("/"+chainId, "");
-		String scanUri = uriScan + (requestUri.startsWith("/scan") ? requestUri.replaceFirst("scan", "api")
-				: requestUri.replaceFirst("contract", "api"));
+		String scanUri = requestUri.startsWith("/scan") ? (uriScan + requestUri.replaceFirst("scan", "api"))
+				: (uriContract + requestUri.replaceFirst("contract", "api"));
 		return scanService.invoke(scanUri, requestParams);
 	}
 	

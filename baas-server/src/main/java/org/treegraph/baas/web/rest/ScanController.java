@@ -6,7 +6,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,32 +32,29 @@ public class ScanController {
 	@Value("${uri.scan.contract}")
 	String uriContract;
 	
-	@PostMapping(value = {"/scan/dashboard/trend/{chain}",
-			"/scan/block/list/{chain}",
-			"/scan/transaction/list/{chain}",
-			"/contract/contract/list/{chain}",
-			"/scan/transfer/list/{chain}",
-			"/scan/util/type/{chain}",
-			"/scan/transaction/query/{chain}",
-			"/scan/block/query/{chain}",
-			"/scan/token/query/{chain}",
-			"/scan/address/query/{chain}",
-			"/contract/account/token/list/{chain}",
-			"/contract/contract/query/{chain}"
+	@PostMapping(value = {"/scan/dashboard/trend",
+			"/scan/block/list",
+			"/scan/transaction/list",
+			"/contract/contract/list",
+			"/scan/transfer/list",
+			"/scan/util/type",
+			"/scan/transaction/query",
+			"/scan/block/query",
+			"/scan/token/query",
+			"/scan/address/query",
+			"/contract/account/token/list",
+			"/contract/contract/query"
 	})
 	@ApiOperation("scan请求转发")
-	public Object listBlock(HttpServletRequest request, @PathVariable("chain") String chainId, @RequestBody Map<String, String> requestParams) throws Exception {
-		String requestUri = request.getRequestURI();
-		requestUri = requestUri.replace("/"+chainId, "");
+	public Object listBlock(HttpServletRequest request, @RequestBody Map<String, Map<String, String>> requestParams) throws Exception {
+		Map<String, String> selfParams = requestParams.get("self");
+		String chainId = selfParams.get("chain");
+		
+		String requestUri = request.getRequestURI().replace("/"+chainId, "");
 		String scanUri = requestUri.startsWith("/scan") ? (uriScan + requestUri.replaceFirst("scan", "api"))
 				: (uriContract + requestUri.replaceFirst("contract", "api"));
-		return scanService.invoke(scanUri, requestParams);
-	}
-	
-	public static void main(String[] args) {
-		String s = "http://101.200.183.108:8885/api/block/list/6734bd03-cc14-462f-b652-af5e1016f3cc";
-		String chain = "6734bd03-cc14-462f-b652-af5e1016f3cc";
-		String re = s.replaceFirst("/"+chain, "");
-		System.out.println(re);
+		Map<String, String> scanParams = requestParams.get("scan");
+		
+		return scanService.invoke(scanUri, scanParams);
 	}
 }

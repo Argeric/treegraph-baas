@@ -49,8 +49,16 @@ public class ScanController {
 	@ApiOperation("scan请求转发")
 	public Object listBlock(HttpServletRequest request, @PathVariable("chain") String chainId, @RequestBody Map<String, String> requestParams) throws Exception {
 		String requestUri = request.getRequestURI();
+		requestUri = requestUri.replace("/"+chainId, "");
 		String scanUri = uriScan + (requestUri.startsWith("/scan") ? requestUri.replaceFirst("scan", "api")
 				: requestUri.replaceFirst("contract", "api"));
 		return scanService.invoke(scanUri, requestParams);
+	}
+	
+	public static void main(String[] args) {
+		String s = "http://101.200.183.108:8885/api/block/list/6734bd03-cc14-462f-b652-af5e1016f3cc";
+		String chain = "6734bd03-cc14-462f-b652-af5e1016f3cc";
+		String re = s.replaceFirst("/"+chain, "");
+		System.out.println(re);
 	}
 }

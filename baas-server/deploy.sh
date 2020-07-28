@@ -1,14 +1,17 @@
 #!/bin/bash
   
+APP_PATH=/opt/service/treegraph-baas-test/treegraph-baas/baas-server
+
 stop(){
-        cd /opt/service/treegraph-baas-container
+        cd $APP_PATH
         docker-compose -p baas down
         docker rmi baas_backend_image
 }
 
 start(){
-        cd /opt/service/treegraph-baas-container
-        cp /root/.jenkins/workspace/treegraph-baas-container1/baas-server/target/treegraph-baas.jar ./jar
+        cd $APP_PATH
+        mkdir -p ./target
+        cp /root/.jenkins/workspace/treegraph-baas-container1/baas-server/target/treegraph-baas.jar ./target
         docker-compose -p baas up -d
 }
 

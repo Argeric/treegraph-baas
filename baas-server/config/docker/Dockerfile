@@ -1,6 +1,6 @@
 FROM openjdk:8-jdk-alpine
 
-MAINTAINER zt<zhenting@conflux-chain.org>
+LABEL name="treegraph-baas" version="1.0" author="zt<zhenting@conflux-chain.org>"
 
 VOLUME /opt/service/log
 

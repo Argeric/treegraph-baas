@@ -1,0 +1,57 @@
+version: '3'
+services:
+
+  mysql:
+    restart: always
+    image: mysql
+    container_name: baas_backend_db
+    ports:
+      - "13306:3306"
+    environment:
+      - MYSQL_DATABASE=baas_tgc
+      - MYSQL_ROOT_PASSWORD=conflux123
+    volumes:
+      - "./data/mysql:/var/lib/mysql:rw"
+    networks:
+      - backend_net
+
+  backend_web:
+    restart: always
+    image: baas_backend_image
+    build:
+      context: .
+      dockerfile: ./config/docker/Dockerfile
+      args:
+        - JAR_FILE=./target/treegraph-baas.jar
+    expose:
+      - "9797"
+    depends_on:
+      - mysql
+    volumes:
+      - ./log/baas:/opt/service/log
+    networks:
+      - backend_net
+
+  nginx:
+    restart: always
+    image: nginx
+    container_name: baas_backend_nginx
+    ports:
+      - "19797:80"
+    depends_on:
+      - mysql
+      - backend_web
+    links:
+      - backend_web
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./log/nginx:/var/log/nginx
+    networks:
+      - backend_net
+
+networks:
+  backend_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 168.18.0.0/24

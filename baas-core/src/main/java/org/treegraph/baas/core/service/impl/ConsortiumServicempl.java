@@ -360,6 +360,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			nodeKeypairBoList.add(nodeKeypairBo);
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
 					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
+			consortiumNodes.append("cfxnode://");
 			consortiumNodes.append(ecKeypair.getPublicKey().toString(16) + CharacterConstant.AT + nodeKeypairBo.getNode().getNodeIp()
 					+ CharacterConstant.COLON + nodeKeypairBo.getNode().getNodePort());
 			if(!node.getId().equalsIgnoreCase(nodes.get(nodes.size()-1).getId())) {

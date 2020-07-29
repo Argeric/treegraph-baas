@@ -12,3 +12,9 @@
 * Springboot 2.x
 * Mysql 8.0.x
 * Java SE 11(LTS)
+
+##三、项目部署
+* 1、 cd {program-path}/treegraph-baas/baas-server
+* 2、 打开deploy.sh文件，修改APP_PATH为当前目录
+* 3、 chmod 777 deploy.sh
+* 4、 ./deploy.sh start

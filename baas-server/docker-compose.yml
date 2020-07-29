@@ -3,7 +3,7 @@ services:
 
   mysql:
     restart: always
-    image: mysql
+    image: mysql:8.0.21
     container_name: baas_backend_db
     ports:
       - "13306:3306"
@@ -51,7 +51,7 @@ services:
 
   nginx:
     restart: always
-    image: nginx
+    image: nginx:1.18.0
     container_name: baas_backend_nginx
     ports:
       - "19797:80"

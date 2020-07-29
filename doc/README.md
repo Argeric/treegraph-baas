@@ -10,5 +10,5 @@
 
 ##二、软件版本信息
 * Springboot 2.x
-* Mysql 5.7.x
+* Mysql 8.0.x
 * Java SE 11(LTS)

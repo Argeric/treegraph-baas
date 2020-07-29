@@ -14,6 +14,22 @@ services:
       - "./data/mysql:/var/lib/mysql:rw"
     networks:
       - backend_net
+      
+  vault:
+    restart: always
+    image: vault:1.4.3
+    container_name: baas_backend_vault
+    ports:
+      - "18200:8200"
+    environment:
+       VAULT_API_ADDR: "http://0.0.0.0:8200"
+    volumes:
+      - ./config/vault:/vault/config:rw
+      - ./data/vault:/vault/file:rw
+      - ./log/vault:/vault/logs
+    networks:
+      - backend_net
+    entrypoint: vault server -config=/vault/config/vault.hcl      
 
   backend_web:
     restart: always
@@ -27,6 +43,7 @@ services:
       - "9797"
     depends_on:
       - mysql
+      - vault
     volumes:
       - ./log/baas:/opt/service/log
     networks:

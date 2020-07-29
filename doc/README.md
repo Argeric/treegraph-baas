@@ -15,6 +15,5 @@
 
 ##三、项目部署
 * 1、 cd {program-path}/treegraph-baas/baas-server
-* 2、 打开deploy.sh文件，修改APP_PATH为当前目录
-* 3、 chmod 777 deploy.sh
-* 4、 ./deploy.sh start
+* 2、 chmod 777 deploy.sh
+* 3、 ./deploy.sh restart

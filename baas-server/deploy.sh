@@ -1,17 +1,11 @@
 #!/bin/bash
   
-APP_PATH=/opt/service/treegraph-baas-test/treegraph-baas/baas-server
-
 stop(){
-        cd $APP_PATH
         docker-compose -p baas down
         docker rmi baas_backend_image
 }
 
 start(){
-        cd $APP_PATH
-        mkdir -p ./target
-        cp /root/.jenkins/workspace/treegraph-baas-container1/baas-server/target/treegraph-baas.jar ./target
         docker-compose -p baas up -d
 }
 
@@ -36,7 +30,7 @@ case "$1" in
                 ;;
         *)
                 echo "Usage:{start|stop|status|restart}"
-                ;;
+	       	;;
 esac
 
 exit 0

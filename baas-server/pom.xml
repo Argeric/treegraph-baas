@@ -192,6 +192,7 @@
 	            <groupId>org.springframework.boot</groupId>
 	            <artifactId>spring-boot-maven-plugin</artifactId>
 	        </plugin> 
+	        <!-- 
       		<plugin>
                 <groupId>com.spotify</groupId>
                 <artifactId>dockerfile-maven-plugin</artifactId>
@@ -209,14 +210,13 @@
                 	<contextDirectory>${project.basedir}</contextDirectory>
                     <dockerfile>Dockerfile</dockerfile>
                     <repository>${docker.registry}/${docker.image.prefix}/${project.artifactId}</repository>
-                    <!-- 
-                    <tag>latest</tag>
-                     -->
+                    <tag>latest</tag>//打开注释这行需要注释掉
                     <buildArgs>
                         <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
                     </buildArgs>
                 </configuration>
-      		</plugin>      
+      		</plugin>    
+      		-->  
     	</plugins>
         <resources>
             <resource>

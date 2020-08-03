@@ -267,5 +267,10 @@
 		    <version>1.9.4</version>
 		</dependency>
                      						            						 		
+		<dependency>
+			<groupId>org.conflux-chain</groupId>
+		    <artifactId>conflux-web3j</artifactId>
+		    <version>1.0.0-SNAPSHOT</version>
+		</dependency>
   </dependencies>
 </project>

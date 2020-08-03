@@ -3,13 +3,7 @@ package org.treegraph.baas.core.service.impl;
 import java.io.OutputStream;
 import java.security.PrivateKey;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -353,23 +347,23 @@ public class ConsortiumServicempl implements ConsortiumService {
 		PrivateKey privateKey = KeyUtil.privateKeyFromBase64(algoCons, consortiumKeypair.getPrivateKey());
 		
 		// nodes info
-		StringBuilder consortiumNodes = new StringBuilder();
+		HashSet<String> consortiumNodesSet = new HashSet<String>();
+		HashSet<String> bootnodesSet = new HashSet<String>();
 		List<NodeKeypairBo> nodeKeypairBoList = new ArrayList<>();
 		for(NodePo node:nodes){
 			NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypair(req.getConsortiumId(), algoNode, node);
 			nodeKeypairBoList.add(nodeKeypairBo);
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
 					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
-			consortiumNodes.append("cfxnode://");
-			consortiumNodes.append(ecKeypair.getPublicKey().toString(16) + CharacterConstant.AT + nodeKeypairBo.getNode().getNodeIp()
+			consortiumNodesSet.add(ecKeypair.getPublicKey().toString(16));
+			bootnodesSet.add("cfxnode://"+ecKeypair.getPublicKey().toString(16) + CharacterConstant.AT + nodeKeypairBo.getNode().getNodeIp()
 					+ CharacterConstant.COLON + nodeKeypairBo.getNode().getNodePort());
-			if(!node.getId().equalsIgnoreCase(nodes.get(nodes.size()-1).getId())) {
-				consortiumNodes.append(CharacterConstant.COMMA);
-			}
 		}
-		
+		String consortiumNodes= String.join(CharacterConstant.COMMA,consortiumNodesSet);
+		String bootnodes = String.join(CharacterConstant.COMMA,bootnodesSet);
+
 		// nodes info digest
-		byte[] consortiumNodesSHA3 = SignUtil.SHA256Digest(consortiumNodes.toString().getBytes());
+		byte[] consortiumNodesSHA3 = SignUtil.SHA256Digest(consortiumNodes.getBytes());
 		byte[] consortiumNodesDigestCipher = EncryptUtil.codecByPrivateKey(algoCons, true, privateKey, consortiumNodesSHA3);
 		String consortiumNodesDigest = Base64.toBase64String(consortiumNodesDigestCipher);
 		
@@ -379,7 +373,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			StringBuffer scriptContent = new StringBuffer();
 			scriptContent.append("consortium_cert = \"\"\"" + consortiumKeypair.getCertStr() + "\"\"\"")
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-			scriptContent.append("consortium_nodes = \"\"\"" + consortiumNodes.toString() + "\"\"\"")
+			scriptContent.append("consortium_nodes = \"\"\"" + consortiumNodes + "\"\"\"")
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			scriptContent.append("consortium_nodes_digest = \"" + consortiumNodesDigest + "\"")
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
@@ -387,6 +381,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
 			scriptContent.append("consortium_keypair = \"" + ecKeypair.getPublicKey().toString(16) + CharacterConstant.COMMA
 					+ ecKeypair.getPrivateKey().toString(16) + "\"");
+			scriptContent.append("bootnodes = \"\"\"" + bootnodes + "\"\"\"")
+					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			nodeScriptContentMap.put(nodeKeypairBo.getNode().getNodeIp() + "-" + nodeKeypairBo.getNode().getNodePort(),
 					scriptContent.toString());
 		}

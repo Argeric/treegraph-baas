@@ -347,8 +347,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 		PrivateKey privateKey = KeyUtil.privateKeyFromBase64(algoCons, consortiumKeypair.getPrivateKey());
 		
 		// nodes info
-		HashSet<String> consortiumNodesSet = new HashSet<String>();
-		HashSet<String> bootnodesSet = new HashSet<String>();
+		List<String> consortiumNodesSet = new ArrayList<>();
+		List<String> bootnodesSet = new ArrayList<>();
 		List<NodeKeypairBo> nodeKeypairBoList = new ArrayList<>();
 		for(NodePo node:nodes){
 			NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypair(req.getConsortiumId(), algoNode, node);

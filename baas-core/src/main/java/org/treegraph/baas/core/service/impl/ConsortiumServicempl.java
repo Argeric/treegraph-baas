@@ -449,8 +449,10 @@ public class ConsortiumServicempl implements ConsortiumService {
 	public void getDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp) throws Exception {
 		List<NodePo> nodes = nodeDas.findAll(req.getConsortiumId(), null);
 		if(CollectionUtils.isEmpty(nodes)) { // mock
-			nodes.add(NodePo.builder().id("1111111111111111111111111111111111111111").nodeIp("101.200.183.108").nodePort(12537).build());
-			nodes.add(NodePo.builder().id("2222222222222222222222222222222222222222").nodeIp("101.200.183.108").nodePort(12538).build());
+			nodes.add(NodePo.builder().id("111111111111111111111111111111111111").nodeIp("101.200.183.108").nodePort(12537).build());
+			nodes.add(NodePo.builder().id("222222222222222222222222222222222222").nodeIp("101.200.183.108").nodePort(12538).build());
+			nodes.add(NodePo.builder().id("333333333333333333333333333333333333").nodeIp("101.200.183.108").nodePort(12539).build());
+			nodes.add(NodePo.builder().id("444444444444444444444444444444444444").nodeIp("101.200.183.108").nodePort(12540).build());
 		}
 		Assert.notEmpty(nodes, "node.not.found");
 		
@@ -463,22 +465,25 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		// nodes info
 		StringBuilder consortiumNodes = new StringBuilder();
+		StringBuilder bootNodes = new StringBuilder();
 		List<NodeKeypairBo> nodeKeypairBoList = new ArrayList<>();
 		for(NodePo node:nodes){
 			NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypair(req.getConsortiumId(), algoNode, node);
 			nodeKeypairBoList.add(nodeKeypairBo);
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
 					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
-			consortiumNodes.append("cfxnode://");
-			consortiumNodes.append(ecKeypair.getPublicKey().toString(16) + CharacterConstant.AT + nodeKeypairBo.getNode().getNodeIp()
+			consortiumNodes.append(ecKeypair.getPublicKey().toString(16));
+			bootNodes.append("cfxnode://");
+			bootNodes.append(ecKeypair.getPublicKey().toString(16) + CharacterConstant.AT + nodeKeypairBo.getNode().getNodeIp()
 					+ CharacterConstant.COLON + nodeKeypairBo.getNode().getNodePort());
 			if(!node.getId().equalsIgnoreCase(nodes.get(nodes.size()-1).getId())) {
 				consortiumNodes.append(CharacterConstant.COMMA);
+				bootNodes.append(CharacterConstant.COMMA);
 			}
 		}
 		
 		// nodes info digest
-		byte[] consortiumNodesSHA3 = SignUtil.SHA256Digest(consortiumNodes.toString().getBytes());
+		byte[] consortiumNodesSHA3 = SignUtil.SHA256Digest(bootNodes.toString().getBytes());
 		byte[] consortiumNodesDigestCipher = EncryptUtil.codecByPrivateKey(algoCons, true, privateKey, consortiumNodesSHA3);
 		String consortiumNodesDigest = Base64.toBase64String(consortiumNodesDigestCipher);
 		
@@ -496,6 +501,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
 			scriptContent.append("consortium_keypair = \"" + ecKeypair.getPublicKey().toString(16) + CharacterConstant.COMMA
 					+ ecKeypair.getPrivateKey().toString(16) + "\"");
+			scriptContent.append("jsonrpc_http_port = " + nodeKeypairBo.getNode().getNodePort());
+			scriptContent.append("bootnodes = \"\"\"" + bootNodes.toString() + "\"\"\"");
 			nodeScriptContentMap.put(nodeKeypairBo.getNode().getNodeIp() + "-" + nodeKeypairBo.getNode().getNodePort(),
 					scriptContent.toString());
 		}

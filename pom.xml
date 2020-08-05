@@ -485,12 +485,12 @@
         <repository>
             <id>releases</id>
             <name>Nexus Release Repository</name>
-            <url>http://101.200.183.108:8081/repository/maven-releases/</url>
+            <url>http://101.200.183.108:18081/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
             <id>snapshots</id>
             <name>Nexus Snapshot Repository</name>
-            <url>http://101.200.183.108:8081/repository/maven-snapshots/</url>
+            <url>http://101.200.183.108:18081/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 </project>

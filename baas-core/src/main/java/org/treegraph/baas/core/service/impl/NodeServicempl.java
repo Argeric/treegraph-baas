@@ -58,7 +58,8 @@ public class NodeServicempl implements NodeService {
     	List<BlockChainPo> blockchains = blockchainDas.findByIds(blockchainIds);
     	Map<String, String> blockchainIdNameMap = blockchains.stream().collect(Collectors.toMap(BlockChainPo::getId, BlockChainPo::getBlockchainName));
     	
-		Map<String, Boolean> nodeHeartbeatMap = getHeartbeatMap(nodeList);
+		//Map<String, Boolean> nodeHeartbeatMap = getHeartbeatMap(nodeList);
+		Map<String, Boolean> nodeHeartbeatMap = heartbeatService.batchNodeHeartbeat(nodeList);
     	
     	List<NodeInfo> nodeInfos = nodeList.stream().map(item -> NodeInfo.builder()
     			.id(item.getId())
@@ -83,7 +84,8 @@ public class NodeServicempl implements NodeService {
 	
 	public NodeInfo getNodeDetail(QueryNodeDetailRequest req) {
 		NodePo nodePo = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
-		Map<String, Boolean> nodeHeartbeatMap = getHeartbeatMap(Lists.newArrayList(nodePo));
+		//Map<String, Boolean> nodeHeartbeatMap = getHeartbeatMap(Lists.newArrayList(nodePo));
+		Map<String, Boolean> nodeHeartbeatMap = heartbeatService.batchNodeHeartbeat(Lists.newArrayList(nodePo));
 		return NodeInfo.builder()
 				.ip(nodePo.getNodeIp())
 				.port(nodePo.getNodePort()+"")
@@ -112,14 +114,14 @@ public class NodeServicempl implements NodeService {
 		return nodeDas.modifyNode(nodePo);
 	}
 
-	private Map<String, Boolean> getHeartbeatMap(List<NodePo> nodeList) {
-		List<NodePo> heartbeatNodeList = nodeList.stream()
-				.filter(item -> item.getStatus() != NodeEnum.Status.TO_DEPLOY.getCode()
-						&& item.getStatus() != NodeEnum.Status.STOP.getCode())
-				.collect(Collectors.toList());
-    	Map<String, Boolean> nodeHeartbeatMap = heartbeatService.batchNodeHeartbeat(heartbeatNodeList);
-		return nodeHeartbeatMap;
-	}
+//	private Map<String, Boolean> getHeartbeatMap(List<NodePo> nodeList) {
+//		List<NodePo> heartbeatNodeList = nodeList.stream()
+//				.filter(item -> item.getStatus() != NodeEnum.Status.TO_DEPLOY.getCode()
+//						&& item.getStatus() != NodeEnum.Status.STOP.getCode())
+//				.collect(Collectors.toList());
+//    	Map<String, Boolean> nodeHeartbeatMap = heartbeatService.batchNodeHeartbeat(heartbeatNodeList);
+//		return nodeHeartbeatMap;
+//	}
 	
 	private int getNodeStatus(int dbStatus, Boolean heartbeat) {
 		if (dbStatus == NodeEnum.Status.TO_DEPLOY.getCode() || dbStatus == NodeEnum.Status.STOP.getCode()) {

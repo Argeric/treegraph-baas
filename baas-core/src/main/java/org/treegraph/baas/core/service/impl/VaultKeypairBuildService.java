@@ -39,6 +39,7 @@ import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.CryptoEnum;
+import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.util.crypto.x509.CertUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 
@@ -139,8 +140,7 @@ public class VaultKeypairBuildService {
 				.build();
 	}
 
-	public NodeKeypairBo getNodeKeypair(String consortiumId, String algo, NodePo node)
-			throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, Exception {
+	public NodeKeypairBo getNodeKeypair(String consortiumId, String algo, NodePo node) {
 		List<NodeKeyPo> nodeKeys = nodeKeyDas.findAll(consortiumId, node.getId());
 		if(CollectionUtils.isNotEmpty(nodeKeys)) {
 			List<Long> keypairIds = nodeKeys.stream().map(item -> item.getKeypairId()).collect(Collectors.toList());
@@ -151,9 +151,16 @@ public class VaultKeypairBuildService {
 			}
 		}
 		
-		KeyPair keyPair = KeyUtil.generateKeyPair(algo);
-		String nodePublicKey = KeyUtil.publicKeyToBase64(keyPair.getPublic());
-		String nodePrivateKey = KeyUtil.privateKeyToBase64(keyPair.getPrivate());
+		KeyPair keyPair = null;
+		String nodePublicKey = null;
+		String nodePrivateKey = null;
+		try {
+			keyPair = KeyUtil.generateKeyPair(algo);
+			nodePublicKey = KeyUtil.publicKeyToBase64(keyPair.getPublic());
+			nodePrivateKey = KeyUtil.privateKeyToBase64(keyPair.getPrivate());
+		} catch(Exception e) {
+			throw new AlertException("get node keypair error!");
+		}
 		
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();

@@ -3,30 +3,22 @@ package org.treegraph.baas.core.service.impl;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.service.bo.NodeBo;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 
 import conflux.web3j.Cfx;
-import conflux.web3j.HasValue;
 import conflux.web3j.Request;
-import conflux.web3j.response.Block;
 import conflux.web3j.response.Status;
-import conflux.web3j.response.Block.Response;
-import conflux.web3j.response.StringResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,11 +27,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HeartbeatService {
 
-	private final static String MEDIA_TYPE_JSON = "application/json; charset=UTF-8";
+//	private final static String MEDIA_TYPE_JSON = "application/json; charset=UTF-8";
+	
+//	private RestTemplate restTemplate;
 	
 	private final static ExecutorService executor = Executors.newFixedThreadPool(5);
-
-	private RestTemplate restTemplate;
 	
 	public Map<String, Boolean> batchNodeHeartbeat(List<NodePo> nodes) {
 		if(CollectionUtils.isEmpty(nodes)) {
@@ -92,14 +84,17 @@ public class HeartbeatService {
 //	}
 	
 	public boolean nodeHeartbeat(String nodeIp, int nodePort) {
-		Status.Response response = null;
+		boolean result = false;
 		try {
 			Cfx cfx = Cfx.create("http://"+nodeIp+":"+nodePort);
-			Request<Status, Status.Response> request = cfx.getCustomizedRequest(Status.Response.class, "getstatus", new Object[0]);
-			response = request.send();
+			Request<Status, Status.Response> request = cfx.getCustomizedRequest(Status.Response.class,
+					ConfluxConstant.INTERFACE_BEATHEART, new Object[0]);
+			Status.Response response = request.send();
+			result = response != null && response.getResult() != null && response.getResult().getBlockNumber() != null;
 		} catch (IOException e) {
 		}
-		return response != null && response.getResult() != null && response.getResult().getBlockNumber() != null;
+		
+		return result;
 	}
 	
 	@SuppressWarnings("unused")

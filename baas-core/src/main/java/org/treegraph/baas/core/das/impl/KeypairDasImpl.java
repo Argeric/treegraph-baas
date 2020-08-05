@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
+import org.treegraph.baas.core.das.bo.NodeKeypairInfoBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.KeypairPoExample;
 import org.treegraph.baas.core.domain.KeypairPoExample.Criteria;
@@ -59,6 +60,10 @@ public class KeypairDasImpl implements KeypairDas {
 		criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
 		example.setOrderByClause("create_time desc");
 		return keypairPoMapper.selectByExample(example);
+	}
+	
+	public List<NodeKeypairInfoBo> findAll(String consId, Integer keyType, String algo, List<String> nodeIds) {
+		return keypairPoMapper.selectAllByNodeIds(consId, keyType, algo, nodeIds);
 	}
 	
 	public boolean save(KeypairPo keypair) {

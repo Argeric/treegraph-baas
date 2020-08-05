@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.ibatis.annotations.Param;
+import org.treegraph.baas.core.das.bo.NodeKeypairInfoBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.KeypairPoExample;
 
@@ -31,4 +32,7 @@ public interface KeypairPoMapper {
     int updateByPrimaryKey(KeypairPo record);
     
     int bulkInsert(List<KeypairPo> list);
+    
+	List<NodeKeypairInfoBo> selectAllByNodeIds(@Param("consortiumId") String consortiumId, @Param("keyType") int keyType,
+			@Param("algo") String algo, @Param("nodeIds") List<String> nodeIds);
 }

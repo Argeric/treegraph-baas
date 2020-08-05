@@ -367,4 +367,35 @@
           )
       </foreach>
   </insert>    
+  
+  <resultMap id="BaseResultMap2" type="org.treegraph.baas.core.das.bo.NodeKeypairInfoBo">
+    <result column="keypair_public_key" jdbcType="VARCHAR" property="publicKey" />
+    <result column="keypair_private_key" jdbcType="VARCHAR" property="privateKey" />
+    <result column="keypair_algorithm" jdbcType="VARCHAR" property="algorithm" />
+    <result column="keypair_consortium_id" jdbcType="VARCHAR" property="consortiumId" />
+    <result column="keypair_key_type" jdbcType="INTEGER" property="keyType" />
+    <result column="keypair_node_ip" jdbcType="VARCHAR" property="nodeIp" />
+    <result column="keypair_node_port" jdbcType="INTEGER" property="nodePort" />
+  </resultMap>
+  
+  <select id="selectAllByNodeIds" resultMap="BaseResultMap2">
+		SELECT keypair.public_key as keypair_public_key, 
+			keypair.private_key as keypair_private_key, 
+			keypair.algorithm as keypair_algorithm,
+			keypair.consortium_id as keypair_consortium_id,
+			keypair.`key_type` as keypair_key_type,
+			node.node_ip as keypair_node_ip, 
+			node.node_port as keypair_node_port
+		FROM keypair keypair 
+		INNER JOIN node_key nodeKey ON keypair.id = nodeKey.keypair_id
+		INNER JOIN node node ON nodeKey.node_id = node.id
+		WHERE 
+			keypair.consortium_id = #{consortiumId}
+			AND keypair.key_type = #{keyType}
+			AND keypair.`algorithm` = #{algo}
+			AND node.id IN 
+		<foreach collection="nodeIds" open="(" close=")" index="index" item="item" separator=",">
+	    	#{item}
+	    </foreach>
+  </select>
 </mapper>

@@ -72,7 +72,9 @@ public class NodeDasImpl implements NodeDas {
 	public boolean addNodes(List<NodePo> list, ConsortiumPo cons) {
 		boolean succFlag =  Boolean.TRUE;
 		succFlag = succFlag && nodePoMapper.bulkInsert(list) == list.size();
-		succFlag = succFlag && consortiumPoMapper.updateByPrimaryKeySelective(cons) > 0;
+		if(cons != null) {
+			succFlag = succFlag && consortiumPoMapper.updateByPrimaryKeySelective(cons) > 0;
+		}
 		return succFlag;
 	}
 

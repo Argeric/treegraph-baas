@@ -1,5 +1,6 @@
 package org.treegraph.baas.web.rest;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -107,7 +108,7 @@ public class ConsortiumController {
 	
 	@PostMapping("/node/create")
 	@ApiOperation("添加节点")
-	public BaasResult<Void> addNodes(@RequestBody AddNodesRequest addNodesRequest) {
+	public BaasResult<Void> addNodes(@RequestBody AddNodesRequest addNodesRequest) throws IOException {
 		checkCreateBlockchainAndNode(addNodesRequest.getConsId());
 		consortiumService.addNodes(addNodesRequest);
 		return BaasResult.success();

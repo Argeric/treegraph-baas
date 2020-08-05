@@ -500,9 +500,12 @@ public class ConsortiumServicempl implements ConsortiumService {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
 					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
 			scriptContent.append("consortium_keypair = \"" + ecKeypair.getPublicKey().toString(16) + CharacterConstant.COMMA
-					+ ecKeypair.getPrivateKey().toString(16) + "\"");
-			scriptContent.append("jsonrpc_http_port = " + nodeKeypairBo.getNode().getNodePort());
-			scriptContent.append("bootnodes = \"\"\"" + bootNodes.toString() + "\"\"\"");
+					+ ecKeypair.getPrivateKey().toString(16) + "\"")
+					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);;
+			scriptContent.append("jsonrpc_http_port = " + nodeKeypairBo.getNode().getNodePort())
+					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);;
+			scriptContent.append("bootnodes = \"\"\"" + bootNodes.toString() + "\"\"\"")
+					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);;
 			nodeScriptContentMap.put(nodeKeypairBo.getNode().getNodeIp() + "-" + nodeKeypairBo.getNode().getNodePort(),
 					scriptContent.toString());
 		}

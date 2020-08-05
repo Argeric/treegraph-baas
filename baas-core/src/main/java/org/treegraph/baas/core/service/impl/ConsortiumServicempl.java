@@ -506,7 +506,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);;
 			scriptContent.append("bootnodes = \"\"\"" + bootNodes.toString() + "\"\"\"")
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);;
-			nodeScriptContentMap.put(nodeKeypairBo.getNode().getNodeIp() + "-" + nodeKeypairBo.getNode().getNodePort(),
+			nodeScriptContentMap.put(nodeKeypairBo.getNode().getNodeIp() + CharacterConstant.AT + nodeKeypairBo.getNode().getNodePort(),
 					scriptContent.toString());
 		}
 		
@@ -517,7 +517,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		resp.setHeader("Content-disposition", "attachment; filename=\"deploy.zip\"");
 		ZipOutputStream zipOutputStream = new ZipOutputStream((OutputStream) resp.getOutputStream());
 		for(Map.Entry<String, String> item : nodeScriptContentMap.entrySet()){
-			zipOutputStream.putNextEntry(new ZipEntry("deploy."+item.getKey()+".toml"));
+			zipOutputStream.putNextEntry(new ZipEntry(item.getKey() + SplitterConstant.FILE_SEP + "config.toml"));
 			zipOutputStream.write(item.getValue().getBytes());
 			zipOutputStream.closeEntry();
 		}

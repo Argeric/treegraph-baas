@@ -2,6 +2,9 @@ package org.treegraph.baas.core.service.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -356,20 +359,37 @@ public class ConsortiumServicempl implements ConsortiumService {
 	
 	@LogSkip
 	public void getDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp) throws Exception {
-		List<NodePo> nodes = nodeDas.findAll(req.getConsortiumId(), null);
-		if(CollectionUtils.isEmpty(nodes)) { // mock
-			nodes.add(NodePo.builder().id("111111111111111111111111111111111111").nodeIp("101.200.183.108").nodePort(12537).build());
-			nodes.add(NodePo.builder().id("222222222222222222222222222222222222").nodeIp("101.200.183.108").nodePort(12538).build());
-			nodes.add(NodePo.builder().id("333333333333333333333333333333333333").nodeIp("101.200.183.108").nodePort(12539).build());
-			nodes.add(NodePo.builder().id("444444444444444444444444444444444444").nodeIp("101.200.183.108").nodePort(12540).build());
-		}
+		// check and build
+		String consortiumId = req.getConsortiumId();
+		List<NodePo> nodes = nodeDas.findAll(consortiumId, null);
 		Assert.notEmpty(nodes, "node.not.found");
+		Map<String, String> nodeScriptContentMap = buildAndSaveKeypairInfo(consortiumId, nodes);
 		
+		// download deploy.zip file
+		resp.setContentType("application/zip");
+		resp.setHeader("Content-disposition", "attachment; filename=\"deploy.zip\"");
+		ZipOutputStream zipOutputStream = new ZipOutputStream((OutputStream) resp.getOutputStream());
+		for(Map.Entry<String, String> item : nodeScriptContentMap.entrySet()){
+			zipOutputStream.putNextEntry(new ZipEntry(item.getKey() + SplitterConstant.FILE_SEP + "config.toml"));
+			zipOutputStream.write(item.getValue().getBytes());
+			zipOutputStream.closeEntry();
+		}
+		zipOutputStream.close();
+		log.info("write deploy script finished[{}]", consortiumId);
+		
+		// update consortium establish step
+		ConsortiumPo cons = buildService.buildToUpdateCons(consortiumId, EstablishStep.DOWNLOADED_SCRIPTS);
+		consortiumDas.modifyCons(cons);
+		log.info("update consortium status finished[{}]", consortiumId);
+	}
+
+	private Map<String, String> buildAndSaveKeypairInfo(String consortiumId, List<NodePo> nodes)
+			throws Exception, NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
 		// certificate info
 		String algoCons = X509CertConstant.DEFAULT_ALGO_CONS;
 		String algoNode = X509CertConstant.DEFAULT_ALGO_NODE;
 		KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair(algoCons);
-		KeypairPo consortiumKeypair = vaultKeypairBuildService.getConsortiumKeyPair(req.getConsortiumId(), algoCons, rootKeypair);
+		KeypairPo consortiumKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consortiumId, algoCons, rootKeypair);
 		PrivateKey privateKey = KeyUtil.privateKeyFromBase64(algoCons, consortiumKeypair.getPrivateKey());
 		
 		// nodes info
@@ -377,7 +397,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		StringBuilder bootNodes = new StringBuilder();
 		List<NodeKeypairBo> nodeKeypairBoList = new ArrayList<>();
 		for(NodePo node:nodes){
-			NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypair(req.getConsortiumId(), algoNode, node);
+			NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypair(consortiumId, algoNode, node);
 			nodeKeypairBoList.add(nodeKeypairBo);
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
 					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
@@ -421,19 +441,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		// save key and write script
 		keypairDas.addKeyPairInfo(rootKeypair, consortiumKeypair, nodeKeypairBoList);
-		log.info("build deploy script finished["+req.getConsortiumId()+"]");
-		resp.setContentType("application/zip");
-		resp.setHeader("Content-disposition", "attachment; filename=\"deploy.zip\"");
-		ZipOutputStream zipOutputStream = new ZipOutputStream((OutputStream) resp.getOutputStream());
-		for(Map.Entry<String, String> item : nodeScriptContentMap.entrySet()){
-			zipOutputStream.putNextEntry(new ZipEntry(item.getKey() + SplitterConstant.FILE_SEP + "config.toml"));
-			zipOutputStream.write(item.getValue().getBytes());
-			zipOutputStream.closeEntry();
-		}
-		zipOutputStream.close();
-		log.info("write deploy script finished["+req.getConsortiumId()+"]");
-		ConsortiumPo cons = buildService.buildToUpdateCons(req.getConsortiumId(), EstablishStep.DOWNLOADED_SCRIPTS);
-		consortiumDas.modifyCons(cons);
-		log.info("update consortium status finished["+req.getConsortiumId()+"]");
+		log.info("build deploy script finished[{}]", consortiumId);
+		return nodeScriptContentMap;
 	}
 }

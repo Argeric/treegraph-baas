@@ -13,6 +13,7 @@ import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.constant.X509CertConstant;
+import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
@@ -34,6 +35,8 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class RpcBlockchainService {
+	
+	private KeypairDas keypairDas;
 	
     private HeartbeatService heartbeatService;
 	
@@ -135,6 +138,7 @@ public class RpcBlockchainService {
 			List<NodeKeypairBo> newNodeKeypairs = addNodes.stream().map(
 					item -> vaultKeypairBuildService.getNodeKeypair(consortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item))
 					.collect(Collectors.toList());
+			keypairDas.addKeyPairInfo(newNodeKeypairs);
 			leftNodeKeypairs.addAll(newNodeKeypairs);
 		}
 		List<KeypairPo> leftKeypairs = leftNodeKeypairs.stream().map(NodeKeypairBo::getKeypair).collect(Collectors.toList());

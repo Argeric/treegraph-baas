@@ -94,6 +94,18 @@ public class KeypairDasImpl implements KeypairDas {
 		}
 		
 		// add key pair of node
+		if(CollectionUtils.isNotEmpty(nodeKeypairBoList)) {
+			boolean addSuccFlag = addKeyPairInfo(nodeKeypairBoList);
+			succFlag = succFlag && addSuccFlag;
+		}
+		
+		return succFlag;
+	}
+	
+	public boolean addKeyPairInfo(List<NodeKeypairBo> nodeKeypairBoList) {
+		// add key pair of consortium
+		boolean succFlag =  Boolean.TRUE;
+		// add key pair of node
 		for(NodeKeypairBo nodeKeypairBo : nodeKeypairBoList){
 			if(nodeKeypairBo.getKeypair().getId() == null){
 				KeypairPo keypair = nodeKeypairBo.getKeypair();

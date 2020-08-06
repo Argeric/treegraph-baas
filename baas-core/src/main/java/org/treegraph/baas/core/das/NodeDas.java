@@ -21,4 +21,6 @@ public interface NodeDas {
 	boolean addNodes(List<NodePo> list, ConsortiumPo cons);
 
 	boolean modifyNode(NodePo node);
+	
+	boolean deleteNodes(NodePo node, ConsortiumPo cons);
 }

@@ -1,5 +1,6 @@
 package org.treegraph.baas.core.service.impl;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.treegraph.baas.api.dto.NodeInfo;
+import org.treegraph.baas.api.dto.request.DeleteNodeRequest;
 import org.treegraph.baas.api.dto.request.ListNodeRequest;
 import org.treegraph.baas.api.dto.request.ModifyNodeRequest;
 import org.treegraph.baas.api.dto.request.QueryNodeDetailRequest;
@@ -20,6 +22,7 @@ import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.domain.BlockChainPo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.NodePo;
+import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.NodeService;
@@ -42,6 +45,10 @@ public class NodeServicempl implements NodeService {
     private BlockchainDas blockchainDas;
     
     private HeartbeatService heartbeatService;
+    
+    private BuildService buildService;
+    
+    private RpcBlockchainService rpcBlockchainService;
  
 	public ListNodeResponse listNodes(ListNodeRequest req) {
 		
@@ -112,6 +119,31 @@ public class NodeServicempl implements NodeService {
 				.build();
 		
 		return nodeDas.modifyNode(nodePo);
+	}
+	
+	public boolean deleteNode(DeleteNodeRequest req) throws IOException {
+		//check
+		NodePo node = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
+		Assert.isTrue(!NodeEnum.Status.isRuningOrDeploying(node.getStatus()),
+				"节点在运行中或部署中，不可修改[" + req.getIp() + ":" + req.getPort() + "]");
+		String consId = node.getConsortiumId();
+		String blockchainId = node.getBlockchainId();
+		
+		// before download deploy scripts
+		boolean deleteNodeResult = Boolean.FALSE;
+		int establishStep = consortiumDas.findById(consId).get().getEstablishStep();
+		if(establishStep < EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
+			ConsortiumPo cons = buildService.buildToUpdateCons(consId, EstablishStep.TO_DEPLOY);
+			deleteNodeResult = nodeDas.deleteNodes(node, cons);
+		}
+		
+		// after download deploy scripts, need check chain is launched already
+		if(establishStep == EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
+			List<NodePo> existNodes = nodeDas.findByConsIdAndChainId(consId, blockchainId);
+			rpcBlockchainService.sendMembershipChangeTransaction(consId, existNodes, null, Lists.newArrayList(node));
+		}
+		
+		return deleteNodeResult;
 	}
 
 //	private Map<String, Boolean> getHeartbeatMap(List<NodePo> nodeList) {

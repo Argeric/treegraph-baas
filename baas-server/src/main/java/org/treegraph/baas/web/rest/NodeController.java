@@ -1,11 +1,14 @@
 package org.treegraph.baas.web.rest;
 
+import java.io.IOException;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.treegraph.baas.api.dto.BaasResult;
 import org.treegraph.baas.api.dto.NodeInfo;
+import org.treegraph.baas.api.dto.request.DeleteNodeRequest;
 import org.treegraph.baas.api.dto.request.ListNodeRequest;
 import org.treegraph.baas.api.dto.request.ModifyNodeRequest;
 import org.treegraph.baas.api.dto.request.QueryNodeDetailRequest;
@@ -58,4 +61,10 @@ public class NodeController {
 		return BaasResult.success();
 	}
 	
+	@PostMapping("/del")
+	@ApiOperation("修改节点")
+	public BaasResult<Void> modifyNode(@RequestBody DeleteNodeRequest delNodeRequest) throws IOException {
+		nodeService.deleteNode(delNodeRequest);
+		return BaasResult.success();
+	}
 }

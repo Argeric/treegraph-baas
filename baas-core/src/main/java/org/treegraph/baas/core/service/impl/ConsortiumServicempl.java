@@ -41,7 +41,6 @@ import org.treegraph.baas.api.dto.response.ListConsResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.constant.CharacterConstant;
-import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.constant.SplitterConstant;
 import org.treegraph.baas.core.constant.X509CertConstant;
 import org.treegraph.baas.core.das.BlockchainDas;
@@ -74,19 +73,12 @@ import org.treegraph.baas.core.util.crypto.x509.EncryptUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.treegraph.baas.core.util.crypto.x509.SignUtil;
 import org.web3j.crypto.ECKeyPair;
-import org.web3j.utils.Numeric;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
-import conflux.web3j.AccountManager;
-import conflux.web3j.Cfx;
-import conflux.web3j.Request;
-import conflux.web3j.response.StringResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -112,7 +104,7 @@ public class ConsortiumServicempl implements ConsortiumService {
     
     private VaultKeypairBuildService vaultKeypairBuildService;
     
-    private HeartbeatService heartbeatService;
+    private RpcBlockchainService rpcBlockchainService;
    
 	public ListConsResponse listCons(ListRequest req) {
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
@@ -319,8 +311,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 
 	public boolean addNodes(AddNodesRequest req) throws IOException {
 		//check
-		List<NodePo> dbNodes = nodeDas.findByConsIdAndChainId(req.getConsId(), req.getBlockchainId());
-		Set<String> dbIpPortSet = dbNodes.stream().map(item -> item.getNodeIp() + ":" + item.getNodePort())
+		List<NodePo> existNodes = nodeDas.findByConsIdAndChainId(req.getConsId(), req.getBlockchainId());
+		Set<String> dbIpPortSet = existNodes.stream().map(item -> item.getNodeIp() + ":" + item.getNodePort())
 				.collect(Collectors.toSet());
 		List<NodeInfo> reqNodes = req.getNodes();
 		reqNodes.stream().forEach(item -> {
@@ -356,95 +348,12 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		// after download deploy scripts, need check chain is launched already
 		if(establishStep == EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
-			Map<String, Boolean> heartbeatMap = heartbeatService.batchNodeHeartbeat(dbNodes);
-			Set<Boolean> heartbeatSet = Sets.newHashSet(heartbeatMap.values());
-			Assert.isTrue(heartbeatSet.contains(Boolean.TRUE), "blockchain not lunched!");
-			adjustNodes(req.getConsId(), dbNodes, nodes, heartbeatMap);
+			rpcBlockchainService.sendMembershipChangeTransaction(req.getConsId(), existNodes, nodes, null);
 		}
 		
 		return addNodeResult;
 	}
 	
-	private void adjustNodes(String consortiumId, List<NodePo> dbNodes, List<NodePo> newNodes, Map<String, Boolean> heartbeatMap) throws IOException {
-		List<NodeKeypairBo> dbNodeKeypairs = dbNodes.stream().map(
-				item -> vaultKeypairBuildService.getNodeKeypair(consortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item))
-				.collect(Collectors.toList());
-		Optional<NodeKeypairBo> aliveNode = dbNodeKeypairs.stream()
-				.filter(item -> heartbeatMap.get(item.getNode().getNodeIp() + ":" + item.getNode().getNodePort()))
-				.findFirst();
-		Assert.isTrue(aliveNode.isPresent(), "not found alive node!");
-		NodeKeypairBo proposerNodeKeypair = aliveNode.get();
-		NodePo proposerNode = proposerNodeKeypair.getNode();
-		Cfx cfx = Cfx.create("http://" + proposerNode.getNodeIp() + ":" + proposerNode.getNodePort());
-		
-		/*
-		 * 1. RPC name:cfx_getMembershipChangeRawTransaction 
-		 * 
-		 * input : 
-		 * ---Vector<public key> new_validators,// all validators in the next consensus round 
-		 * ---public_key proposer 
-		 * 
-		 * output: 
-		 * ---string raw_json
-		 */
-		List<String> publicKeys = dbNodeKeypairs.stream().map(item -> item.getKeypair().getPublicKey())
-				.collect(Collectors.toList());
-		String proposerPublicKey = proposerNodeKeypair.getKeypair().getPublicKey();
-		Request<String, StringResponse> request = cfx.getCustomizedRequest(StringResponse.class,
-				ConfluxConstant.INTERFACE_ADD_DELETE_NODE, publicKeys, proposerPublicKey);
-		StringResponse response = request.send();
-		String rawJson = response.getResult();
-		Assert.isTrue(rawJson != null, ConfluxConstant.INTERFACE_ADD_DELETE_NODE + " error");
-		
-		/*
-		 * 2. Keccak(raw_json) and ring signature
-		 * 
-		 * input : 
-		 * ---Vector<(public key,private key)>, secp256k1(Keccak(raw_json)) 
-		 * 
-		 * output: 
-		 * ---Vector<signature>
-		 */
-		List<NodeKeypairBo> newNodeKeypairs = newNodes.stream().map(
-				item -> vaultKeypairBuildService.getNodeKeypair(consortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item))
-				.collect(Collectors.toList());
-		List<KeypairPo> keypairs = Lists.newArrayList();
-		dbNodeKeypairs.stream().forEach(item -> keypairs.add(item.getKeypair()));
-		newNodeKeypairs.stream().forEach(item -> keypairs.add(item.getKeypair()));
-		Map<KeypairPo, String> ringSignMap = Maps.newHashMap();
-		keypairs.stream().forEach(item -> {
-			try {
-				ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getPublicKey(), item.getPrivateKey(),
-						item.getAlgorithm());
-				String sign = AccountManager.signMessage(Numeric.hexStringToByteArray(rawJson), true, ecKeypair);
-				ringSignMap.put(item, sign);
-			} catch (Exception e) {
-				throw new RuntimeException("ring signature error!");
-			}
-		});
-
-		/*
-		 * 3. RPC name: cfx_constructAndSendNewConsortiumMembershipTrans 
-		 * 
-		 * input :
-		 * ---string raw_json 
-		 * ---Vector<public key> 
-		 * ---Vector<signature> 
-		 * 
-		 * output:
-		 * ---string okay/fail
-		 */
-		newNodeKeypairs.stream().forEach(item -> publicKeys.add(item.getKeypair().getPublicKey()));
-		List<String> signs = Lists.newArrayList(ringSignMap.values());
-		Request<String, StringResponse> requestConfirm = cfx.getCustomizedRequest(StringResponse.class,
-				ConfluxConstant.INTERFACE_ADD_DELETE_NODE_CONFIRM, rawJson, publicKeys, signs);
-		StringResponse responseConfirm = requestConfirm.send();
-		Assert.isTrue(responseConfirm != null 
-				&& responseConfirm.getResult() != null
-				&& responseConfirm.getResult().equalsIgnoreCase("ok"),
-				ConfluxConstant.INTERFACE_ADD_DELETE_NODE_CONFIRM + "error");
-	}
-
 	@LogSkip
 	public void getDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp) throws Exception {
 		List<NodePo> nodes = nodeDas.findAll(req.getConsortiumId(), null);

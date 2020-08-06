@@ -81,4 +81,13 @@ public class NodeDasImpl implements NodeDas {
 	public boolean modifyNode(NodePo node) {
 		return nodePoMapper.updateByPrimaryKeySelective(node) > 0;
 	}
+	
+	public boolean deleteNodes(NodePo node, ConsortiumPo cons) {
+		boolean succFlag =  Boolean.TRUE;
+		succFlag = succFlag && nodePoMapper.deleteByPrimaryKey(node.getId()) > 0;
+		if(cons != null) {
+			succFlag = succFlag && consortiumPoMapper.updateByPrimaryKeySelective(cons) > 0;
+		}
+		return succFlag;
+	}
 }

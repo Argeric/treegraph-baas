@@ -1,6 +1,9 @@
 package org.treegraph.baas.core.service;
 
+import java.io.IOException;
+
 import org.treegraph.baas.api.dto.NodeInfo;
+import org.treegraph.baas.api.dto.request.DeleteNodeRequest;
 import org.treegraph.baas.api.dto.request.ListNodeRequest;
 import org.treegraph.baas.api.dto.request.ModifyNodeRequest;
 import org.treegraph.baas.api.dto.request.QueryNodeDetailRequest;
@@ -16,4 +19,6 @@ public interface NodeService {
 	String getNodeLog(QueryNodeLogRequest req);
 
 	boolean modifyNode(ModifyNodeRequest req);
+	
+	boolean deleteNode(DeleteNodeRequest req) throws IOException;
 }

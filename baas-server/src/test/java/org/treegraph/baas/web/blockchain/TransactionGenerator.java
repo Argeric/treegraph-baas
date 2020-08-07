@@ -16,8 +16,10 @@ import conflux.web3j.request.Epoch;
 import conflux.web3j.response.BigIntResponse;
 import conflux.web3j.response.StringResponse;
 import conflux.web3j.types.RawTransaction;
+import lombok.extern.slf4j.Slf4j;
 
-class TransactionGenerator extends TimerTask {
+@Slf4j
+public class TransactionGenerator extends TimerTask {
 	
     private List<NodeKeypairBo> nodeKeypairs;
     private Map<String, BigInteger> nonceMap;
@@ -27,26 +29,33 @@ class TransactionGenerator extends TimerTask {
     	this.nodeKeypairs = nodeKeypairs;
     }
 
-    BigInteger getNonce(String key){
+    private BigInteger getNonce(String key){
         BigInteger value = nonceMap.getOrDefault(key,BigInteger.ZERO);
         nonceMap.put(key,value.add(BigInteger.ONE));
         return value;
     }
     @Override
     public void run() {
-        Request<BigInteger, BigIntResponse> epochRequest = cfx.getEpochNumber(Epoch.latestState());
-        BigInteger epoch_height = epochRequest.sendAndGet();
-        NodeKeypairBo sender = nodeKeypairs.get(new Random().nextInt(nodeKeypairs.size()));
-
-        String nodeId = sender.getKeypair().getPublicKey();
-        BigInteger nonce =cfx.getNonce(nodeId, Epoch.latestState());
-        BigInteger currentNonce= getNonce(nodeId);
-        if(currentNonce.compareTo(nonce) < 0){
-        	RawTransaction tx = RawTransaction.create(currentNonce,21000,1,null,epoch_height,null);
-        	ECKeyPair ecKeyPair = KeyUtil.loadECKeyPairFromBase64(sender.getKeypair().getPublicKey(),
-        			sender.getKeypair().getPrivateKey(), sender.getKeypair().getAlgorithm());
-            Request<String, StringResponse> txRequest = cfx.sendRawTransaction(tx.sign(ecKeyPair));
-            txRequest.sendAndGet();
-        }
+    	try {
+	        NodeKeypairBo sender = nodeKeypairs.get(new Random().nextInt(nodeKeypairs.size()));
+	        String nodeId = sender.getKeypair().getPublicKey();
+	        BigInteger nonce= cfx.getNonce(nodeId, Epoch.latestState()).sendAndGet();
+	        BigInteger currentNonce= getNonce(nodeId);
+	        
+	        if(currentNonce.compareTo(nonce) < 0){
+	        	Request<BigInteger, BigIntResponse> epochRequest = cfx.getEpochNumber(Epoch.latestState());
+	        	BigInteger epoch_height = epochRequest.sendAndGet();
+	        	String receiveNodeId = "1000000000200000000030000000004000000000";
+	        	RawTransaction tx = RawTransaction.create(currentNonce, new BigInteger("21000"), receiveNodeId, new BigInteger("1"), null, epoch_height, null);
+	        	
+	        	ECKeyPair ecKeyPair = KeyUtil.loadECKeyPairFromBase64(sender.getKeypair().getPublicKey(),
+							sender.getKeypair().getPrivateKey(), sender.getKeypair().getAlgorithm());
+	            Request<String, StringResponse> txRequest = cfx.sendRawTransaction(tx.sign(ecKeyPair));
+	            String result = txRequest.sendAndGet();
+	            log.info("TransactionGenerator-->{}", result);
+	        }
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
     }
 }

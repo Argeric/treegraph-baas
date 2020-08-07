@@ -6,8 +6,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
+import java.util.stream.Collectors;
 
-import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,8 +26,13 @@ import org.springframework.web.context.WebApplicationContext;
 import org.treegraph.baas.TreeGraphBaasApp;
 import org.treegraph.baas.api.dto.BaasResult;
 import org.treegraph.baas.api.dto.response.LoginResponse;
+import org.treegraph.baas.core.constant.X509CertConstant;
+import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
+import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
+import org.treegraph.baas.core.service.impl.VaultKeypairBuildService;
+import org.treegraph.baas.core.util.FileUtils;
 import org.web3j.crypto.ECKeyPair;
 
 import com.alibaba.fastjson.JSON;
@@ -36,15 +41,27 @@ import com.alibaba.fastjson.TypeReference;
 import conflux.web3j.Cfx;
 import conflux.web3j.types.RawTransaction;
 import jodd.io.FileUtil;
+import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TreeGraphBaasApp.class)
+@Slf4j
 public class BlockchainTest {
+	
+	@Autowired
+	private NodeDas nodeDas;
+	
+	@Autowired
+	private VaultKeypairBuildService vaultKeypairBuildService;
 	
 	@Autowired
 	private WebApplicationContext context;
 	
 	private MockMvc mockMvc;
+	
+	private static String testConsortiumId = "940fcaad-0fa0-44bf-a59e-88dbaf202186";
+	
+	private static String testBlockchainId = "e225a92e-c863-4f32-bb17-d01175001e61";
 	
 	private static String token = null;
 	
@@ -65,6 +82,7 @@ public class BlockchainTest {
 		BaasResult<LoginResponse> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
 				new TypeReference<BaasResult<LoginResponse>>() {});
 		token = baasResult.getData().getToken();
+		log.info("login token--->{}", token);
 		Assert.assertNotNull("login error, no token return!", token);
 	}
 	
@@ -73,14 +91,15 @@ public class BlockchainTest {
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/script/download")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header("X-Token", token)
-				.content("{\"consortiumId\":\"d4f142bb-8098-486e-8508-212dafc369b7\"}"))
+				.content("{\"consortiumId\":\""+testConsortiumId+"\"}"))
 		.andExpect(MockMvcResultMatchers.status().isOk())
 		.andDo(MockMvcResultHandlers.print())
 		.andReturn();
+		log.info("download deploy script result--->{}", JSON.toJSONString(mvcResult));
 	}
 
     @Test
-    public void testEpochChange() throws IOException, InterruptedException {
+    public void testDeployBlockchain() throws IOException, InterruptedException {
     	/*
     	 * copy deploy file
     	 */
@@ -90,7 +109,7 @@ public class BlockchainTest {
 			FileUtil.mkdirs(configPath);
 		}
 		FileUtil.cleanDir(configPath);
-		FileUtil.copyFile(new File("./deploy.zip"), new File(configPath + "/deploy.zip"));
+		FileUtils.unZip(new File("./deploy.zip"), configPath);
 
         /*
          * deploy
@@ -105,18 +124,30 @@ public class BlockchainTest {
         }
         Thread.sleep(20);
 
+        // get node keypair
+        List<NodePo> nodes = nodeDas.findByConsIdAndChainId(testConsortiumId, testBlockchainId);
+        List<NodeKeypairBo> nodeKeypairs = nodes.stream().map(
+				item -> vaultKeypairBuildService.getNodeKeypair(testConsortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item))
+				.collect(Collectors.toList());
+        
         /*
          * genesis private key :0x46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f
          * genesis total token 5 * 10 ** 36
          */
-        List<NodeKeypairBo> nodeKeypairs = Lists.newArrayList();
+        BigInteger currentNonce = BigInteger.ZERO;
         for(NodeKeypairBo nodeKeypair: nodeKeypairs) {
-        	NodePo node = nodeKeypair.getNode();
-            Cfx cfx = Cfx.create("http://" + node.getNodeIp() + ":" + node.getNodePort());
-            RawTransaction tx = RawTransaction.create();
+        	KeypairPo keypair = nodeKeypair.getKeypair();
+			RawTransaction tx = RawTransaction.create(currentNonce, new BigInteger("21000"), keypair.getPublicKey(),
+					new BigInteger("100000000000000000000000000000000"), null, BigInteger.ZERO, null);
 			ECKeyPair ecKeyPair = ECKeyPair
 					.create(new BigInteger("46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f", 16));
-            cfx.sendRawTransaction(tx.sign(ecKeyPair));
+			String txSign = tx.sign(ecKeyPair);
+			
+			NodePo node = nodeKeypair.getNode();
+			Cfx cfx = Cfx.create("http://" + node.getNodeIp() + ":" + node.getNodePort());
+            String txResult = cfx.sendRawTransaction(txSign).sendAndGet();
+            currentNonce = currentNonce.add(BigInteger.ONE);
+            log.info("genesis recharge result--->{}", txResult);
         }
 
         /*
@@ -125,14 +156,4 @@ public class BlockchainTest {
         Timer timer  = new Timer();
         timer.schedule(new TransactionGenerator(nodeKeypairs), 0 ,1000);
     }
-    
-    public static void main(String[] args) throws IOException {
-    	String srcFile = "/Users/wangzhenting/Documents/testsuite.txt";
-    	String configPath = "/Users/wangzhenting/Documents/testsuite";
-		if(!FileUtil.isExistingFolder(new File(configPath))) {
-			FileUtil.mkdirs(configPath);
-		}
-		FileUtil.cleanDir(configPath);
-		FileUtil.copyFile(new File(srcFile), new File(configPath + "/deploy.zip"));
-	}
 }

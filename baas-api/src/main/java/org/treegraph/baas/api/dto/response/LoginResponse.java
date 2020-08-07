@@ -5,10 +5,12 @@ import java.util.List;
 
 import org.treegraph.baas.api.dto.AuthInfo;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 @Builder
 public class LoginResponse implements Serializable {
 

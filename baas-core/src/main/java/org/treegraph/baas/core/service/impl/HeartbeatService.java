@@ -52,8 +52,9 @@ public class HeartbeatService {
 		List<NodeBo> nodeBoList = futureList.stream().map(CompletableFuture::join)
 				.collect(Collectors.toList());
 		
-		return nodeBoList.stream().collect(
-				Collectors.toMap(item -> item.getNodeIp() + item.getNodePort(), item -> item.isStatus()));
+		Map<String, Boolean> heartbeatMap = Maps.newHashMap();
+		nodeBoList.stream().forEach(item -> heartbeatMap.put(item.getNodeIp() + item.getNodePort(), item.isStatus()));
+		return heartbeatMap;
 	}
 
 //	public boolean nodeHeartbeat(String nodeIp, int nodePort) {

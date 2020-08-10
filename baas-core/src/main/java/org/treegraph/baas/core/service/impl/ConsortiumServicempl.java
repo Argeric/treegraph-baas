@@ -363,6 +363,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 	public void getDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp) throws Exception {
 		// check and build
 		String consortiumId = req.getConsId();
+		Assert.notNull("consortiumId", "consortiumId.not.found");
 		List<NodePo> nodes = nodeDas.findAll(consortiumId, null);
 		Assert.notEmpty(nodes, "node.not.found");
 		Map<String, String> nodeScriptMap = buildAndSaveKeypairInfo(consortiumId, nodes);

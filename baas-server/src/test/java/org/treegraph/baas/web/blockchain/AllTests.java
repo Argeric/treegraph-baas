@@ -1,7 +1,6 @@
 package org.treegraph.baas.web.blockchain;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -60,6 +59,8 @@ public class AllTests {
 	
 	private MockMvc mockMvc;
 	
+	private static String scriptPath = "/opt/service/testsuite/deploy.zip";
+	
 	private static String testConsortiumId = "940fcaad-0fa0-44bf-a59e-88dbaf202186";
 	
 	private static String testBlockchainId = "e225a92e-c863-4f32-bb17-d01175001e61";
@@ -98,20 +99,9 @@ public class AllTests {
 		.andDo(MockMvcResultHandlers.print())
 		.andReturn();
 		
-		String fileName = mvcResult.getResponse().getHeader("Content-disposition");
-		log.info("download deploy script result--->{}", fileName);
-		
 		String content = mvcResult.getResponse().getContentAsString();
-		log.info("download deploy script content--->{}", content);
-		File file =new File("/opt/deploy.zip");
-        if(!file.exists()){
-        	file.createNewFile();
-        }
-        FileWriter fileWritter = new FileWriter(file.getName(),false);
-        fileWritter.write(content);
-        fileWritter.close();
-
-		log.info("download deploy script result--->{}");
+		FileUtil.writeString(scriptPath, content);
+		log.info("download deploy script result--->downloaded");
 	}
 
     @Test
@@ -125,7 +115,7 @@ public class AllTests {
 			FileUtil.mkdirs(configPath);
 		}
 		FileUtil.cleanDir(configPath);
-		FileUtils.unZip(new File("./deploy.zip"), configPath);
+		FileUtils.unZip(new File(scriptPath), configPath);
 
         /*
          * deploy

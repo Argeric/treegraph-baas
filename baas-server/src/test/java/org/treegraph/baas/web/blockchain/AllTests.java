@@ -1,6 +1,7 @@
 package org.treegraph.baas.web.blockchain;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -96,7 +97,18 @@ public class AllTests {
 		.andExpect(MockMvcResultMatchers.status().isOk())
 		.andDo(MockMvcResultHandlers.print())
 		.andReturn();
-		log.info("download deploy script result--->{}", mvcResult.getResponse().getContentLength());
+		
+		String fileName = mvcResult.getResponse().getHeader("filename");
+		byte[] contentAsByteArray = mvcResult.getResponse().getContentAsByteArray();
+		File file =new File("/opt/"+fileName);
+        if(!file.exists()){
+        	file.createNewFile();
+        }
+        FileOutputStream outputStream = new FileOutputStream(fileName);
+        outputStream.write(contentAsByteArray);
+        outputStream.close();
+
+		log.info("download deploy script result--->{}");
 	}
 
     @Test

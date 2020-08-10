@@ -9,6 +9,7 @@ import java.security.PrivateKey;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -81,6 +82,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Functions;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -360,16 +362,31 @@ public class ConsortiumServicempl implements ConsortiumService {
 	@LogSkip
 	public void getDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp) throws Exception {
 		// check and build
-		String consortiumId = req.getConsortiumId();
+		String consortiumId = req.getConsId();
 		List<NodePo> nodes = nodeDas.findAll(consortiumId, null);
 		Assert.notEmpty(nodes, "node.not.found");
-		Map<String, String> nodeScriptContentMap = buildAndSaveKeypairInfo(consortiumId, nodes);
+		Map<String, String> nodeScriptMap = buildAndSaveKeypairInfo(consortiumId, nodes);
+		
+		// filter to download script
+		Map<String, String> toDownloadNodeScriptMap = Maps.newHashMap();
+		List<String> toDownloadNodeIdList = req.getNodeId();
+		if(CollectionUtils.isNotEmpty(toDownloadNodeIdList)) {
+			Set<String>	toDownloadNodeIdSet = new HashSet<>(toDownloadNodeIdList);
+			Set<String> toDownloadNodeKeySet = nodes.stream().filter(item -> toDownloadNodeIdSet.contains(item.getId()))
+					.map(item -> item.getNodeIp() + CharacterConstant.AT + item.getNodePort())
+					.collect(Collectors.toSet());
+			nodeScriptMap.keySet().forEach(item -> {
+				if(toDownloadNodeKeySet.contains(item)) {
+					toDownloadNodeScriptMap.put(item, nodeScriptMap.get(item));
+				}
+			});
+		}
 		
 		// download deploy.zip file
 		resp.setContentType("application/zip");
 		resp.setHeader("Content-disposition", "attachment; filename=\"deploy.zip\"");
 		ZipOutputStream zipOutputStream = new ZipOutputStream((OutputStream) resp.getOutputStream());
-		for(Map.Entry<String, String> item : nodeScriptContentMap.entrySet()){
+		for(Map.Entry<String, String> item : toDownloadNodeScriptMap.entrySet()){
 			zipOutputStream.putNextEntry(new ZipEntry(item.getKey() + SplitterConstant.FILE_SEP + "config.toml"));
 			zipOutputStream.write(item.getValue().getBytes());
 			zipOutputStream.closeEntry();

@@ -380,6 +380,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 					toDownloadNodeScriptMap.put(item, nodeScriptMap.get(item));
 				}
 			});
+		} else {
+			toDownloadNodeScriptMap.putAll(nodeScriptMap);
 		}
 		
 		// download deploy.zip file

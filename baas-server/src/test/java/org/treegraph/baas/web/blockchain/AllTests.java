@@ -100,7 +100,7 @@ public class AllTests {
 		.andReturn();
 		
 		String content = mvcResult.getResponse().getContentAsString();
-		FileUtil.writeString(scriptPath, content);
+		//FileUtil.writeString(scriptPath, content);
 		log.info("download deploy script result--->downloaded");
 	}
 

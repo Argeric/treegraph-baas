@@ -85,17 +85,17 @@ public class HeartbeatService {
 //	}
 	
 	public boolean nodeHeartbeat(String nodeIp, int nodePort) {
-		boolean result = false;
-		try {
-			Cfx cfx = Cfx.create("http://"+nodeIp+":"+nodePort);
-			Request<Status, Status.Response> request = cfx.getCustomizedRequest(Status.Response.class,
-					ConfluxConstant.INTERFACE_BEATHEART, new Object[0]);
-			Status.Response response = request.send();
-			result = response != null && response.getResult() != null && response.getResult().getBlockNumber() != null;
-		} catch (IOException e) {
-		}
+//		boolean result = false;
+//		try {
+//			Cfx cfx = Cfx.create("http://"+nodeIp+":"+nodePort);
+//			Request<Status, Status.Response> request = cfx.getCustomizedRequest(Status.Response.class,
+//					ConfluxConstant.INTERFACE_BEATHEART, new Object[0]);
+//			Status.Response response = request.send();
+//			result = response != null && response.getResult() != null && response.getResult().getBlockNumber() != null;
+//		} catch (IOException e) {
+//		}
 		
-		return result;
+		return false;
 	}
 	
 	@SuppressWarnings("unused")

@@ -91,11 +91,12 @@ public class AllTests {
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/script/download")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header("X-Token", token)
+				.header("X-Token", token)
 				.content("{\"consortiumId\":\""+testConsortiumId+"\"}"))
 		.andExpect(MockMvcResultMatchers.status().isOk())
 		.andDo(MockMvcResultHandlers.print())
 		.andReturn();
-		log.info("download deploy script result--->{}", JSON.toJSONString(mvcResult));
+		log.info("download deploy script result--->{}", mvcResult.getResponse().getContentLength());
 	}
 
     @Test

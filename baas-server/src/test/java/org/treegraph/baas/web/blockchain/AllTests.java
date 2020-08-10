@@ -1,7 +1,7 @@
 package org.treegraph.baas.web.blockchain;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -98,15 +98,18 @@ public class AllTests {
 		.andDo(MockMvcResultHandlers.print())
 		.andReturn();
 		
-		String fileName = mvcResult.getResponse().getHeader("filename");
-		byte[] contentAsByteArray = mvcResult.getResponse().getContentAsByteArray();
-		File file =new File("/opt/"+fileName);
+		String fileName = mvcResult.getResponse().getHeader("Content-disposition");
+		log.info("download deploy script result--->{}", fileName);
+		
+		String content = mvcResult.getResponse().getContentAsString();
+		log.info("download deploy script content--->{}", content);
+		File file =new File("/opt/deploy.zip");
         if(!file.exists()){
         	file.createNewFile();
         }
-        FileOutputStream outputStream = new FileOutputStream(fileName);
-        outputStream.write(contentAsByteArray);
-        outputStream.close();
+        FileWriter fileWritter = new FileWriter(file.getName(),false);
+        fileWritter.write(content);
+        fileWritter.close();
 
 		log.info("download deploy script result--->{}");
 	}

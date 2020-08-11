@@ -120,6 +120,7 @@ public class AllTests {
 		if(!FileUtil.isExistingFolder(new File(configPath))) {
 			FileUtil.mkdirs(configPath);
 		}
+		FileUtil.cleanDir(configPath);
 		FileUtils.unZip(new File(scriptPath+"/"+scriptName), configPath);
 		log.info("unzip deploy script result--->unziped");
 
@@ -128,7 +129,7 @@ public class AllTests {
          */
         List<Process> processes = new ArrayList<>(10);
         for (File folder : new File(configPath).listFiles()){
-            ProcessBuilder builder = new ProcessBuilder(binaryPath, "--customized-config","costomized_config.toml");
+            ProcessBuilder builder = new ProcessBuilder(binaryPath, "--customized-config","customized_config.toml");
             builder.directory(folder);
             builder.redirectError(new File(folder+File.separator+"stderr"));
             builder.redirectOutput(new File(folder+File.separator+"stdout"));

@@ -160,7 +160,7 @@ public class AllTests {
 			String txSign = tx.sign(ecKeyPair);
 			
 			NodePo node = nodeKeypair.getNode();
-			Cfx cfx = Cfx.create("http://" + node.getNodeIp() + ":" + node.getNodePort());
+			Cfx cfx = Cfx.create("http://" + node.getNodeIp() + ":" + (node.getNodePort()+1000));
             String txResult = cfx.sendRawTransaction(txSign).sendAndGet();
             currentNonce = currentNonce.add(BigInteger.ONE);
             log.info("genesis recharge result--->{}", txResult);

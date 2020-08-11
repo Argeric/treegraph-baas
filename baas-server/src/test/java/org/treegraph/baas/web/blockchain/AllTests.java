@@ -181,11 +181,4 @@ public class AllTests {
 //        	slepp
 //        	check_validato
     }
-    
-    public static void main(String[] args) throws IOException {
-    	String content = "testsssxx  sssswwtf";
-		log.info("download deploy script content.len--->{}", content == null ? 0 : content.length());
-		FileUtil.writeString("/Users/wangzhenting/Documents/data/tmp/deploy.zip", content, "UTF-8");
-		log.info("download deploy script result--->downloaded");
-	}
 }

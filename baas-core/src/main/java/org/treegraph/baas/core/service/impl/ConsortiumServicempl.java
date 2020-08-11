@@ -363,10 +363,11 @@ public class ConsortiumServicempl implements ConsortiumService {
 	public void getDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp) throws Exception {
 		// check and build
 		String consortiumId = req.getConsId();
-		Assert.notNull("consortiumId", "consortiumId.not.found");
+		Assert.notNull(consortiumId, "consortiumId.not.found");
 		List<NodePo> nodes = nodeDas.findAll(consortiumId, null);
 		Assert.notEmpty(nodes, "node.not.found");
 		Map<String, String> nodeScriptMap = buildAndSaveKeypairInfo(consortiumId, nodes);
+		Map<String, String> customizedScriptMap = buildCustomizedScriptInfo(consortiumId, nodes);
 		
 		// filter to download script
 		Map<String, String> toDownloadNodeScriptMap = Maps.newHashMap();
@@ -393,6 +394,9 @@ public class ConsortiumServicempl implements ConsortiumService {
 			zipOutputStream.putNextEntry(new ZipEntry(item.getKey() + SplitterConstant.FILE_SEP + "config.toml"));
 			zipOutputStream.write(item.getValue().getBytes());
 			zipOutputStream.closeEntry();
+			zipOutputStream.putNextEntry(new ZipEntry(item.getKey() + SplitterConstant.FILE_SEP + "customized_config.toml"));
+			zipOutputStream.write(customizedScriptMap.get(item.getKey()).getBytes());
+			zipOutputStream.closeEntry();
 		}
 		zipOutputStream.close();
 		log.info("write deploy script finished[{}]", consortiumId);
@@ -414,25 +418,22 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		// nodes info
 		StringBuilder consortiumNodes = new StringBuilder();
-		StringBuilder bootNodes = new StringBuilder();
 		List<NodeKeypairBo> nodeKeypairBoList = new ArrayList<>();
 		for(NodePo node:nodes){
 			NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypair(consortiumId, algoNode, node);
 			nodeKeypairBoList.add(nodeKeypairBo);
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
 					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
-			consortiumNodes.append(ecKeypair.getPublicKey().toString(16));
-			bootNodes.append("cfxnode://");
-			bootNodes.append(ecKeypair.getPublicKey().toString(16) + CharacterConstant.AT + nodeKeypairBo.getNode().getNodeIp()
+			consortiumNodes.append("cfxnode://");
+			consortiumNodes.append(ecKeypair.getPublicKey().toString(16) + CharacterConstant.AT + nodeKeypairBo.getNode().getNodeIp()
 					+ CharacterConstant.COLON + nodeKeypairBo.getNode().getNodePort());
 			if(!node.getId().equalsIgnoreCase(nodes.get(nodes.size()-1).getId())) {
 				consortiumNodes.append(CharacterConstant.COMMA);
-				bootNodes.append(CharacterConstant.COMMA);
 			}
 		}
 		
 		// nodes info digest
-		byte[] consortiumNodesSHA3 = SignUtil.SHA256Digest(bootNodes.toString().getBytes());
+		byte[] consortiumNodesSHA3 = SignUtil.SHA256Digest(consortiumNodes.toString().getBytes());
 		byte[] consortiumNodesDigestCipher = EncryptUtil.codecByPrivateKey(algoCons, true, privateKey, consortiumNodesSHA3);
 		String consortiumNodesDigest = Base64.toBase64String(consortiumNodesDigestCipher);
 		
@@ -449,12 +450,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
 					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
 			scriptContent.append("consortium_keypair = \"" + ecKeypair.getPublicKey().toString(16) + CharacterConstant.COMMA
-					+ ecKeypair.getPrivateKey().toString(16) + "\"")
-					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);;
-			scriptContent.append("jsonrpc_http_port = " + nodeKeypairBo.getNode().getNodePort())
-					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);;
-			scriptContent.append("bootnodes = \"\"\"" + bootNodes.toString() + "\"\"\"")
-					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);;
+					+ ecKeypair.getPrivateKey().toString(16) + "\"");
 			nodeScriptContentMap.put(nodeKeypairBo.getNode().getNodeIp() + CharacterConstant.AT + nodeKeypairBo.getNode().getNodePort(),
 					scriptContent.toString());
 		}
@@ -463,5 +459,20 @@ public class ConsortiumServicempl implements ConsortiumService {
 		keypairDas.addKeyPairInfo(rootKeypair, consortiumKeypair, nodeKeypairBoList);
 		log.info("build deploy script finished[{}]", consortiumId);
 		return nodeScriptContentMap;
+	}
+	
+	private Map<String, String> buildCustomizedScriptInfo(String consortiumId, List<NodePo> nodes) {
+		Map<String, String> customizedScriptContentMap = new HashMap<>();
+		for(NodePo node:nodes){
+			StringBuffer scriptContent = new StringBuffer();
+			scriptContent.append("jsonrpc_http_port = " + node.getNodePort())
+					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
+			scriptContent.append("jsonrpc_local_http_port = " + node.getNodePort() + 1000)
+					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
+			customizedScriptContentMap.put(node.getNodeIp() + CharacterConstant.AT + node.getNodePort(),
+					scriptContent.toString());
+		}
+		log.info("build customized script finished[{}]", consortiumId);
+		return customizedScriptContentMap;
 	}
 }

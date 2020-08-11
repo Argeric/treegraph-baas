@@ -438,6 +438,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		String consortiumNodesDigest = Base64.toBase64String(consortiumNodesDigestCipher);
 		
 		// script content
+		int jsonRpcPort = 12537;
 		Map<String, List<String>> nodeScriptContentMap = new HashMap<>();
 		for(NodeKeypairBo nodeKeypairBo:nodeKeypairBoList){
 			StringBuffer scriptContent = new StringBuffer();
@@ -453,12 +454,13 @@ public class ConsortiumServicempl implements ConsortiumService {
 					+ ecKeypair.getPrivateKey().toString(16) + "\"");
 			
 			StringBuffer customizedScriptContent = new StringBuffer();
-			customizedScriptContent.append("jsonrpc_http_port = " + (nodeKeypairBo.getNode().getNodePort() + 1000))
+			customizedScriptContent.append("jsonrpc_http_port = " + jsonRpcPort)
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-			customizedScriptContent.append("jsonrpc_local_http_port = " + (nodeKeypairBo.getNode().getNodePort() + 2000))
+			customizedScriptContent.append("jsonrpc_local_http_port = " + (jsonRpcPort + 1000))
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			String address = Keys.getAddress(ecKeypair);
 			customizedScriptContent.append("mining_author = \"" + "1" + address.substring(1)+ "\"");
+			jsonRpcPort ++;
 			
 			List<String> scripts = Lists.newArrayList();
 			scripts.add(scriptContent.toString());

@@ -45,6 +45,7 @@ import org.treegraph.baas.api.dto.response.ListConsResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.constant.CharacterConstant;
+import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.constant.SplitterConstant;
 import org.treegraph.baas.core.constant.X509CertConstant;
 import org.treegraph.baas.core.das.BlockchainDas;
@@ -438,7 +439,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		String consortiumNodesDigest = Base64.toBase64String(consortiumNodesDigestCipher);
 		
 		// script content
-		int jsonRpcPort = 12537;
+		int jsonRpcPort = ConfluxConstant.JSON_RPC_HTTP_PORT;
 		Map<String, List<String>> nodeScriptContentMap = new HashMap<>();
 		for(NodeKeypairBo nodeKeypairBo:nodeKeypairBoList){
 			StringBuffer scriptContent = new StringBuffer();

@@ -150,7 +150,7 @@ public class AllTests {
          * genesis private key :0x46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f
          * genesis total token 5 * 10 ** 36
          */
-//        int jsonRpcPort = 12537;
+//        int jsonRpcPort = ConfluxConstant.JSON_RPC_HTTP_PORT;
 //        BigInteger currentNonce = BigInteger.ZERO;
 //        for(NodeKeypairBo nodeKeypair: nodeKeypairs) {
 //        	KeypairPo keypair = nodeKeypair.getKeypair();

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TimerTask;
 
+import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
@@ -37,7 +38,10 @@ public class TransactionGenerator extends TimerTask {
     @Override
     public void run() {
     	try {
-	        NodeKeypairBo sender = nodeKeypairs.get(new Random().nextInt(nodeKeypairs.size()));
+    		int index = new Random().nextInt(nodeKeypairs.size());
+	        NodeKeypairBo sender = nodeKeypairs.get(index);
+	        String uri = "http://" + sender.getNode().getNodeIp() + ":" + (ConfluxConstant.JSON_RPC_HTTP_PORT + index);
+	        cfx = Cfx.create(uri);
 	        String nodeId = sender.getKeypair().getPublicKey();
 	        BigInteger nonce= cfx.getNonce(nodeId, Epoch.latestState()).sendAndGet();
 	        BigInteger currentNonce= getNonce(nodeId);

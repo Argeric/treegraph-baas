@@ -467,7 +467,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			StringBuffer scriptContent = new StringBuffer();
 			scriptContent.append("jsonrpc_http_port = " + node.getNodePort())
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-			scriptContent.append("jsonrpc_local_http_port = " + node.getNodePort() + 1000)
+			scriptContent.append("jsonrpc_local_http_port = " + (node.getNodePort() + 1000))
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			customizedScriptContentMap.put(node.getNodeIp() + CharacterConstant.AT + node.getNodePort(),
 					scriptContent.toString());

@@ -59,7 +59,13 @@ public class AllTests {
 	
 	private MockMvc mockMvc;
 	
-	private static String scriptPath = "/opt/service/testsuite/deploy.zip";
+	private static String rootPath = "/opt/service/testsuite";
+	
+	private static String scriptPath = rootPath + "/zipfile";
+	
+	private static String configPath = rootPath + "/unzipfile";
+	
+	private static String scriptName = "deploy.zip";
 	
 	private static String testConsortiumId = "940fcaad-0fa0-44bf-a59e-88dbaf202186";
 	
@@ -93,14 +99,15 @@ public class AllTests {
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/script/download")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header("X-Token", token)
-				.header("X-Token", token)
-				.content("{\"consortiumId\":\""+testConsortiumId+"\"}"))
+				.content("{\"consId\":\""+testConsortiumId+"\"}"))
 		.andExpect(MockMvcResultMatchers.status().isOk())
 		.andDo(MockMvcResultHandlers.print())
 		.andReturn();
 		
-		String content = mvcResult.getResponse().getContentAsString();
-		FileUtil.writeString(scriptPath, content);
+		byte[] content = mvcResult.getResponse().getContentAsByteArray();
+		log.info("download deploy script content.len--->{}", content == null ? 0 : content.length);
+		FileUtil.cleanDir(scriptPath);
+		FileUtil.writeBytes(scriptPath+"/"+scriptName, content);
 		log.info("download deploy script result--->downloaded");
 	}
 
@@ -110,12 +117,11 @@ public class AllTests {
     	 * copy deploy file
     	 */
         String binaryPath  = "/opt/software/tree-graph/target/release/conflux-production";
-        String configPath = "/opt/service/testsuite";
 		if(!FileUtil.isExistingFolder(new File(configPath))) {
 			FileUtil.mkdirs(configPath);
 		}
-		FileUtil.cleanDir(configPath);
-		FileUtils.unZip(new File(scriptPath), configPath);
+		FileUtils.unZip(new File(scriptPath+"/"+scriptName), configPath);
+		log.info("unzip deploy script result--->unziped");
 
         /*
          * deploy
@@ -127,7 +133,9 @@ public class AllTests {
             builder.redirectError(new File(folder+File.separator+"stderr"));
             builder.redirectOutput(new File(folder+File.separator+"stdout"));
             processes.add(builder.start());
+            log.info("start conflux process--->{}", folder.getName());
         }
+        log.info("start conflux process completed!");
         Thread.sleep(20);
 
         // get node keypair
@@ -162,4 +170,11 @@ public class AllTests {
         Timer timer  = new Timer();
         timer.schedule(new TransactionGenerator(nodeKeypairs), 0 ,1000);
     }
+    
+    public static void main(String[] args) throws IOException {
+    	String content = "testsssxx  sssswwtf";
+		log.info("download deploy script content.len--->{}", content == null ? 0 : content.length());
+		FileUtil.writeString("/Users/wangzhenting/Documents/data/tmp/deploy.zip", content, "UTF-8");
+		log.info("download deploy script result--->downloaded");
+	}
 }

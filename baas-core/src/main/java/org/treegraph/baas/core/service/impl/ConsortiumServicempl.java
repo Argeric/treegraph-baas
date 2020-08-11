@@ -77,6 +77,7 @@ import org.treegraph.baas.core.util.crypto.x509.EncryptUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.treegraph.baas.core.util.crypto.x509.SignUtil;
 import org.web3j.crypto.ECKeyPair;
+import org.web3j.crypto.Keys;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -366,11 +367,10 @@ public class ConsortiumServicempl implements ConsortiumService {
 		Assert.notNull(consortiumId, "consortiumId.not.found");
 		List<NodePo> nodes = nodeDas.findAll(consortiumId, null);
 		Assert.notEmpty(nodes, "node.not.found");
-		Map<String, String> nodeScriptMap = buildAndSaveKeypairInfo(consortiumId, nodes);
-		Map<String, String> customizedScriptMap = buildCustomizedScriptInfo(consortiumId, nodes);
+		Map<String, List<String>> nodeScriptMap = buildAndSaveKeypairInfo(consortiumId, nodes);
 		
 		// filter to download script
-		Map<String, String> toDownloadNodeScriptMap = Maps.newHashMap();
+		Map<String, List<String>> toDownloadNodeScriptMap = Maps.newHashMap();
 		List<String> toDownloadNodeIdList = req.getNodeId();
 		if(CollectionUtils.isNotEmpty(toDownloadNodeIdList)) {
 			Set<String>	toDownloadNodeIdSet = new HashSet<>(toDownloadNodeIdList);
@@ -390,12 +390,12 @@ public class ConsortiumServicempl implements ConsortiumService {
 		resp.setContentType("application/zip");
 		resp.setHeader("Content-disposition", "attachment; filename=\"deploy.zip\"");
 		ZipOutputStream zipOutputStream = new ZipOutputStream((OutputStream) resp.getOutputStream());
-		for(Map.Entry<String, String> item : toDownloadNodeScriptMap.entrySet()){
+		for(Map.Entry<String, List<String>> item : toDownloadNodeScriptMap.entrySet()){
 			zipOutputStream.putNextEntry(new ZipEntry(item.getKey() + SplitterConstant.FILE_SEP + "config.toml"));
-			zipOutputStream.write(item.getValue().getBytes());
+			zipOutputStream.write(item.getValue().get(0).getBytes());
 			zipOutputStream.closeEntry();
 			zipOutputStream.putNextEntry(new ZipEntry(item.getKey() + SplitterConstant.FILE_SEP + "customized_config.toml"));
-			zipOutputStream.write(customizedScriptMap.get(item.getKey()).getBytes());
+			zipOutputStream.write(item.getValue().get(1).getBytes());
 			zipOutputStream.closeEntry();
 		}
 		zipOutputStream.close();
@@ -407,7 +407,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		log.info("update consortium status finished[{}]", consortiumId);
 	}
 
-	private Map<String, String> buildAndSaveKeypairInfo(String consortiumId, List<NodePo> nodes)
+	private Map<String, List<String>> buildAndSaveKeypairInfo(String consortiumId, List<NodePo> nodes)
 			throws Exception, NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
 		// certificate info
 		String algoCons = X509CertConstant.DEFAULT_ALGO_CONS;
@@ -438,7 +438,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		String consortiumNodesDigest = Base64.toBase64String(consortiumNodesDigestCipher);
 		
 		// script content
-		Map<String, String> nodeScriptContentMap = new HashMap<>();
+		Map<String, List<String>> nodeScriptContentMap = new HashMap<>();
 		for(NodeKeypairBo nodeKeypairBo:nodeKeypairBoList){
 			StringBuffer scriptContent = new StringBuffer();
 			scriptContent.append("consortium_cert = \"\"\"" + consortiumKeypair.getCertStr() + "\"\"\"")
@@ -451,28 +451,25 @@ public class ConsortiumServicempl implements ConsortiumService {
 					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
 			scriptContent.append("consortium_keypair = \"" + ecKeypair.getPublicKey().toString(16) + CharacterConstant.COMMA
 					+ ecKeypair.getPrivateKey().toString(16) + "\"");
+			
+			StringBuffer customizedScriptContent = new StringBuffer();
+			customizedScriptContent.append("jsonrpc_http_port = " + nodeKeypairBo.getNode().getNodePort())
+					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
+			customizedScriptContent.append("jsonrpc_local_http_port = " + (nodeKeypairBo.getNode().getNodePort() + 1000))
+					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
+			String address = Keys.getAddress(ecKeypair);
+			customizedScriptContent.append("mining_author = " + address.substring(0,2) + "1" + address.substring(3));
+			
+			List<String> scripts = Lists.newArrayList();
+			scripts.add(scriptContent.toString());
+			scripts.add(customizedScriptContent.toString());
 			nodeScriptContentMap.put(nodeKeypairBo.getNode().getNodeIp() + CharacterConstant.AT + nodeKeypairBo.getNode().getNodePort(),
-					scriptContent.toString());
+					scripts);
 		}
 		
 		// save key and write script
 		keypairDas.addKeyPairInfo(rootKeypair, consortiumKeypair, nodeKeypairBoList);
 		log.info("build deploy script finished[{}]", consortiumId);
 		return nodeScriptContentMap;
-	}
-	
-	private Map<String, String> buildCustomizedScriptInfo(String consortiumId, List<NodePo> nodes) {
-		Map<String, String> customizedScriptContentMap = new HashMap<>();
-		for(NodePo node:nodes){
-			StringBuffer scriptContent = new StringBuffer();
-			scriptContent.append("jsonrpc_http_port = " + node.getNodePort())
-					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-			scriptContent.append("jsonrpc_local_http_port = " + (node.getNodePort() + 1000))
-					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-			customizedScriptContentMap.put(node.getNodeIp() + CharacterConstant.AT + node.getNodePort(),
-					scriptContent.toString());
-		}
-		log.info("build customized script finished[{}]", consortiumId);
-		return customizedScriptContentMap;
 	}
 }

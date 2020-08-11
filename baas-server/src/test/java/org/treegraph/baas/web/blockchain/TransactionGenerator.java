@@ -10,6 +10,7 @@ import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
+import org.web3j.crypto.Keys;
 
 import conflux.web3j.Cfx;
 import conflux.web3j.Request;
@@ -24,7 +25,6 @@ public class TransactionGenerator extends TimerTask {
 	
     private List<NodeKeypairBo> nodeKeypairs;
     private Map<String, BigInteger> nonceMap;
-    private Cfx cfx;
     
     public TransactionGenerator(List<NodeKeypairBo> nodeKeypairs){
     	this.nodeKeypairs = nodeKeypairs;
@@ -41,10 +41,14 @@ public class TransactionGenerator extends TimerTask {
     		int index = new Random().nextInt(nodeKeypairs.size());
 	        NodeKeypairBo sender = nodeKeypairs.get(index);
 	        String uri = "http://" + sender.getNode().getNodeIp() + ":" + (ConfluxConstant.JSON_RPC_HTTP_PORT + index);
-	        cfx = Cfx.create(uri);
-	        String nodeId = sender.getKeypair().getPublicKey();
-	        BigInteger nonce= cfx.getNonce(nodeId, Epoch.latestState()).sendAndGet();
-	        BigInteger currentNonce= getNonce(nodeId);
+	        Cfx cfx = Cfx.create(uri);
+	        
+			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(sender.getKeypair().getPublicKey(),
+					sender.getKeypair().getPrivateKey(), sender.getKeypair().getAlgorithm());
+			String address = "1" + Keys.getAddress(ecKeypair).substring(1);
+			
+	        BigInteger nonce= cfx.getNonce(address, Epoch.latestState()).sendAndGet();
+	        BigInteger currentNonce= getNonce(address);
 	        
 	        if(currentNonce.compareTo(nonce) < 0){
 	        	Request<BigInteger, BigIntResponse> epochRequest = cfx.getEpochNumber(Epoch.latestState());

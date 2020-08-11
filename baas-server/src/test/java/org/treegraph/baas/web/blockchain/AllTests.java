@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.junit.Assert;
@@ -170,6 +171,15 @@ public class AllTests {
          */
         Timer timer  = new Timer();
         timer.schedule(new TransactionGenerator(nodeKeypairs), 0 ,1000);
+        TimeUnit.SECONDS.sleep(60 * 60);
+//        for
+//        	add_validator
+//        	sleep(30)
+//        	check_validator added
+//        	
+//        	randome remove
+//        	slepp
+//        	check_validato
     }
     
     public static void main(String[] args) throws IOException {

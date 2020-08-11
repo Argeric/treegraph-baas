@@ -128,12 +128,16 @@ public class AllTests {
          */
         List<Process> processes = new ArrayList<>(10);
         for (File folder : new File(configPath).listFiles()){
-            ProcessBuilder builder = new ProcessBuilder(binaryPath);
-            builder.directory(folder);
-            builder.redirectError(new File(folder+File.separator+"stderr"));
-            builder.redirectOutput(new File(folder+File.separator+"stdout"));
-            processes.add(builder.start());
-            log.info("start conflux process--->{}", folder.getName());
+        	try {
+	            ProcessBuilder builder = new ProcessBuilder(binaryPath);
+	            builder.directory(folder);
+	            builder.redirectError(new File(folder+File.separator+"stderr"));
+	            builder.redirectOutput(new File(folder+File.separator+"stdout"));
+	            processes.add(builder.start());
+	            log.info("start conflux process--->{}", folder.getName());
+        	} catch(Exception e) {
+        		log.error("start conflux process error", e);
+        	}
         }
         log.info("start conflux process completed!");
         Thread.sleep(20);

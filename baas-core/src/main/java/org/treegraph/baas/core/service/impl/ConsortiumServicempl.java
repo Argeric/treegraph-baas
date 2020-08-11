@@ -458,7 +458,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			customizedScriptContent.append("jsonrpc_local_http_port = " + (nodeKeypairBo.getNode().getNodePort() + 1000))
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			String address = Keys.getAddress(ecKeypair);
-			customizedScriptContent.append("mining_author = " + "1" + address.substring(1));
+			customizedScriptContent.append("mining_author = \"" + "1" + address.substring(1)+ "\"");
 			
 			List<String> scripts = Lists.newArrayList();
 			scripts.add(scriptContent.toString());

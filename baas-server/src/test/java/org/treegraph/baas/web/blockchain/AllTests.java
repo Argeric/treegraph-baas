@@ -116,7 +116,7 @@ public class AllTests {
     	/*
     	 * copy deploy file
     	 */
-        String binaryPath  = "/opt/software/tree-graph/target/release/conflux-production";
+        String binaryPath  = "/opt/software/tree-graph/target/release/conflux_production";
 		if(!FileUtil.isExistingFolder(new File(configPath))) {
 			FileUtil.mkdirs(configPath);
 		}

@@ -138,7 +138,7 @@ public class AllTests {
             log.info("start conflux process--->{}", folder.getName());
         }
         log.info("start conflux process completed!");
-        Thread.sleep(20);
+        TimeUnit.SECONDS.sleep(60);
 
         // get node keypair
         List<NodePo> nodes = nodeDas.findByConsIdAndChainId(testConsortiumId, testBlockchainId);
@@ -160,7 +160,8 @@ public class AllTests {
 			String txSign = tx.sign(ecKeyPair);
 			
 			NodePo node = nodeKeypair.getNode();
-			Cfx cfx = Cfx.create("http://" + node.getNodeIp() + ":" + (node.getNodePort()+1000));
+			String uri = "http://" + node.getNodeIp() + ":" + (node.getNodePort()+1000);
+			Cfx cfx = Cfx.create(uri);
             String txResult = cfx.sendRawTransaction(txSign).sendAndGet();
             currentNonce = currentNonce.add(BigInteger.ONE);
             log.info("genesis recharge result--->{}", txResult);

@@ -161,7 +161,7 @@ public class AllTests {
 			String txSign = tx.sign(ecKeyPair);
 			
 			NodePo node = nodeKeypair.getNode();
-			String uri = "http://" + jsonRpcPort + ":" + (node.getNodePort()+1000);
+			String uri = "http://" + node.getNodeIp() + ":" + jsonRpcPort;
 			log.info("genesis recharge uri--->{}", uri);
 			Cfx cfx = Cfx.create(uri);
             String txResult = cfx.sendRawTransaction(txSign).sendAndGet();

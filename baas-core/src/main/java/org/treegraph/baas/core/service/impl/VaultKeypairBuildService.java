@@ -115,7 +115,7 @@ public class VaultKeypairBuildService {
 		
 		String consortiumCertStr = null;
 		if(X509CertConstant.SIGN_CERTIFICATE_REQUEST == CryptoEnum.SignCertificateRequest.BC) {
-			consortiumCertStr = signCertificateRequestByBC(algo, rootKeypair, consortiumCsr);
+			consortiumCertStr = signCertificateRequestByBC(algo, rootKeypair, consortiumCsr, false);
 		} else if(X509CertConstant.SIGN_CERTIFICATE_REQUEST == CryptoEnum.SignCertificateRequest.VAULT) {
 			consortiumCertStr = signCertificateRequestByVault(consortiumCsr);
 		} else {
@@ -167,7 +167,7 @@ public class VaultKeypairBuildService {
 				new X500Name(X509CertConstant.NODE_CERT_SUBJECT), nodeKeyPair.getPublic(),
 				nodeKeyPair.getPrivate());
 		String nodeCsrStr = CertUtil.csrToPem(nodeCsr);
-		String nodeCertStr = signCertificateRequestByBC(X509CertConstant.DEFAULT_ALGO_CONS, consortiumKeypair, nodeCsr);
+		String nodeCertStr = signCertificateRequestByBC(X509CertConstant.DEFAULT_ALGO_CONS, consortiumKeypair, nodeCsr, true);
 		
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
@@ -234,11 +234,11 @@ public class VaultKeypairBuildService {
 	}
 
 	private String signCertificateRequestByBC(String algo, KeypairPo keypair,
-			PKCS10CertificationRequest csr) throws Exception, CertificateEncodingException {
+			PKCS10CertificationRequest csr, boolean isEntityCert) throws Exception, CertificateEncodingException {
 		PrivateKey rootPrivateKey = KeyUtil.privateKeyFromBase64(algo, keypair.getPrivateKey());
 		byte[] rootCertBytes = CertUtil.certFromPem(keypair.getCertStr()).getEncoded();
 		Certificate consortiumCert = CertUtil.generateCert(csr, rootPrivateKey, rootCertBytes,
-				CertUtil.getNotBefore(), CertUtil.getNotAfter(X509CertConstant.CONSORTIUM_CERT_EXPIRE_DYAS));
+				CertUtil.getNotBefore(), CertUtil.getNotAfter(X509CertConstant.CONSORTIUM_CERT_EXPIRE_DYAS), isEntityCert);
 		return CertUtil.certToPem(consortiumCert);
 	}
 

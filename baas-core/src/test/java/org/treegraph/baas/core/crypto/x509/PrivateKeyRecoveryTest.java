@@ -36,7 +36,7 @@ public class PrivateKeyRecoveryTest {
 	    
 		KeyPair consortiumKeyPair = KeyUtil.generateKeyPair(algo);
 		PKCS10CertificationRequest consortiumCsr = CertUtil.generateCSR(new X500Name(CONSORTIUM_CERT_SUBJECT),consortiumKeyPair.getPublic(),consortiumKeyPair.getPrivate());
-		Certificate consortiumCert = CertUtil.generateCert(consortiumCsr,rootKeyPair.getPrivate(),rootCA.getEncoded(),notBefore,notAfter);
+		Certificate consortiumCert = CertUtil.generateCert(consortiumCsr,rootKeyPair.getPrivate(),rootCA.getEncoded(),notBefore,notAfter,false);
 		System.out.println(KeyUtil.publicKeyToBase64(consortiumKeyPair.getPublic()));
 		System.out.println(KeyUtil.privateKeyToBase64(consortiumKeyPair.getPrivate()));
 		System.out.println(CertUtil.csrToPem(consortiumCsr));

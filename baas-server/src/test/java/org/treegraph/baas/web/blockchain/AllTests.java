@@ -143,7 +143,13 @@ public class AllTests {
         // get node keypair
         List<NodePo> nodes = nodeDas.findByConsIdAndChainId(testConsortiumId, testBlockchainId);
         List<NodeKeypairBo> nodeKeypairs = nodes.stream().map(
-				item -> vaultKeypairBuildService.getNodeKeypair(testConsortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item))
+				item -> {
+					try {
+						return vaultKeypairBuildService.getNodeKeypair(testConsortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null);
+					} catch (Exception e) {
+						return null;
+					}
+				})
 				.collect(Collectors.toList());
         
         /*

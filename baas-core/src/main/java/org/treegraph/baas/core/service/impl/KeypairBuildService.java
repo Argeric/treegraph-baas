@@ -87,7 +87,7 @@ public class KeypairBuildService {
 		PrivateKey rootPrivateKey = KeyUtil.privateKeyFromBase64(algo, rootKeypair.getPrivateKey());
 		byte[] rootCertBytes = CertUtil.certFromPem(rootKeypair.getCertStr()).getEncoded();
 		Certificate consortiumCert = CertUtil.generateCert(consortiumCsr, rootPrivateKey, rootCertBytes,
-				CertUtil.getNotBefore(), CertUtil.getNotAfter(365));
+				CertUtil.getNotBefore(), CertUtil.getNotAfter(365), false);
 		String consortiumCertStr = CertUtil.certToPem(consortiumCert);
 		
 		LocalDateTime now = LocalDateTime.now();

@@ -94,14 +94,14 @@ public class CertUtil {
 	}
 
 	public static Certificate generateCert(PKCS10CertificationRequest csr, PrivateKey issuerPrivateKey, byte[] issuerCert,
-			Date notBefore, Date notAfter) throws Exception {
+			Date notBefore, Date notAfter, boolean isEntityCert) throws Exception {
 		X509CertificateHolder issuer = new X509CertificateHolder(issuerCert);
 		if (!verifyCSR(csr))
 			throw new IllegalArgumentException("证书请求验证失败");
 		X500Name subject = csr.getSubject();
 		BcX509ExtensionUtils extUtils = new BcX509ExtensionUtils();
 		ExtensionsGenerator extensionsGenerator = new ExtensionsGenerator();
-		extensionsGenerator.addExtension(Extension.basicConstraints, true, new BasicConstraints(false)); // entity cert
+		extensionsGenerator.addExtension(Extension.basicConstraints, true, new BasicConstraints(isEntityCert)); // entity cert
 		extensionsGenerator.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature));
 		extensionsGenerator.addExtension(Extension.authorityKeyIdentifier, false,
 				extUtils.createAuthorityKeyIdentifier(issuer)); // 授权密钥标识

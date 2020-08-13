@@ -140,7 +140,7 @@ public class VaultKeypairBuildService {
 				.build();
 	}
 
-	public NodeKeypairBo getNodeKeypair(String consortiumId, String algo, NodePo node, KeypairPo consortiumKeypair) throws Exception {
+	public NodeKeypairBo getNodeKeypair(String consortiumId, String algo, NodePo node, KeypairPo consortiumKeypair) {
 		List<NodeKeyPo> nodeKeys = nodeKeyDas.findAll(consortiumId, node.getId());
 		if(CollectionUtils.isNotEmpty(nodeKeys)) {
 			List<Long> keypairIds = nodeKeys.stream().map(item -> item.getKeypairId()).collect(Collectors.toList());
@@ -166,11 +166,15 @@ public class VaultKeypairBuildService {
 		String nodeCsrStr = null;
 		String nodeCertStr = null;
 		if(consortiumKeypair != null) {
-			PKCS10CertificationRequest nodeCsr = CertUtil.generateCSR(
-					new X500Name(X509CertConstant.NODE_CERT_SUBJECT), nodeKeyPair.getPublic(),
-					nodeKeyPair.getPrivate());
-			nodeCsrStr = CertUtil.csrToPem(nodeCsr);
-			nodeCertStr = signCertificateRequestByBC(X509CertConstant.DEFAULT_ALGO_CONS, consortiumKeypair, nodeCsr, true);
+			try {
+				PKCS10CertificationRequest nodeCsr = CertUtil.generateCSR(
+						new X500Name(X509CertConstant.NODE_CERT_SUBJECT), nodeKeyPair.getPublic(),
+						nodeKeyPair.getPrivate());
+				nodeCsrStr = CertUtil.csrToPem(nodeCsr);
+				nodeCertStr = signCertificateRequestByBC(X509CertConstant.DEFAULT_ALGO_CONS, consortiumKeypair, nodeCsr, true);
+			} catch(Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 		
 		LocalDateTime now = LocalDateTime.now();

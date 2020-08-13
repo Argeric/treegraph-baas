@@ -228,14 +228,17 @@ public class KeyUtil {
 		}
 	}
 	
-	public static ECKeyPair loadECKeyPairFromBase64(String pubBase64, String privBase64, String algo)
-			throws Exception {
+	public static ECKeyPair loadECKeyPairFromBase64(String pubBase64, String privBase64, String algo) {
 		if (!"ECC".equalsIgnoreCase(algo)) {
 			throw new IllegalArgumentException("算法不支持");
 		}
-		ECPublicKey pub = loadECDSAPublicKey(pubBase64);
-		ECPrivateKey priv = loadECDSAPrivateKey(privBase64);
-		KeyPair keyPair = new KeyPair(pub, priv);
-		return ECKeyPair.create(keyPair);
+		try {
+			ECPublicKey pub = loadECDSAPublicKey(pubBase64);
+			ECPrivateKey priv = loadECDSAPrivateKey(privBase64);
+			KeyPair keyPair = new KeyPair(pub, priv);
+			return ECKeyPair.create(keyPair);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

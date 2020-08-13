@@ -46,13 +46,7 @@ public class RpcBlockchainService {
 			List<NodePo> removeNodes) throws IOException {
 		// build rpc client
 		List<NodeKeypairBo> existNodeKeypairs = existNodes.stream().map(
-				item -> {
-					try {
-						return vaultKeypairBuildService.getNodeKeypair(consortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null);
-					} catch (Exception e1) {
-						return null;
-					}
-				})
+				item -> vaultKeypairBuildService.getNodeKeypair(consortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null))
 				.collect(Collectors.toList());
 		Map<String, Boolean> heartbeatMap = getHeartbeatMap(existNodes);
 		Optional<NodeKeypairBo> aliveNodeKeypairOp = existNodeKeypairs.stream()
@@ -90,14 +84,10 @@ public class RpcBlockchainService {
 		List<KeypairPo> leftKeypairs = getLeftKeypairs(consortiumId, addNodes, removeNodes, existNodeKeypairs);
 		Map<KeypairPo, String> ringSignatureMap = Maps.newHashMap();
 		leftKeypairs.stream().forEach(item -> {
-			try {
-				ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getPublicKey(), item.getPrivateKey(),
-						item.getAlgorithm());
-				String signature = AccountManager.signMessage(Numeric.hexStringToByteArray(rawJson), true, ecKeypair);
-				ringSignatureMap.put(item, signature);
-			} catch (Exception e) {
-				throw new RuntimeException("ring signature error!");
-			}
+			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getPublicKey(), item.getPrivateKey(),
+					item.getAlgorithm());
+			String signature = AccountManager.signMessage(Numeric.hexStringToByteArray(rawJson), true, ecKeypair);
+			ringSignatureMap.put(item, signature);
 		});
 
 		/*
@@ -142,13 +132,7 @@ public class RpcBlockchainService {
 		}
 		if(CollectionUtils.isNotEmpty(addNodes)) {
 			List<NodeKeypairBo> newNodeKeypairs = addNodes.stream().map(
-					item -> {
-						try {
-							return vaultKeypairBuildService.getNodeKeypair(consortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null);
-						} catch (Exception e) {
-							return null;
-						}
-					})
+					item -> vaultKeypairBuildService.getNodeKeypair(consortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null))
 					.collect(Collectors.toList());
 			keypairDas.addKeyPairInfo(newNodeKeypairs);
 			leftNodeKeypairs.addAll(newNodeKeypairs);

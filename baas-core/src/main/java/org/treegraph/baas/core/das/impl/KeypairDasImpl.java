@@ -66,6 +66,23 @@ public class KeypairDasImpl implements KeypairDas {
 		return keypairPoMapper.selectAllByNodeIds(consId, keyType, algo, nodeIds);
 	}
 	
+	public List<KeypairPo> findAll(List<String> consIds, Integer keyType, String algo) {
+		KeypairPoExample example = new KeypairPoExample();
+		Criteria criteria = example.createCriteria();
+		if (CollectionUtils.isNotEmpty(consIds)) {
+			criteria.andConsortiumIdIn(consIds);
+		}
+		if (StringUtils.isNotBlank(algo)) {
+			criteria.andAlgorithmEqualTo(algo);
+		}
+		if(keyType != null){
+			criteria.andKeyTypeEqualTo(keyType);
+		}
+		criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		example.setOrderByClause("create_time desc");
+		return keypairPoMapper.selectByExample(example);
+	}
+	
 	public boolean save(KeypairPo keypair) {
 		return keypairPoMapper.insert(keypair) > 0;
 	}

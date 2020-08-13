@@ -17,6 +17,8 @@ public interface KeypairDas {
 	
 	List<NodeKeypairInfoBo> findAll(String consId, Integer keyType, String algo, List<String> nodeIds);
 	
+	List<KeypairPo> findAll(List<String> consIds, Integer keyType, String algo);
+	
 	boolean save(KeypairPo keypair);
 	
 	boolean addKeypairs(List<KeypairPo> list);

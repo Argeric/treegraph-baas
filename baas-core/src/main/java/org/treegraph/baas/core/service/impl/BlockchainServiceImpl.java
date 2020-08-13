@@ -1,5 +1,6 @@
 package org.treegraph.baas.core.service.impl;
 
+import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -24,21 +25,28 @@ import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.BlockchainDas;
 import org.treegraph.baas.core.das.CertDas;
 import org.treegraph.baas.core.das.ConsortiumDas;
+import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.domain.BlockChainPo;
 import org.treegraph.baas.core.domain.CertificateRequestPo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
+import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.enums.BlockchainEnum;
+import org.treegraph.baas.core.enums.CryptoEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.BlockchainService;
 import org.treegraph.baas.core.util.DateTimeUtils;
+import org.treegraph.baas.core.util.DateUtils;
+import org.treegraph.baas.core.util.crypto.x509.CertUtil;
 
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,9 +66,10 @@ public class BlockchainServiceImpl implements BlockchainService {
 	private UserInfoDas userInfoDas;
 	
 	private CertDas certDas;
+	
+	private KeypairDas keypairDas;
 
 	public ListBlockchainResponse listBlockchain(ListRequest req) {
-		
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
 		List<BlockChainPo> chains = blockchainDas.findAll(null, null);
 		PageInfo<BlockChainPo> pageInfo = new PageInfo<BlockChainPo>(chains);
@@ -80,6 +89,19 @@ public class BlockchainServiceImpl implements BlockchainService {
 		List<NodePo> nodes = nodeDas.findByChainIds(chainIdList);
 		Map<String, Long> chainCountMap = nodes.stream().collect(Collectors.groupingBy(NodePo::getBlockchainId, Collectors.counting()));
 		
+		List<KeypairPo> consKeypairs = keypairDas.findAll(consIdList, CryptoEnum.KeyType.CONSORTIUM.getCode(), CryptoEnum.Algo.RSA.getCode());
+		Map<String, List<String>> expireDateMap = Maps.newHashMap();
+		consKeypairs.stream().forEach(item -> {
+			try {
+				X509Certificate cert = CertUtil.certFromPem(item.getCertStr());
+				List<String> expireDates = Lists.newArrayList();
+				expireDates.add(DateUtils.format(cert.getNotBefore(), DateUtils.SYSTEM_DATE_FORMAT));
+				expireDates.add(DateUtils.format(cert.getNotAfter(), DateUtils.SYSTEM_DATE_FORMAT));
+				expireDateMap.put(item.getConsortiumId(), expireDates);
+			} catch (Exception e) {
+			}
+		});
+		
 		List<BlockchainInfo> list = blockchains.stream().map(item ->{ 
 			    log.info("item:"+JSON.toJSONString(item));
 				return BlockchainInfo.builder()
@@ -98,8 +120,8 @@ public class BlockchainServiceImpl implements BlockchainService {
 				.contractCount(null)
 				.txCount(null)
 				.alertEmail(item.getAlarmEmail())
-				.certNotBefore("")
-				.certNotAfter("")
+				.certNotBefore(expireDateMap.get(item.getConsortiumId()).get(0))
+				.certNotAfter(expireDateMap.get(item.getConsortiumId()).get(1))
 				.build();
 		}).collect(Collectors.toList());
 

@@ -24,10 +24,10 @@ import lombok.extern.slf4j.Slf4j;
 public class TransactionGenerator extends TimerTask {
 	
     private List<NodeKeypairBo> nodeKeypairs;
-    private Map<String, Integer> jsonRpcHttpPortMap;
+    private Map<String, String> jsonRpcHttpPortMap;
     private Map<String, BigInteger> nonceMap;
     
-    public TransactionGenerator(List<NodeKeypairBo> nodeKeypairs, Map<String, Integer> jsonRpcHttpPortMap){
+    public TransactionGenerator(List<NodeKeypairBo> nodeKeypairs, Map<String, String> jsonRpcHttpPortMap){
     	this.nodeKeypairs = nodeKeypairs;
     	this.jsonRpcHttpPortMap = jsonRpcHttpPortMap;
     }
@@ -41,7 +41,7 @@ public class TransactionGenerator extends TimerTask {
     public void run() {
     	try {
 	        NodeKeypairBo sender = nodeKeypairs.get(new Random().nextInt(nodeKeypairs.size()));
-	        int jsonRpcHttpPort = jsonRpcHttpPortMap.get(sender.getNode().getNodeIp()+CharacterConstant.AT+sender.getNode().getNodePort());
+	        String jsonRpcHttpPort = jsonRpcHttpPortMap.get(sender.getNode().getNodeIp()+CharacterConstant.AT+sender.getNode().getNodePort());
 	        String uri = "http://" + sender.getNode().getNodeIp() + ":" + jsonRpcHttpPort;
 	        Cfx cfx = Cfx.create(uri);
 	        

@@ -10,6 +10,7 @@ import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,7 +81,7 @@ public class AllTests {
 	
 	private static List<NodeKeypairBo> nodeKeypairs = null;
 	
-	private static Map<String, Integer> jsonRpcHttpPortMap = Maps.newHashMap();
+	private static Map<String, String> jsonRpcHttpPortMap = Maps.newHashMap();
 	
 	private static String token = null;
 	
@@ -90,7 +91,6 @@ public class AllTests {
 		login();
 		generateScripts();
 		getNodeKeypairs();
-
 	}
 	
 	@Test
@@ -116,7 +116,14 @@ public class AllTests {
 		/*
 		 * parse json rpc http port
 		 */
-		//jsonRpcHttpPortMap
+		File path = new File(configPath);
+		File[] subPaths = path.listFiles();
+		Lists.newArrayList(subPaths).stream().forEach(subPath -> {
+			File customizedConfigFile = Lists.newArrayList(subPath.listFiles()).stream().filter(configFile -> configFile.getName().equalsIgnoreCase("customized_config.toml")).findFirst().get();
+			String jsonRpcHttpPort = parseJsonRpcHttpPort(customizedConfigFile);
+			jsonRpcHttpPortMap.put(subPath.getName(), jsonRpcHttpPort);
+		});
+		log.info("parse json rpc http port result--->{}", JSON.toJSONString(jsonRpcHttpPortMap));
 	}
 
     @Test
@@ -153,7 +160,7 @@ public class AllTests {
 			String txSign = tx.sign(ecKeyPair);
 			
 			NodePo node = nodeKeypair.getNode();
-			int jsonRpcHttpPort = jsonRpcHttpPortMap.get(node.getNodeIp()+CharacterConstant.AT+node.getNodePort());
+			String jsonRpcHttpPort = jsonRpcHttpPortMap.get(node.getNodeIp()+CharacterConstant.AT+node.getNodePort());
 			String uri = "http://" + node.getNodeIp() + ":" + jsonRpcHttpPort;
 			log.info("genesis recharge uri--->{}", uri);
 			
@@ -220,5 +227,15 @@ public class AllTests {
 					}
 				})
 				.collect(Collectors.toList());
+	}
+	
+	private static String parseJsonRpcHttpPort(File customizedConfigFile) {
+		try {
+			String[] lines = FileUtil.readLines(customizedConfigFile);
+			String[] keyValuePair = lines[0].split("=");
+			return keyValuePair[1].trim();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

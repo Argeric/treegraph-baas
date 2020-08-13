@@ -104,6 +104,7 @@ public class BlockchainServiceImpl implements BlockchainService {
 		
 		List<BlockchainInfo> list = blockchains.stream().map(item ->{ 
 			    log.info("item:"+JSON.toJSONString(item));
+			    List<String> expireDates = expireDateMap.get(item.getConsortiumId());
 				return BlockchainInfo.builder()
 				.id(item.getId())
 				.name(item.getBlockchainName())
@@ -120,8 +121,8 @@ public class BlockchainServiceImpl implements BlockchainService {
 				.contractCount(null)
 				.txCount(null)
 				.alertEmail(item.getAlarmEmail())
-				.certNotBefore(expireDateMap.get(item.getConsortiumId()).get(0))
-				.certNotAfter(expireDateMap.get(item.getConsortiumId()).get(1))
+				.certNotBefore(expireDates != null ? expireDates.get(0) : "")
+				.certNotAfter(expireDates != null ? expireDates.get(1) : "")
 				.build();
 		}).collect(Collectors.toList());
 

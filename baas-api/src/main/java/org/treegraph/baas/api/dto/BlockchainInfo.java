@@ -28,4 +28,6 @@ public class BlockchainInfo {
 	private String contractCount;//合约数	
 	private String txCount;//日新增交易
 	private String alertEmail;//报警邮箱
+	private String certNotBefore;//联盟证书生效时间
+	private String certNotAfter;//联盟证书失效时间
 }

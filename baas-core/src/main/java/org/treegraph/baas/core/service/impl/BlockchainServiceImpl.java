@@ -98,6 +98,8 @@ public class BlockchainServiceImpl implements BlockchainService {
 				.contractCount(null)
 				.txCount(null)
 				.alertEmail(item.getAlarmEmail())
+				.certNotBefore("")
+				.certNotAfter("")
 				.build();
 		}).collect(Collectors.toList());
 

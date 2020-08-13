@@ -140,7 +140,7 @@ public class VaultKeypairBuildService {
 				.build();
 	}
 
-	public NodeKeypairBo getNodeKeypair(String consortiumId, String algo, NodePo node) {
+	public NodeKeypairBo getNodeKeypair(String consortiumId, String algo, NodePo node, KeypairPo consortiumKeypair) throws Exception {
 		List<NodeKeyPo> nodeKeys = nodeKeyDas.findAll(consortiumId, node.getId());
 		if(CollectionUtils.isNotEmpty(nodeKeys)) {
 			List<Long> keypairIds = nodeKeys.stream().map(item -> item.getKeypairId()).collect(Collectors.toList());
@@ -151,24 +151,31 @@ public class VaultKeypairBuildService {
 			}
 		}
 		
-		KeyPair keyPair = null;
+		KeyPair nodeKeyPair = null;
 		String nodePublicKey = null;
 		String nodePrivateKey = null;
 		try {
-			keyPair = KeyUtil.generateKeyPair(algo);
-			nodePublicKey = KeyUtil.publicKeyToBase64(keyPair.getPublic());
-			nodePrivateKey = KeyUtil.privateKeyToBase64(keyPair.getPrivate());
+			nodeKeyPair = KeyUtil.generateKeyPair(algo);
+			nodePublicKey = KeyUtil.publicKeyToBase64(nodeKeyPair.getPublic());
+			nodePrivateKey = KeyUtil.privateKeyToBase64(nodeKeyPair.getPrivate());
 		} catch(Exception e) {
 			throw new AlertException("get node keypair error!");
 		}
+		
+		// get node certificate, add on 08/13/2020
+		PKCS10CertificationRequest nodeCsr = CertUtil.generateCSR(
+				new X500Name(X509CertConstant.NODE_CERT_SUBJECT), nodeKeyPair.getPublic(),
+				nodeKeyPair.getPrivate());
+		String nodeCsrStr = CertUtil.csrToPem(nodeCsr);
+		String nodeCertStr = signCertificateRequestByBC(X509CertConstant.DEFAULT_ALGO_CONS, consortiumKeypair, nodeCsr);
 		
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		KeypairPo keypair = KeypairPo.builder()
 				.publicKey(nodePublicKey)
 				.privateKey(nodePrivateKey)
-				.csrStr(null)
-				.certStr(null)
+				.csrStr(nodeCsrStr)
+				.certStr(nodeCertStr)
 				.algorithm(algo)
 				.consortiumId(consortiumId)
 				.keyType(CryptoEnum.KeyType.NODE.getCode())
@@ -226,11 +233,11 @@ public class VaultKeypairBuildService {
 		log.info("writeRoleResponse resp:{}", JSON.toJSONString(writeRoleToVaultResponse));
 	}
 
-	private String signCertificateRequestByBC(String algo, KeypairPo rootKeypair,
-			PKCS10CertificationRequest consortiumCsr) throws Exception, CertificateEncodingException {
-		PrivateKey rootPrivateKey = KeyUtil.privateKeyFromBase64(algo, rootKeypair.getPrivateKey());
-		byte[] rootCertBytes = CertUtil.certFromPem(rootKeypair.getCertStr()).getEncoded();
-		Certificate consortiumCert = CertUtil.generateCert(consortiumCsr, rootPrivateKey, rootCertBytes,
+	private String signCertificateRequestByBC(String algo, KeypairPo keypair,
+			PKCS10CertificationRequest csr) throws Exception, CertificateEncodingException {
+		PrivateKey rootPrivateKey = KeyUtil.privateKeyFromBase64(algo, keypair.getPrivateKey());
+		byte[] rootCertBytes = CertUtil.certFromPem(keypair.getCertStr()).getEncoded();
+		Certificate consortiumCert = CertUtil.generateCert(csr, rootPrivateKey, rootCertBytes,
 				CertUtil.getNotBefore(), CertUtil.getNotAfter(X509CertConstant.CONSORTIUM_CERT_EXPIRE_DYAS));
 		return CertUtil.certToPem(consortiumCert);
 	}

@@ -13,6 +13,8 @@ public class X509CertConstant {
 
 	public static final String CONSORTIUM_CERT_SUBJECT = "CN=baas.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN";
 	
+	public static final String NODE_CERT_SUBJECT = "CN=node.baas.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN";
+	
 	public static final String CONSORTIUM_CERT_COMMON_NAME = "baas.conflux-chain.org";
 	
 	public static final int CONSORTIUM_CERT_EXPIRE_DYAS = 365;

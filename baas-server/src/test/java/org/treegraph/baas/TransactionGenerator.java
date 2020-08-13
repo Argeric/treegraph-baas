@@ -1,4 +1,4 @@
-package org.treegraph.baas.web.blockchain;
+package org.treegraph.baas;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TimerTask;
 
-import org.treegraph.baas.core.constant.ConfluxConstant;
+import org.treegraph.baas.core.constant.CharacterConstant;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
@@ -24,10 +24,12 @@ import lombok.extern.slf4j.Slf4j;
 public class TransactionGenerator extends TimerTask {
 	
     private List<NodeKeypairBo> nodeKeypairs;
+    private Map<String, Integer> jsonRpcHttpPortMap;
     private Map<String, BigInteger> nonceMap;
     
-    public TransactionGenerator(List<NodeKeypairBo> nodeKeypairs){
+    public TransactionGenerator(List<NodeKeypairBo> nodeKeypairs, Map<String, Integer> jsonRpcHttpPortMap){
     	this.nodeKeypairs = nodeKeypairs;
+    	this.jsonRpcHttpPortMap = jsonRpcHttpPortMap;
     }
 
     private BigInteger getNonce(String key){
@@ -38,9 +40,9 @@ public class TransactionGenerator extends TimerTask {
     @Override
     public void run() {
     	try {
-    		int index = new Random().nextInt(nodeKeypairs.size());
-	        NodeKeypairBo sender = nodeKeypairs.get(index);
-	        String uri = "http://" + sender.getNode().getNodeIp() + ":" + (ConfluxConstant.JSON_RPC_HTTP_PORT + index);
+	        NodeKeypairBo sender = nodeKeypairs.get(new Random().nextInt(nodeKeypairs.size()));
+	        int jsonRpcHttpPort = jsonRpcHttpPortMap.get(sender.getNode().getNodeIp()+CharacterConstant.AT+sender.getNode().getNodePort());
+	        String uri = "http://" + sender.getNode().getNodeIp() + ":" + jsonRpcHttpPort;
 	        Cfx cfx = Cfx.create(uri);
 	        
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(sender.getKeypair().getPublicKey(),

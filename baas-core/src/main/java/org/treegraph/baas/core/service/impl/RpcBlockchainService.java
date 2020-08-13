@@ -46,7 +46,13 @@ public class RpcBlockchainService {
 			List<NodePo> removeNodes) throws IOException {
 		// build rpc client
 		List<NodeKeypairBo> existNodeKeypairs = existNodes.stream().map(
-				item -> vaultKeypairBuildService.getNodeKeypair(consortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item))
+				item -> {
+					try {
+						return vaultKeypairBuildService.getNodeKeypair(consortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null);
+					} catch (Exception e1) {
+						return null;
+					}
+				})
 				.collect(Collectors.toList());
 		Map<String, Boolean> heartbeatMap = getHeartbeatMap(existNodes);
 		Optional<NodeKeypairBo> aliveNodeKeypairOp = existNodeKeypairs.stream()
@@ -136,7 +142,13 @@ public class RpcBlockchainService {
 		}
 		if(CollectionUtils.isNotEmpty(addNodes)) {
 			List<NodeKeypairBo> newNodeKeypairs = addNodes.stream().map(
-					item -> vaultKeypairBuildService.getNodeKeypair(consortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item))
+					item -> {
+						try {
+							return vaultKeypairBuildService.getNodeKeypair(consortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null);
+						} catch (Exception e) {
+							return null;
+						}
+					})
 					.collect(Collectors.toList());
 			keypairDas.addKeyPairInfo(newNodeKeypairs);
 			leftNodeKeypairs.addAll(newNodeKeypairs);

@@ -163,11 +163,15 @@ public class VaultKeypairBuildService {
 		}
 		
 		// get node certificate, add on 08/13/2020
-		PKCS10CertificationRequest nodeCsr = CertUtil.generateCSR(
-				new X500Name(X509CertConstant.NODE_CERT_SUBJECT), nodeKeyPair.getPublic(),
-				nodeKeyPair.getPrivate());
-		String nodeCsrStr = CertUtil.csrToPem(nodeCsr);
-		String nodeCertStr = signCertificateRequestByBC(X509CertConstant.DEFAULT_ALGO_CONS, consortiumKeypair, nodeCsr, true);
+		String nodeCsrStr = null;
+		String nodeCertStr = null;
+		if(consortiumKeypair != null) {
+			PKCS10CertificationRequest nodeCsr = CertUtil.generateCSR(
+					new X500Name(X509CertConstant.NODE_CERT_SUBJECT), nodeKeyPair.getPublic(),
+					nodeKeyPair.getPrivate());
+			nodeCsrStr = CertUtil.csrToPem(nodeCsr);
+			nodeCertStr = signCertificateRequestByBC(X509CertConstant.DEFAULT_ALGO_CONS, consortiumKeypair, nodeCsr, true);
+		}
 		
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();

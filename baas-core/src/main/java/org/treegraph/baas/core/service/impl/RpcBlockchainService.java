@@ -132,16 +132,16 @@ public class RpcBlockchainService {
 		List<NodeKeypairBo> leftNodeKeypairs = Lists.newArrayList();
 		if(CollectionUtils.isNotEmpty(removeNodes)) {
 			Set<String> toRemoveNodeIdSet = removeNodes.stream().map(NodePo::getId).collect(Collectors.toSet());
-			List<NodeKeypairBo> postRemoveNodeKeypairs = existNodeKeypairs.stream()
+			List<NodeKeypairBo> leftExistNodeKeypairs = existNodeKeypairs.stream()
 					.filter(item -> !toRemoveNodeIdSet.contains(item.getNode().getId())).collect(Collectors.toList());
-			leftNodeKeypairs.addAll(postRemoveNodeKeypairs);
+			leftNodeKeypairs.addAll(leftExistNodeKeypairs);
 		}
 		if(CollectionUtils.isNotEmpty(addNodes)) {
-			List<NodeKeypairBo> newNodeKeypairs = addNodes.stream().map(
+			List<NodeKeypairBo> toAddNodeKeypairs = addNodes.stream().map(
 					item -> vaultKeypairBuildService.getNodeKeypair(consortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null))
 					.collect(Collectors.toList());
-			keypairDas.addKeyPairInfo(newNodeKeypairs);
-			leftNodeKeypairs.addAll(newNodeKeypairs);
+			keypairDas.addKeyPairInfo(toAddNodeKeypairs);
+			leftNodeKeypairs.addAll(toAddNodeKeypairs);
 		}
 		List<KeypairPo> leftKeypairs = leftNodeKeypairs.stream().map(NodeKeypairBo::getKeypair).collect(Collectors.toList());
 		return leftKeypairs;

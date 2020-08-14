@@ -14,8 +14,10 @@ import org.treegraph.baas.core.das.bo.NodeKeypairInfoBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.KeypairPoExample;
 import org.treegraph.baas.core.domain.KeypairPoExample.Criteria;
+import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.mapper.primary.KeypairPoMapper;
+import org.treegraph.baas.core.mapper.primary.NodeCustomizedConfigPoMapper;
 import org.treegraph.baas.core.mapper.primary.NodeKeyPoMapper;
 
 import com.google.common.collect.Lists;
@@ -29,6 +31,8 @@ public class KeypairDasImpl implements KeypairDas {
 	private KeypairPoMapper keypairPoMapper;
 	
 	private NodeKeyPoMapper nodeKeyPoMapper;
+	
+	private NodeCustomizedConfigPoMapper nodeCustomizedConfigPoMapper;
 	
 	public Optional<KeypairPo> findById(Long id) {
 		return keypairPoMapper.selectByPrimaryKey(id);
@@ -96,7 +100,7 @@ public class KeypairDasImpl implements KeypairDas {
 	}
 	
 	public boolean addKeyPairInfo(KeypairPo rootKeypair, KeypairPo consortiumKeypair,
-			List<NodeKeypairBo> nodeKeypairBoList) {
+			List<NodeKeypairBo> nodeKeypairBoList, List<NodeCustomizedConfigPo> customizedConfigList) {
 		// add key pair of consortium
 		boolean succFlag =  Boolean.TRUE;
 		List<KeypairPo> keypairList = new ArrayList<>();
@@ -115,6 +119,13 @@ public class KeypairDasImpl implements KeypairDas {
 			boolean addSuccFlag = addKeyPairInfo(nodeKeypairBoList);
 			succFlag = succFlag && addSuccFlag;
 		}
+		
+		// add customized configration
+		if(CollectionUtils.isNotEmpty(customizedConfigList)) {
+			succFlag = succFlag
+					&& nodeCustomizedConfigPoMapper.bulkInsert(customizedConfigList) == customizedConfigList.size();
+		}
+		
 		
 		return succFlag;
 	}

@@ -3,7 +3,6 @@ package org.treegraph.baas.core.service.impl;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,6 +16,8 @@ import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
+import org.treegraph.baas.core.service.NodeCustomizedConfigService;
+import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.utils.Numeric;
@@ -38,6 +39,8 @@ public class RpcBlockchainService {
 	
 	private KeypairDas keypairDas;
 	
+	private NodeCustomizedConfigService nodeCustomizedConfigService;
+	
     private HeartbeatService heartbeatService;
 	
     private VaultKeypairBuildService vaultKeypairBuildService;
@@ -48,14 +51,17 @@ public class RpcBlockchainService {
 		List<NodeKeypairBo> existNodeKeypairs = existNodes.stream().map(
 				item -> vaultKeypairBuildService.getNodeKeypair(consortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null))
 				.collect(Collectors.toList());
-		Map<String, Boolean> heartbeatMap = getHeartbeatMap(existNodes);
-		Optional<NodeKeypairBo> aliveNodeKeypairOp = existNodeKeypairs.stream()
-				.filter(item -> heartbeatMap.get(item.getNode().getNodeIp() + ":" + item.getNode().getNodePort()))
-				.findFirst();
-		Assert.isTrue(aliveNodeKeypairOp.isPresent(), "not found alive node!");
-		NodeKeypairBo proposerNodeKeypair = aliveNodeKeypairOp.get();
+		Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(existNodes);
+		Map<String, Boolean> heartbeatMap = getHeartbeatMap(existNodes, nodeIdRpcHttpPortMap);		
+		NodeKeypairBo proposerNodeKeypair = existNodeKeypairs.stream()
+				.filter(item -> {
+					NodePo node = item.getNode();
+					String key = ConfluxUtils.toIpAtPort(node.getNodeIp(), nodeIdRpcHttpPortMap.get(node.getId()));
+					return heartbeatMap.get(key);
+				})
+				.findFirst().get();
 		NodePo proposerNode = proposerNodeKeypair.getNode();
-		Cfx cfx = Cfx.create("http://" + proposerNode.getNodeIp() + ":" + proposerNode.getNodePort());
+		Cfx cfx = Cfx.create(ConfluxUtils.toJsonRpcUri(proposerNode.getNodeIp(), nodeIdRpcHttpPortMap.get(proposerNode.getId())));
 		
 		/*
 		 * 1. RPC name:cfx_getMembershipChangeRawTransaction 
@@ -69,10 +75,10 @@ public class RpcBlockchainService {
 				.collect(Collectors.toList());
 		String proposerPublicKey = proposerNodeKeypair.getKeypair().getPublicKey();
 		Request<String, StringResponse> request = cfx.getCustomizedRequest(StringResponse.class,
-				ConfluxConstant.INTERFACE_ADD_DELETE_NODE, existPublicKeys, proposerPublicKey);
+				ConfluxConstant.RPC_ADD_DELETE_NODE, existPublicKeys, proposerPublicKey);
 		StringResponse response = request.send();
 		String rawJson = response.getResult();
-		Assert.isTrue(rawJson != null, ConfluxConstant.INTERFACE_ADD_DELETE_NODE + " error");
+		Assert.isTrue(rawJson != null, ConfluxConstant.RPC_ADD_DELETE_NODE + " error");
 		
 		/*
 		 * 2. Keccak(raw_json) and ring signature
@@ -106,16 +112,16 @@ public class RpcBlockchainService {
 			ringSignatures.add(item.getValue());
 		});
 		Request<String, StringResponse> requestConfirm = cfx.getCustomizedRequest(StringResponse.class,
-				ConfluxConstant.INTERFACE_ADD_DELETE_NODE_CONFIRM, rawJson, leftPublicKeys, ringSignatures);
+				ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM, rawJson, leftPublicKeys, ringSignatures);
 		StringResponse responseConfirm = requestConfirm.send();
 		Assert.isTrue(responseConfirm != null 
 				&& responseConfirm.getResult() != null
 				&& responseConfirm.getResult().equalsIgnoreCase("ok"),
-				ConfluxConstant.INTERFACE_ADD_DELETE_NODE_CONFIRM + "error");
+				ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM + "error");
 	}
 
-	private Map<String, Boolean> getHeartbeatMap(List<NodePo> existNodes) {
-		Map<String, Boolean> heartbeatMap = heartbeatService.batchNodeHeartbeat(existNodes);
+	private Map<String, Boolean> getHeartbeatMap(List<NodePo> existNodes, Map<String, Integer> nodeIdRpcPortMap) {
+		Map<String, Boolean> heartbeatMap = heartbeatService.batchNodeHeartbeat(existNodes, nodeIdRpcPortMap);
 		Set<Boolean> heartbeatSet = Sets.newHashSet(heartbeatMap.values());
 		Assert.isTrue(heartbeatSet.contains(Boolean.TRUE), "blockchain not lunched!");
 		return heartbeatMap;

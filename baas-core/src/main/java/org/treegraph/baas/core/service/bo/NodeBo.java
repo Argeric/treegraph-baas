@@ -7,6 +7,6 @@ import lombok.Data;
 @Builder
 public class NodeBo {
     private String nodeIp;
-    private int nodePort;
+    private int jsonRpcHttpPort;
     private boolean status;//运行状态
 }

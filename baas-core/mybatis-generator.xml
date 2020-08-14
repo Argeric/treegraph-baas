@@ -3,7 +3,7 @@
         "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
         "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
 <generatorConfiguration>
-	<classPathEntry location="/Users/zhenting/Documents/tar/mysql-connector-java-5.1.21.jar"/>
+	<classPathEntry location="/Users/wangzhenting/Documents/tools/mysql-connector-java-5.1.49.jar"/>
     <context id="context" targetRuntime="MyBatis3">
 
         <!-- 识别关键字 -->
@@ -101,10 +101,13 @@
         <table tableName="keypair" domainObjectName="KeypairPo" alias="keypair">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>        
-        -->
         <table tableName="node_key" domainObjectName="NodeKeyPo" alias="nodeKey">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table>                
+        </table>    
+        -->
+        <table tableName="node_customized_config" domainObjectName="NodeCustomizedConfigPo" alias="nodeCustomizedConfig">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>              
 
     </context>
 

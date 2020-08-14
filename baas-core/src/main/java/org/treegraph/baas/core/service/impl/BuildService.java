@@ -15,6 +15,8 @@ import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.PermissionDas;
 import org.treegraph.baas.core.domain.ConsortiumPo;
+import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
+import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.RolePermissionPo;
 import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
@@ -198,5 +200,21 @@ public class BuildService {
 				.updateTime(LocalDateTime.now())
 				.updateBy(WebHelper.getUserId())
 				.build();
+	}
+	
+	public NodeCustomizedConfigPo buildNodeCustomizedConfig(NodePo node, String key, String value) {
+		LocalDateTime now = LocalDateTime.now();
+		String operUser = WebHelper.getUserId();
+		return NodeCustomizedConfigPo.builder()
+			.consortiumId(node.getConsortiumId())
+			.nodeId(node.getId())
+			.propertyName(key)
+			.propertyValue(value)
+			.deleteFlag(IntTypeEnum.FALSE.getValue())
+			.createTime(now)
+			.createBy(operUser)
+			.updateTime(now)
+			.updateBy(operUser)
+			.build();
 	}
 }

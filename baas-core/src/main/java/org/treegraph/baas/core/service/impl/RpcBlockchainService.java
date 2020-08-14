@@ -131,10 +131,10 @@ public class RpcBlockchainService {
 			List<NodeKeypairBo> existNodeKeypairs) {
 		List<NodeKeypairBo> leftNodeKeypairs = Lists.newArrayList();
 		if(CollectionUtils.isNotEmpty(removeNodes)) {
-			Set<String> removeNodeIdSet = removeNodes.stream().map(NodePo::getId).collect(Collectors.toSet());
-			List<NodeKeypairBo> afterRemoveNodeKeypairs = existNodeKeypairs.stream()
-					.filter(item -> !removeNodeIdSet.contains(item.getNode().getId())).collect(Collectors.toList());
-			leftNodeKeypairs.addAll(afterRemoveNodeKeypairs);
+			Set<String> toRemoveNodeIdSet = removeNodes.stream().map(NodePo::getId).collect(Collectors.toSet());
+			List<NodeKeypairBo> postRemoveNodeKeypairs = existNodeKeypairs.stream()
+					.filter(item -> !toRemoveNodeIdSet.contains(item.getNode().getId())).collect(Collectors.toList());
+			leftNodeKeypairs.addAll(postRemoveNodeKeypairs);
 		}
 		if(CollectionUtils.isNotEmpty(addNodes)) {
 			List<NodeKeypairBo> newNodeKeypairs = addNodes.stream().map(

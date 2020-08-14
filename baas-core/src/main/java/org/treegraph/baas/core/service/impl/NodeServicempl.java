@@ -25,6 +25,7 @@ import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.exception.AlertException;
+import org.treegraph.baas.core.service.NodeCustomizedConfigService;
 import org.treegraph.baas.core.service.NodeService;
 import org.treegraph.baas.core.util.DateTimeUtils;
 
@@ -49,6 +50,8 @@ public class NodeServicempl implements NodeService {
     private BuildService buildService;
     
     private RpcBlockchainService rpcBlockchainService;
+    
+	private NodeCustomizedConfigService nodeCustomizedConfigService;
  
 	public ListNodeResponse listNodes(ListNodeRequest req) {
 		
@@ -66,7 +69,8 @@ public class NodeServicempl implements NodeService {
     	Map<String, String> blockchainIdNameMap = blockchains.stream().collect(Collectors.toMap(BlockChainPo::getId, BlockChainPo::getBlockchainName));
     	
 		//Map<String, Boolean> nodeHeartbeatMap = getHeartbeatMap(nodeList);
-		Map<String, Boolean> nodeHeartbeatMap = heartbeatService.batchNodeHeartbeat(nodeList);
+    	Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(nodeList);
+		Map<String, Boolean> nodeHeartbeatMap = heartbeatService.batchNodeHeartbeat(nodeList, nodeIdRpcHttpPortMap);
     	
     	List<NodeInfo> nodeInfos = nodeList.stream().map(item -> NodeInfo.builder()
     			.id(item.getId())
@@ -92,7 +96,8 @@ public class NodeServicempl implements NodeService {
 	public NodeInfo getNodeDetail(QueryNodeDetailRequest req) {
 		NodePo nodePo = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
 		//Map<String, Boolean> nodeHeartbeatMap = getHeartbeatMap(Lists.newArrayList(nodePo));
-		Map<String, Boolean> nodeHeartbeatMap = heartbeatService.batchNodeHeartbeat(Lists.newArrayList(nodePo));
+		Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(Lists.newArrayList(nodePo));
+		Map<String, Boolean> nodeHeartbeatMap = heartbeatService.batchNodeHeartbeat(Lists.newArrayList(nodePo), nodeIdRpcHttpPortMap);
 		return NodeInfo.builder()
 				.ip(nodePo.getNodeIp())
 				.port(nodePo.getNodePort()+"")

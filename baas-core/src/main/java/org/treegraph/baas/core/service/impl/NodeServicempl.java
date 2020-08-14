@@ -54,7 +54,6 @@ public class NodeServicempl implements NodeService {
 	private NodeCustomizedConfigService nodeCustomizedConfigService;
  
 	public ListNodeResponse listNodes(ListNodeRequest req) {
-		
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
     	List<NodePo> nodes = nodeDas.findAll(req.getConsId(), req.getIp());
     	PageInfo<NodePo> pageInfo = new PageInfo<NodePo>(nodes);
@@ -68,7 +67,6 @@ public class NodeServicempl implements NodeService {
     	List<BlockChainPo> blockchains = blockchainDas.findByIds(blockchainIds);
     	Map<String, String> blockchainIdNameMap = blockchains.stream().collect(Collectors.toMap(BlockChainPo::getId, BlockChainPo::getBlockchainName));
     	
-		//Map<String, Boolean> nodeHeartbeatMap = getHeartbeatMap(nodeList);
     	Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(nodeList);
 		Map<String, Boolean> nodeHeartbeatMap = heartbeatService.batchNodeHeartbeat(nodeList, nodeIdRpcHttpPortMap);
     	
@@ -95,7 +93,6 @@ public class NodeServicempl implements NodeService {
 	
 	public NodeInfo getNodeDetail(QueryNodeDetailRequest req) {
 		NodePo nodePo = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
-		//Map<String, Boolean> nodeHeartbeatMap = getHeartbeatMap(Lists.newArrayList(nodePo));
 		Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(Lists.newArrayList(nodePo));
 		Map<String, Boolean> nodeHeartbeatMap = heartbeatService.batchNodeHeartbeat(Lists.newArrayList(nodePo), nodeIdRpcHttpPortMap);
 		return NodeInfo.builder()
@@ -151,15 +148,6 @@ public class NodeServicempl implements NodeService {
 		return deleteNodeResult;
 	}
 
-//	private Map<String, Boolean> getHeartbeatMap(List<NodePo> nodeList) {
-//		List<NodePo> heartbeatNodeList = nodeList.stream()
-//				.filter(item -> item.getStatus() != NodeEnum.Status.TO_DEPLOY.getCode()
-//						&& item.getStatus() != NodeEnum.Status.STOP.getCode())
-//				.collect(Collectors.toList());
-//    	Map<String, Boolean> nodeHeartbeatMap = heartbeatService.batchNodeHeartbeat(heartbeatNodeList);
-//		return nodeHeartbeatMap;
-//	}
-	
 	private int getNodeStatus(int dbStatus, Boolean heartbeat) {
 		if (dbStatus == NodeEnum.Status.TO_DEPLOY.getCode() || dbStatus == NodeEnum.Status.STOP.getCode()) {
 			return dbStatus;

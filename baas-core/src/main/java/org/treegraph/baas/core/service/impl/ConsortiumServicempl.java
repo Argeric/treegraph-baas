@@ -455,7 +455,12 @@ public class ConsortiumServicempl implements ConsortiumService {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
 					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
 			scriptContent.append("consortium_keypair = \"" + ecKeypair.getPublicKey().toString(16) + CharacterConstant.COMMA
-					+ ecKeypair.getPrivateKey().toString(16) + "\"");
+					+ ecKeypair.getPrivateKey().toString(16) + "\"")
+				.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
+			scriptContent.append("grpc_server_cert = \"\"\"" + nodeKeypairBo.getKeypair().getCertStr() + "\"\"\"")
+				.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
+			scriptContent.append("grpc_server_key = \"" + nodeKeypairBo.getKeypair().getPublicKey() + "\"")
+				.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			
 			String customizedScriptContent = buildNodeCustomizedConfig(ecKeypair,
 					ConfluxConstant.TEST_SWITCH ? stepFactor++ : 0, portStep, nodeKeypairBo.getNode(),

@@ -33,4 +33,8 @@ public class ConfluxConstant {
     public static final String PROPERTY_JSON_RPC_LOCAL_HTTP_PORT = "jsonrpc_local_http_port";
     
     public static final String PROPERTY_MINING_AUTHOR = "mining_author";
+    
+    public static final String PROPERTY_JSON_RPC_HTTP_PORT_STEP_FACTOR = "jsonrpc_http_port_step_factor";
+    
+    public static final int PROPERTY_JSON_RPC_HTTP_PORT_STEP = 100;
 }

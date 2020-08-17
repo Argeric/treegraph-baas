@@ -162,12 +162,12 @@ public class AllTests {
 			NodePo node = nodeKeypair.getNode();
 			String jsonRpcHttpPort = jsonRpcHttpPortMap.get(node.getNodeIp()+CharacterConstant.AT+node.getNodePort());
 			String uri = "http://" + node.getNodeIp() + ":" + jsonRpcHttpPort;
-			log.info("genesis recharge uri--->{}", uri);
+			log.info("genesis recharge, nonce--->{}, uri--->{}", currentNonce, uri);
 			
 			Cfx cfx = Cfx.create(uri);
             String txResult = cfx.sendRawTransaction(txSign).sendAndGet();
             currentNonce = currentNonce.add(BigInteger.ONE);
-            log.info("genesis recharge result--->{}", txResult);
+            log.info("genesis recharge, nonce--->{}, result--->{}", currentNonce, txResult);
         }
     }
     
@@ -178,8 +178,13 @@ public class AllTests {
          */
         Timer timer  = new Timer();
         timer.schedule(new TransactionGenerator(nodeKeypairs, jsonRpcHttpPortMap), 0 ,1000);
-        TimeUnit.SECONDS.sleep(60 * 60);
-//        for
+        TimeUnit.SECONDS.sleep(60);
+/**
+ * 1，添加节点前，是否需要先启动待添加节点进程
+ * 2，如果需要启动待添加节点进程，？用户先下载部署脚本，然后启动节点进程，然后再回来点击按钮添加该节点
+ * 3，
+ * 
+ */
 //        	add_validator
 //        	sleep(30)
 //        	check_validator added
@@ -187,6 +192,8 @@ public class AllTests {
 //        	randome remove
 //        	slepp
 //        	check_validato
+        
+        TimeUnit.SECONDS.sleep(60 * 60);
     }
     
 	
@@ -218,14 +225,8 @@ public class AllTests {
 	
 	private void getNodeKeypairs() {
         List<NodePo> nodes = nodeDas.findByConsIdAndChainId(testConsortiumId, testBlockchainId);
-        nodeKeypairs = nodes.stream().map(
-				item -> {
-					try {
-						return vaultKeypairBuildService.getNodeKeypair(testConsortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null);
-					} catch (Exception e) {
-						return null;
-					}
-				})
+        nodeKeypairs = nodes.stream()
+        		.map(item -> vaultKeypairBuildService.getNodeKeypair(testConsortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null))
 				.collect(Collectors.toList());
 	}
 	

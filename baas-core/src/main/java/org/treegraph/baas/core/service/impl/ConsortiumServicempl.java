@@ -356,7 +356,17 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		// after download deploy scripts, need check chain is launched already
 		if(establishStep == EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
-			rpcBlockchainService.sendMembershipChangeTransaction(req.getConsId(), existNodes, nodes, null);
+			List<NodeKeypairBo> existNodeKeypairs = existNodes.stream().map(
+					item -> vaultKeypairBuildService.getNodeKeypair(req.getConsId(), X509CertConstant.DEFAULT_ALGO_NODE, item, null))
+					.collect(Collectors.toList());
+			List<NodeKeypairBo> toAddNodeKeypairs = nodes.stream().map(
+					item -> vaultKeypairBuildService.getNodeKeypair(req.getConsId(), X509CertConstant.DEFAULT_ALGO_NODE, item, null))
+					.collect(Collectors.toList());
+			toAddNodeKeypairs.stream().forEach(item -> item.getNode().setStatus(NodeEnum.Status.ADDING_BY_MEMBERSHIP_CHANGE.getCode()));
+			nodeDas.addNodeKeypairs(toAddNodeKeypairs);
+			rpcBlockchainService.sendMembershipChangeTransaction(req.getConsId(), existNodeKeypairs, toAddNodeKeypairs, null);
+			List<String> nodeIds = nodes.stream().map(NodePo::getId).collect(Collectors.toList());
+			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.ADDED_BY_MEMBERSHIP_CHANGE);
 		}
 		
 		return addNodeResult;

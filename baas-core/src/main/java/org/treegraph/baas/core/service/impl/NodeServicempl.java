@@ -16,9 +16,11 @@ import org.treegraph.baas.api.dto.request.QueryNodeDetailRequest;
 import org.treegraph.baas.api.dto.request.QueryNodeLogRequest;
 import org.treegraph.baas.api.dto.response.ListNodeResponse;
 import org.treegraph.baas.common.util.WebHelper;
+import org.treegraph.baas.core.constant.X509CertConstant;
 import org.treegraph.baas.core.das.BlockchainDas;
 import org.treegraph.baas.core.das.ConsortiumDas;
 import org.treegraph.baas.core.das.NodeDas;
+import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.BlockChainPo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.NodePo;
@@ -52,6 +54,8 @@ public class NodeServicempl implements NodeService {
     private RpcBlockchainService rpcBlockchainService;
     
 	private NodeCustomizedConfigService nodeCustomizedConfigService;
+	
+    private VaultKeypairBuildService vaultKeypairBuildService;
  
 	public ListNodeResponse listNodes(ListNodeRequest req) {
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
@@ -142,7 +146,16 @@ public class NodeServicempl implements NodeService {
 		// after download deploy scripts, need check chain is launched already
 		if(establishStep == EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
 			List<NodePo> existNodes = nodeDas.findByConsIdAndChainId(consId, blockchainId);
-			rpcBlockchainService.sendMembershipChangeTransaction(consId, existNodes, null, Lists.newArrayList(node));
+			List<NodeKeypairBo> existNodeKeypairs = existNodes.stream().map(
+					item -> vaultKeypairBuildService.getNodeKeypair(consId, X509CertConstant.DEFAULT_ALGO_NODE, item, null))
+					.collect(Collectors.toList());
+			List<NodeKeypairBo> toRemoveNodeKeypairs = Lists.newArrayList(node).stream().map(
+					item -> vaultKeypairBuildService.getNodeKeypair(consId, X509CertConstant.DEFAULT_ALGO_NODE, item, null))
+					.collect(Collectors.toList());
+			List<String> nodeIds = existNodes.stream().map(NodePo::getId).collect(Collectors.toList());
+			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.REMOVING_BY_MEMBERSHIP_CHANGE);
+			rpcBlockchainService.sendMembershipChangeTransaction(consId, existNodeKeypairs, null, toRemoveNodeKeypairs);
+			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.REMOVED_BY_MEMBERSHIP_CHANGE);
 		}
 		
 		return deleteNodeResult;

@@ -130,7 +130,7 @@ public class KeypairDasImpl implements KeypairDas {
 		return succFlag;
 	}
 	
-	public boolean addKeyPairInfo(List<NodeKeypairBo> nodeKeypairBoList) {
+	private boolean addKeyPairInfo(List<NodeKeypairBo> nodeKeypairBoList) {
 		// add key pair of consortium
 		boolean succFlag =  Boolean.TRUE;
 		// add key pair of node

@@ -32,6 +32,26 @@ public class NodeEnum {
          * 异常
          */
         EXCEPTION(3, "异常"),
+        
+        /**
+         * 添加节点中
+         */
+        ADDING_BY_MEMBERSHIP_CHANGE(21, "添加节点中"),
+        
+        /**
+         * 添加节点完成
+         */
+        ADDED_BY_MEMBERSHIP_CHANGE(22, "添加节点完成"),
+        
+        /**
+         * 移除节点中
+         */
+        REMOVING_BY_MEMBERSHIP_CHANGE(23, "移除节点中"),
+        
+        /**
+         * 移除节点完成
+         */
+        REMOVED_BY_MEMBERSHIP_CHANGE(24, "移除节点完成"),
 
         ;
 

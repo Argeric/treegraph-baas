@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.core.constant.ConfluxConstant;
-import org.treegraph.baas.core.constant.X509CertConstant;
-import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
@@ -37,20 +35,14 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class RpcBlockchainService {
 	
-	private KeypairDas keypairDas;
-	
 	private NodeCustomizedConfigService nodeCustomizedConfigService;
 	
     private HeartbeatService heartbeatService;
-	
-    private VaultKeypairBuildService vaultKeypairBuildService;
-
-	public void sendMembershipChangeTransaction(String consortiumId, List<NodePo> existNodes, List<NodePo> addNodes,
-			List<NodePo> removeNodes) throws IOException {
+    
+    public void sendMembershipChangeTransaction(String consortiumId, List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
+			List<NodeKeypairBo> removeNodeKeypairs) throws IOException {
 		// build rpc client
-		List<NodeKeypairBo> existNodeKeypairs = existNodes.stream().map(
-				item -> vaultKeypairBuildService.getNodeKeypair(consortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null))
-				.collect(Collectors.toList());
+    	List<NodePo> existNodes = existNodeKeypairs.stream().map(item -> item.getNode()).collect(Collectors.toList());
 		Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(existNodes);
 		Map<String, Boolean> heartbeatMap = getHeartbeatMap(existNodes, nodeIdRpcHttpPortMap);		
 		NodeKeypairBo proposerNodeKeypair = existNodeKeypairs.stream()
@@ -87,7 +79,7 @@ public class RpcBlockchainService {
 		 * output: 
 		 * ---Vector<signature>
 		 */
-		List<KeypairPo> leftKeypairs = getLeftKeypairs(consortiumId, addNodes, removeNodes, existNodeKeypairs);
+		List<KeypairPo> leftKeypairs = getLeftKeypairs(consortiumId, existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs);
 		Map<KeypairPo, String> ringSignatureMap = Maps.newHashMap();
 		leftKeypairs.stream().forEach(item -> {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getPublicKey(), item.getPrivateKey(),
@@ -126,22 +118,18 @@ public class RpcBlockchainService {
 		Assert.isTrue(heartbeatSet.contains(Boolean.TRUE), "blockchain not lunched!");
 		return heartbeatMap;
 	}
-
-	private List<KeypairPo> getLeftKeypairs(String consortiumId, List<NodePo> addNodes, List<NodePo> removeNodes,
-			List<NodeKeypairBo> existNodeKeypairs) {
+	
+	private List<KeypairPo> getLeftKeypairs(String consortiumId, List<NodeKeypairBo> existNodeKeypairs,
+			List<NodeKeypairBo> addNodeKeypairs, List<NodeKeypairBo> removeNodeKeypairs) {
 		List<NodeKeypairBo> leftNodeKeypairs = Lists.newArrayList();
-		if(CollectionUtils.isNotEmpty(removeNodes)) {
-			Set<String> toRemoveNodeIdSet = removeNodes.stream().map(NodePo::getId).collect(Collectors.toSet());
-			List<NodeKeypairBo> leftExistNodeKeypairs = existNodeKeypairs.stream()
+		if(CollectionUtils.isNotEmpty(removeNodeKeypairs)) {
+			Set<String> toRemoveNodeIdSet = removeNodeKeypairs.stream().map(item -> item.getNode().getId()).collect(Collectors.toSet());
+			List<NodeKeypairBo> postRemoveNodeKeypairs = existNodeKeypairs.stream()
 					.filter(item -> !toRemoveNodeIdSet.contains(item.getNode().getId())).collect(Collectors.toList());
-			leftNodeKeypairs.addAll(leftExistNodeKeypairs);
+			leftNodeKeypairs.addAll(postRemoveNodeKeypairs);
 		}
-		if(CollectionUtils.isNotEmpty(addNodes)) {
-			List<NodeKeypairBo> toAddNodeKeypairs = addNodes.stream().map(
-					item -> vaultKeypairBuildService.getNodeKeypair(consortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null))
-					.collect(Collectors.toList());
-			keypairDas.addKeyPairInfo(toAddNodeKeypairs);
-			leftNodeKeypairs.addAll(toAddNodeKeypairs);
+		if(CollectionUtils.isNotEmpty(addNodeKeypairs)) {
+			leftNodeKeypairs.addAll(addNodeKeypairs);
 		}
 		List<KeypairPo> leftKeypairs = leftNodeKeypairs.stream().map(NodeKeypairBo::getKeypair).collect(Collectors.toList());
 		return leftKeypairs;

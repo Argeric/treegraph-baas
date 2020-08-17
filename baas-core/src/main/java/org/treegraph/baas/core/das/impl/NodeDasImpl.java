@@ -2,17 +2,24 @@ package org.treegraph.baas.core.das.impl;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.core.das.NodeDas;
+import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
+import org.treegraph.baas.core.domain.KeypairPo;
+import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.NodePoExample;
 import org.treegraph.baas.core.domain.NodePoExample.Criteria;
+import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.mapper.primary.ConsortiumPoMapper;
+import org.treegraph.baas.core.mapper.primary.KeypairPoMapper;
+import org.treegraph.baas.core.mapper.primary.NodeKeyPoMapper;
 import org.treegraph.baas.core.mapper.primary.NodePoMapper;
 
 import com.google.common.collect.Lists;
@@ -24,6 +31,10 @@ import lombok.AllArgsConstructor;
 public class NodeDasImpl implements NodeDas {
 
 	private NodePoMapper nodePoMapper;
+	
+	private KeypairPoMapper keypairPoMapper;
+	
+	private NodeKeyPoMapper nodeKeyPoMapper;
 	
 	private ConsortiumPoMapper consortiumPoMapper;
 
@@ -77,9 +88,33 @@ public class NodeDasImpl implements NodeDas {
 		}
 		return succFlag;
 	}
+	
+	public boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList) {
+		boolean succFlag =  Boolean.TRUE;
+		List<NodePo> nodes = nodeKeypairBoList.stream().map(NodeKeypairBo::getNode).collect(Collectors.toList());
+		succFlag = succFlag && nodePoMapper.bulkInsert(nodes) == nodes.size();
+		for(NodeKeypairBo nodeKeypairBo : nodeKeypairBoList){
+			if(nodeKeypairBo.getKeypair().getId() == null){
+				KeypairPo keypair = nodeKeypairBo.getKeypair();
+				NodeKeyPo nodeKey = nodeKeypairBo.getNodeKey();
+				succFlag = succFlag && keypairPoMapper.insert(keypair) > 0;
+				nodeKey.setKeypairId(keypair.getId());
+				succFlag = succFlag && nodeKeyPoMapper.insert(nodeKey) > 0;
+			}
+		}
+		return succFlag;
+	}
 
 	public boolean modifyNode(NodePo node) {
 		return nodePoMapper.updateByPrimaryKeySelective(node) > 0;
+	}
+	
+	public boolean modifyNodesStatus(List<String> nodeIds, NodeEnum.Status status) {
+		NodePo record = NodePo.builder().status(status.getCode()).build();
+		NodePoExample example = new NodePoExample();
+		Criteria criteria = example.createCriteria();
+		criteria.andIdNotIn(nodeIds);
+		return nodePoMapper.updateByExampleSelective(record, example) == nodeIds.size();
 	}
 	
 	public boolean deleteNodes(NodePo node, ConsortiumPo cons) {

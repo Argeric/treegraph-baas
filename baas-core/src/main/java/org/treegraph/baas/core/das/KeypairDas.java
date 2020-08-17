@@ -27,6 +27,4 @@ public interface KeypairDas {
 	boolean modifyKeypair(KeypairPo keypair);
 	
 	boolean addKeyPairInfo(KeypairPo rootKeypair, KeypairPo consortiumKeypair, List<NodeKeypairBo> nodeKeypairBoList, List<NodeCustomizedConfigPo> customizedConfigList);
-	
-	boolean addKeyPairInfo(List<NodeKeypairBo> nodeKeypairBoList);
 }

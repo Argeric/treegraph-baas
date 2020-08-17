@@ -115,7 +115,7 @@ public class VaultKeypairBuildService {
 		
 		String consortiumCertStr = null;
 		if(X509CertConstant.SIGN_CERTIFICATE_REQUEST == CryptoEnum.SignCertificateRequest.BC) {
-			consortiumCertStr = signCertificateRequestByBC(algo, rootKeypair, consortiumCsr, false);
+			consortiumCertStr = signCertificateRequestByBC(algo, rootKeypair, consortiumCsr, true);
 		} else if(X509CertConstant.SIGN_CERTIFICATE_REQUEST == CryptoEnum.SignCertificateRequest.VAULT) {
 			consortiumCertStr = signCertificateRequestByVault(consortiumCsr);
 		} else {
@@ -171,7 +171,7 @@ public class VaultKeypairBuildService {
 						new X500Name(X509CertConstant.NODE_CERT_SUBJECT), nodeKeyPair.getPublic(),
 						nodeKeyPair.getPrivate());
 				nodeCsrStr = CertUtil.csrToPem(nodeCsr);
-				nodeCertStr = signCertificateRequestByBC(X509CertConstant.DEFAULT_ALGO_CONS, consortiumKeypair, nodeCsr, true);
+				nodeCertStr = signCertificateRequestByBC(X509CertConstant.DEFAULT_ALGO_CONS, consortiumKeypair, nodeCsr, false);
 			} catch(Exception e) {
 				throw new RuntimeException(e);
 			}

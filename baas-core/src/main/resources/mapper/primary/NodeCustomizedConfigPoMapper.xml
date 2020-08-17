@@ -287,7 +287,7 @@
   </update>
   
   <insert id="bulkInsert" parameterType="org.treegraph.baas.core.domain.NodeCustomizedConfigPo">
-      INSERT INTO keypair(
+      INSERT INTO node_customized_config(
          consortium_id, 
          node_id, 
          property_name, 

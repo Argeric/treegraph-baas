@@ -61,7 +61,7 @@ public class NodeCustomizedConfigDasImpl implements NodeCustomizedConfigDas {
 		example.setOrderByClause("create_time desc");
 		List<NodeCustomizedConfigPo> nodeCustomizedConfigList = nodeCustomizedConfigPoMapper.selectByExample(example);
 		return CollectionUtils.isNotEmpty(nodeCustomizedConfigList) 
-				? nodeCustomizedConfigList.get(0).getPropertyName()
+				? nodeCustomizedConfigList.get(0).getPropertyValue()
 						: null;
 	}
 	

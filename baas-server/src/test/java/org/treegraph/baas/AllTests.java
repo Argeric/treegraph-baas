@@ -27,6 +27,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.treegraph.baas.api.dto.BaasResult;
+import org.treegraph.baas.api.dto.NodeInfo;
+import org.treegraph.baas.api.dto.request.AddNodesRequest;
+import org.treegraph.baas.api.dto.request.DeleteNodeRequest;
 import org.treegraph.baas.api.dto.response.LoginResponse;
 import org.treegraph.baas.core.constant.CharacterConstant;
 import org.treegraph.baas.core.constant.X509CertConstant;
@@ -172,27 +175,38 @@ public class AllTests {
     }
     
     @Test
-    public void testMembershipChange() throws InterruptedException{
+    public void testMembershipChange() throws Exception{
         /*
          * start tx generator
          */
         Timer timer  = new Timer();
         timer.schedule(new TransactionGenerator(nodeKeypairs, jsonRpcHttpPortMap), 0 ,1000);
-        TimeUnit.SECONDS.sleep(60);
-/**
- * 1，添加节点前，是否需要先启动待添加节点进程
- * 2，如果需要启动待添加节点进程，？用户先下载部署脚本，然后启动节点进程，然后再回来点击按钮添加该节点
- * 3，
- * 
- */
-//        	add_validator
-//        	sleep(30)
-//        	check_validator added
-//        	
-//        	randome remove
-//        	slepp
-//        	check_validato
+        TimeUnit.SECONDS.sleep(60 * 1);
         
+        NodeInfo node1 = NodeInfo.builder()
+        		.ip("101.200.183.108").port("12345").org("org1").build();
+        AddNodesRequest addNodesRequest = AddNodesRequest.builder()
+        		.consId(testConsortiumId)
+        		.blockchainId(testBlockchainId)
+        		.nodes(Lists.newArrayList(node1))
+        		.build();
+        MvcResult addResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/node/create")
+				.contentType(MediaType.APPLICATION_JSON_UTF8)
+				.content(JSON.toJSONString(addNodesRequest)))
+		.andExpect(MockMvcResultMatchers.status().isOk())
+		.andDo(MockMvcResultHandlers.print())
+		.andReturn();
+        TimeUnit.SECONDS.sleep(60 * 3);
+       	
+        NodePo node11 = nodeDas.findByIpPort(node1.getIp(), Integer.parseInt(node1.getPort()));
+        DeleteNodeRequest delNodeRequest = DeleteNodeRequest.builder()
+        		.id(node11.getId()).ip(node1.getId()).port(node1.getPort()).build();
+        MvcResult removeResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/del")
+				.contentType(MediaType.APPLICATION_JSON_UTF8)
+				.content(JSON.toJSONString(delNodeRequest)))
+		.andExpect(MockMvcResultMatchers.status().isOk())
+		.andDo(MockMvcResultHandlers.print())
+		.andReturn();
         TimeUnit.SECONDS.sleep(60 * 60);
     }
     

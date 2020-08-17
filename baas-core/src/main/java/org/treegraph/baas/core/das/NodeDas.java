@@ -18,6 +18,8 @@ public interface NodeDas {
 	
 	List<NodePo> findByChainIds(List<String> chainIds);
 	
+	NodePo findByIpPort(String ip, Integer port);
+	
 	long count();
 	
 	boolean addNodes(List<NodePo> list, ConsortiumPo cons);

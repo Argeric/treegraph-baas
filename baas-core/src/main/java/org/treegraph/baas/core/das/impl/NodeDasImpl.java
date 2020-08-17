@@ -74,6 +74,13 @@ public class NodeDasImpl implements NodeDas {
 		return nodePoMapper.selectByExample(example);
 	}
 	
+	public NodePo findByIpPort(String ip, Integer port) {
+		NodePoExample example = new NodePoExample();
+		example.createCriteria().andNodeIpEqualTo(ip).andNodePortEqualTo(port);
+		List<NodePo> list = nodePoMapper.selectByExample(example);
+		return CollectionUtils.isNotEmpty(list) ? list.get(0) : null;
+	}
+	
 	public long count() {
 		NodePoExample example = new NodePoExample();
 		example.createCriteria().andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());

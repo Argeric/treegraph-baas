@@ -136,6 +136,23 @@ public class KeyUtil {
 		return kp.getPrivate();
 	}
 	
+	public static String publicKeyToPem(PublicKey key) throws IOException {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		JcaPEMWriter pemWriter = new JcaPEMWriter(new OutputStreamWriter(bos));
+		pemWriter.writeObject(key);
+		pemWriter.close();
+		return new String(bos.toByteArray());
+	}
+	
+	public static PublicKey publicKeyFromPem(String pemStr) throws IOException {
+		StringReader reader = new StringReader(pemStr);
+		PEMParser pemParser = new PEMParser(reader);
+		Object obj = pemParser.readObject();
+		KeyPair kp = new JcaPEMKeyConverter().setProvider("BC").getKeyPair((PEMKeyPair)obj);
+		pemParser.close();
+		return kp.getPublic();
+	}
+	
 	/**
 	 * 从文件中加载秘钥
 	 */

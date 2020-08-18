@@ -20,6 +20,7 @@ import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.utils.Numeric;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -29,10 +30,12 @@ import conflux.web3j.Cfx;
 import conflux.web3j.Request;
 import conflux.web3j.response.StringResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Validated
 @Service
 @AllArgsConstructor
+@Slf4j
 public class RpcBlockchainService {
 	
 	private NodeCustomizedConfigService nodeCustomizedConfigService;
@@ -53,7 +56,8 @@ public class RpcBlockchainService {
 				})
 				.findFirst().get();
 		NodePo proposerNode = proposerNodeKeypair.getNode();
-		Cfx cfx = Cfx.create(ConfluxUtils.toJsonRpcUri(proposerNode.getNodeIp(), nodeIdRpcHttpPortMap.get(proposerNode.getId())));
+		String uri = ConfluxUtils.toJsonRpcUri(proposerNode.getNodeIp(), nodeIdRpcHttpPortMap.get(proposerNode.getId()));
+		Cfx cfx = Cfx.create(uri);
 		
 		/*
 		 * 1. RPC name:cfx_getMembershipChangeRawTransaction 
@@ -66,11 +70,12 @@ public class RpcBlockchainService {
 		List<String> existPublicKeys = existNodeKeypairs.stream().map(item -> item.getKeypair().getPublicKey())
 				.collect(Collectors.toList());
 		String proposerPublicKey = proposerNodeKeypair.getKeypair().getPublicKey();
-		Request<String, StringResponse> request = cfx.getCustomizedRequest(StringResponse.class,
+		Request<String, StringResponse> applyRequest = cfx.getCustomizedRequest(StringResponse.class,
 				ConfluxConstant.RPC_ADD_DELETE_NODE, existPublicKeys, proposerPublicKey);
-		StringResponse response = request.send();
-		String rawJson = response.getResult();
-		Assert.isTrue(rawJson != null, ConfluxConstant.RPC_ADD_DELETE_NODE + " error");
+		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}", uri, "address", JSON.toJSONString(applyRequest));
+		String applyResponse = applyRequest.sendAndGet();
+		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(applyRequest), applyResponse);
+		Assert.isTrue(applyResponse != null, ConfluxConstant.RPC_ADD_DELETE_NODE + " error");
 		
 		/*
 		 * 2. Keccak(raw_json) and ring signature
@@ -84,7 +89,7 @@ public class RpcBlockchainService {
 		leftKeypairs.stream().forEach(item -> {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getPublicKey(), item.getPrivateKey(),
 					item.getAlgorithm());
-			String signature = AccountManager.signMessage(Numeric.hexStringToByteArray(rawJson), true, ecKeypair);
+			String signature = AccountManager.signMessage(Numeric.hexStringToByteArray(applyResponse), true, ecKeypair);
 			ringSignatureMap.put(item, signature);
 		});
 
@@ -103,13 +108,12 @@ public class RpcBlockchainService {
 			leftPublicKeys.add(item.getKey().getPublicKey());
 			ringSignatures.add(item.getValue());
 		});
-		Request<String, StringResponse> requestConfirm = cfx.getCustomizedRequest(StringResponse.class,
-				ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM, rawJson, leftPublicKeys, ringSignatures);
-		StringResponse responseConfirm = requestConfirm.send();
-		Assert.isTrue(responseConfirm != null 
-				&& responseConfirm.getResult() != null
-				&& responseConfirm.getResult().equalsIgnoreCase("ok"),
-				ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM + "error");
+		Request<String, StringResponse> confirmRequest = cfx.getCustomizedRequest(StringResponse.class,
+				ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM, applyResponse, leftPublicKeys, ringSignatures);
+		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}", uri, "address", JSON.toJSONString(confirmRequest));
+		String confirmResponse = confirmRequest.sendAndGet();
+		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(confirmRequest), confirmResponse);
+		Assert.isTrue(confirmResponse != null, ConfluxConstant.RPC_ADD_DELETE_NODE + " error");
 	}
 
 	private Map<String, Boolean> getHeartbeatMap(List<NodePo> existNodes, Map<String, Integer> nodeIdRpcPortMap) {

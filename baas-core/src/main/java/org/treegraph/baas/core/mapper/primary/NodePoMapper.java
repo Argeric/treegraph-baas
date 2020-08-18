@@ -6,10 +6,12 @@ import java.util.Optional;
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.NodePoExample;
+import org.treegraph.baas.core.persistence.GlobalLevel;
 
 public interface NodePoMapper {
     long countByExample(NodePoExample example);
 
+	@GlobalLevel
     int deleteByExample(NodePoExample example);
 
     int deleteByPrimaryKey(String id);

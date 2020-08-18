@@ -21,7 +21,6 @@ import org.treegraph.baas.core.mapper.primary.ConsortiumPoMapper;
 import org.treegraph.baas.core.mapper.primary.KeypairPoMapper;
 import org.treegraph.baas.core.mapper.primary.NodeKeyPoMapper;
 import org.treegraph.baas.core.mapper.primary.NodePoMapper;
-import org.treegraph.baas.core.persistence.GlobalLevel;
 
 import com.google.common.collect.Lists;
 
@@ -134,7 +133,6 @@ public class NodeDasImpl implements NodeDas {
 		return succFlag;
 	}
 	
-	@GlobalLevel
 	public Integer deleteByIpPort(String ip, Integer port) {
 		NodePoExample example = new NodePoExample();
 		example.createCriteria().andNodeIpEqualTo(ip).andNodePortEqualTo(port);

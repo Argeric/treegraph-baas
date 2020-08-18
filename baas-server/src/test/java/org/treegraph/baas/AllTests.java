@@ -97,7 +97,6 @@ public class AllTests {
 	public void setup() throws Exception {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		login();
-		delAddedNode();
 		generateScripts();
 		getNodeKeypairs();
 	}
@@ -218,11 +217,6 @@ public class AllTests {
         TimeUnit.SECONDS.sleep(60 * 60);
     }
     
-    private void delAddedNode() {
-    	nodeDas.deleteByIpPort(toAddNodeIp, toAddNodePort);
-    }
-    
-	
 	private void login() throws Exception {
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/sys/login")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)

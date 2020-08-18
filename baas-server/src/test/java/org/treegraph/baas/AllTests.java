@@ -96,6 +96,7 @@ public class AllTests {
 	@Before
 	public void setup() throws Exception {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		nodeDas.deleteByIpPort(toAddNodeIp, toAddNodePort);
 		login();
 		generateScripts();
 		getNodeKeypairs();

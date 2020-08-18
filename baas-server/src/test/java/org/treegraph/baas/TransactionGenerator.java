@@ -55,8 +55,8 @@ public class TransactionGenerator extends TimerTask {
 			
 			log.info("TransactionGenerator address--->{}", address);
 	        BigInteger nonce= cfx.getNonce(address, Epoch.latestState()).sendAndGet();
-	        log.info("TransactionGenerator nonce--->{}", nonce);
 	        BigInteger currentNonce= getNonce(address);
+	        log.info("TransactionGenerator currentNonce--->{}, nonce--->{}", currentNonce, nonce);
 	        
 	        if(currentNonce.compareTo(nonce) < 0){
 	        	Request<BigInteger, BigIntResponse> epochRequest = cfx.getEpochNumber(Epoch.latestState());

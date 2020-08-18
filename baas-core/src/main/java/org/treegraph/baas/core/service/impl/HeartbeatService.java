@@ -20,7 +20,6 @@ import com.google.common.collect.Maps;
 import conflux.web3j.Cfx;
 import conflux.web3j.Request;
 import conflux.web3j.response.Status;
-import conflux.web3j.response.Status.Response;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,7 +53,7 @@ public class HeartbeatService {
 				.toMap(item -> ConfluxUtils.toIpAtPort(item.getNodeIp(), item.getJsonRpcHttpPort()), NodeBo::isStatus));
 	}
 	
-	public boolean nodeHeartbeat(String nodeIp, int jsonRpcHttpPort) {
+	public static boolean nodeHeartbeat(String nodeIp, int jsonRpcHttpPort) {
 		boolean result = false;
 //		try {
 //			String uri = ConfluxUtils.toJsonRpcUri(nodeIp, jsonRpcHttpPort);
@@ -73,9 +72,9 @@ public class HeartbeatService {
 			Request<Status, Status.Response> statusRequest = cfx.getCustomizedRequest(Status.Response.class,
 					ConfluxConstant.RPC_BEATHEART, new Object[0]);
 			log.info("HeartbeatService uri--->{}, address--->{}, txRequest--->{}", uri, "address", JSON.toJSONString(statusRequest));
-			Status.Response statusResponse = statusRequest.send();
-			log.info("HeartbeatService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(statusRequest), statusResponse);
-			result = statusResponse != null && statusResponse.getResult() != null && statusResponse.getResult().getBlockNumber() != null;
+			Status statusResponse = statusRequest.sendAndGet();
+			log.info("HeartbeatService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse));
+			result = statusResponse != null && statusResponse.getBlockNumber() != null;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

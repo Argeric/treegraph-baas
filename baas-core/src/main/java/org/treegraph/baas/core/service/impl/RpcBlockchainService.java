@@ -47,7 +47,9 @@ public class RpcBlockchainService {
 		// build rpc client
     	List<NodePo> existNodes = existNodeKeypairs.stream().map(item -> item.getNode()).collect(Collectors.toList());
 		Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(existNodes);
-		Map<String, Boolean> heartbeatMap = getHeartbeatMap(existNodes, nodeIdRpcHttpPortMap);		
+		//Map<String, Boolean> heartbeatMap = getHeartbeatMap(existNodes, nodeIdRpcHttpPortMap);	
+		Map<String, Boolean> heartbeatMap = Maps.newHashMap();//mock
+		heartbeatMap.put("101.200.183.108@12537", true);//mock
 		NodeKeypairBo proposerNodeKeypair = existNodeKeypairs.stream()
 				.filter(item -> {
 					NodePo node = item.getNode();

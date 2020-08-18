@@ -93,6 +93,7 @@ public class TokenServicempl implements TokenService {
     	URI_PERMISSION_MAP.put("/node/detail", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
     	URI_PERMISSION_MAP.put("/node/log", PermissionPoint.VIEW_NODE_LOG.getCode());
     	URI_PERMISSION_MAP.put("/node/modify", PermissionPoint.UPDATE_NODE.getCode());
+    	URI_PERMISSION_MAP.put("/node/del", PermissionPoint.UPDATE_NODE.getCode());
     	// dashboard
     	URI_PERMISSION_MAP.put("/stat/dashboard", TAG_DATA_PERMISSION);
     }

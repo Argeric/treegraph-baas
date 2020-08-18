@@ -91,7 +91,7 @@ public class RpcBlockchainService {
 		 * output: 
 		 * ---Vector<signature>
 		 */
-		List<KeypairPo> leftKeypairs = getLeftKeypairs(consortiumId, existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs);
+		List<KeypairPo> leftKeypairs = getLeftKeypairs(existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs);
 		Map<KeypairPo, String> ringSignatureMap = Maps.newHashMap();
 		leftKeypairs.stream().forEach(item -> {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getPublicKey(), item.getPrivateKey(),
@@ -133,9 +133,9 @@ public class RpcBlockchainService {
 		return heartbeatMap;
 	}
 	
-	private List<KeypairPo> getLeftKeypairs(String consortiumId, List<NodeKeypairBo> existNodeKeypairs,
-			List<NodeKeypairBo> addNodeKeypairs, List<NodeKeypairBo> removeNodeKeypairs) {
-		List<NodeKeypairBo> leftNodeKeypairs = Lists.newArrayList(addNodeKeypairs);
+	private List<KeypairPo> getLeftKeypairs(List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
+			List<NodeKeypairBo> removeNodeKeypairs) {
+		List<NodeKeypairBo> leftNodeKeypairs = Lists.newArrayList(existNodeKeypairs);
 		if(CollectionUtils.isNotEmpty(removeNodeKeypairs)) {
 			Set<String> toRemoveNodeIdSet = removeNodeKeypairs.stream().map(item -> item.getNode().getId()).collect(Collectors.toSet());
 			leftNodeKeypairs = leftNodeKeypairs.stream()

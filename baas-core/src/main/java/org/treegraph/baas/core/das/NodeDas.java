@@ -31,4 +31,6 @@ public interface NodeDas {
 	boolean modifyNodesStatus(List<String> nodeIds, NodeEnum.Status status);
 	
 	boolean deleteNodes(NodePo node, ConsortiumPo cons);
+	
+	Integer deleteByIpPort(String ip, Integer port);
 }

@@ -96,8 +96,8 @@ public class AllTests {
 	@Before
 	public void setup() throws Exception {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		delAddedNode();
 		login();
+		delAddedNode();
 		generateScripts();
 		getNodeKeypairs();
 	}
@@ -219,8 +219,7 @@ public class AllTests {
     }
     
     private void delAddedNode() {
-    	NodePo node = nodeDas.findByIpPort(toAddNodeIp, toAddNodePort);
-    	nodeDas.deleteNodes(node, null);
+    	nodeDas.deleteByIpPort(toAddNodeIp, toAddNodePort);
     }
     
 	

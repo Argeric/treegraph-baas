@@ -132,4 +132,10 @@ public class NodeDasImpl implements NodeDas {
 		}
 		return succFlag;
 	}
+	
+	public Integer deleteByIpPort(String ip, Integer port) {
+		NodePoExample example = new NodePoExample();
+		example.createCriteria().andNodeIpEqualTo(ip).andNodePortEqualTo(port);
+		return nodePoMapper.deleteByExample(example);
+	}
 }

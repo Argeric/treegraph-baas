@@ -37,7 +37,7 @@ public class HeartbeatService {
 		
 		List<CompletableFuture<NodeBo>> futureList = nodes.stream().map(node -> {
 			String nodeIp = node.getNodeIp();
-			int jsonRpcHttpPort = nodeIdRpcPortMap.get(node.getId());
+			int jsonRpcHttpPort = node.getNodePort();//nodeIdRpcPortMap.get(node.getId());
 			return CompletableFuture.supplyAsync(() -> {
 				boolean status = nodeHeartbeat(nodeIp, jsonRpcHttpPort);
 				return NodeBo.builder().nodeIp(nodeIp).jsonRpcHttpPort(jsonRpcHttpPort).status(status).build();

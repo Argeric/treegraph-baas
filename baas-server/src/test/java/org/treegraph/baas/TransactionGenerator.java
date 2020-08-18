@@ -56,7 +56,7 @@ public class TransactionGenerator extends TimerTask {
 	        	Request<BigInteger, BigIntResponse> epochRequest = cfx.getEpochNumber(Epoch.latestState());
 	        	BigInteger epoch_height = epochRequest.sendAndGet();
 	        	String receiveNodeId = "1000000000200000000030000000004000000000";
-	        	RawTransaction tx = RawTransaction.create(currentNonce, new BigInteger("21000"), receiveNodeId, new BigInteger("1"), null, epoch_height, null);
+	        	RawTransaction tx = RawTransaction.create(currentNonce, new BigInteger("21000"), receiveNodeId, new BigInteger("1"), new BigInteger("11111111"), epoch_height, null);
 	        	
 	        	ECKeyPair ecKeyPair = KeyUtil.loadECKeyPairFromBase64(sender.getKeypair().getPublicKey(),
 							sender.getKeypair().getPrivateKey(), sender.getKeypair().getAlgorithm());

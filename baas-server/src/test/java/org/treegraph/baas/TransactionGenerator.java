@@ -13,6 +13,7 @@ import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Maps;
 
 import conflux.web3j.Cfx;
 import conflux.web3j.Request;
@@ -27,7 +28,7 @@ public class TransactionGenerator extends TimerTask {
 	
     private List<NodeKeypairBo> nodeKeypairs;
     private Map<String, String> jsonRpcHttpPortMap;
-    private Map<String, BigInteger> nonceMap;
+    private Map<String, BigInteger> nonceMap = Maps.newHashMap();
     
     public TransactionGenerator(List<NodeKeypairBo> nodeKeypairs, Map<String, String> jsonRpcHttpPortMap){
     	this.nodeKeypairs = nodeKeypairs;

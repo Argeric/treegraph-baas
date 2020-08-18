@@ -50,7 +50,7 @@ public class TransactionGenerator extends TimerTask {
 	        
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(sender.getKeypair().getPublicKey(),
 					sender.getKeypair().getPrivateKey(), sender.getKeypair().getAlgorithm());
-			String address = "1" + Keys.getAddress(ecKeypair).substring(1);
+			String address = "0x1" + Keys.getAddress(ecKeypair).substring(1);
 			
 			log.info("TransactionGenerator address--->{}", address);
 	        BigInteger nonce= cfx.getNonce(address, Epoch.latestState()).sendAndGet();

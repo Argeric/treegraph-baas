@@ -80,6 +80,11 @@ public class AllTests {
 	
 	private static String scriptName = "deploy.zip";
 	
+	private static String toAddNodeIp = "101.200.183.108";
+	
+	private static int toAddNodePort = 12345;
+	
+	
 	private static MvcResult downloadDeployScriptMvcResult = null;
 	
 	private static List<NodeKeypairBo> nodeKeypairs = null;
@@ -91,6 +96,7 @@ public class AllTests {
 	@Before
 	public void setup() throws Exception {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		delAddedNode();
 		login();
 		generateScripts();
 		getNodeKeypairs();
@@ -184,7 +190,7 @@ public class AllTests {
         TimeUnit.SECONDS.sleep(60 * 1);
         
         NodeInfo node1 = NodeInfo.builder()
-        		.ip("101.200.183.108").port("12345").org("org1").build();
+        		.ip(toAddNodeIp).port(toAddNodePort+"").org("org1").build();
         AddNodesRequest addNodesRequest = AddNodesRequest.builder()
         		.consId(testConsortiumId)
         		.blockchainId(testBlockchainId)
@@ -210,6 +216,11 @@ public class AllTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
         TimeUnit.SECONDS.sleep(60 * 60);
+    }
+    
+    private void delAddedNode() {
+    	NodePo node = nodeDas.findByIpPort(toAddNodeIp, toAddNodePort);
+    	nodeDas.deleteNodes(node, null);
     }
     
 	

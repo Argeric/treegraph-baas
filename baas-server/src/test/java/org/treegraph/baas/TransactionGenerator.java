@@ -58,7 +58,7 @@ public class TransactionGenerator extends TimerTask {
 	        BigInteger currentNonce= getNonce(address);
 	        log.info("TransactionGenerator currentNonce--->{}, nonce--->{}", currentNonce, nonce);
 	        
-	        if(currentNonce.compareTo(nonce) < 0){
+	        //if(currentNonce.compareTo(nonce) < 0){
 	        	Request<BigInteger, BigIntResponse> epochRequest = cfx.getEpochNumber(Epoch.latestState());
 	        	BigInteger epoch_height = epochRequest.sendAndGet();
 	        	String receiveNodeId = "1000000000200000000030000000004000000000";
@@ -74,7 +74,7 @@ public class TransactionGenerator extends TimerTask {
 	            log.info("TransactionGenerator txRequest--->{}", txRequest);
 	            String result = txRequest.sendAndGet();
 	            log.info("TransactionGenerator result--->{}", result);
-	        }
+	        //}
     	} catch (Exception e) {
     		e.printStackTrace();
     	}

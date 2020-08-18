@@ -12,7 +12,6 @@ import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 
 import conflux.web3j.Cfx;
@@ -46,34 +45,34 @@ public class TransactionGenerator extends TimerTask {
 	        NodeKeypairBo sender = nodeKeypairs.get(new Random().nextInt(nodeKeypairs.size()));
 	        String jsonRpcHttpPort = jsonRpcHttpPortMap.get(sender.getNode().getNodeIp()+CharacterConstant.AT+sender.getNode().getNodePort());
 	        String uri = "http://" + sender.getNode().getNodeIp() + ":" + jsonRpcHttpPort;
-	        log.info("TransactionGenerator uri--->{}", uri);
+	        //log.info("TransactionGenerator uri--->{}", uri);
 	        Cfx cfx = Cfx.create(uri);
 	        
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(sender.getKeypair().getPublicKey(),
 					sender.getKeypair().getPrivateKey(), sender.getKeypair().getAlgorithm());
 			String address = "0x1" + Keys.getAddress(ecKeypair).substring(1);
 			
-			log.info("TransactionGenerator address--->{}", address);
+			//log.info("TransactionGenerator address--->{}", address);
 	        BigInteger nonce= cfx.getNonce(address, Epoch.latestState()).sendAndGet();
 	        BigInteger currentNonce= getNonce(address);
-	        log.info("TransactionGenerator currentNonce--->{}, nonce--->{}", currentNonce, nonce);
+	        log.info("TransactionGenerator uri--->{}, address--->{}, nonce--->{}, currentNonce--->{}", uri, address, nonce, currentNonce);
 	        
 	        //if(currentNonce.compareTo(nonce) < 0){
 	        	Request<BigInteger, BigIntResponse> epochRequest = cfx.getEpochNumber(Epoch.latestState());
 	        	BigInteger epoch_height = epochRequest.sendAndGet();
 	        	String receiveNodeId = "1000000000200000000030000000004000000000";
 	        	RawTransaction tx = RawTransaction.create(currentNonce, new BigInteger("21000"), receiveNodeId, new BigInteger("1"), null, epoch_height, null);
-	        	log.info("TransactionGenerator tx--->{}", JSON.toJSONString(tx));
+	        	//log.info("TransactionGenerator tx--->{}", JSON.toJSONString(tx));
 	        	
 	        	ECKeyPair ecKeyPair = KeyUtil.loadECKeyPairFromBase64(sender.getKeypair().getPublicKey(),
 							sender.getKeypair().getPrivateKey(), sender.getKeypair().getAlgorithm());
-	        	log.info("TransactionGenerator sender--->{}", JSON.toJSONString(sender));
+	        	//log.info("TransactionGenerator sender--->{}", JSON.toJSONString(sender));
 	        	String transaction = tx.sign(ecKeyPair);
-	        	log.info("TransactionGenerator transaction--->{}", JSON.toJSONString(transaction));
+	        	//log.info("TransactionGenerator transaction--->{}", JSON.toJSONString(transaction));
 	            Request<String, StringResponse> txRequest = cfx.sendRawTransaction(transaction);
-	            log.info("TransactionGenerator txRequest--->{}", txRequest);
-	            String result = txRequest.sendAndGet();
-	            log.info("TransactionGenerator result--->{}", result);
+	            log.info("TransactionGenerator uri--->{}, address--->{}, txRequest--->{}", uri, address, txRequest);
+	            String txResponse = txRequest.sendAndGet();
+	            log.info("TransactionGenerator uri--->{}, address--->{}, txResponse--->{}", uri, address, txResponse);
 	        //}
     	} catch (Exception e) {
     		e.printStackTrace();

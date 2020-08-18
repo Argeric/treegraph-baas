@@ -192,10 +192,11 @@ public class AllTests {
         		.build();
         MvcResult addResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/node/create")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
+				.header("X-Token", token)
 				.content(JSON.toJSONString(addNodesRequest)))
-		.andExpect(MockMvcResultMatchers.status().isOk())
-		.andDo(MockMvcResultHandlers.print())
-		.andReturn();
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
         TimeUnit.SECONDS.sleep(60 * 3);
        	
         NodePo node11 = nodeDas.findByIpPort(node1.getIp(), Integer.parseInt(node1.getPort()));
@@ -203,10 +204,11 @@ public class AllTests {
         		.id(node11.getId()).ip(node1.getId()).port(node1.getPort()).build();
         MvcResult removeResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/del")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
+				.header("X-Token", token)
 				.content(JSON.toJSONString(delNodeRequest)))
-		.andExpect(MockMvcResultMatchers.status().isOk())
-		.andDo(MockMvcResultHandlers.print())
-		.andReturn();
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
         TimeUnit.SECONDS.sleep(60 * 60);
     }
     

@@ -37,7 +37,7 @@ public class HeartbeatService {
 		
 		List<CompletableFuture<NodeBo>> futureList = nodes.stream().map(node -> {
 			String nodeIp = node.getNodeIp();
-			int jsonRpcHttpPort = node.getNodePort();//nodeIdRpcPortMap.get(node.getId());
+			int jsonRpcHttpPort = nodeIdRpcPortMap.get(node.getId());
 			return CompletableFuture.supplyAsync(() -> {
 				boolean status = nodeHeartbeat(nodeIp, jsonRpcHttpPort);
 				return NodeBo.builder().nodeIp(nodeIp).jsonRpcHttpPort(jsonRpcHttpPort).status(status).build();
@@ -59,8 +59,9 @@ public class HeartbeatService {
 			String uri = ConfluxUtils.toJsonRpcUri(nodeIp, jsonRpcHttpPort);
 			Cfx cfx = Cfx.create(uri);
 			Request<Status, Response> statusRequest = cfx.getStatus();
+			log.info("HeartbeatService uri--->{}, address--->{}, txRequest--->{}", uri, "address", JSON.toJSONString(statusRequest));
 			Status statusResponse = statusRequest.sendAndGet();
-			log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(statusRequest), statusResponse);
+			log.info("HeartbeatService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(statusRequest), statusResponse);
 			result = statusResponse != null && statusResponse.getBlockNumber() != null;
 		} catch (Exception e) {
 			throw new RuntimeException(e);

@@ -1,6 +1,5 @@
 package org.treegraph.baas.core.service.impl;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -10,16 +9,17 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
-import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.service.bo.NodeBo;
 import org.treegraph.baas.core.util.ConfluxUtils;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 
 import conflux.web3j.Cfx;
 import conflux.web3j.Request;
 import conflux.web3j.response.Status;
+import conflux.web3j.response.Status.Response;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,12 +56,13 @@ public class HeartbeatService {
 	public boolean nodeHeartbeat(String nodeIp, int jsonRpcHttpPort) {
 		boolean result = false;
 		try {
-			Cfx cfx = Cfx.create(ConfluxUtils.toJsonRpcUri(nodeIp, jsonRpcHttpPort));
-			Request<Status, Status.Response> request = cfx.getCustomizedRequest(Status.Response.class,
-					ConfluxConstant.RPC_BEATHEART, new Object[0]);
-			Status.Response response = request.send();
-			result = response != null && response.getResult() != null && response.getResult().getBlockNumber() != null;
-		} catch (IOException e) {
+			String uri = ConfluxUtils.toJsonRpcUri(nodeIp, jsonRpcHttpPort);
+			Cfx cfx = Cfx.create(uri);
+			Request<Status, Response> statusRequest = cfx.getStatus();
+			Status statusResponse = statusRequest.sendAndGet();
+			log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(statusRequest), statusResponse);
+			result = statusResponse != null && statusResponse.getBlockNumber() != null;
+		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 		return result;

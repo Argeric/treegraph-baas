@@ -99,6 +99,7 @@ public class RpcBlockchainService {
 			String signature = AccountManager.signMessage(Numeric.hexStringToByteArray(applyResponse), true, ecKeypair);
 			ringSignatureMap.put(item, signature);
 		});
+		log.info("RpcBlockchainService ringSignatureMap--->{}", uri, JSON.toJSONString(ringSignatureMap));
 
 		/*
 		 * 3. RPC name: cfx_constructAndSendNewConsortiumMembershipTrans 
@@ -115,7 +116,7 @@ public class RpcBlockchainService {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getKey().getPublicKey(),
 					item.getKey().getPrivateKey(), item.getKey().getAlgorithm());
 			leftPublicKeys.add("0x"+ecKeypair.getPublicKey().toString(16));
-			ringSignatures.add("0x"+item.getValue());
+			ringSignatures.add(item.getValue());
 		});
 		Request<String, StringResponse> confirmRequest = cfx.getCustomizedRequest(StringResponse.class,
 				ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM, applyResponse, leftPublicKeys, ringSignatures);
@@ -134,12 +135,11 @@ public class RpcBlockchainService {
 	
 	private List<KeypairPo> getLeftKeypairs(String consortiumId, List<NodeKeypairBo> existNodeKeypairs,
 			List<NodeKeypairBo> addNodeKeypairs, List<NodeKeypairBo> removeNodeKeypairs) {
-		List<NodeKeypairBo> leftNodeKeypairs = Lists.newArrayList();
+		List<NodeKeypairBo> leftNodeKeypairs = Lists.newArrayList(addNodeKeypairs);
 		if(CollectionUtils.isNotEmpty(removeNodeKeypairs)) {
 			Set<String> toRemoveNodeIdSet = removeNodeKeypairs.stream().map(item -> item.getNode().getId()).collect(Collectors.toSet());
-			List<NodeKeypairBo> postRemoveNodeKeypairs = existNodeKeypairs.stream()
+			leftNodeKeypairs = leftNodeKeypairs.stream()
 					.filter(item -> !toRemoveNodeIdSet.contains(item.getNode().getId())).collect(Collectors.toList());
-			leftNodeKeypairs.addAll(postRemoveNodeKeypairs);
 		}
 		if(CollectionUtils.isNotEmpty(addNodeKeypairs)) {
 			leftNodeKeypairs.addAll(addNodeKeypairs);

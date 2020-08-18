@@ -69,9 +69,14 @@ public class RpcBlockchainService {
 		 * output: 
 		 * ---string raw_json
 		 */
-		List<String> existPublicKeys = existNodeKeypairs.stream().map(item -> item.getKeypair().getPublicKey())
-				.collect(Collectors.toList());
-		String proposerPublicKey = proposerNodeKeypair.getKeypair().getPublicKey();
+		List<String> existPublicKeys = existNodeKeypairs.stream().map(item -> {
+			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getKeypair().getPublicKey(),
+					item.getKeypair().getPrivateKey(), item.getKeypair().getAlgorithm());
+			return "0x"+ecKeypair.getPublicKey().toString(16);
+		}).collect(Collectors.toList());
+		ECKeyPair proposerEcKeypair = KeyUtil.loadECKeyPairFromBase64(proposerNodeKeypair.getKeypair().getPublicKey(),
+				proposerNodeKeypair.getKeypair().getPrivateKey(), proposerNodeKeypair.getKeypair().getAlgorithm());
+		String proposerPublicKey = "0x"+proposerEcKeypair.getPublicKey().toString(16);
 		Request<String, StringResponse> applyRequest = cfx.getCustomizedRequest(StringResponse.class,
 				ConfluxConstant.RPC_ADD_DELETE_NODE, existPublicKeys, proposerPublicKey);
 		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}", uri, "address", JSON.toJSONString(applyRequest));

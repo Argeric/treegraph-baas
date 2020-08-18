@@ -457,7 +457,6 @@ public class ConsortiumServicempl implements ConsortiumService {
 		String stepFactorPropertyValue = nodeCustomizedConfigService.getPropertyValueByPropertyName(consortiumId,
 				ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT_STEP_FACTOR);
 		int stepFactor = stepFactorPropertyValue != null ? Integer.parseInt(stepFactorPropertyValue) : 0;
-		int portStep = ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT_STEP/*nodeKeypairBoList.size()*/;
 		List<NodeCustomizedConfigPo> customizedConfigList = Lists.newArrayList();
 		for(NodeKeypairBo nodeKeypairBo:nodeKeypairBoList){
 			StringBuffer scriptContent = new StringBuffer();
@@ -498,9 +497,9 @@ public class ConsortiumServicempl implements ConsortiumService {
 					}
 				}
 			} else {
-				int portDelta = (ConfluxConstant.TEST_SWITCH ? stepFactor++ : 0) * portStep;
+				int portDelta = (ConfluxConstant.TEST_SWITCH ? stepFactor++ : 0) * ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT_STEP;
 				jsonRpcHttpPort = ConfluxConstant.DEFAULT_JSON_RPC_HTTP_PORT + portDelta + "";
-				jsonRpcLocalHttpPort = jsonRpcHttpPort + 100 + ""; //ConfluxConstant.DEFAULT_JSON_RPC_LOCAL_HTTP_PORT + portDelta + "";
+				jsonRpcLocalHttpPort = jsonRpcHttpPort + ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT_INTERVAL + "";
 				miningAuthor = ConfluxUtils.toAddress(ecKeypair);
 				customizedConfigList.add(buildService.buildNodeCustomizedConfig(node, ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT, jsonRpcHttpPort));
 				customizedConfigList.add(buildService.buildNodeCustomizedConfig(node, ConfluxConstant.PROPERTY_JSON_RPC_LOCAL_HTTP_PORT, jsonRpcLocalHttpPort));

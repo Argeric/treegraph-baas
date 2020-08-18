@@ -36,5 +36,7 @@ public class ConfluxConstant {
     
     public static final String PROPERTY_JSON_RPC_HTTP_PORT_STEP_FACTOR = "jsonrpc_http_port_step_factor";
     
-    public static final int PROPERTY_JSON_RPC_HTTP_PORT_STEP = 100;
+    public static final int PROPERTY_JSON_RPC_HTTP_PORT_STEP = 1;
+    
+    public static final int PROPERTY_JSON_RPC_HTTP_PORT_INTERVAL = 100;
 }

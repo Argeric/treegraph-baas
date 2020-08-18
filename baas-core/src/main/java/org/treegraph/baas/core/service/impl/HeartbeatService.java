@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.service.bo.NodeBo;
 import org.treegraph.baas.core.util.ConfluxUtils;
@@ -55,14 +56,26 @@ public class HeartbeatService {
 	
 	public boolean nodeHeartbeat(String nodeIp, int jsonRpcHttpPort) {
 		boolean result = false;
+//		try {
+//			String uri = ConfluxUtils.toJsonRpcUri(nodeIp, jsonRpcHttpPort);
+//			Cfx cfx = Cfx.create(uri);
+//			Request<Status, Response> statusRequest = cfx.getStatus();
+//			log.info("HeartbeatService uri--->{}, address--->{}, txRequest--->{}", uri, "address", JSON.toJSONString(statusRequest));
+//			Status statusResponse = statusRequest.sendAndGet();
+//			log.info("HeartbeatService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(statusRequest), statusResponse);
+//			result = statusResponse != null && statusResponse.getBlockNumber() != null;
+//		} catch (Exception e) {
+//			throw new RuntimeException(e);
+//		}
 		try {
 			String uri = ConfluxUtils.toJsonRpcUri(nodeIp, jsonRpcHttpPort);
 			Cfx cfx = Cfx.create(uri);
-			Request<Status, Response> statusRequest = cfx.getStatus();
+			Request<Status, Status.Response> statusRequest = cfx.getCustomizedRequest(Status.Response.class,
+					ConfluxConstant.RPC_BEATHEART, new Object[0]);
 			log.info("HeartbeatService uri--->{}, address--->{}, txRequest--->{}", uri, "address", JSON.toJSONString(statusRequest));
-			Status statusResponse = statusRequest.sendAndGet();
+			Status.Response statusResponse = statusRequest.send();
 			log.info("HeartbeatService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(statusRequest), statusResponse);
-			result = statusResponse != null && statusResponse.getBlockNumber() != null;
+			result = statusResponse != null && statusResponse.getResult() != null && statusResponse.getResult().getBlockNumber() != null;
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

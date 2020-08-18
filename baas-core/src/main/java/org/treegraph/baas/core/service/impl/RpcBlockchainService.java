@@ -123,7 +123,7 @@ public class RpcBlockchainService {
 		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}", uri, "address", JSON.toJSONString(confirmRequest));
 		String confirmResponse = confirmRequest.sendAndGet();
 		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(confirmRequest), confirmResponse);
-		Assert.isTrue(confirmResponse != null, ConfluxConstant.RPC_ADD_DELETE_NODE + " error");
+		//Assert.isTrue(confirmResponse != null, ConfluxConstant.RPC_ADD_DELETE_NODE + " error");
 	}
 
 	private Map<String, Boolean> getHeartbeatMap(List<NodePo> existNodes, Map<String, Integer> nodeIdRpcPortMap) {

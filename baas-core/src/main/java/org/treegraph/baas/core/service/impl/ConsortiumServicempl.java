@@ -500,7 +500,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			} else {
 				int portDelta = (ConfluxConstant.TEST_SWITCH ? stepFactor++ : 0) * portStep;
 				jsonRpcHttpPort = ConfluxConstant.DEFAULT_JSON_RPC_HTTP_PORT + portDelta + "";
-				jsonRpcLocalHttpPort = ConfluxConstant.DEFAULT_JSON_RPC_LOCAL_HTTP_PORT + portDelta + "";
+				jsonRpcLocalHttpPort = jsonRpcHttpPort + 100 + ""; //ConfluxConstant.DEFAULT_JSON_RPC_LOCAL_HTTP_PORT + portDelta + "";
 				miningAuthor = ConfluxUtils.toAddress(ecKeypair);
 				customizedConfigList.add(buildService.buildNodeCustomizedConfig(node, ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT, jsonRpcHttpPort));
 				customizedConfigList.add(buildService.buildNodeCustomizedConfig(node, ConfluxConstant.PROPERTY_JSON_RPC_LOCAL_HTTP_PORT, jsonRpcLocalHttpPort));

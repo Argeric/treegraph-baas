@@ -99,7 +99,7 @@ public class RpcBlockchainService {
 			String signature = AccountManager.signMessage(Numeric.hexStringToByteArray(applyResponse), true, ecKeypair);
 			ringSignatureMap.put(item, signature);
 		});
-		log.info("RpcBlockchainService ringSignatureMap--->{}", uri, JSON.toJSONString(ringSignatureMap));
+		log.info("RpcBlockchainService ringSignatureMap--->{}", JSON.toJSONString(ringSignatureMap));
 
 		/*
 		 * 3. RPC name: cfx_constructAndSendNewConsortiumMembershipTrans 

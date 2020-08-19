@@ -92,12 +92,13 @@ public class RpcBlockchainService {
 		 * output: 
 		 * ---Vector<signature>
 		 */
+		String hexEncoded = "0x" + HexUtils.byteArrToHex(applyResponse.getBytes("UTF-8"));
 		List<KeypairPo> leftKeypairs = getLeftKeypairs(existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs);
 		Map<KeypairPo, String> ringSignatureMap = Maps.newHashMap();
 		leftKeypairs.stream().forEach(item -> {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getPublicKey(), item.getPrivateKey(),
 					item.getAlgorithm());
-			String signature = AccountManager.signMessage(Numeric.hexStringToByteArray(applyResponse), true, ecKeypair);
+			String signature = AccountManager.signMessage(Numeric.hexStringToByteArray(hexEncoded), true, ecKeypair);
 			ringSignatureMap.put(item, signature);
 		});
 		log.info("RpcBlockchainService ringSignatureMap--->{}", JSON.toJSONString(ringSignatureMap));
@@ -111,17 +112,16 @@ public class RpcBlockchainService {
 		 * output:
 		 * ---string okay/fail
 		 */
-		String hexEncoded = "0x" + HexUtils.byteArrToHex(applyResponse.getBytes("UTF-8"));
 		List<String> leftPublicKeys = Lists.newArrayList();
 		List<String> ringSignatures = Lists.newArrayList();
 		ringSignatureMap.entrySet().forEach(item -> {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getKey().getPublicKey(),
 					item.getKey().getPrivateKey(), item.getKey().getAlgorithm());
-			leftPublicKeys.add("0x"+ecKeypair.getPublicKey().toString(16));
-			ringSignatures.add(item.getValue());
+			leftPublicKeys.add(ecKeypair.getPublicKey().toString(16));
+			ringSignatures.add(item.getValue().substring(2));
 		});
 		Request<String, StringResponse> confirmRequest = cfx.getCustomizedRequest(StringResponse.class,
-				ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM, hexEncoded, leftPublicKeys, ringSignatures);
+				ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM, applyResponse, leftPublicKeys, ringSignatures);
 		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}", uri, "address", JSON.toJSONString(confirmRequest));
 		String confirmResponse = confirmRequest.sendAndGet();
 		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(confirmRequest), confirmResponse);

@@ -169,7 +169,10 @@ public class AllTests {
          * start new node
          */
         ListNodeRequest listNodeRequest = ListNodeRequest.builder()
-        		.consId(testConsortiumId).build();
+        		.consId(testConsortiumId)
+        		.current(1)
+        		.pageSize(10)
+        		.build();
         MvcResult listResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/list")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header("X-Token", token)

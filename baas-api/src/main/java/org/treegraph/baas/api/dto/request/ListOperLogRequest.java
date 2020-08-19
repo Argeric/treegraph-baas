@@ -16,4 +16,12 @@ public class ListOperLogRequest extends ListRequest{
 	private String type;
 	
 	private String ip;
+
+	public ListOperLogRequest(int current, int pageSize, String account, String name, String type, String ip) {
+		super(current, pageSize);
+		this.account = account;
+		this.name = name;
+		this.type = type;
+		this.ip = ip;
+	}
 }

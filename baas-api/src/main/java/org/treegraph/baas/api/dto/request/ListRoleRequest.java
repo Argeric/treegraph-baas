@@ -12,4 +12,10 @@ public class ListRoleRequest extends ListRequest{
 	private String consId;
 	
 	private String name;
+
+	public ListRoleRequest(int current, int pageSize, String consId, String name) {
+		super(current, pageSize);
+		this.consId = consId;
+		this.name = name;
+	}
 }

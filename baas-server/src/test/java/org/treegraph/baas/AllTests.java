@@ -31,7 +31,6 @@ import org.treegraph.baas.api.dto.NodeInfo;
 import org.treegraph.baas.api.dto.request.AddNodesRequest;
 import org.treegraph.baas.api.dto.request.DeleteNodeRequest;
 import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
-import org.treegraph.baas.api.dto.request.ListNodeRequest;
 import org.treegraph.baas.api.dto.response.LoginResponse;
 import org.treegraph.baas.core.constant.CharacterConstant;
 import org.treegraph.baas.core.constant.X509CertConstant;
@@ -137,7 +136,8 @@ public class AllTests {
         }
     }
     
-    @Test
+    @SuppressWarnings("unused")
+	@Test
     public void testMembershipChange() throws Exception{
         /*
          * start tx generator

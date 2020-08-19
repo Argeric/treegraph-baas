@@ -146,7 +146,7 @@ public class RpcBlockchainService {
     private boolean checkNodeClient(List<NodePo> existNodes, Map<String, Integer> nodeIdRpcHttpPortMap) {
     	
     	for(NodePo node:existNodes) {
-	    	String uri = ConfluxUtils.toIpAtPort(node.getNodeIp(), nodeIdRpcHttpPortMap.get(node.getId()));
+	    	String uri = ConfluxUtils.toJsonRpcUri(node.getNodeIp(), nodeIdRpcHttpPortMap.get(node.getId()));
 	    	Cfx cfx = Cfx.create(uri);
 	    	Request<BigInteger, BigIntResponse> getBftEpochNumberRequest = cfx.getCustomizedRequest(BigIntResponse.class, ConfluxConstant.RPC_GET_BFT_EPOCH_NUMBER);
 	    	BigInteger response = getBftEpochNumberRequest.sendAndGet();

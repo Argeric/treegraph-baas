@@ -168,27 +168,15 @@ public class AllTests {
         /**
          * start new node
          */
-        ListNodeRequest listNodeRequest = ListNodeRequest.builder()
-        		.consId(testConsortiumId)
-        		.current(1)
-        		.pageSize(10)
-        		.build();
-        MvcResult listResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/list")
-				.contentType(MediaType.APPLICATION_JSON_UTF8)
-				.header("X-Token", token)
-				.content(JSON.toJSONString(listNodeRequest)))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andDo(MockMvcResultHandlers.print())
-				.andReturn();
-        log.info("listResult------>",JSON.toJSONString(listResult));
-        //generateScripts(testConsortiumId, null);
-        //writeScripts(newNodeScriptPath, newNodeConfigPath);
-		//deployBlockchain(newNodeConfigPath);
+        NodePo node11 = nodeDas.findByIpPort(node1.getIp(), Integer.parseInt(node1.getPort()));
+        log.info("node11--->{}", JSON.toJSONString(node11));
+        generateScripts(node11.getConsortiumId(), Lists.newArrayList(node11.getId()));
+        writeScripts(newNodeScriptPath, newNodeConfigPath);
+		deployBlockchain(newNodeConfigPath);
         
        	/**
        	 * delete node
        	 */
-        NodePo node11 = nodeDas.findByIpPort(node1.getIp(), Integer.parseInt(node1.getPort()));
         DeleteNodeRequest delNodeRequest = DeleteNodeRequest.builder()
         		.id(node11.getId()).ip(node1.getId()).port(node1.getPort()).build();
         MvcResult removeResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/del")

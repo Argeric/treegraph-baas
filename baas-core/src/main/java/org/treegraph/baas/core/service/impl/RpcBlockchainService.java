@@ -16,6 +16,7 @@ import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.service.NodeCustomizedConfigService;
 import org.treegraph.baas.core.util.ConfluxUtils;
+import org.treegraph.baas.core.util.HexUtils;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.utils.Numeric;
@@ -110,6 +111,7 @@ public class RpcBlockchainService {
 		 * output:
 		 * ---string okay/fail
 		 */
+		String hexEncoded = "0x" + HexUtils.byteArrToHex(applyResponse.getBytes("UTF-8"));
 		List<String> leftPublicKeys = Lists.newArrayList();
 		List<String> ringSignatures = Lists.newArrayList();
 		ringSignatureMap.entrySet().forEach(item -> {
@@ -119,7 +121,7 @@ public class RpcBlockchainService {
 			ringSignatures.add(item.getValue());
 		});
 		Request<String, StringResponse> confirmRequest = cfx.getCustomizedRequest(StringResponse.class,
-				ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM, applyResponse, leftPublicKeys, ringSignatures);
+				ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM, hexEncoded, leftPublicKeys, ringSignatures);
 		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}", uri, "address", JSON.toJSONString(confirmRequest));
 		String confirmResponse = confirmRequest.sendAndGet();
 		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(confirmRequest), confirmResponse);

@@ -123,7 +123,7 @@ public class RpcBlockchainService {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getKey().getPublicKey(),
 					item.getKey().getPrivateKey(), item.getKey().getAlgorithm());
 			String publicKey = ecKeypair.getPublicKey().toString(16);
-			publicKey = publicKey.length() == 17 ? "0" + publicKey : publicKey;
+			publicKey = publicKey.length() == 127 ? "0" + publicKey : publicKey;
 			leftPublicKeys.add("0x"+ publicKey);
 			ringSignatures.add(item.getValue().substring(2));
 		});

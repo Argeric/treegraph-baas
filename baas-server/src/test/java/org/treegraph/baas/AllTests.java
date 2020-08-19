@@ -150,7 +150,7 @@ public class AllTests {
             log.info("start conflux process--->{}", folder.getName());
         }
         log.info("start conflux process result--->completed!");
-        TimeUnit.SECONDS.sleep(10);
+        TimeUnit.SECONDS.sleep(60);
     }
     
     @Test
@@ -187,7 +187,7 @@ public class AllTests {
          */
         Timer timer  = new Timer();
         timer.schedule(new TransactionGenerator(nodeKeypairs, jsonRpcHttpPortMap), 0 ,1000);
-        TimeUnit.SECONDS.sleep(10 * 1);
+        TimeUnit.SECONDS.sleep(60);
         
         NodeInfo node1 = NodeInfo.builder()
         		.ip(toAddNodeIp).port(toAddNodePort+"").org("org1").build();
@@ -203,7 +203,7 @@ public class AllTests {
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
-        TimeUnit.SECONDS.sleep(60 * 1);
+        TimeUnit.SECONDS.sleep(60);
        	
         NodePo node11 = nodeDas.findByIpPort(node1.getIp(), Integer.parseInt(node1.getPort()));
         DeleteNodeRequest delNodeRequest = DeleteNodeRequest.builder()

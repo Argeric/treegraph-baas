@@ -1,6 +1,7 @@
 package org.treegraph.baas.core.service.impl;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +30,7 @@ import com.google.common.collect.Sets;
 import conflux.web3j.AccountManager;
 import conflux.web3j.Cfx;
 import conflux.web3j.Request;
+import conflux.web3j.response.BigIntResponse;
 import conflux.web3j.response.StringResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -129,7 +131,28 @@ public class RpcBlockchainService {
 		String confirmResponse = confirmRequest.sendAndGet(3);
 		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(confirmRequest), confirmResponse);
 		//Assert.isTrue(confirmResponse != null, ConfluxConstant.RPC_ADD_DELETE_NODE + " error");
+		
+		/*
+		 * 4. RPC name: cfx_getBFTEpochNumber
+		 * input :
+		 * output:
+		 * ---???
+		 */
+		checkNodeClient(existNodes, nodeIdRpcHttpPortMap);
 	}
+    
+    private boolean checkNodeClient(List<NodePo> existNodes, Map<String, Integer> nodeIdRpcHttpPortMap) {
+    	
+    	for(NodePo node:existNodes) {
+	    	String uri = ConfluxUtils.toIpAtPort(node.getNodeIp(), nodeIdRpcHttpPortMap.get(node.getId()));
+	    	Cfx cfx = Cfx.create(uri);
+	    	Request<BigInteger, BigIntResponse> getBftEpochNumberRequest = cfx.getCustomizedRequest(BigIntResponse.class, ConfluxConstant.RPC_GET_BFT_EPOCH_NUMBER);
+	    	BigInteger response = getBftEpochNumberRequest.sendAndGet();
+	    	log.info("checkNodeClient uri--->{}, response--->{}", uri, response);
+    	}
+    	
+    	return false;
+    }
 
 	private Map<String, Boolean> getHeartbeatMap(List<NodePo> existNodes, Map<String, Integer> nodeIdRpcPortMap) {
 		Map<String, Boolean> heartbeatMap = heartbeatService.batchNodeHeartbeat(existNodes, nodeIdRpcPortMap);

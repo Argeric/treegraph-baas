@@ -11,6 +11,8 @@ public class ConfluxConstant {
     
     public static final String RPC_ADD_DELETE_NODE_CONFIRM = "cfx_constructAndSendNewConsortiumMembershipTrans";
     
+    public static final String RPC_GET_BFT_EPOCH_NUMBER = "cfx_getBFTEpochNumber";
+    
     /**
      * port
      */

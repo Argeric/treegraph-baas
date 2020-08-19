@@ -121,7 +121,7 @@ public class RpcBlockchainService {
 			ringSignatures.add(item.getValue());
 		});
 		Request<String, StringResponse> confirmRequest = cfx.getCustomizedRequest(StringResponse.class,
-				ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM, applyResponse, leftPublicKeys, ringSignatures);
+				ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM, hexEncoded, leftPublicKeys, ringSignatures);
 		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}", uri, "address", JSON.toJSONString(confirmRequest));
 		String confirmResponse = confirmRequest.sendAndGet();
 		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(confirmRequest), confirmResponse);

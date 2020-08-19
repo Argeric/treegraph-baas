@@ -117,7 +117,7 @@ public class RpcBlockchainService {
 		ringSignatureMap.entrySet().forEach(item -> {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getKey().getPublicKey(),
 					item.getKey().getPrivateKey(), item.getKey().getAlgorithm());
-			leftPublicKeys.add(ecKeypair.getPublicKey().toByteArray());
+			leftPublicKeys.add(Numeric.hexStringToByteArray(ecKeypair.getPublicKey().toString(16)));
 			ringSignatures.add(item.getValue());
 		});
 		Request<String, StringResponse> confirmRequest = cfx.getCustomizedRequest(StringResponse.class,

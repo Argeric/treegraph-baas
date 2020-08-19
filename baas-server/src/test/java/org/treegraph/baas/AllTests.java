@@ -30,6 +30,8 @@ import org.treegraph.baas.api.dto.BaasResult;
 import org.treegraph.baas.api.dto.NodeInfo;
 import org.treegraph.baas.api.dto.request.AddNodesRequest;
 import org.treegraph.baas.api.dto.request.DeleteNodeRequest;
+import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
+import org.treegraph.baas.api.dto.request.ListNodeRequest;
 import org.treegraph.baas.api.dto.response.LoginResponse;
 import org.treegraph.baas.core.constant.CharacterConstant;
 import org.treegraph.baas.core.constant.X509CertConstant;
@@ -78,6 +80,10 @@ public class AllTests {
 	
 	private static String configPath = cfgRootPath + "/unzipfile";
 	
+	private static String newNodeScriptPath = cfgRootPath + "/zipfile_newnode";
+	
+	private static String newNodeConfigPath = cfgRootPath + "/unzipfile_newnode";
+	
 	private static String scriptName = "deploy.zip";
 	
 	private static String toAddNodeIp = "101.200.183.108";
@@ -98,60 +104,11 @@ public class AllTests {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		nodeDas.deleteByIpPort(toAddNodeIp, toAddNodePort);
 		login();
-		generateScripts();
-		getNodeKeypairs();
+		generateScripts(testConsortiumId, null);
+		writeScripts(scriptPath, configPath);
+		deployBlockchain(configPath);
+		getExistNodeKeypairs();
 	}
-	
-	@Test
-	public void testWriteDeployScript() throws Exception {
-		/*
-		 * write deploy script
-		 */
-		byte[] content = downloadDeployScriptMvcResult.getResponse().getContentAsByteArray();
-		FileUtil.cleanDir(scriptPath);
-		FileUtil.writeBytes(scriptPath+"/"+scriptName, content);
-		log.info("write deploy script result--->completed!(len={})", content == null ? 0 : content.length);
-		
-    	/*
-    	 * copy deploy file
-    	 */
-		if(!FileUtil.isExistingFolder(new File(configPath))) {
-			FileUtil.mkdirs(configPath);
-		}
-		FileUtil.cleanDir(configPath);
-		FileUtils.unZip(new File(scriptPath+"/"+scriptName), configPath);
-		log.info("unzip deploy script result--->completed!");
-		
-		/*
-		 * parse json rpc http port
-		 */
-		File path = new File(configPath);
-		File[] subPaths = path.listFiles();
-		Lists.newArrayList(subPaths).stream().forEach(subPath -> {
-			File customizedConfigFile = Lists.newArrayList(subPath.listFiles()).stream().filter(configFile -> configFile.getName().equalsIgnoreCase("customized_config.toml")).findFirst().get();
-			String jsonRpcHttpPort = parseJsonRpcHttpPort(customizedConfigFile);
-			jsonRpcHttpPortMap.put(subPath.getName(), jsonRpcHttpPort);
-		});
-		log.info("parse json rpc http port result--->{}", JSON.toJSONString(jsonRpcHttpPortMap));
-	}
-
-    @Test
-    public void testDeployBlockchain() throws IOException, InterruptedException {
-        /*
-         * deploy
-         */
-        List<Process> processes = new ArrayList<>(10);
-        for (File folder : new File(configPath).listFiles()){
-            ProcessBuilder builder = new ProcessBuilder(binaryPath, "--customized-config","customized_config.toml");
-            builder.directory(folder);
-            builder.redirectError(new File(folder+File.separator+"stderr"));
-            builder.redirectOutput(new File(folder+File.separator+"stdout"));
-            processes.add(builder.start());
-            log.info("start conflux process--->{}", folder.getName());
-        }
-        log.info("start conflux process result--->completed!");
-        TimeUnit.SECONDS.sleep(60);
-    }
     
     @Test
     public void testRechargeGenesis() {
@@ -189,6 +146,9 @@ public class AllTests {
         timer.schedule(new TransactionGenerator(nodeKeypairs, jsonRpcHttpPortMap), 0 ,1000);
         TimeUnit.SECONDS.sleep(60);
         
+        /**
+         * add node
+         */
         NodeInfo node1 = NodeInfo.builder()
         		.ip(toAddNodeIp).port(toAddNodePort+"").org("org1").build();
         AddNodesRequest addNodesRequest = AddNodesRequest.builder()
@@ -204,7 +164,27 @@ public class AllTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
         TimeUnit.SECONDS.sleep(60);
-       	
+        
+        /**
+         * start new node
+         */
+        ListNodeRequest listNodeRequest = ListNodeRequest.builder()
+        		.consId(testConsortiumId).build();
+        MvcResult listResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/list")
+				.contentType(MediaType.APPLICATION_JSON_UTF8)
+				.header("X-Token", token)
+				.content(JSON.toJSONString(listNodeRequest)))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
+        log.info("listResult------>",JSON.toJSONString(listResult));
+        //generateScripts(testConsortiumId, null);
+        //writeScripts(newNodeScriptPath, newNodeConfigPath);
+		//deployBlockchain(newNodeConfigPath);
+        
+       	/**
+       	 * delete node
+       	 */
         NodePo node11 = nodeDas.findByIpPort(node1.getIp(), Integer.parseInt(node1.getPort()));
         DeleteNodeRequest delNodeRequest = DeleteNodeRequest.builder()
         		.id(node11.getId()).ip(node1.getId()).port(node1.getPort()).build();
@@ -233,18 +213,73 @@ public class AllTests {
 		Assert.assertNotNull("login error, no token return!", token);
 	}
 	
-	private void generateScripts() throws Exception {
+	
+	private void generateScripts(String consId, List<String> nodeId) throws Exception {
+		
+		DownloadDeployScriptRequest downloadDeployScriptRequest = DownloadDeployScriptRequest.builder()
+				.consId(consId)
+				.nodeId(nodeId)
+				.build();
 		// generate deploy script
 		downloadDeployScriptMvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/script/download")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header("X-Token", token)
-				.content("{\"consId\":\""+testConsortiumId+"\"}"))
-		.andExpect(MockMvcResultMatchers.status().isOk())
-		.andDo(MockMvcResultHandlers.print())
-		.andReturn();
+				.content(JSON.toJSONString(downloadDeployScriptRequest)))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
 	}
 	
-	private void getNodeKeypairs() {
+	private void writeScripts(String scriptPath, String configPath) throws Exception {
+		/*
+		 * write deploy script
+		 */
+		byte[] content = downloadDeployScriptMvcResult.getResponse().getContentAsByteArray();
+		FileUtil.cleanDir(scriptPath);
+		FileUtil.writeBytes(scriptPath+"/"+scriptName, content);
+		log.info("write deploy script result--->completed!(len={})", content == null ? 0 : content.length);
+		
+    	/*
+    	 * copy deploy file
+    	 */
+		if(!FileUtil.isExistingFolder(new File(configPath))) {
+			FileUtil.mkdirs(configPath);
+		}
+		FileUtil.cleanDir(configPath);
+		FileUtils.unZip(new File(scriptPath+"/"+scriptName), configPath);
+		log.info("unzip deploy script result--->completed!");
+		
+		/*
+		 * parse json rpc http port
+		 */
+		File path = new File(configPath);
+		File[] subPaths = path.listFiles();
+		Lists.newArrayList(subPaths).stream().forEach(subPath -> {
+			File customizedConfigFile = Lists.newArrayList(subPath.listFiles()).stream().filter(configFile -> configFile.getName().equalsIgnoreCase("customized_config.toml")).findFirst().get();
+			String jsonRpcHttpPort = parseJsonRpcHttpPort(customizedConfigFile);
+			jsonRpcHttpPortMap.put(subPath.getName(), jsonRpcHttpPort);
+		});
+		log.info("parse json rpc http port result--->{}", JSON.toJSONString(jsonRpcHttpPortMap));
+	}
+	
+    private void deployBlockchain(String configPath) throws IOException, InterruptedException {
+        /*
+         * deploy
+         */
+        List<Process> processes = new ArrayList<>(10);
+        for (File folder : new File(configPath).listFiles()){
+            ProcessBuilder builder = new ProcessBuilder(binaryPath, "--customized-config","customized_config.toml");
+            builder.directory(folder);
+            builder.redirectError(new File(folder+File.separator+"stderr"));
+            builder.redirectOutput(new File(folder+File.separator+"stdout"));
+            processes.add(builder.start());
+            log.info("start conflux process--->{}", folder.getName());
+        }
+        log.info("start conflux process result--->completed!");
+        TimeUnit.SECONDS.sleep(60);
+    }
+	
+	private void getExistNodeKeypairs() {
         List<NodePo> nodes = nodeDas.findByConsIdAndChainId(testConsortiumId, testBlockchainId);
         nodeKeypairs = nodes.stream()
         		.map(item -> vaultKeypairBuildService.getNodeKeypair(testConsortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null))

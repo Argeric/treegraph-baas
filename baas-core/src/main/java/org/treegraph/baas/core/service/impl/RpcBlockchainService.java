@@ -55,7 +55,10 @@ public class RpcBlockchainService {
 				.filter(item -> {
 					NodePo node = item.getNode();
 					String key = ConfluxUtils.toIpAtPort(node.getNodeIp(), nodeIdRpcHttpPortMap.get(node.getId()));
-					return key != null && heartbeatMap.get(key);
+					log.info("key--->{}, ", key);
+					Boolean value = heartbeatMap.get(key);
+					log.info("key--->{},value--->{} ", key, value);
+					return value != null && value;
 				})
 				.findFirst().get();
 		NodePo proposerNode = proposerNodeKeypair.getNode();

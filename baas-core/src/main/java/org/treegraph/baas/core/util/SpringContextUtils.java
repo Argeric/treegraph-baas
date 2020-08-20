@@ -1,10 +1,12 @@
 package org.treegraph.baas.core.util;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationListener;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.stereotype.Component;
 
-public class SpringContextUtils implements ApplicationListener<ContextRefreshedEvent>{
+@Component
+public class SpringContextUtils implements ApplicationContextAware{
     private static ApplicationContext applicationContext;  
     
     //获取上下文  
@@ -13,10 +15,8 @@ public class SpringContextUtils implements ApplicationListener<ContextRefreshedE
     }  
   
     //设置上下文  
-    public static synchronized void setApplicationContext(ApplicationContext applicationContext) {  
-        if(SpringContextUtils.applicationContext==null){
-            SpringContextUtils.applicationContext = applicationContext;  
-        }
+    public void setApplicationContext(ApplicationContext applicationContext) {  
+        SpringContextUtils.applicationContext = applicationContext;  
     }  
   
     //通过名字获取上下文中的bean  

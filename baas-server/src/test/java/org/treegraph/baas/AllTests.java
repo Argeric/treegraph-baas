@@ -67,7 +67,7 @@ public class AllTests {
 	
 	private MockMvc mockMvc;
 	
-	private static int cntr = 0;
+	private static boolean initialized = false;
 	
 	private static String testConsortiumId = "940fcaad-0fa0-44bf-a59e-88dbaf202186";
 	
@@ -102,7 +102,7 @@ public class AllTests {
 	
 	@Before
 	public void setup() throws Exception {
-		if(cntr == 0) {
+		if(!initialized) {
 			mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 			nodeDas.deleteByIpPort(toAddNodeIp, toAddNodePort);
 			login();
@@ -111,36 +111,36 @@ public class AllTests {
 			writeScripts(scriptPath, configPath);
 			deployBlockchain(configPath);
 			getExistNodeKeypairs();
-			cntr++;
+			initialized = true;
 		}
 	}
     
-    @Test
-    public void testRechargeGenesis() {
-        /*
-         * genesis private key :0x46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f
-         * genesis total token 5 * 10 ** 36
-         */
-        BigInteger currentNonce = BigInteger.ZERO;
-        for(NodeKeypairBo nodeKeypair : nodeKeypairs) {
-        	KeypairPo keypair = nodeKeypair.getKeypair();
-			RawTransaction tx = RawTransaction.create(currentNonce, new BigInteger("21000"), keypair.getPublicKey(),
-					new BigInteger("100000000000000000000000000000000"), null, BigInteger.ZERO, null);
-			ECKeyPair ecKeyPair = ECKeyPair
-					.create(new BigInteger("46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f", 16));
-			String txSign = tx.sign(ecKeyPair);
-			
-			NodePo node = nodeKeypair.getNode();
-			String jsonRpcHttpPort = jsonRpcHttpPortMap.get(node.getNodeIp()+CharacterConstant.AT+node.getNodePort());
-			String uri = "http://" + node.getNodeIp() + ":" + jsonRpcHttpPort;
-			log.info("genesis recharge, nonce--->{}, uri--->{}", currentNonce, uri);
-			
-			Cfx cfx = Cfx.create(uri);
-            String txResult = cfx.sendRawTransaction(txSign).sendAndGet();
-            currentNonce = currentNonce.add(BigInteger.ONE);
-            log.info("genesis recharge, nonce--->{}, result--->{}", currentNonce, txResult);
-        }
-    }
+//    @Test
+//    public void testRechargeGenesis() {
+//        /*
+//         * genesis private key :0x46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f
+//         * genesis total token 5 * 10 ** 36
+//         */
+//        BigInteger currentNonce = BigInteger.ZERO;
+//        for(NodeKeypairBo nodeKeypair : nodeKeypairs) {
+//        	KeypairPo keypair = nodeKeypair.getKeypair();
+//			RawTransaction tx = RawTransaction.create(currentNonce, new BigInteger("21000"), keypair.getPublicKey(),
+//					new BigInteger("100000000000000000000000000000000"), null, BigInteger.ZERO, null);
+//			ECKeyPair ecKeyPair = ECKeyPair
+//					.create(new BigInteger("46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f", 16));
+//			String txSign = tx.sign(ecKeyPair);
+//			
+//			NodePo node = nodeKeypair.getNode();
+//			String jsonRpcHttpPort = jsonRpcHttpPortMap.get(node.getNodeIp()+CharacterConstant.AT+node.getNodePort());
+//			String uri = "http://" + node.getNodeIp() + ":" + jsonRpcHttpPort;
+//			log.info("genesis recharge, nonce--->{}, uri--->{}", currentNonce, uri);
+//			
+//			Cfx cfx = Cfx.create(uri);
+//            String txResult = cfx.sendRawTransaction(txSign).sendAndGet();
+//            currentNonce = currentNonce.add(BigInteger.ONE);
+//            log.info("genesis recharge, nonce--->{}, result--->{}", currentNonce, txResult);
+//        }
+//    }
     
     @SuppressWarnings("unused")
 	@Test

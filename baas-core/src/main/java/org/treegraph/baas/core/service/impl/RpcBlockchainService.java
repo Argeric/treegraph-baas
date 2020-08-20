@@ -157,10 +157,10 @@ public class RpcBlockchainService {
 	    	String uri = ConfluxUtils.toJsonRpcUri(item.getNode().getNodeIp(), nodeIdRpcHttpPortMap.get(item.getNode().getId()));
 	    	Cfx cfx = Cfx.create(uri);
 	    	Request<BigInteger, BigIntResponse> getBftEpochNumberRequest = cfx.getCustomizedRequest(BigIntResponse.class, ConfluxConstant.RPC_GET_BFT_EPOCH_NUMBER);
-	    	log.info("checkNodeClient uri--->{}, txRequest--->{}", uri, getBftEpochNumberRequest);
+	    	log.info("checkNodeClient uri--->{}, txRequest--->{}", uri, JSON.toJSONString(getBftEpochNumberRequest));
 	    	BigInteger getBftEpochNumberResponse = getBftEpochNumberRequest.sendAndGet();
 	    	bftEpochNumbers.add(getBftEpochNumberResponse.intValue());
-	    	log.info("checkNodeClient uri--->{}, txRequest--->{}, txResponse--->{}", uri, getBftEpochNumberRequest, getBftEpochNumberResponse);
+	    	log.info("checkNodeClient uri--->{}, txRequest--->{}, txResponse--->{}", uri, JSON.toJSONString(getBftEpochNumberRequest), getBftEpochNumberResponse);
     	});
     	
     	boolean checkResult = Boolean.TRUE;

@@ -166,6 +166,7 @@ public class RpcBlockchainService {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+    	log.info("checkNodeClient sleeped--->60sec");
     	List<Integer> bftEpochNumbers = Lists.newArrayList();
     	existNodeKeypairs.stream().filter(item -> !removedNodeIds.contains(item.getNode().getId())).forEach(item -> {
 	    	String uri = ConfluxUtils.toJsonRpcUri(item.getNode().getNodeIp(), nodeIdRpcHttpPortMap.get(item.getNode().getId()));

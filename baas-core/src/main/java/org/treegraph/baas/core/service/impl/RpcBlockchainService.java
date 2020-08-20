@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -46,7 +47,7 @@ public class RpcBlockchainService {
     private HeartbeatService heartbeatService;
     
     public void sendMembershipChangeTransaction(String consortiumId, List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
-			List<NodeKeypairBo> removeNodeKeypairs) throws IOException {
+			List<NodeKeypairBo> removeNodeKeypairs) throws IOException, InterruptedException {
 		// build rpc client
     	List<NodePo> existNodes = existNodeKeypairs.stream().map(item -> item.getNode()).collect(Collectors.toList());
 		Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(existNodes);
@@ -139,6 +140,7 @@ public class RpcBlockchainService {
 		 * output:
 		 * ---???
 		 */
+		TimeUnit.SECONDS.sleep(60);
 		checkNodeClient(existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs, nodeIdRpcHttpPortMap);
 	}
     

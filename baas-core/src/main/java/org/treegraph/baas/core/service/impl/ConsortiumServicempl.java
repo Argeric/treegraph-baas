@@ -512,7 +512,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			customizedScriptContent.append(ConfluxConstant.PROPERTY_MINING_AUTHOR + " = \"" + miningAuthor + "\"")
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-			customizedScriptContent.append("upd_port= " + node.getNodePort())
+			customizedScriptContent.append("udp_port= " + node.getNodePort())
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			
 			// build script map

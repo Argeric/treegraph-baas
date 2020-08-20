@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +67,8 @@ public class AllTests {
 	
 	private MockMvc mockMvc;
 	
+	private static int cntr = 0;
+	
 	private static String testConsortiumId = "940fcaad-0fa0-44bf-a59e-88dbaf202186";
 	
 	private static String testBlockchainId = "e225a92e-c863-4f32-bb17-d01175001e61";
@@ -98,19 +100,19 @@ public class AllTests {
 	
 	private static String token = null;
 	
-	@BeforeClass
+	@Before
 	public void setup() throws Exception {
-		//context = (WebApplicationContext) SpringContextUtils.getApplicationContext();
-		//nodeDas = (NodeDas)SpringContextUtils.getBean("org.treegraph.baas.core.das.impl.NodeDasImpl");
-		//vaultKeypairBuildService = (VaultKeypairBuildService)SpringContextUtils.getBean("org.treegraph.baas.core.service.impl.VaultKeypairBuildService");
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		nodeDas.deleteByIpPort(toAddNodeIp, toAddNodePort);
-		login();
-		log.info("dubbo call check------>1");
-		generateScripts(testConsortiumId, null);
-		writeScripts(scriptPath, configPath);
-		deployBlockchain(configPath);
-		getExistNodeKeypairs();
+		if(cntr == 0) {
+			mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+			nodeDas.deleteByIpPort(toAddNodeIp, toAddNodePort);
+			login();
+			log.info("dubbo call check------>1");
+			generateScripts(testConsortiumId, null);
+			writeScripts(scriptPath, configPath);
+			deployBlockchain(configPath);
+			getExistNodeKeypairs();
+			cntr++;
+		}
 	}
     
     @Test

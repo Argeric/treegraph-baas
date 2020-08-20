@@ -258,8 +258,8 @@ public class AllTests {
          * deploy
          */
         List<Process> processes = new ArrayList<>(10);
-        File[] files = new File(configPath).listFiles();
-        for (File folder : files){
+        File[] folders = new File(configPath).listFiles();
+        for (File folder : folders){
             ProcessBuilder builder = new ProcessBuilder(binaryPath, "--customized-config","customized_config.toml");
             builder.directory(folder);
             builder.redirectError(new File(folder+File.separator+"stderr"));

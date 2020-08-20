@@ -47,7 +47,7 @@ public class RpcBlockchainService {
     private HeartbeatService heartbeatService;
     
     public void sendMembershipChangeTransaction(String consortiumId, List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
-			List<NodeKeypairBo> removeNodeKeypairs) throws IOException, InterruptedException {
+			List<NodeKeypairBo> removeNodeKeypairs) throws IOException {
 		// build rpc client
     	List<NodePo> existNodes = existNodeKeypairs.stream().map(item -> item.getNode()).collect(Collectors.toList());
 		Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(existNodes);
@@ -140,12 +140,14 @@ public class RpcBlockchainService {
 		 * output:
 		 * ---???
 		 */
-		TimeUnit.SECONDS.sleep(60);
 		checkNodeClient(existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs, nodeIdRpcHttpPortMap);
 	}
     
     public boolean checkNodeClient(List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
 			List<NodeKeypairBo> removeNodeKeypairs, Map<String, Integer> nodeIdRpcHttpPortMap) {
+    	/**
+    	 * get expect epoch number
+    	 */
     	int expectValue = existNodeKeypairs.size();
     	if(CollectionUtils.isNotEmpty(addNodeKeypairs)) {
     		expectValue += addNodeKeypairs.size();
@@ -156,6 +158,14 @@ public class RpcBlockchainService {
     		removeNodeKeypairs.stream().forEach(item -> removedNodeIds.add(item.getNode().getId()));
     	}
     	
+    	/**
+    	 * wait 60 sec, and then send request
+    	 */
+    	try {
+			TimeUnit.SECONDS.sleep(60);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
     	List<Integer> bftEpochNumbers = Lists.newArrayList();
     	existNodeKeypairs.stream().filter(item -> !removedNodeIds.contains(item.getNode().getId())).forEach(item -> {
 	    	String uri = ConfluxUtils.toJsonRpcUri(item.getNode().getNodeIp(), nodeIdRpcHttpPortMap.get(item.getNode().getId()));
@@ -168,6 +178,9 @@ public class RpcBlockchainService {
 	    	log.info("checkNodeClient uri--->{}, txRequest--->{}, txResponse--->{}", uri, JSON.toJSONString(getBftEpochNumberRequest), getBftEpochNumberResponse);
     	});
     	
+    	/**
+    	 * check bftEpochNumber with expect value
+    	 */
     	boolean checkResult = Boolean.TRUE;
     	for(int bftEpochNumber : bftEpochNumbers){
     		checkResult = checkResult && (bftEpochNumber == expectValue);

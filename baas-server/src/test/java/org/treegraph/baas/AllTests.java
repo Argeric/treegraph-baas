@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,7 +98,7 @@ public class AllTests {
 	
 	private static String token = null;
 	
-	@Before
+	@BeforeClass
 	public void setup() throws Exception {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		nodeDas.deleteByIpPort(toAddNodeIp, toAddNodePort);

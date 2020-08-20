@@ -85,9 +85,9 @@ public class RpcBlockchainService {
 		String proposerPublicKey = "0x"+proposerEcKeypair.getPublicKey().toString(16);
 		Request<String, StringResponse> applyRequest = cfx.getCustomizedRequest(StringResponse.class,
 				ConfluxConstant.RPC_ADD_DELETE_NODE, existPublicKeys, proposerPublicKey);
-		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}", uri, "address", JSON.toJSONString(applyRequest));
+		log.info("RpcBlockchainService uri--->{}, txRequest--->{}", uri, JSON.toJSONString(applyRequest));
 		String applyResponse = applyRequest.sendAndGet();
-		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(applyRequest), applyResponse);
+		log.info("RpcBlockchainService uri--->{}, txRequest--->{}, txResponse--->{}", uri, JSON.toJSONString(applyRequest), applyResponse);
 		Assert.isTrue(applyResponse != null, ConfluxConstant.RPC_ADD_DELETE_NODE + " error");
 		
 		/*
@@ -98,9 +98,9 @@ public class RpcBlockchainService {
 		 * ---Vector<signature>
 		 */
 		String hexEncoded = "0x" + HexUtils.byteArrToHex(applyResponse.getBytes("UTF-8"));
-		List<KeypairPo> leftKeypairs = getLeftKeypairs(existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs);
+		List<KeypairPo> leftNodeKeypairs = getLeftKeypairs(existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs);
 		Map<KeypairPo, String> ringSignatureMap = Maps.newHashMap();
-		leftKeypairs.stream().forEach(item -> {
+		leftNodeKeypairs.stream().forEach(item -> {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getPublicKey(), item.getPrivateKey(),
 					item.getAlgorithm());
 			String signature = AccountManager.signMessage(Numeric.hexStringToByteArray(hexEncoded), true, ecKeypair);
@@ -129,10 +129,9 @@ public class RpcBlockchainService {
 		});
 		Request<String, StringResponse> confirmRequest = cfx.getCustomizedRequest(StringResponse.class,
 				ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM, applyResponse, leftPublicKeys, ringSignatures);
-		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}", uri, "address", JSON.toJSONString(confirmRequest));
+		log.info("RpcBlockchainService uri--->{}, txRequest--->{}", uri, JSON.toJSONString(confirmRequest));
 		String confirmResponse = confirmRequest.sendAndGet(3);
-		log.info("RpcBlockchainService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(confirmRequest), confirmResponse);
-		//Assert.isTrue(confirmResponse != null, ConfluxConstant.RPC_ADD_DELETE_NODE + " error");
+		log.info("RpcBlockchainService uri--->{}, txRequest--->{}, txResponse--->{}", uri, JSON.toJSONString(confirmRequest), confirmResponse);
 		
 		/*
 		 * 4. RPC name: cfx_getBFTEpochNumber
@@ -140,20 +139,36 @@ public class RpcBlockchainService {
 		 * output:
 		 * ---???
 		 */
-		checkNodeClient(existNodes, nodeIdRpcHttpPortMap);
+		checkNodeClient(existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs, nodeIdRpcHttpPortMap);
 	}
     
-    private boolean checkNodeClient(List<NodePo> existNodes, Map<String, Integer> nodeIdRpcHttpPortMap) {
-    	
-    	for(NodePo node:existNodes) {
-	    	String uri = ConfluxUtils.toJsonRpcUri(node.getNodeIp(), nodeIdRpcHttpPortMap.get(node.getId()));
-	    	Cfx cfx = Cfx.create(uri);
-	    	Request<BigInteger, BigIntResponse> getBftEpochNumberRequest = cfx.getCustomizedRequest(BigIntResponse.class, ConfluxConstant.RPC_GET_BFT_EPOCH_NUMBER);
-	    	BigInteger response = getBftEpochNumberRequest.sendAndGet();
-	    	log.info("checkNodeClient uri--->{}, response--->{}", uri, response);
+    public boolean checkNodeClient(List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
+			List<NodeKeypairBo> removeNodeKeypairs, Map<String, Integer> nodeIdRpcHttpPortMap) {
+    	int expectValue = existNodeKeypairs.size();
+    	if(CollectionUtils.isNotEmpty(addNodeKeypairs)) {
+    		expectValue += addNodeKeypairs.size();
+    	}
+    	if(CollectionUtils.isNotEmpty(removeNodeKeypairs)) {
+    		expectValue -= removeNodeKeypairs.size();
     	}
     	
-    	return false;
+    	List<Integer> bftEpochNumbers = Lists.newArrayList();
+    	existNodeKeypairs.stream().forEach(item -> {
+	    	String uri = ConfluxUtils.toJsonRpcUri(item.getNode().getNodeIp(), nodeIdRpcHttpPortMap.get(item.getNode().getId()));
+	    	Cfx cfx = Cfx.create(uri);
+	    	Request<BigInteger, BigIntResponse> getBftEpochNumberRequest = cfx.getCustomizedRequest(BigIntResponse.class, ConfluxConstant.RPC_GET_BFT_EPOCH_NUMBER);
+	    	log.info("checkNodeClient uri--->{}, txRequest--->{}", uri, getBftEpochNumberRequest);
+	    	BigInteger getBftEpochNumberResponse = getBftEpochNumberRequest.sendAndGet();
+	    	bftEpochNumbers.add(getBftEpochNumberResponse.intValue());
+	    	log.info("checkNodeClient uri--->{}, txRequest--->{}, txResponse--->{}", uri, getBftEpochNumberRequest, getBftEpochNumberResponse);
+    	});
+    	
+    	boolean checkResult = Boolean.TRUE;
+    	for(int bftEpochNumber : bftEpochNumbers){
+    		checkResult = checkResult && (bftEpochNumber == expectValue);
+    	}
+    	
+    	return checkResult;
     }
 
 	private Map<String, Boolean> getHeartbeatMap(List<NodePo> existNodes, Map<String, Integer> nodeIdRpcPortMap) {

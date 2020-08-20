@@ -148,14 +148,17 @@ public class RpcBlockchainService {
     	if(CollectionUtils.isNotEmpty(addNodeKeypairs)) {
     		expectValue += addNodeKeypairs.size();
     	}
+    	Set<String> removedNodeIds = Sets.newHashSet();
     	if(CollectionUtils.isNotEmpty(removeNodeKeypairs)) {
     		expectValue -= removeNodeKeypairs.size();
+    		removeNodeKeypairs.stream().forEach(item -> removedNodeIds.add(item.getNode().getId()));
     	}
     	
     	List<Integer> bftEpochNumbers = Lists.newArrayList();
-    	existNodeKeypairs.stream().forEach(item -> {
+    	existNodeKeypairs.stream().filter(item -> !removedNodeIds.contains(item.getNode().getId())).forEach(item -> {
 	    	String uri = ConfluxUtils.toJsonRpcUri(item.getNode().getNodeIp(), nodeIdRpcHttpPortMap.get(item.getNode().getId()));
 	    	Cfx cfx = Cfx.create(uri);
+	    	log.info("checkNodeClient uri--->{}", uri);
 	    	Request<BigInteger, BigIntResponse> getBftEpochNumberRequest = cfx.getCustomizedRequest(BigIntResponse.class, ConfluxConstant.RPC_GET_BFT_EPOCH_NUMBER);
 	    	log.info("checkNodeClient uri--->{}, txRequest--->{}", uri, JSON.toJSONString(getBftEpochNumberRequest));
 	    	BigInteger getBftEpochNumberResponse = getBftEpochNumberRequest.sendAndGet();

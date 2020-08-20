@@ -98,7 +98,7 @@ public class AllTests {
 	@BeforeClass
 	public static void setup() throws Exception {
 		context = (WebApplicationContext) SpringContextUtils.getApplicationContext();
-		nodeDas = (NodeDas)context.getBean("org.treegraph.baas.core.das.NodeDas");
+		nodeDas = (NodeDas)context.getBean("org.treegraph.baas.core.das.impl.NodeDasImpl");
 		vaultKeypairBuildService = (VaultKeypairBuildService)context.getBean("org.treegraph.baas.core.service.impl.VaultKeypairBuildService");
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		nodeDas.deleteByIpPort(toAddNodeIp, toAddNodePort);

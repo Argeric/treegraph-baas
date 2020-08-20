@@ -15,6 +15,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -39,7 +40,6 @@ import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.service.impl.VaultKeypairBuildService;
 import org.treegraph.baas.core.util.FileUtils;
-import org.treegraph.baas.core.util.SpringContextUtils;
 import org.web3j.crypto.ECKeyPair;
 
 import com.alibaba.fastjson.JSON;
@@ -56,13 +56,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AllTests {
 	
-	private static WebApplicationContext context;
+	@Autowired
+	private WebApplicationContext context;
 	
-	private static NodeDas nodeDas;
+	@Autowired
+	private NodeDas nodeDas;
 	
-	private static VaultKeypairBuildService vaultKeypairBuildService;
+	@Autowired
+	private VaultKeypairBuildService vaultKeypairBuildService;
 	
-	private static MockMvc mockMvc;
+	private MockMvc mockMvc;
 	
 	private static String testConsortiumId = "940fcaad-0fa0-44bf-a59e-88dbaf202186";
 	
@@ -96,10 +99,10 @@ public class AllTests {
 	private static String token = null;
 	
 	@BeforeClass
-	public static void setup() throws Exception {
-		context = (WebApplicationContext) SpringContextUtils.getApplicationContext();
-		nodeDas = (NodeDas)SpringContextUtils.getBean("org.treegraph.baas.core.das.impl.NodeDasImpl");
-		vaultKeypairBuildService = (VaultKeypairBuildService)SpringContextUtils.getBean("org.treegraph.baas.core.service.impl.VaultKeypairBuildService");
+	public void setup() throws Exception {
+		//context = (WebApplicationContext) SpringContextUtils.getApplicationContext();
+		//nodeDas = (NodeDas)SpringContextUtils.getBean("org.treegraph.baas.core.das.impl.NodeDasImpl");
+		//vaultKeypairBuildService = (VaultKeypairBuildService)SpringContextUtils.getBean("org.treegraph.baas.core.service.impl.VaultKeypairBuildService");
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		nodeDas.deleteByIpPort(toAddNodeIp, toAddNodePort);
 		login();
@@ -190,7 +193,7 @@ public class AllTests {
         TimeUnit.SECONDS.sleep(60 * 60);
     }
     
-	private static void login() throws Exception {
+	private void login() throws Exception {
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/sys/login")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.content("{\"account\":\"sys-admin\",\"password\":\"123456\"}"))
@@ -207,7 +210,7 @@ public class AllTests {
 	}
 	
 	
-	private static void generateScripts(String consId, List<String> nodeId) throws Exception {
+	private void generateScripts(String consId, List<String> nodeId) throws Exception {
 		
 		DownloadDeployScriptRequest downloadDeployScriptRequest = DownloadDeployScriptRequest.builder()
 				.consId(consId)
@@ -223,7 +226,7 @@ public class AllTests {
 				.andReturn();
 	}
 	
-	private static void writeScripts(String scriptPath, String configPath) throws Exception {
+	private void writeScripts(String scriptPath, String configPath) throws Exception {
 		/*
 		 * write deploy script
 		 */
@@ -255,7 +258,7 @@ public class AllTests {
 		log.info("parse json rpc http port result--->{}", JSON.toJSONString(jsonRpcHttpPortMap));
 	}
 	
-    private static void deployBlockchain(String configPath) throws IOException, InterruptedException {
+    private void deployBlockchain(String configPath) throws IOException, InterruptedException {
         /*
          * deploy
          */
@@ -273,14 +276,14 @@ public class AllTests {
         TimeUnit.SECONDS.sleep(60);
     }
 	
-	private static void getExistNodeKeypairs() {
+	private void getExistNodeKeypairs() {
         List<NodePo> nodes = nodeDas.findByConsIdAndChainId(testConsortiumId, testBlockchainId);
         nodeKeypairs = nodes.stream()
         		.map(item -> vaultKeypairBuildService.getNodeKeypair(testConsortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null))
 				.collect(Collectors.toList());
 	}
 	
-	private static String parseJsonRpcHttpPort(File customizedConfigFile) {
+	private String parseJsonRpcHttpPort(File customizedConfigFile) {
 		try {
 			String[] lines = FileUtil.readLines(customizedConfigFile);
 			String[] keyValuePair = lines[0].split("=");

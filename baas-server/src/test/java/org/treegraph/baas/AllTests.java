@@ -103,6 +103,7 @@ public class AllTests {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		nodeDas.deleteByIpPort(toAddNodeIp, toAddNodePort);
 		login();
+		log.info("dubbo call check------>1");
 		generateScripts(testConsortiumId, null);
 		writeScripts(scriptPath, configPath);
 		deployBlockchain(configPath);
@@ -202,6 +203,7 @@ public class AllTests {
 		token = baasResult.getData().getToken();
 		log.info("login token--->{}", token);
 		Assert.assertNotNull("login error, no token return!", token);
+		log.info("dubbo call check------>2");
 	}
 	
 	

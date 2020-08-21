@@ -36,7 +36,6 @@ import org.treegraph.baas.core.constant.CharacterConstant;
 import org.treegraph.baas.core.constant.X509CertConstant;
 import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
-import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.service.impl.VaultKeypairBuildService;
 import org.treegraph.baas.core.util.FileUtils;
@@ -113,38 +112,10 @@ public class AllTests {
 			writeScripts(scriptPath, configPath);
 			deployBlockchain(configPath);
 			getExistNodeKeypairs();
+			rechargeGenesis();
 			initialized = true;
 		}
 	}
-    
-    @Test
-    public void testRechargeGenesis() {
-        /*
-         * genesis private key :0x46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f
-         * genesis total token 5 * 10 ** 36
-         */
-        BigInteger currentNonce = BigInteger.ZERO;
-        for(NodeKeypairBo nodeKeypair : nodeKeypairs) {
-			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypair.getKeypair().getPublicKey(),
-					nodeKeypair.getKeypair().getPrivateKey(), nodeKeypair.getKeypair().getAlgorithm());
-			String address = "0x1" + Keys.getAddress(ecKeypair).substring(1);
-			RawTransaction tx = RawTransaction.create(currentNonce, new BigInteger("21000"), address,
-					new BigInteger("100000000000000000000000"), null, BigInteger.ZERO, null);
-			ECKeyPair ecKeyPair = ECKeyPair
-					.create(new BigInteger("46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f", 16));
-			String txSign = tx.sign(ecKeyPair);
-			
-			NodePo node = nodeKeypair.getNode();
-			String jsonRpcHttpPort = jsonRpcHttpPortMap.get(node.getNodeIp()+CharacterConstant.AT+node.getNodePort());
-			String uri = "http://" + node.getNodeIp() + ":" + jsonRpcHttpPort;
-			log.info("genesis recharge, nonce--->{}, uri--->{}", currentNonce, uri);
-			
-			Cfx cfx = Cfx.create(uri);
-            String txResult = cfx.sendRawTransaction(txSign).sendAndGet();
-            currentNonce = currentNonce.add(BigInteger.ONE);
-            log.info("genesis recharge, nonce--->{}, result--->{}", currentNonce, txResult);
-        }
-    }
     
     @SuppressWarnings("unused")
 	@Test
@@ -288,6 +259,34 @@ public class AllTests {
         		.map(item -> vaultKeypairBuildService.getNodeKeypair(testConsortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null))
 				.collect(Collectors.toList());
 	}
+	
+	private void rechargeGenesis() {
+        /*
+         * genesis private key :0x46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f
+         * genesis total token 5 * 10 ** 36
+         */
+        BigInteger currentNonce = BigInteger.ZERO;
+        for(NodeKeypairBo nodeKeypair : nodeKeypairs) {
+			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypair.getKeypair().getPublicKey(),
+					nodeKeypair.getKeypair().getPrivateKey(), nodeKeypair.getKeypair().getAlgorithm());
+			String address = "0x1" + Keys.getAddress(ecKeypair).substring(1);
+			RawTransaction tx = RawTransaction.create(currentNonce, new BigInteger("21000"), address,
+					new BigInteger("100000000000000000000000"), null, BigInteger.ZERO, null);
+			ECKeyPair ecKeyPair = ECKeyPair
+					.create(new BigInteger("46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f", 16));
+			String txSign = tx.sign(ecKeyPair);
+			
+			NodePo node = nodeKeypair.getNode();
+			String jsonRpcHttpPort = jsonRpcHttpPortMap.get(node.getNodeIp()+CharacterConstant.AT+node.getNodePort());
+			String uri = "http://" + node.getNodeIp() + ":" + jsonRpcHttpPort;
+			log.info("genesis recharge, nonce--->{}, uri--->{}", currentNonce, uri);
+			
+			Cfx cfx = Cfx.create(uri);
+            String txResult = cfx.sendRawTransaction(txSign).sendAndGet();
+            currentNonce = currentNonce.add(BigInteger.ONE);
+            log.info("genesis recharge, nonce--->{}, result--->{}", currentNonce, txResult);
+        }
+    }
 	
 	private String parseJsonRpcHttpPort(File customizedConfigFile) {
 		try {

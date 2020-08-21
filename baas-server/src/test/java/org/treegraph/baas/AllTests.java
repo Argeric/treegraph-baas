@@ -248,7 +248,7 @@ public class AllTests {
             builder.redirectOutput(new File(folder+File.separator+"stdout"));
             processes.add(builder.start());
             log.info("start conflux process--->{}", folder.getName());
-            TimeUnit.SECONDS.sleep(5);
+            TimeUnit.SECONDS.sleep(10);
         }
         log.info("start conflux process result--->completed!");
         TimeUnit.SECONDS.sleep(60);

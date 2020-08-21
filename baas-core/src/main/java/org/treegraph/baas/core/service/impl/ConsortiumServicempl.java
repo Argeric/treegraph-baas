@@ -22,6 +22,7 @@ import java.util.zip.ZipOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -440,7 +441,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
 					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
 			consortiumNodes.append("cfxnode://");
-			consortiumNodes.append(ecKeypair.getPublicKey().toString(16) + CharacterConstant.AT + nodeKeypairBo.getNode().getNodeIp()
+			consortiumNodes.append(StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0') + CharacterConstant.AT + nodeKeypairBo.getNode().getNodeIp()
 					+ CharacterConstant.COLON + nodeKeypairBo.getNode().getNodePort());
 			if(!node.getId().equalsIgnoreCase(nodes.get(nodes.size()-1).getId())) {
 				consortiumNodes.append(CharacterConstant.COMMA);
@@ -468,8 +469,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
 					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
-			scriptContent.append("consortium_keypair = \"" + ecKeypair.getPublicKey().toString(16) + CharacterConstant.COMMA
-					+ ecKeypair.getPrivateKey().toString(16) + "\"")
+			scriptContent.append("consortium_keypair = \"" + StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0') + CharacterConstant.COMMA
+					+ StringUtils.leftPad(ecKeypair.getPrivateKey().toString(16), 64, '0') + "\"")
 				.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			scriptContent.append("grpc_server_cert = \"\"\"" + nodeKeypairBo.getKeypair().getCertStr() + "\"\"\"")
 				.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
@@ -540,5 +541,10 @@ public class ConsortiumServicempl implements ConsortiumService {
 		keypairDas.addKeyPairInfo(rootKeypair, consortiumKeypair, nodeKeypairBoList, customizedConfigList, stepFactorCustomizedConfig);
 		log.info("build deploy script finished[{}]", consortiumId);
 		return nodeScriptContentMap;
+	}
+	
+	public static void main(String[] args) {
+		String s = StringUtils.leftPad("51ee302acfcd727c066fc16588272d89ca5758822babd6d957aed6e07af61f1", 64, '0');
+		System.out.println(s);
 	}
 }

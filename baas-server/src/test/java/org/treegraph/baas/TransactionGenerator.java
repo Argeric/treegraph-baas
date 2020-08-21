@@ -8,9 +8,9 @@ import java.util.TimerTask;
 
 import org.treegraph.baas.core.constant.CharacterConstant;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
+import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
-import org.web3j.crypto.Keys;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
@@ -50,7 +50,7 @@ public class TransactionGenerator extends TimerTask {
 	        
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(sender.getKeypair().getPublicKey(),
 					sender.getKeypair().getPrivateKey(), sender.getKeypair().getAlgorithm());
-			String address = "0x1" + Keys.getAddress(ecKeypair).substring(1);
+			String address = "0x" + ConfluxUtils.toAddress(ecKeypair);
 			
 	        BigInteger nonce= cfx.getNonce(address, Epoch.latestState()).sendAndGet();
 	        BigInteger currentNonce= getNonce(address);

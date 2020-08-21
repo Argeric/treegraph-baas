@@ -38,10 +38,10 @@ import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.service.impl.VaultKeypairBuildService;
+import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.FileUtils;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
-import org.web3j.crypto.Keys;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
@@ -269,7 +269,7 @@ public class AllTests {
         for(NodeKeypairBo nodeKeypair : nodeKeypairs) {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypair.getKeypair().getPublicKey(),
 					nodeKeypair.getKeypair().getPrivateKey(), nodeKeypair.getKeypair().getAlgorithm());
-			String address = "0x1" + Keys.getAddress(ecKeypair).substring(1);
+			String address = "0x" + ConfluxUtils.toAddress(ecKeypair);
 			RawTransaction tx = RawTransaction.create(currentNonce, new BigInteger("21000"), address,
 					new BigInteger("100000000000000000000000"), null, BigInteger.ZERO, null);
 			ECKeyPair ecKeyPair = ECKeyPair

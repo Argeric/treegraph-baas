@@ -40,7 +40,9 @@ import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.service.impl.VaultKeypairBuildService;
 import org.treegraph.baas.core.util.FileUtils;
+import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
+import org.web3j.crypto.Keys;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
@@ -115,85 +117,87 @@ public class AllTests {
 		}
 	}
     
-//    @Test
-//    public void testRechargeGenesis() {
-//        /*
-//         * genesis private key :0x46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f
-//         * genesis total token 5 * 10 ** 36
-//         */
-//        BigInteger currentNonce = BigInteger.ZERO;
-//        for(NodeKeypairBo nodeKeypair : nodeKeypairs) {
-//        	KeypairPo keypair = nodeKeypair.getKeypair();
-//			RawTransaction tx = RawTransaction.create(currentNonce, new BigInteger("21000"), keypair.getPublicKey(),
-//					new BigInteger("100000000000000000000000000000000"), null, BigInteger.ZERO, null);
-//			ECKeyPair ecKeyPair = ECKeyPair
-//					.create(new BigInteger("46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f", 16));
-//			String txSign = tx.sign(ecKeyPair);
-//			
-//			NodePo node = nodeKeypair.getNode();
-//			String jsonRpcHttpPort = jsonRpcHttpPortMap.get(node.getNodeIp()+CharacterConstant.AT+node.getNodePort());
-//			String uri = "http://" + node.getNodeIp() + ":" + jsonRpcHttpPort;
-//			log.info("genesis recharge, nonce--->{}, uri--->{}", currentNonce, uri);
-//			
-//			Cfx cfx = Cfx.create(uri);
-//            String txResult = cfx.sendRawTransaction(txSign).sendAndGet();
-//            currentNonce = currentNonce.add(BigInteger.ONE);
-//            log.info("genesis recharge, nonce--->{}, result--->{}", currentNonce, txResult);
-//        }
-//    }
-    
-    @SuppressWarnings("unused")
-	@Test
-    public void testMembershipChange() throws Exception{
+    @Test
+    public void testRechargeGenesis() {
         /*
-         * start tx generator
+         * genesis private key :0x46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f
+         * genesis total token 5 * 10 ** 36
          */
-        Timer timer  = new Timer();
-        timer.schedule(new TransactionGenerator(nodeKeypairs, jsonRpcHttpPortMap), 0 ,1000);
-        TimeUnit.SECONDS.sleep(60);
-        
-        /**
-         * add node
-         */
-        NodeInfo node1 = NodeInfo.builder()
-        		.ip(toAddNodeIp).port(toAddNodePort+"").org("org1").build();
-        AddNodesRequest addNodesRequest = AddNodesRequest.builder()
-        		.consId(testConsortiumId)
-        		.blockchainId(testBlockchainId)
-        		.nodes(Lists.newArrayList(node1))
-        		.build();
-        MvcResult addResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/node/create")
-				.contentType(MediaType.APPLICATION_JSON_UTF8)
-				.header("X-Token", token)
-				.content(JSON.toJSONString(addNodesRequest)))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andDo(MockMvcResultHandlers.print())
-				.andReturn();
-        TimeUnit.SECONDS.sleep(60);
-        
-        /**
-         * start new node
-         */
-        NodePo node11 = nodeDas.findByIpPort(node1.getIp(), Integer.parseInt(node1.getPort()));
-        log.info("node11--->{}", JSON.toJSONString(node11));
-        generateScripts(node11.getConsortiumId(), Lists.newArrayList(node11.getId()));
-        writeScripts(newNodeScriptPath, newNodeConfigPath);
-		deployBlockchain(newNodeConfigPath);
-        
-       	/**
-       	 * delete node
-       	 */
-        DeleteNodeRequest delNodeRequest = DeleteNodeRequest.builder()
-        		.id(node11.getId()).ip(node1.getId()).port(node1.getPort()).build();
-        MvcResult removeResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/del")
-				.contentType(MediaType.APPLICATION_JSON_UTF8)
-				.header("X-Token", token)
-				.content(JSON.toJSONString(delNodeRequest)))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andDo(MockMvcResultHandlers.print())
-				.andReturn();
-        TimeUnit.SECONDS.sleep(60 * 60);
+        BigInteger currentNonce = BigInteger.ZERO;
+        for(NodeKeypairBo nodeKeypair : nodeKeypairs) {
+			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypair.getKeypair().getPublicKey(),
+					nodeKeypair.getKeypair().getPrivateKey(), nodeKeypair.getKeypair().getAlgorithm());
+			String address = "0x1" + Keys.getAddress(ecKeypair).substring(1);
+			RawTransaction tx = RawTransaction.create(currentNonce, new BigInteger("21000"), address,
+					new BigInteger("100000000000000000000000"), null, BigInteger.ZERO, null);
+			ECKeyPair ecKeyPair = ECKeyPair
+					.create(new BigInteger("46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f", 16));
+			String txSign = tx.sign(ecKeyPair);
+			
+			NodePo node = nodeKeypair.getNode();
+			String jsonRpcHttpPort = jsonRpcHttpPortMap.get(node.getNodeIp()+CharacterConstant.AT+node.getNodePort());
+			String uri = "http://" + node.getNodeIp() + ":" + jsonRpcHttpPort;
+			log.info("genesis recharge, nonce--->{}, uri--->{}", currentNonce, uri);
+			
+			Cfx cfx = Cfx.create(uri);
+            String txResult = cfx.sendRawTransaction(txSign).sendAndGet();
+            currentNonce = currentNonce.add(BigInteger.ONE);
+            log.info("genesis recharge, nonce--->{}, result--->{}", currentNonce, txResult);
+        }
     }
+    
+//    @SuppressWarnings("unused")
+//	@Test
+//    public void testMembershipChange() throws Exception{
+//        /*
+//         * start tx generator
+//         */
+//        Timer timer  = new Timer();
+//        timer.schedule(new TransactionGenerator(nodeKeypairs, jsonRpcHttpPortMap), 0 ,1000);
+//        TimeUnit.SECONDS.sleep(60);
+//        
+//        /**
+//         * add node
+//         */
+//        NodeInfo node1 = NodeInfo.builder()
+//        		.ip(toAddNodeIp).port(toAddNodePort+"").org("org1").build();
+//        AddNodesRequest addNodesRequest = AddNodesRequest.builder()
+//        		.consId(testConsortiumId)
+//        		.blockchainId(testBlockchainId)
+//        		.nodes(Lists.newArrayList(node1))
+//        		.build();
+//        MvcResult addResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/node/create")
+//				.contentType(MediaType.APPLICATION_JSON_UTF8)
+//				.header("X-Token", token)
+//				.content(JSON.toJSONString(addNodesRequest)))
+//				.andExpect(MockMvcResultMatchers.status().isOk())
+//				.andDo(MockMvcResultHandlers.print())
+//				.andReturn();
+//        TimeUnit.SECONDS.sleep(60);
+//        
+//        /**
+//         * start new node
+//         */
+//        NodePo node11 = nodeDas.findByIpPort(node1.getIp(), Integer.parseInt(node1.getPort()));
+//        log.info("node11--->{}", JSON.toJSONString(node11));
+//        generateScripts(node11.getConsortiumId(), Lists.newArrayList(node11.getId()));
+//        writeScripts(newNodeScriptPath, newNodeConfigPath);
+//		deployBlockchain(newNodeConfigPath);
+//        
+//       	/**
+//       	 * delete node
+//       	 */
+//        DeleteNodeRequest delNodeRequest = DeleteNodeRequest.builder()
+//        		.id(node11.getId()).ip(node1.getId()).port(node1.getPort()).build();
+//        MvcResult removeResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/del")
+//				.contentType(MediaType.APPLICATION_JSON_UTF8)
+//				.header("X-Token", token)
+//				.content(JSON.toJSONString(delNodeRequest)))
+//				.andExpect(MockMvcResultMatchers.status().isOk())
+//				.andDo(MockMvcResultHandlers.print())
+//				.andReturn();
+//        TimeUnit.SECONDS.sleep(60 * 60);
+//    }
     
 	private void login() throws Exception {
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/sys/login")

@@ -153,7 +153,7 @@ public class AllTests {
         log.info("node11--->{}", JSON.toJSONString(node11));
         generateScripts(node11.getConsortiumId(), Lists.newArrayList(node11.getId()));
         writeScripts(newNodeScriptPath, newNodeConfigPath);
-		deployBlockchain(newNodeConfigPath);
+		//deployBlockchain(newNodeConfigPath);
         
        	/**
        	 * delete node

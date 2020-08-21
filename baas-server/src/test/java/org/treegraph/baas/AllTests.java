@@ -146,58 +146,58 @@ public class AllTests {
         }
     }
     
-//    @SuppressWarnings("unused")
-//	@Test
-//    public void testMembershipChange() throws Exception{
-//        /*
-//         * start tx generator
-//         */
-//        Timer timer  = new Timer();
-//        timer.schedule(new TransactionGenerator(nodeKeypairs, jsonRpcHttpPortMap), 0 ,1000);
-//        TimeUnit.SECONDS.sleep(60);
-//        
-//        /**
-//         * add node
-//         */
-//        NodeInfo node1 = NodeInfo.builder()
-//        		.ip(toAddNodeIp).port(toAddNodePort+"").org("org1").build();
-//        AddNodesRequest addNodesRequest = AddNodesRequest.builder()
-//        		.consId(testConsortiumId)
-//        		.blockchainId(testBlockchainId)
-//        		.nodes(Lists.newArrayList(node1))
-//        		.build();
-//        MvcResult addResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/node/create")
-//				.contentType(MediaType.APPLICATION_JSON_UTF8)
-//				.header("X-Token", token)
-//				.content(JSON.toJSONString(addNodesRequest)))
-//				.andExpect(MockMvcResultMatchers.status().isOk())
-//				.andDo(MockMvcResultHandlers.print())
-//				.andReturn();
-//        TimeUnit.SECONDS.sleep(60);
-//        
-//        /**
-//         * start new node
-//         */
-//        NodePo node11 = nodeDas.findByIpPort(node1.getIp(), Integer.parseInt(node1.getPort()));
-//        log.info("node11--->{}", JSON.toJSONString(node11));
-//        generateScripts(node11.getConsortiumId(), Lists.newArrayList(node11.getId()));
-//        writeScripts(newNodeScriptPath, newNodeConfigPath);
-//		deployBlockchain(newNodeConfigPath);
-//        
-//       	/**
-//       	 * delete node
-//       	 */
-//        DeleteNodeRequest delNodeRequest = DeleteNodeRequest.builder()
-//        		.id(node11.getId()).ip(node1.getId()).port(node1.getPort()).build();
-//        MvcResult removeResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/del")
-//				.contentType(MediaType.APPLICATION_JSON_UTF8)
-//				.header("X-Token", token)
-//				.content(JSON.toJSONString(delNodeRequest)))
-//				.andExpect(MockMvcResultMatchers.status().isOk())
-//				.andDo(MockMvcResultHandlers.print())
-//				.andReturn();
-//        TimeUnit.SECONDS.sleep(60 * 60);
-//    }
+    @SuppressWarnings("unused")
+	@Test
+    public void testMembershipChange() throws Exception{
+        /*
+         * start tx generator
+         */
+        Timer timer  = new Timer();
+        timer.schedule(new TransactionGenerator(nodeKeypairs, jsonRpcHttpPortMap), 0 ,1000);
+        TimeUnit.SECONDS.sleep(60);
+        
+        /**
+         * add node
+         */
+        NodeInfo node1 = NodeInfo.builder()
+        		.ip(toAddNodeIp).port(toAddNodePort+"").org("org1").build();
+        AddNodesRequest addNodesRequest = AddNodesRequest.builder()
+        		.consId(testConsortiumId)
+        		.blockchainId(testBlockchainId)
+        		.nodes(Lists.newArrayList(node1))
+        		.build();
+        MvcResult addResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/node/create")
+				.contentType(MediaType.APPLICATION_JSON_UTF8)
+				.header("X-Token", token)
+				.content(JSON.toJSONString(addNodesRequest)))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
+        TimeUnit.SECONDS.sleep(60);
+        
+        /**
+         * start new node
+         */
+        NodePo node11 = nodeDas.findByIpPort(node1.getIp(), Integer.parseInt(node1.getPort()));
+        log.info("node11--->{}", JSON.toJSONString(node11));
+        generateScripts(node11.getConsortiumId(), Lists.newArrayList(node11.getId()));
+        writeScripts(newNodeScriptPath, newNodeConfigPath);
+		deployBlockchain(newNodeConfigPath);
+        
+       	/**
+       	 * delete node
+       	 */
+        DeleteNodeRequest delNodeRequest = DeleteNodeRequest.builder()
+        		.id(node11.getId()).ip(node1.getId()).port(node1.getPort()).build();
+        MvcResult removeResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/del")
+				.contentType(MediaType.APPLICATION_JSON_UTF8)
+				.header("X-Token", token)
+				.content(JSON.toJSONString(delNodeRequest)))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
+        TimeUnit.SECONDS.sleep(60 * 60);
+    }
     
 	private void login() throws Exception {
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/sys/login")

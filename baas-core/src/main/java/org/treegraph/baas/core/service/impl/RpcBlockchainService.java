@@ -53,7 +53,7 @@ public class RpcBlockchainService {
 		Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(existNodes);
 		//Map<String, Boolean> heartbeatMap = getHeartbeatMap(existNodes, nodeIdRpcHttpPortMap);	
 		Map<String, Boolean> heartbeatMap = Maps.newHashMap();//mock
-		heartbeatMap.put("101.200.183.108@12537", true);//mock
+		heartbeatMap.put("127.0.0.1@12537", true);//mock
 		NodeKeypairBo proposerNodeKeypair = existNodeKeypairs.stream()
 				.filter(item -> {
 					NodePo node = item.getNode();

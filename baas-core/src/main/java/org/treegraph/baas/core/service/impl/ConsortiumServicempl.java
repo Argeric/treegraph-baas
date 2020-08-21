@@ -520,6 +520,10 @@ public class ConsortiumServicempl implements ConsortiumService {
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			customizedScriptContent.append("subnet_quota = 0")
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
+			customizedScriptContent.append("log_file='./conflux/.log'")
+					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
+			customizedScriptContent.append("log_level=\"trace\"")
+					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			
 			// build script map
 			List<String> scripts = Lists.newArrayList();

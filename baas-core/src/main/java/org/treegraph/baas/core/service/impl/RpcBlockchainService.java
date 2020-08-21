@@ -162,7 +162,7 @@ public class RpcBlockchainService {
     	 * wait 60 sec, and then send request
     	 */
     	try {
-			TimeUnit.SECONDS.sleep(60);
+			TimeUnit.SECONDS.sleep(60*3);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

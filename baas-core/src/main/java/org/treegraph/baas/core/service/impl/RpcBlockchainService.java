@@ -53,7 +53,9 @@ public class RpcBlockchainService {
     	List<NodeKeypairBo> committeeNodeKeypairs = getNodeKeypairForCommittee(existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs);
     	List<NodePo> committeeNodes = committeeNodeKeypairs.stream().map(item -> item.getNode()).collect(Collectors.toList());
 		Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(committeeNodes);
-		Map<String, Boolean> heartbeatMap = getHeartbeatMap(committeeNodes, nodeIdRpcHttpPortMap);	
+//		Map<String, Boolean> heartbeatMap = getHeartbeatMap(committeeNodes, nodeIdRpcHttpPortMap);	
+		Map<String, Boolean> heartbeatMap = Maps.newHashMap();//mock
+		heartbeatMap.put("127.0.0.1@12537", true);//mock
 		NodeKeypairBo proposerNodeKeypair = committeeNodeKeypairs.stream()
 				.filter(item -> {
 					NodePo node = item.getNode();

@@ -88,7 +88,7 @@ public class AllTests {
 	
 	private static String scriptName = "deploy.zip";
 	
-	private static String toAddNodeIp = "127.0.0.1";
+	private static String toAddNodeIp = "101.200.183.108";
 	
 	private static int toAddNodePort = 12345;
 	

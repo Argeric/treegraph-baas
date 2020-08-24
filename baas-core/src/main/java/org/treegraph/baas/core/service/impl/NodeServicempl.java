@@ -154,7 +154,7 @@ public class NodeServicempl implements NodeService {
 					.collect(Collectors.toList());
 			List<String> nodeIds = existNodes.stream().map(NodePo::getId).collect(Collectors.toList());
 			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.REMOVING_BY_MEMBERSHIP_CHANGE);
-			rpcBlockchainService.sendMembershipChangeTransaction(consId, existNodeKeypairs, null, toRemoveNodeKeypairs);
+			rpcBlockchainService.sendMembershipChangeTransactionPlus(consId, existNodeKeypairs, null, toRemoveNodeKeypairs);
 			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.REMOVED_BY_MEMBERSHIP_CHANGE);
 		}
 		

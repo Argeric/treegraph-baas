@@ -368,7 +368,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 					.collect(Collectors.toList());
 			toAddNodeKeypairs.stream().forEach(item -> item.getNode().setStatus(NodeEnum.Status.ADDING_BY_MEMBERSHIP_CHANGE.getCode()));
 			nodeDas.addNodeKeypairs(toAddNodeKeypairs);
-			rpcBlockchainService.sendMembershipChangeTransaction(req.getConsId(), existNodeKeypairs, toAddNodeKeypairs, null);
+			rpcBlockchainService.sendMembershipChangeTransactionPlus(req.getConsId(), existNodeKeypairs, toAddNodeKeypairs, null);
 			List<String> nodeIds = nodes.stream().map(NodePo::getId).collect(Collectors.toList());
 			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.ADDED_BY_MEMBERSHIP_CHANGE);
 		}

@@ -82,6 +82,6 @@ public class HeartbeatService {
 	}
 	
 	public static void main(String[] args) {
-		nodeHeartbeat("101.200.183.108", 32323);
+		nodeHeartbeat("101.200.183.108", 12537);
 	}
 }

@@ -19,17 +19,14 @@ import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.service.NodeCustomizedConfigService;
 import org.treegraph.baas.core.util.ConfluxUtils;
-import org.treegraph.baas.core.util.HexUtils;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
-import org.web3j.utils.Numeric;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import conflux.web3j.AccountManager;
 import conflux.web3j.Cfx;
 import conflux.web3j.Request;
 import conflux.web3j.response.BigIntResponse;
@@ -106,7 +103,9 @@ public class RpcBlockchainService {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getKeypair().getPublicKey(), item.getKeypair().getPrivateKey(),
 					item.getKeypair().getAlgorithm());
 			//String signature = AccountManager.signMessage(Numeric.hexStringToByteArray(hexEncoded), true, ecKeypair);
-			String signature = AccountManager.signMessage(rawJsonBytes, true, ecKeypair);
+			//String signature = AccountManager.signMessage(rawJsonBytes, true, ecKeypair);
+			String signature = ConfluxUtils.signMessage(rawJsonBytes, ecKeypair);
+			
 			ringSignatureMap.put(item.getKeypair(), signature);
 		});
 		log.info("RpcBlockchainService ringSignatureMap--->{}", JSON.toJSONString(ringSignatureMap));

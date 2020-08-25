@@ -71,9 +71,9 @@ public class HeartbeatService {
 			Cfx cfx = Cfx.create(uri);
 			Request<String, StringResponse> statusRequest = cfx.getCustomizedRequest(StringResponse.class,
 					ConfluxConstant.RPC_BEATHEART, new Object[0]);
-			log.info("HeartbeatService uri--->{}, address--->{}, txRequest--->{}", uri, "address", JSON.toJSONString(statusRequest));
+			log.info("HeartbeatService uri--->{}, txRequest--->{}", uri, JSON.toJSONString(statusRequest));
 			String statusResponse = statusRequest.sendAndGet();
-			log.info("HeartbeatService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse));
+			log.info("HeartbeatService uri--->{}, txRequest--->{}, txResponse--->{}", uri, JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse));
 			result = statusResponse != null;
 		} catch (Exception e) {
 			throw new RuntimeException(e);

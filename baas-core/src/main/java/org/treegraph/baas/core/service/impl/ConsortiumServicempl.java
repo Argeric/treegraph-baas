@@ -523,7 +523,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 //					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			customizedScriptContent.append("log_file='./conflux.log'")
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-			customizedScriptContent.append("log_level=\"info\"")
+			customizedScriptContent.append("log_level=\"trace\"")
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			
 			// build script map

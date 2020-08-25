@@ -99,12 +99,14 @@ public class RpcBlockchainService {
 		 * output: 
 		 * ---Vector<signature>
 		 */
-		String hexEncoded = "0x" + HexUtils.byteArrToHex(applyResponse.getBytes("UTF-8"));
+		//String hexEncoded = "0x" + HexUtils.byteArrToHex(applyResponse.getBytes("UTF-8"));
+		byte[] rawJsonBytes = applyResponse.getBytes("UTF-8");
 		Map<KeypairPo, String> ringSignatureMap = Maps.newHashMap();
 		committeeNodeKeypairs.stream().forEach(item -> {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getKeypair().getPublicKey(), item.getKeypair().getPrivateKey(),
 					item.getKeypair().getAlgorithm());
-			String signature = AccountManager.signMessage(Numeric.hexStringToByteArray(hexEncoded), true, ecKeypair);
+			//String signature = AccountManager.signMessage(Numeric.hexStringToByteArray(hexEncoded), true, ecKeypair);
+			String signature = AccountManager.signMessage(rawJsonBytes, true, ecKeypair);
 			ringSignatureMap.put(item.getKeypair(), signature);
 		});
 		log.info("RpcBlockchainService ringSignatureMap--->{}", JSON.toJSONString(ringSignatureMap));

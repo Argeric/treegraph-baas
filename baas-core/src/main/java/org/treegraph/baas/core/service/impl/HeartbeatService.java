@@ -39,7 +39,7 @@ public class HeartbeatService {
 			String nodeIp = node.getNodeIp();
 			int jsonRpcHttpPort = nodeIdRpcPortMap.get(node.getId());
 			return CompletableFuture.supplyAsync(() -> {
-				boolean status = nodeHeartbeat(nodeIp, jsonRpcHttpPort);
+				boolean status = false;//nodeHeartbeat(nodeIp, jsonRpcHttpPort);
 				return NodeBo.builder().nodeIp(nodeIp).jsonRpcHttpPort(jsonRpcHttpPort).status(status).build();
 			}, executor).exceptionally(e -> {
 				log.error("节点心跳检测异常[" + ConfluxUtils.toIpAtPort(nodeIp, jsonRpcHttpPort) + "]", e);

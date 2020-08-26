@@ -141,7 +141,7 @@ public class NodeServicempl implements NodeService {
 		
 		// after download deploy scripts, need check chain is launched already
 		if(establishStep == EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
-			List<NodePo> existNodes = nodeDas.findByConsIdAndChainId(consId, blockchainId, true);
+			List<NodePo> existNodes = nodeDas.findByConsIdAndChainId(consId, blockchainId, false);
 			List<NodeKeypairBo> existNodeKeypairs = existNodes.stream().map(
 					item -> vaultKeypairBuildService.getNodeKeypair(consId, X509CertConstant.DEFAULT_ALGO_NODE, item, null))
 					.collect(Collectors.toList());

@@ -324,7 +324,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 
 	public boolean addNodes(AddNodesRequest req) throws IOException {
 		//check
-		List<NodePo> existNodes = nodeDas.findByConsIdAndChainId(req.getConsId(), req.getBlockchainId(), true);
+		List<NodePo> existNodes = nodeDas.findByConsIdAndChainId(req.getConsId(), req.getBlockchainId(), false);
 		Set<String> dbIpPortSet = existNodes.stream().map(item -> item.getNodeIp() + ":" + item.getNodePort())
 				.collect(Collectors.toSet());
 		List<NodeInfo> reqNodes = req.getNodes();

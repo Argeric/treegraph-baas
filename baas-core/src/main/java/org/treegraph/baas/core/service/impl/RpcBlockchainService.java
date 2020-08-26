@@ -42,16 +42,19 @@ public class RpcBlockchainService {
     
     public void sendMembershipChangeTransactionPlus(String consortiumId, List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
 			List<NodeKeypairBo> removeNodeKeypairs) throws IOException {
+    	// get alive nodes
+		List<NodePo> existNodes = existNodeKeypairs.stream().map(item -> item.getNode()).collect(Collectors.toList());
+		Map<String, NodeBo> existNodeHeartbeatMap = heartbeatService.batchNodeHeartbeatPlus(existNodes);
+		List<NodeKeypairBo> aliveNodeKeypairs = existNodeKeypairs.stream()
+				.filter(item -> existNodeHeartbeatMap.get(item.getNode().getId()).isStatus())
+				.collect(Collectors.toList());
+		Assert.isTrue(CollectionUtils.isNotEmpty(aliveNodeKeypairs), "blockchain not lunched!");
+    	
 		// select a proposer in committee
-    	List<NodeKeypairBo> committeeNodeKeypairs = getNodeKeypairForCommittee(existNodeKeypairs, removeNodeKeypairs);
-    	List<NodePo> committeeNodes = committeeNodeKeypairs.stream().map(item -> item.getNode()).collect(Collectors.toList());
-		Map<String, NodeBo> committeeHeartbeatMap = heartbeatService.batchNodeHeartbeatPlus(committeeNodes);
-		checkHasLaunched(committeeHeartbeatMap);
-		NodeKeypairBo proposerNodeKeypair = committeeNodeKeypairs.stream()
-				.filter(item -> committeeHeartbeatMap.get(item.getNode().getId()).isStatus())
-				.findFirst().get();
+    	List<NodeKeypairBo> committeeNodeKeypairs = getNodeKeypairForCommittee(aliveNodeKeypairs, removeNodeKeypairs);
+		NodeKeypairBo proposerNodeKeypair = committeeNodeKeypairs.get(0);
 		NodePo proposerNode = proposerNodeKeypair.getNode();
-		String uri = ConfluxUtils.toJsonRpcUri(proposerNode.getNodeIp(), committeeHeartbeatMap.get(proposerNode.getId()).getJsonRpcHttpPort());
+		String uri = ConfluxUtils.toJsonRpcUri(proposerNode.getNodeIp(), existNodeHeartbeatMap.get(proposerNode.getId()).getJsonRpcHttpPort());
 		Cfx cfx = Cfx.create(uri);
 		
 		/*
@@ -62,7 +65,7 @@ public class RpcBlockchainService {
 		 * output: 
 		 * ---string raw_json
 		 */
-		List<NodeKeypairBo> validatorNodeKeypairs = getNodeKeypairForValidator(existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs);
+		List<NodeKeypairBo> validatorNodeKeypairs = getNodeKeypairForValidator(aliveNodeKeypairs, addNodeKeypairs, removeNodeKeypairs);
 		List<String> validatorPublicKeys = validatorNodeKeypairs.stream().map(item -> {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getKeypair().getPublicKey(),
 					item.getKeypair().getPrivateKey(), item.getKeypair().getAlgorithm());
@@ -125,13 +128,8 @@ public class RpcBlockchainService {
 		 * output:
 		 * ---boolean true/false
 		 */
-		rpcBlockchainAsyncService.checkNodeClient(existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs, committeeHeartbeatMap);
+		rpcBlockchainAsyncService.checkNodeClient(aliveNodeKeypairs, addNodeKeypairs, removeNodeKeypairs, existNodeHeartbeatMap);
 	}
-    
-    private void checkHasLaunched(Map<String, NodeBo> committeeHeartbeatMap) {
-    	Set<Boolean> heartbeatSet = committeeHeartbeatMap.values().stream().map(item -> item.isStatus()).collect(Collectors.toSet());
-    	Assert.isTrue(heartbeatSet.contains(Boolean.TRUE), "blockchain not lunched!");
-    }
     
 	private List<NodeKeypairBo> getNodeKeypairForCommittee(List<NodeKeypairBo> existNodeKeypairs,
 			List<NodeKeypairBo> removeNodeKeypairs) {

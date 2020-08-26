@@ -255,7 +255,7 @@ public class AllTests {
     }
 	
 	private void getExistNodeKeypairs() {
-        List<NodePo> nodes = nodeDas.findByConsIdAndChainId(testConsortiumId, testBlockchainId, true);
+        List<NodePo> nodes = nodeDas.findByConsIdAndChainId(testConsortiumId, testBlockchainId, false);
         nodeKeypairs = nodes.stream()
         		.map(item -> vaultKeypairBuildService.getNodeKeypair(testConsortiumId, X509CertConstant.DEFAULT_ALGO_NODE, item, null))
 				.collect(Collectors.toList());

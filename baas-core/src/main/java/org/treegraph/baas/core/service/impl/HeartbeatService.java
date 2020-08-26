@@ -60,11 +60,11 @@ public class HeartbeatService {
 		try {
 			String uri = ConfluxUtils.toJsonRpcUri(nodeIp, jsonRpcHttpPort);
 			Cfx cfx = Cfx.create(uri);
-			Request<Status, Response> statusRequest = cfx.getStatus();
-//			Request<String, StringResponse> statusRequest = cfx.getCustomizedRequest(StringResponse.class,
-//					ConfluxConstant.RPC_BEATHEART, new Object[0]);
+			//Request<Status, Response> statusRequest = cfx.getStatus();
+			Request<String, StringResponse> statusRequest = cfx.getCustomizedRequest(StringResponse.class,
+					ConfluxConstant.RPC_BEATHEART, new Object[0]);
 			log.info("HeartbeatService uri--->{}, txRequest--->{}", uri, JSON.toJSONString(statusRequest));
-			Status statusResponse = statusRequest.sendAndGet();
+			String statusResponse = statusRequest.sendAndGet();
 			log.info("HeartbeatService uri--->{}, txRequest--->{}, txResponse--->{}", uri, JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse));
 			result = statusResponse != null;
 		} catch (Exception e) {

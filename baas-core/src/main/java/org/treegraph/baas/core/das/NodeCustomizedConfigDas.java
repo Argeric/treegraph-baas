@@ -8,9 +8,9 @@ public interface NodeCustomizedConfigDas {
 	
 	List<NodeCustomizedConfigPo> findAll(String consId, List<String> nodeIds);
 	
-	NodeCustomizedConfigPo findConfigByPropertyName(String consId, String propertyName);
+	NodeCustomizedConfigPo findConfigByPropertyName(String consId, String nodeId, String propertyName);
 	
-	String findPropertyValueByPropertyName(String consId, String propertyName);
+	String findPropertyValueByName(String consId, String nodeId, String propertyName);
 	
 	boolean add(NodeCustomizedConfigPo nodeCustomizedConfig);
 	

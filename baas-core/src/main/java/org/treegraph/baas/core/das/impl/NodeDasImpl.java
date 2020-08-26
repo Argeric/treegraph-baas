@@ -8,10 +8,12 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
+import org.treegraph.baas.core.das.NodeCustomizedConfigDas;
 import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.KeypairPo;
+import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.NodePoExample;
@@ -37,6 +39,8 @@ public class NodeDasImpl implements NodeDas {
 	private NodeKeyPoMapper nodeKeyPoMapper;
 	
 	private ConsortiumPoMapper consortiumPoMapper;
+	
+	private NodeCustomizedConfigDas nodeCustomizedConfigDas;
 
 	public Optional<NodePo> findById(String id) {
 		return nodePoMapper.selectByPrimaryKey(id);
@@ -92,19 +96,40 @@ public class NodeDasImpl implements NodeDas {
 		return nodePoMapper.countByExample(example);
 	}
 
-	public boolean addNodes(List<NodePo> list, ConsortiumPo cons) {
+	public boolean addNodes(List<NodePo> nodes, ConsortiumPo cons, NodeCustomizedConfigPo stepFactorConfig,
+			List<NodeCustomizedConfigPo> customizedConfigList) {
 		boolean succFlag =  Boolean.TRUE;
-		succFlag = succFlag && nodePoMapper.bulkInsert(list) == list.size();
+		// add nodes
+		succFlag = succFlag && nodePoMapper.bulkInsert(nodes) == nodes.size();
+		// update consortium step
 		if(cons != null) {
 			succFlag = succFlag && consortiumPoMapper.updateByPrimaryKeySelective(cons) > 0;
+		}
+		// add or update stepFactorCustomizedConfig
+		if(stepFactorConfig != null) {
+			NodeCustomizedConfigPo customizedConfig = nodeCustomizedConfigDas.findConfigByPropertyName(
+					stepFactorConfig.getConsortiumId(), null, stepFactorConfig.getPropertyName());
+			if(customizedConfig != null) {
+				stepFactorConfig.setId(customizedConfig.getId());
+				nodeCustomizedConfigDas.modify(stepFactorConfig);
+			} else {
+				nodeCustomizedConfigDas.add(stepFactorConfig);
+			}
+		}
+		// add customized configration
+		if(CollectionUtils.isNotEmpty(customizedConfigList)) {
+			succFlag = succFlag && nodeCustomizedConfigDas.batchAdd(customizedConfigList);
 		}
 		return succFlag;
 	}
 	
-	public boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList) {
+	public boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList, NodeCustomizedConfigPo stepFactorConfig,
+			List<NodeCustomizedConfigPo> customizedConfigList) {
 		boolean succFlag =  Boolean.TRUE;
+		// add nodes
 		List<NodePo> nodes = nodeKeypairBoList.stream().map(NodeKeypairBo::getNode).collect(Collectors.toList());
 		succFlag = succFlag && nodePoMapper.bulkInsert(nodes) == nodes.size();
+		// add keypairs
 		for(NodeKeypairBo nodeKeypairBo : nodeKeypairBoList){
 			if(nodeKeypairBo.getKeypair().getId() == null){
 				KeypairPo keypair = nodeKeypairBo.getKeypair();
@@ -113,6 +138,21 @@ public class NodeDasImpl implements NodeDas {
 				nodeKey.setKeypairId(keypair.getId());
 				succFlag = succFlag && nodeKeyPoMapper.insert(nodeKey) > 0;
 			}
+		}
+		// add or update stepFactorCustomizedConfig
+		if(stepFactorConfig != null) {
+			NodeCustomizedConfigPo customizedConfig = nodeCustomizedConfigDas.findConfigByPropertyName(
+					stepFactorConfig.getConsortiumId(), null, stepFactorConfig.getPropertyName());
+			if(customizedConfig != null) {
+				stepFactorConfig.setId(customizedConfig.getId());
+				nodeCustomizedConfigDas.modify(stepFactorConfig);
+			} else {
+				nodeCustomizedConfigDas.add(stepFactorConfig);
+			}
+		}
+		// add customized configration
+		if(CollectionUtils.isNotEmpty(customizedConfigList)) {
+			succFlag = succFlag && nodeCustomizedConfigDas.batchAdd(customizedConfigList);
 		}
 		return succFlag;
 	}

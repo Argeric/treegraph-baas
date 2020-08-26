@@ -118,7 +118,7 @@ public class ConsortiumController {
 	@PostMapping("/script/download")
 	@ApiOperation("获取部署脚本")
 	public void getDeployScript(@RequestBody DownloadDeployScriptRequest downloadDeployScriptRequest, HttpServletResponse response) throws Exception {
-		consortiumService.getDeployScript(downloadDeployScriptRequest, response);
+		consortiumService.downloadDeployScript(downloadDeployScriptRequest, response);
 	}
 
 	private void checkCreateConsAndAdmin() {

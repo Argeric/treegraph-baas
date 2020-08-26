@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
+import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.NodeEnum;
 
@@ -22,9 +23,11 @@ public interface NodeDas {
 	
 	long count();
 	
-	boolean addNodes(List<NodePo> list, ConsortiumPo cons);
+	boolean addNodes(List<NodePo> list, ConsortiumPo cons, NodeCustomizedConfigPo stepFactorConfig,
+			List<NodeCustomizedConfigPo> customizedConfigList);
 	
-	boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList);
+	boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList, NodeCustomizedConfigPo stepFactorConfig,
+			List<NodeCustomizedConfigPo> customizedConfigList);
 
 	boolean modifyNode(NodePo node);
 	

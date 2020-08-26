@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.core.component.BizThreadPools;
+import org.treegraph.baas.core.constant.ConfluxConstant;
+import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.service.NodeCustomizedConfigService;
 import org.treegraph.baas.core.service.bo.NodeBo;
@@ -35,7 +37,10 @@ public class HeartbeatService {
 			return Maps.newHashMap();
 		}
 
-		Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(nodes);	
+		List<NodeCustomizedConfigPo> customizedConfigs = nodeCustomizedConfigService.getAllProperties(nodes);	
+		Map<String, Integer> nodeIdRpcHttpPortMap = customizedConfigs.stream()
+				.filter(item -> item.getPropertyName().equalsIgnoreCase(ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT))
+				.collect(Collectors.toMap(NodeCustomizedConfigPo::getNodeId, item -> Integer.parseInt(item.getPropertyValue())));
 		
 		List<CompletableFuture<NodeBo>> futureList = nodes.stream().map(node -> {
 			String nodeIp = node.getNodeIp();

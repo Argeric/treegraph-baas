@@ -39,5 +39,5 @@ public interface ConsortiumService {
 
 	boolean addNodes(AddNodesRequest addNodesRequest) throws IOException;
 
-	void getDeployScript(DownloadDeployScriptRequest downloadDeployScriptRequest, HttpServletResponse response) throws Exception;
+	void downloadDeployScript(DownloadDeployScriptRequest downloadDeployScriptRequest, HttpServletResponse response) throws Exception;
 }

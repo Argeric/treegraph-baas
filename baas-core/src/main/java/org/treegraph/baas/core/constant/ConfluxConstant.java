@@ -25,7 +25,9 @@ public class ConfluxConstant {
      */
     public static final boolean TEST_SWITCH = true;
     
-    public static final int TEST_PORT_STEP = 1000;
+    public static final int TEST_JSON_RPC_HTTP_PORT_STEP = 1;
+    
+    public static final int TEST_JSON_RPC_LOCAL_HTTP_PORT_INTERVAL = 100;
     
     /**
      * customized property
@@ -34,11 +36,5 @@ public class ConfluxConstant {
     
     public static final String PROPERTY_JSON_RPC_LOCAL_HTTP_PORT = "jsonrpc_local_http_port";
     
-    public static final String PROPERTY_MINING_AUTHOR = "mining_author";
-    
     public static final String PROPERTY_JSON_RPC_HTTP_PORT_STEP_FACTOR = "jsonrpc_http_port_step_factor";
-    
-    public static final int PROPERTY_JSON_RPC_HTTP_PORT_STEP = 1;
-    
-    public static final int PROPERTY_JSON_RPC_HTTP_PORT_INTERVAL = 100;
 }

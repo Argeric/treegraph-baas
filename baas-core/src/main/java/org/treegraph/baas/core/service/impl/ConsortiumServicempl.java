@@ -72,6 +72,7 @@ import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.service.ConsortiumService;
 import org.treegraph.baas.core.service.NodeCustomizedConfigService;
+import org.treegraph.baas.core.service.bo.CustomizedConfigBo;
 import org.treegraph.baas.core.service.bo.OrgBo;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
 import org.treegraph.baas.core.service.bo.UserInfoBo;
@@ -349,13 +350,15 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.updateTime(now)
 				.updateBy(operUser)
 				.build()).collect(Collectors.toList());
+		CustomizedConfigBo config = buildCustomizedConfig(req.getConsId(), nodes);
 		
 		// before download deploy scripts
 		boolean addNodeResult = Boolean.FALSE;
 		int establishStep = consortiumDas.findById(req.getConsId()).get().getEstablishStep();
 		if(establishStep < EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
 			ConsortiumPo cons = buildService.buildToUpdateCons(req.getConsId(), EstablishStep.TO_DEPLOY);
-			addNodeResult = nodeDas.addNodes(nodes, cons);
+			addNodeResult = nodeDas.addNodes(nodes, cons, config.getStepFactorCustomizedConfig(),
+					config.getCustomizedConfigList());
 		}
 		
 		// after download deploy scripts, need check chain is launched already
@@ -367,7 +370,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 					item -> vaultKeypairBuildService.getNodeKeypair(req.getConsId(), X509CertConstant.DEFAULT_ALGO_NODE, item, null))
 					.collect(Collectors.toList());
 			toAddNodeKeypairs.stream().forEach(item -> item.getNode().setStatus(NodeEnum.Status.ADDING_BY_MEMBERSHIP_CHANGE.getCode()));
-			nodeDas.addNodeKeypairs(toAddNodeKeypairs);
+			nodeDas.addNodeKeypairs(toAddNodeKeypairs, config.getStepFactorCustomizedConfig(), config.getCustomizedConfigList());
 			rpcBlockchainService.sendMembershipChangeTransactionPlus(req.getConsId(), existNodeKeypairs, toAddNodeKeypairs, null);
 			List<String> nodeIds = nodes.stream().map(NodePo::getId).collect(Collectors.toList());
 			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.ADDED_BY_MEMBERSHIP_CHANGE);
@@ -377,13 +380,13 @@ public class ConsortiumServicempl implements ConsortiumService {
 	}
 	
 	@LogSkip
-	public void getDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp) throws Exception {
+	public void downloadDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp) throws Exception {
 		// check and build
 		String consortiumId = req.getConsId();
 		Assert.notNull(consortiumId, "consortiumId.not.found");
 		List<NodePo> nodes = nodeDas.findAll(consortiumId, null);
 		Assert.notEmpty(nodes, "node.not.found");
-		Map<String, List<String>> nodeScriptMap = buildAndSaveKeypairInfo(consortiumId, nodes);
+		Map<String, List<String>> nodeScriptMap = buildDeployScript(consortiumId, nodes);
 		
 		// filter to download script
 		Map<String, List<String>> toDownloadNodeScriptMap = Maps.newHashMap();
@@ -423,7 +426,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		log.info("update consortium status finished[{}]", consortiumId);
 	}
 
-	private Map<String, List<String>> buildAndSaveKeypairInfo(String consortiumId, List<NodePo> nodes)
+	private Map<String, List<String>> buildDeployScript(String consortiumId, List<NodePo> nodes)
 			throws Exception, NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
 		// certificate info
 		String algoCons = X509CertConstant.DEFAULT_ALGO_CONS;
@@ -455,10 +458,6 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		// script content
 		Map<String, List<String>> nodeScriptContentMap = new HashMap<>();
-		String stepFactorPropertyValue = nodeCustomizedConfigService.getPropertyValueByName(consortiumId,
-				ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT_STEP_FACTOR);
-		int stepFactor = stepFactorPropertyValue != null ? Integer.parseInt(stepFactorPropertyValue) : 0;
-		List<NodeCustomizedConfigPo> customizedConfigList = Lists.newArrayList();
 		for(NodeKeypairBo nodeKeypairBo:nodeKeypairBoList){
 			StringBuffer scriptContent = new StringBuffer();
 			scriptContent.append("consortium_cert = \"\"\"" + consortiumKeypair.getCertStr() + "\"\"\"")
@@ -478,45 +477,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 					.publicKeyToPem(KeyUtil.publicKeyFromBase64(algoNode, nodeKeypairBo.getKeypair().getPublicKey()));
 			scriptContent.append("grpc_server_key = \"\"\"" + nodePublicKeyPem + "\"\"\"")
 				.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-			
-			// node customized script content
-			NodePo node = nodeKeypairBo.getNode();
-			String jsonRpcHttpPort = null;
-			String jsonRpcLocalHttpPort = null;
-			String miningAuthor = null;
-			List<NodeCustomizedConfigPo> customizedConfigs = nodeCustomizedConfigService.getCustomizedConfig(Lists.newArrayList(node));
-			if(CollectionUtils.isNotEmpty(customizedConfigs)) {
-				for(NodeCustomizedConfigPo config:customizedConfigs) {
-					if(ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT.equalsIgnoreCase(config.getPropertyName())) {
-						jsonRpcHttpPort = config.getPropertyValue();
-					}
-					if(ConfluxConstant.PROPERTY_JSON_RPC_LOCAL_HTTP_PORT.equalsIgnoreCase(config.getPropertyName())) {
-						jsonRpcLocalHttpPort = config.getPropertyValue();
-					}
-					if(ConfluxConstant.PROPERTY_MINING_AUTHOR.equalsIgnoreCase(config.getPropertyName())) {
-						miningAuthor = config.getPropertyValue();
-					}
-				}
-			} else {
-				int portDelta = (ConfluxConstant.TEST_SWITCH ? stepFactor++ : 0) * ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT_STEP;
-				jsonRpcHttpPort = (ConfluxConstant.DEFAULT_JSON_RPC_HTTP_PORT + portDelta) + "";
-				jsonRpcLocalHttpPort = (Integer.parseInt(jsonRpcHttpPort) + ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT_INTERVAL) + "";
-				miningAuthor = ConfluxUtils.toAddress(ecKeypair);
-				customizedConfigList.add(buildService.buildNodeCustomizedConfig(node, ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT, jsonRpcHttpPort));
-				customizedConfigList.add(buildService.buildNodeCustomizedConfig(node, ConfluxConstant.PROPERTY_JSON_RPC_LOCAL_HTTP_PORT, jsonRpcLocalHttpPort));
-				customizedConfigList.add(buildService.buildNodeCustomizedConfig(node, ConfluxConstant.PROPERTY_MINING_AUTHOR, miningAuthor));
-			}
-			StringBuffer customizedScriptContent = new StringBuffer();
-			customizedScriptContent.append(ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT + " = " + jsonRpcHttpPort)
-					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-			customizedScriptContent.append(ConfluxConstant.PROPERTY_JSON_RPC_LOCAL_HTTP_PORT + " = " + jsonRpcLocalHttpPort)
-					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-			customizedScriptContent.append(ConfluxConstant.PROPERTY_MINING_AUTHOR + " = \"" + miningAuthor + "\"")
-					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-			customizedScriptContent.append("log_file='./conflux.log'")
-					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-			customizedScriptContent.append("log_level=\"trace\"")
-					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
+			StringBuffer customizedScriptContent = buildCustomizedDeployScript(nodeKeypairBo, ecKeypair);
 			
 			// build script map
 			List<String> scripts = Lists.newArrayList();
@@ -527,16 +488,63 @@ public class ConsortiumServicempl implements ConsortiumService {
 		}
 		
 		// save key pair and write script
-		NodeCustomizedConfigPo stepFactorCustomizedConfig = buildService.buildNodeCustomizedConfig(
-				NodePo.builder().id(IntTypeEnum.FALSE.getValue() + "").consortiumId(consortiumId).build(),
-				ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT_STEP_FACTOR, stepFactor + "");
-		keypairDas.addKeyPairInfo(rootKeypair, consortiumKeypair, nodeKeypairBoList, customizedConfigList, stepFactorCustomizedConfig);
+		keypairDas.addKeyPairInfo(rootKeypair, consortiumKeypair, nodeKeypairBoList);
 		log.info("build deploy script finished[{}]", consortiumId);
 		return nodeScriptContentMap;
 	}
+
+	private StringBuffer buildCustomizedDeployScript(NodeKeypairBo nodeKeypairBo, ECKeyPair ecKeypair) {
+		// node customized script content
+		NodePo node = nodeKeypairBo.getNode();
+		String jsonRpcHttpPort = null;
+		String jsonRpcLocalHttpPort = null;
+		List<NodeCustomizedConfigPo> customizedConfigs = nodeCustomizedConfigService.getAllProperties(Lists.newArrayList(node));
+		if(CollectionUtils.isNotEmpty(customizedConfigs)) {
+			for(NodeCustomizedConfigPo config:customizedConfigs) {
+				if(ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT.equalsIgnoreCase(config.getPropertyName())) {
+					jsonRpcHttpPort = config.getPropertyValue();
+				}
+				if(ConfluxConstant.PROPERTY_JSON_RPC_LOCAL_HTTP_PORT.equalsIgnoreCase(config.getPropertyName())) {
+					jsonRpcLocalHttpPort = config.getPropertyValue();
+				}
+			}
+		}
+		StringBuffer customizedScriptContent = new StringBuffer();
+		customizedScriptContent.append(ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT + " = " + jsonRpcHttpPort)
+				.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
+		customizedScriptContent.append(ConfluxConstant.PROPERTY_JSON_RPC_LOCAL_HTTP_PORT + " = " + jsonRpcLocalHttpPort)
+				.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
+		customizedScriptContent.append("mining_author = \"" + ConfluxUtils.toAddress(ecKeypair) + "\"")
+				.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
+		customizedScriptContent.append("log_file = './conflux.log'")
+				.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
+		customizedScriptContent.append("log_level = \"trace\"")
+				.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
+		return customizedScriptContent;
+	}
 	
-	public static void main(String[] args) {
-		String s = StringUtils.leftPad("51ee302acfcd727c066fc16588272d89ca5758822babd6d957aed6e07af61f1", 64, '0');
-		System.out.println(s);
+	private CustomizedConfigBo buildCustomizedConfig(String consortiumId, List<NodePo> nodes) {
+		String stepFactorPropertyValue = nodeCustomizedConfigService.getPropertyValueByName(consortiumId, null,
+				ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT_STEP_FACTOR);
+		int stepFactor = stepFactorPropertyValue != null ? Integer.parseInt(stepFactorPropertyValue) : 0;
+		
+		List<NodeCustomizedConfigPo> customizedConfigList = Lists.newArrayList();
+		for(NodePo node:nodes){
+			int jsonRpcHttpPort = ConfluxConstant.TEST_SWITCH
+					? ConfluxConstant.DEFAULT_JSON_RPC_HTTP_PORT + (stepFactor++) * ConfluxConstant.TEST_JSON_RPC_HTTP_PORT_STEP
+					: ConfluxConstant.DEFAULT_JSON_RPC_HTTP_PORT;
+			int jsonRpcLocalHttpPort = ConfluxConstant.TEST_SWITCH
+					? jsonRpcHttpPort + ConfluxConstant.TEST_JSON_RPC_LOCAL_HTTP_PORT_INTERVAL
+					: ConfluxConstant.DEFAULT_JSON_RPC_LOCAL_HTTP_PORT;
+			customizedConfigList.add(buildService.buildNodeCustomizedConfig(node, ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT, jsonRpcHttpPort+ ""));
+			customizedConfigList.add(buildService.buildNodeCustomizedConfig(node, ConfluxConstant.PROPERTY_JSON_RPC_LOCAL_HTTP_PORT, jsonRpcLocalHttpPort+ ""));
+		}
+		
+		NodeCustomizedConfigPo stepFactorCustomizedConfig = buildService.buildNodeCustomizedConfig(
+				NodePo.builder().id(IntTypeEnum.FALSE.getValue() + "").consortiumId(consortiumId).build(),
+				ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT_STEP_FACTOR, stepFactor + "");
+		
+		return CustomizedConfigBo.builder().customizedConfigList(customizedConfigList)
+				.stepFactorCustomizedConfig(stepFactorCustomizedConfig).build();
 	}
 }

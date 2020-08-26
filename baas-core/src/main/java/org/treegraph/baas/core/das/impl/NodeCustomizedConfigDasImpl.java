@@ -34,13 +34,17 @@ public class NodeCustomizedConfigDasImpl implements NodeCustomizedConfigDas {
 		return nodeCustomizedConfigPoMapper.selectByExample(example);
 	}
 	
-	public NodeCustomizedConfigPo findConfigByPropertyName(String consId, String propertyName) {
+	public NodeCustomizedConfigPo findConfigByPropertyName(String consId, String nodeId, String propertyName) {
 		NodeCustomizedConfigPoExample example = new NodeCustomizedConfigPoExample();
 		Criteria criteria = example.createCriteria();
 		if (StringUtils.isNotBlank(consId)) {
 			criteria.andConsortiumIdEqualTo(consId);
 		}
-		criteria.andNodeIdEqualTo(IntTypeEnum.FALSE.getValue()+"");
+		if(StringUtils.isNoneBlank(nodeId)){
+			criteria.andNodeIdEqualTo(nodeId);
+		} else {
+			criteria.andNodeIdEqualTo(IntTypeEnum.FALSE.getValue()+"");
+		}
 		criteria.andPropertyNameEqualTo(propertyName);
 		criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
 		example.setOrderByClause("create_time desc");
@@ -49,13 +53,17 @@ public class NodeCustomizedConfigDasImpl implements NodeCustomizedConfigDas {
 				? nodeCustomizedConfigList.get(0) : null;
 	}
 	
-	public String findPropertyValueByPropertyName(String consId, String propertyName) {
+	public String findPropertyValueByName(String consId, String nodeId, String propertyName) {
 		NodeCustomizedConfigPoExample example = new NodeCustomizedConfigPoExample();
 		Criteria criteria = example.createCriteria();
 		if (StringUtils.isNotBlank(consId)) {
 			criteria.andConsortiumIdEqualTo(consId);
 		}
-		criteria.andNodeIdEqualTo(IntTypeEnum.FALSE.getValue()+"");
+		if(StringUtils.isNoneBlank(nodeId)){
+			criteria.andNodeIdEqualTo(nodeId);
+		} else {
+			criteria.andNodeIdEqualTo(IntTypeEnum.FALSE.getValue()+"");
+		}
 		criteria.andPropertyNameEqualTo(propertyName);
 		criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
 		example.setOrderByClause("create_time desc");

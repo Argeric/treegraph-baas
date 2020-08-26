@@ -9,13 +9,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.core.das.KeypairDas;
-import org.treegraph.baas.core.das.NodeCustomizedConfigDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.das.bo.NodeKeypairInfoBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.KeypairPoExample;
 import org.treegraph.baas.core.domain.KeypairPoExample.Criteria;
-import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.mapper.primary.KeypairPoMapper;
 import org.treegraph.baas.core.mapper.primary.NodeKeyPoMapper;
@@ -31,8 +29,6 @@ public class KeypairDasImpl implements KeypairDas {
 	private KeypairPoMapper keypairPoMapper;
 	
 	private NodeKeyPoMapper nodeKeyPoMapper;
-	
-	private NodeCustomizedConfigDas nodeCustomizedConfigDas;
 	
 	public Optional<KeypairPo> findById(Long id) {
 		return keypairPoMapper.selectByPrimaryKey(id);
@@ -100,7 +96,7 @@ public class KeypairDasImpl implements KeypairDas {
 	}
 	
 	public boolean addKeyPairInfo(KeypairPo rootKeypair, KeypairPo consortiumKeypair,
-			List<NodeKeypairBo> nodeKeypairBoList, List<NodeCustomizedConfigPo> customizedConfigList, NodeCustomizedConfigPo stepFactorConfig) {
+			List<NodeKeypairBo> nodeKeypairBoList) {
 		// add key pair of consortium
 		boolean succFlag =  Boolean.TRUE;
 		List<KeypairPo> keypairList = new ArrayList<>();
@@ -113,29 +109,11 @@ public class KeypairDasImpl implements KeypairDas {
 		if(CollectionUtils.isNotEmpty(keypairList)){
 			succFlag = succFlag && keypairPoMapper.bulkInsert(keypairList) == keypairList.size();
 		}
-		
 		// add key pair of node
 		if(CollectionUtils.isNotEmpty(nodeKeypairBoList)) {
 			boolean addSuccFlag = addKeyPairInfo(nodeKeypairBoList);
 			succFlag = succFlag && addSuccFlag;
 		}
-		
-		// add customized configration
-		if(CollectionUtils.isNotEmpty(customizedConfigList)) {
-			succFlag = succFlag && nodeCustomizedConfigDas.batchAdd(customizedConfigList);
-		}
-		
-		// add or update stepFactorCustomizedConfig
-		if(stepFactorConfig != null) {
-			NodeCustomizedConfigPo customizedConfig= nodeCustomizedConfigDas.findConfigByPropertyName(stepFactorConfig.getConsortiumId(), stepFactorConfig.getPropertyName());
-			if(customizedConfig != null) {
-				stepFactorConfig.setId(customizedConfig.getId());
-				nodeCustomizedConfigDas.modify(stepFactorConfig);
-			} else {
-				nodeCustomizedConfigDas.add(stepFactorConfig);
-			}
-		}
-		
 		return succFlag;
 	}
 	

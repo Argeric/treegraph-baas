@@ -12,5 +12,5 @@ public interface NodeCustomizedConfigService {
 	
 	List<NodeCustomizedConfigPo> getCustomizedConfig(List<NodePo> nodes);
 	
-	String getPropertyValueByPropertyName(String consId, String propertyName);
+	String getPropertyValueByName(String consId, String propertyName);
 }

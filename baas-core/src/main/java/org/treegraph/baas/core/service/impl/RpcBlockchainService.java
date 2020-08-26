@@ -15,7 +15,7 @@ import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
-import org.treegraph.baas.core.service.NodeCustomizedConfigService;
+import org.treegraph.baas.core.service.bo.NodeBo;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
@@ -23,7 +23,6 @@ import org.web3j.crypto.ECKeyPair;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import conflux.web3j.Cfx;
 import conflux.web3j.Request;
@@ -37,30 +36,22 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RpcBlockchainService {
 	
-	private NodeCustomizedConfigService nodeCustomizedConfigService;
-	
     private HeartbeatService heartbeatService;
     
     private RpcBlockchainAsyncService rpcBlockchainAsyncService;
     
     public void sendMembershipChangeTransactionPlus(String consortiumId, List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
 			List<NodeKeypairBo> removeNodeKeypairs) throws IOException {
-		// build rpc client
+		// select a proposer in committee
     	List<NodeKeypairBo> committeeNodeKeypairs = getNodeKeypairForCommittee(existNodeKeypairs, removeNodeKeypairs);
     	List<NodePo> committeeNodes = committeeNodeKeypairs.stream().map(item -> item.getNode()).collect(Collectors.toList());
-		Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(committeeNodes);	
-		Map<String, Boolean> heartbeatMap = heartbeatService.batchNodeHeartbeat(committeeNodes, nodeIdRpcHttpPortMap);
-		Assert.isTrue(Sets.newHashSet(heartbeatMap.values()).contains(Boolean.TRUE), "blockchain not lunched!");
+		Map<String, NodeBo> committeeHeartbeatMap = heartbeatService.batchNodeHeartbeatPlus(committeeNodes);
+		checkHasLaunched(committeeHeartbeatMap);
 		NodeKeypairBo proposerNodeKeypair = committeeNodeKeypairs.stream()
-				.filter(item -> {
-					NodePo node = item.getNode();
-					String key = ConfluxUtils.toIpAtPort(node.getNodeIp(), nodeIdRpcHttpPortMap.get(node.getId()));
-					Boolean value = heartbeatMap.get(key);
-					return value != null && value;
-				})
+				.filter(item -> committeeHeartbeatMap.get(item.getNode().getId()).isStatus())
 				.findFirst().get();
 		NodePo proposerNode = proposerNodeKeypair.getNode();
-		String uri = ConfluxUtils.toJsonRpcUri(proposerNode.getNodeIp(), nodeIdRpcHttpPortMap.get(proposerNode.getId()));
+		String uri = ConfluxUtils.toJsonRpcUri(proposerNode.getNodeIp(), committeeHeartbeatMap.get(proposerNode.getId()).getJsonRpcHttpPort());
 		Cfx cfx = Cfx.create(uri);
 		
 		/*
@@ -134,8 +125,13 @@ public class RpcBlockchainService {
 		 * output:
 		 * ---boolean true/false
 		 */
-		rpcBlockchainAsyncService.checkNodeClient(existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs, nodeIdRpcHttpPortMap);
+		rpcBlockchainAsyncService.checkNodeClient(existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs, committeeHeartbeatMap);
 	}
+    
+    private void checkHasLaunched(Map<String, NodeBo> committeeHeartbeatMap) {
+    	Set<Boolean> heartbeatSet = committeeHeartbeatMap.values().stream().map(item -> item.isStatus()).collect(Collectors.toSet());
+    	Assert.isTrue(heartbeatSet.contains(Boolean.TRUE), "blockchain not lunched!");
+    }
     
 	private List<NodeKeypairBo> getNodeKeypairForCommittee(List<NodeKeypairBo> existNodeKeypairs,
 			List<NodeKeypairBo> removeNodeKeypairs) {

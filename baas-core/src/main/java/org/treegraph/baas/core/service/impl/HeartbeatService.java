@@ -3,13 +3,14 @@ package org.treegraph.baas.core.service.impl;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.treegraph.baas.core.component.BizThreadPools;
 import org.treegraph.baas.core.domain.NodePo;
+import org.treegraph.baas.core.service.NodeCustomizedConfigService;
 import org.treegraph.baas.core.service.bo.NodeBo;
 import org.treegraph.baas.core.util.ConfluxUtils;
 
@@ -26,45 +27,53 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Slf4j
 public class HeartbeatService {
-
-	private final static ExecutorService executor = Executors.newFixedThreadPool(5);
 	
-	public Map<String, Boolean> batchNodeHeartbeat(List<NodePo> nodes, Map<String, Integer> nodeIdRpcPortMap) {
+	private NodeCustomizedConfigService nodeCustomizedConfigService;
+	
+	public Map<String, NodeBo> batchNodeHeartbeatPlus(List<NodePo> nodes) {
 		if(CollectionUtils.isEmpty(nodes)) {
 			return Maps.newHashMap();
 		}
+
+		Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(nodes);	
 		
 		List<CompletableFuture<NodeBo>> futureList = nodes.stream().map(node -> {
 			String nodeIp = node.getNodeIp();
-			Integer jsonRpcHttpPort = nodeIdRpcPortMap.get(node.getId());
+			Integer jsonRpcHttpPort = nodeIdRpcHttpPortMap.get(node.getId());
 			return CompletableFuture.supplyAsync(() -> {
 				boolean status = nodeHeartbeat(nodeIp, jsonRpcHttpPort);
-				return NodeBo.builder().nodeIp(nodeIp).jsonRpcHttpPort(jsonRpcHttpPort).status(status).build();
-			}, executor).exceptionally(e -> {
-				log.error("节点心跳检测异常[" + ConfluxUtils.toIpAtPort(nodeIp, jsonRpcHttpPort) + "]", e);
-				return NodeBo.builder().nodeIp(nodeIp).jsonRpcHttpPort(jsonRpcHttpPort).status(false).build();
+				return NodeBo.builder().nodeId(node.getId()).nodeIp(nodeIp).nodePort(node.getNodePort())
+						.jsonRpcHttpPort(jsonRpcHttpPort).status(status).build();
+			}, BizThreadPools.HEARTBEAT).exceptionally(e -> {
+				return NodeBo.builder().nodeId(node.getId()).nodeIp(nodeIp).nodePort(node.getNodePort())
+						.jsonRpcHttpPort(jsonRpcHttpPort).status(false).build();
 			});
 		}).collect(Collectors.toList());
 		List<NodeBo> nodeBoList = futureList.stream().map(CompletableFuture::join)
 				.collect(Collectors.toList());
 		
-		return nodeBoList.stream().collect(Collectors
-				.toMap(item -> ConfluxUtils.toIpAtPort(item.getNodeIp(), item.getJsonRpcHttpPort()), NodeBo::isStatus));
+		return nodeBoList.stream().collect(Collectors.toMap(NodeBo::getNodeId, Function.identity()));
 	}
 	
 	public static boolean nodeHeartbeat(String nodeIp, Integer jsonRpcHttpPort) {
 		boolean result = false;
+		Request<Status, Status.Response> statusRequest = null;
+		Status statusResponse = null;
+		String uri = ConfluxUtils.toJsonRpcUri(nodeIp, jsonRpcHttpPort);
+		
 		try {
-			String uri = ConfluxUtils.toJsonRpcUri(nodeIp, jsonRpcHttpPort);
 			Cfx cfx = Cfx.create(uri);
-			Request<Status, Status.Response> statusRequest = cfx.getStatus();
-			log.info("HeartbeatService uri--->{}, txRequest--->{}", uri, JSON.toJSONString(statusRequest));
-			Status statusResponse = statusRequest.sendAndGet();
-			log.info("HeartbeatService uri--->{}, txRequest--->{}, txResponse--->{}", uri, JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse));
+			statusRequest = cfx.getStatus();
+			statusResponse = statusRequest.sendAndGet();
 			result = statusResponse != null;
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			log.error("nodeHeartbeat uri--->{}, request--->{}, response--->{}, error!", uri,
+					JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse), e);
+			return false;
 		}
+		log.info("nodeHeartbeat uri--->{}, request--->{}, response--->{}", uri, JSON.toJSONString(statusRequest),
+				JSON.toJSONString(statusResponse));
+		
 		return result;
 	}
 }

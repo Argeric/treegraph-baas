@@ -455,7 +455,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		// script content
 		Map<String, List<String>> nodeScriptContentMap = new HashMap<>();
-		String stepFactorPropertyValue = nodeCustomizedConfigService.getPropertyValueByPropertyName(consortiumId,
+		String stepFactorPropertyValue = nodeCustomizedConfigService.getPropertyValueByName(consortiumId,
 				ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT_STEP_FACTOR);
 		int stepFactor = stepFactorPropertyValue != null ? Integer.parseInt(stepFactorPropertyValue) : 0;
 		List<NodeCustomizedConfigPo> customizedConfigList = Lists.newArrayList();

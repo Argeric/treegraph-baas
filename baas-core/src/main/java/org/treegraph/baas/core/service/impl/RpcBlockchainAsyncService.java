@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
+import org.treegraph.baas.core.service.bo.NodeBo;
 import org.treegraph.baas.core.util.ConfluxUtils;
 
 import com.alibaba.fastjson.JSON;
@@ -32,7 +33,7 @@ public class RpcBlockchainAsyncService {
 	
 	@Async
     public boolean checkNodeClient(List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
-			List<NodeKeypairBo> removeNodeKeypairs, Map<String, Integer> nodeIdRpcHttpPortMap) {
+			List<NodeKeypairBo> removeNodeKeypairs, Map<String, NodeBo> heartbeatMap) {
     	/**
     	 * get expect epoch number
     	 */
@@ -50,14 +51,13 @@ public class RpcBlockchainAsyncService {
     	 * wait 60 sec, and then send request
     	 */
     	try {
-			TimeUnit.SECONDS.sleep(60*3);
+			TimeUnit.SECONDS.sleep(60);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
 		}
     	log.info("checkNodeClient sleeped--->60sec");
     	List<Integer> bftEpochNumbers = Lists.newArrayList();
     	existNodeKeypairs.stream().filter(item -> !removedNodeIds.contains(item.getNode().getId())).forEach(item -> {
-	    	String uri = ConfluxUtils.toJsonRpcUri(item.getNode().getNodeIp(), nodeIdRpcHttpPortMap.get(item.getNode().getId()));
+	    	String uri = ConfluxUtils.toJsonRpcUri(item.getNode().getNodeIp(), heartbeatMap.get(item.getNode().getId()).getJsonRpcHttpPort());
 	    	Cfx cfx = Cfx.create(uri);
 	    	log.info("checkNodeClient uri--->{}", uri);
 	    	Request<BigInteger, BigIntResponse> getBftEpochNumberRequest = cfx.getCustomizedRequest(BigIntResponse.class, ConfluxConstant.RPC_GET_BFT_EPOCH_NUMBER);

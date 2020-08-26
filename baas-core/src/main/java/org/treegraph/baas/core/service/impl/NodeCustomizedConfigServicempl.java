@@ -27,9 +27,8 @@ public class NodeCustomizedConfigServicempl implements NodeCustomizedConfigServi
 		if(CollectionUtils.isEmpty(nodes)) {
 			return Maps.newHashMap();
 		}
-		String consId = nodes.get(0).getConsortiumId();
 		List<String> nodeIds = nodes.stream().map(NodePo::getId).collect(Collectors.toList());
-		List<NodeCustomizedConfigPo> customizedConfigs = nodeCustomizedConfigDas.findAll(consId, nodeIds);
+		List<NodeCustomizedConfigPo> customizedConfigs = nodeCustomizedConfigDas.findAll(null, nodeIds);
 		return customizedConfigs.stream()
 				.filter(item -> item.getPropertyName().equalsIgnoreCase(ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT))
 				.collect(Collectors.toMap(NodeCustomizedConfigPo::getNodeId, item -> Integer.parseInt(item.getPropertyValue())));
@@ -44,7 +43,7 @@ public class NodeCustomizedConfigServicempl implements NodeCustomizedConfigServi
 		return nodeCustomizedConfigDas.findAll(consId, nodeIds);
 	}
 	
-	public String getPropertyValueByPropertyName(String consId, String propertyName) {
+	public String getPropertyValueByName(String consId, String propertyName) {
 		return nodeCustomizedConfigDas.findPropertyValueByPropertyName(consId, propertyName);
 	}
 	

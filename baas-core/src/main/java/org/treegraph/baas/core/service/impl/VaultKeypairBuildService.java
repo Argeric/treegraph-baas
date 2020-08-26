@@ -65,6 +65,15 @@ public class VaultKeypairBuildService {
 		List<KeypairPo> rootKeypairs = keypairDas.findAll(ConsortiumConstant.DEFAULT_CONSORTIUM_ID,
 				CryptoEnum.KeyType.CONSORTIUM.getCode(), algo);
 		if(CollectionUtils.isNotEmpty(rootKeypairs)){
+			/**
+			 * test start
+			 */
+			KeypairPo kp = rootKeypairs.get(0);
+			PrivateKey pk = KeyUtil.privateKeyFromBase64(algo, kp.getPrivateKey());
+			writeRootCaToVault(kp.getCertStr(), KeyUtil.privateKeyToPem(pk));
+			/**
+			 * test end
+			 */
 			return rootKeypairs.get(0);
 		}
 		

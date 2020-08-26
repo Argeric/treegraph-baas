@@ -336,7 +336,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		// build
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
-		List<NodePo> nodes = reqNodes.stream().map(item -> NodePo.builder()
+		List<NodePo> toAddNodes = reqNodes.stream().map(item -> NodePo.builder()
 				.id(UUID.randomUUID().toString())
 				.consortiumId(req.getConsId())
 				.blockchainId(req.getBlockchainId())
@@ -350,14 +350,14 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.updateTime(now)
 				.updateBy(operUser)
 				.build()).collect(Collectors.toList());
-		CustomizedConfigBo config = buildCustomizedConfig(req.getConsId(), nodes);
+		CustomizedConfigBo config = buildCustomizedConfig(req.getConsId(), toAddNodes);
 		
 		// before download deploy scripts
 		boolean addNodeResult = Boolean.FALSE;
 		int establishStep = consortiumDas.findById(req.getConsId()).get().getEstablishStep();
 		if(establishStep < EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
 			ConsortiumPo cons = buildService.buildToUpdateCons(req.getConsId(), EstablishStep.TO_DEPLOY);
-			addNodeResult = nodeDas.addNodes(nodes, cons, config.getStepFactorCustomizedConfig(),
+			addNodeResult = nodeDas.addNodes(toAddNodes, cons, config.getStepFactorCustomizedConfig(),
 					config.getCustomizedConfigList());
 		}
 		
@@ -366,14 +366,14 @@ public class ConsortiumServicempl implements ConsortiumService {
 			List<NodeKeypairBo> existNodeKeypairs = existNodes.stream().map(
 					item -> vaultKeypairBuildService.getNodeKeypair(req.getConsId(), X509CertConstant.DEFAULT_ALGO_NODE, item, null))
 					.collect(Collectors.toList());
-			List<NodeKeypairBo> toAddNodeKeypairs = nodes.stream().map(
+			List<NodeKeypairBo> toAddNodeKeypairs = toAddNodes.stream().map(
 					item -> vaultKeypairBuildService.getNodeKeypair(req.getConsId(), X509CertConstant.DEFAULT_ALGO_NODE, item, null))
 					.collect(Collectors.toList());
 			toAddNodeKeypairs.stream().forEach(item -> item.getNode().setStatus(NodeEnum.Status.ADDING_BY_MEMBERSHIP_CHANGE.getCode()));
 			nodeDas.addNodeKeypairs(toAddNodeKeypairs, config.getStepFactorCustomizedConfig(), config.getCustomizedConfigList());
 			rpcBlockchainService.sendMembershipChangeTransactionPlus(req.getConsId(), existNodeKeypairs, toAddNodeKeypairs, null);
-			List<String> nodeIds = nodes.stream().map(NodePo::getId).collect(Collectors.toList());
-			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.ADDED_BY_MEMBERSHIP_CHANGE);
+			List<String> toAddNodeIds = toAddNodes.stream().map(NodePo::getId).collect(Collectors.toList());
+			nodeDas.modifyNodesStatus(toAddNodeIds, NodeEnum.Status.ADDED_BY_MEMBERSHIP_CHANGE);
 		}
 		
 		return addNodeResult;

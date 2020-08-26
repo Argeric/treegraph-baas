@@ -70,9 +70,9 @@ public class AllTests {
 	
 	private static boolean initialized = false;
 	
-	private static String testConsortiumId = "940fcaad-0fa0-44bf-a59e-88dbaf202186";
+	private static String testConsortiumId = "01a85609-ff5a-4a60-a616-74931df5ad61";
 	
-	private static String testBlockchainId = "e225a92e-c863-4f32-bb17-d01175001e61";
+	private static String testBlockchainId = "1cf87b8e-ecce-42b6-9c69-5e66108cc563";
 	
 	private static String binaryPath  = "/opt/software/tree-graph/target/release/conflux_production";
 	

@@ -148,7 +148,7 @@ public class NodeServicempl implements NodeService {
 			List<NodeKeypairBo> toRemoveNodeKeypairs = Lists.newArrayList(node).stream().map(
 					item -> vaultKeypairBuildService.getNodeKeypair(consId, X509CertConstant.DEFAULT_ALGO_NODE, item, null))
 					.collect(Collectors.toList());
-			List<String> nodeIds = existNodes.stream().map(NodePo::getId).collect(Collectors.toList());
+			List<String> nodeIds = Lists.newArrayList(node.getId());
 			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.REMOVING_BY_MEMBERSHIP_CHANGE);
 			rpcBlockchainService.sendMembershipChangeTransactionPlus(consId, existNodeKeypairs, null, toRemoveNodeKeypairs);
 			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.REMOVED_BY_MEMBERSHIP_CHANGE);

@@ -165,7 +165,7 @@ public class NodeDasImpl implements NodeDas {
 		NodePo record = NodePo.builder().status(status.getCode()).build();
 		NodePoExample example = new NodePoExample();
 		Criteria criteria = example.createCriteria();
-		criteria.andIdNotIn(nodeIds);
+		criteria.andIdIn(nodeIds);
 		return nodePoMapper.updateByExampleSelective(record, example) == nodeIds.size();
 	}
 	

@@ -46,12 +46,11 @@ public class RpcBlockchainService {
     public void sendMembershipChangeTransactionPlus(String consortiumId, List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
 			List<NodeKeypairBo> removeNodeKeypairs) throws IOException {
 		// build rpc client
-    	List<NodeKeypairBo> committeeNodeKeypairs = getNodeKeypairForCommittee(existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs);
+    	List<NodeKeypairBo> committeeNodeKeypairs = getNodeKeypairForCommittee(existNodeKeypairs, removeNodeKeypairs);
     	List<NodePo> committeeNodes = committeeNodeKeypairs.stream().map(item -> item.getNode()).collect(Collectors.toList());
-		Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(committeeNodes);
-		Map<String, Boolean> heartbeatMap = getHeartbeatMap(committeeNodes, nodeIdRpcHttpPortMap);	
-//		Map<String, Boolean> heartbeatMap = Maps.newHashMap();//mock
-//		heartbeatMap.put("127.0.0.1@12537", true);//mock
+		Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(committeeNodes);	
+		Map<String, Boolean> heartbeatMap = heartbeatService.batchNodeHeartbeat(committeeNodes, nodeIdRpcHttpPortMap);
+		Assert.isTrue(Sets.newHashSet(heartbeatMap.values()).contains(Boolean.TRUE), "blockchain not lunched!");
 		NodeKeypairBo proposerNodeKeypair = committeeNodeKeypairs.stream()
 				.filter(item -> {
 					NodePo node = item.getNode();
@@ -138,8 +137,8 @@ public class RpcBlockchainService {
 		rpcBlockchainAsyncService.checkNodeClient(existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs, nodeIdRpcHttpPortMap);
 	}
     
-    private List<NodeKeypairBo> getNodeKeypairForCommittee(List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
-    		List<NodeKeypairBo> removeNodeKeypairs) {
+	private List<NodeKeypairBo> getNodeKeypairForCommittee(List<NodeKeypairBo> existNodeKeypairs,
+			List<NodeKeypairBo> removeNodeKeypairs) {
     	List<NodeKeypairBo> leftNodeKeypairs = Lists.newArrayList(existNodeKeypairs);
     	if(CollectionUtils.isNotEmpty(removeNodeKeypairs)) {
     		Set<String> toRemoveNodeIdSet = removeNodeKeypairs.stream().map(item -> item.getNode().getId()).collect(Collectors.toSet());
@@ -164,11 +163,4 @@ public class RpcBlockchainService {
     	
     	return leftNodeKeypairs;
     }
-
-	private Map<String, Boolean> getHeartbeatMap(List<NodePo> existNodes, Map<String, Integer> nodeIdRpcPortMap) {
-		Map<String, Boolean> heartbeatMap = heartbeatService.batchNodeHeartbeat(existNodes, nodeIdRpcPortMap);
-		Set<Boolean> heartbeatSet = Sets.newHashSet(heartbeatMap.values());
-		Assert.isTrue(heartbeatSet.contains(Boolean.TRUE), "blockchain not lunched!");
-		return heartbeatMap;
-	}
 }

@@ -49,9 +49,9 @@ public class RpcBlockchainService {
     	List<NodeKeypairBo> committeeNodeKeypairs = getNodeKeypairForCommittee(existNodeKeypairs, addNodeKeypairs, removeNodeKeypairs);
     	List<NodePo> committeeNodes = committeeNodeKeypairs.stream().map(item -> item.getNode()).collect(Collectors.toList());
 		Map<String, Integer> nodeIdRpcHttpPortMap = nodeCustomizedConfigService.getJsonRpcHttpPortMap(committeeNodes);
-//		Map<String, Boolean> heartbeatMap = getHeartbeatMap(committeeNodes, nodeIdRpcHttpPortMap);	
-		Map<String, Boolean> heartbeatMap = Maps.newHashMap();//mock
-		heartbeatMap.put("127.0.0.1@12537", true);//mock
+		Map<String, Boolean> heartbeatMap = getHeartbeatMap(committeeNodes, nodeIdRpcHttpPortMap);	
+//		Map<String, Boolean> heartbeatMap = Maps.newHashMap();//mock
+//		heartbeatMap.put("127.0.0.1@12537", true);//mock
 		NodeKeypairBo proposerNodeKeypair = committeeNodeKeypairs.stream()
 				.filter(item -> {
 					NodePo node = item.getNode();
@@ -95,14 +95,11 @@ public class RpcBlockchainService {
 		 * output: 
 		 * ---Vector<signature>
 		 */
-		//String hexEncoded = "0x" + HexUtils.byteArrToHex(applyResponse.getBytes("UTF-8"));
 		byte[] rawJsonBytes = applyResponse.getBytes("UTF-8");
 		Map<KeypairPo, String> ringSignatureMap = Maps.newHashMap();
 		committeeNodeKeypairs.stream().forEach(item -> {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getKeypair().getPublicKey(), item.getKeypair().getPrivateKey(),
 					item.getKeypair().getAlgorithm());
-			//String signature = AccountManager.signMessage(Numeric.hexStringToByteArray(hexEncoded), true, ecKeypair);
-			//String signature = AccountManager.signMessage(rawJsonBytes, true, ecKeypair);
 			String signature = ConfluxUtils.signMessage(rawJsonBytes, ecKeypair);
 			
 			ringSignatureMap.put(item.getKeypair(), signature);

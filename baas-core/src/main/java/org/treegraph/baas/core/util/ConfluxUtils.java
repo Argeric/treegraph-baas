@@ -23,11 +23,11 @@ public class ConfluxUtils {
 		return toAddress(ecKeypair);
 	}
 	
-	public static String toJsonRpcUri(String nodeIp, int jsonRpcHttpPort) {
+	public static String toJsonRpcUri(String nodeIp, Integer jsonRpcHttpPort) {
 		return "http://"+nodeIp + CharacterConstant.COLON + jsonRpcHttpPort;
 	}
 	
-	public static String toIpAtPort(String nodeIp, int jsonRpcHttpPort) {
+	public static String toIpAtPort(String nodeIp, Integer jsonRpcHttpPort) {
 		return nodeIp + CharacterConstant.AT + jsonRpcHttpPort;
 	}
 	

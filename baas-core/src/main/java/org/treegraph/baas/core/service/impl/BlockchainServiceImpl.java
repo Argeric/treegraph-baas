@@ -149,7 +149,7 @@ public class BlockchainServiceImpl implements BlockchainService {
 		
 		BlockChainPo chain = blockchainDas.findById(req.getId()).orElseThrow(() -> new AlertException("blockchain.not.found"));
 		ConsortiumPo cons = consortiumDas.findById(chain.getConsortiumId()).orElseThrow(() -> new AlertException("consortium.not.found"));
-		List<NodePo> nodes = nodeDas.findByConsIdAndChainId(cons.getConsortiumId(), chain.getId());
+		List<NodePo> nodes = nodeDas.findByConsIdAndChainId(cons.getConsortiumId(), chain.getId(), false);
 		List<NodeInfo> nodeInfos = nodes.stream().map(item -> NodeInfo.builder()
 				.ip(item.getNodeIp())
 				.port(item.getNodePort()+"")

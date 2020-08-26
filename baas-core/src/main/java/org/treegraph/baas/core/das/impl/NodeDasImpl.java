@@ -56,10 +56,15 @@ public class NodeDasImpl implements NodeDas {
 		return nodePoMapper.selectByExample(example);
 	}
 
-	public List<NodePo> findByConsIdAndChainId(String consId, String chainId) {
+	public List<NodePo> findByConsIdAndChainId(String consId, String chainId, boolean isAlive) {
 		NodePoExample example = new NodePoExample();
-		example.createCriteria().andConsortiumIdEqualTo(consId).andBlockchainIdEqualTo(chainId)
+		Criteria criteria = example.createCriteria();
+		criteria.andConsortiumIdEqualTo(consId)
+				.andBlockchainIdEqualTo(chainId)
 				.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		if(isAlive) {
+			criteria.andStatusEqualTo(NodeEnum.Status.RUNING.getCode().intValue());
+		}
 		example.setOrderByClause("create_time desc");
 		return nodePoMapper.selectByExample(example);
 	}

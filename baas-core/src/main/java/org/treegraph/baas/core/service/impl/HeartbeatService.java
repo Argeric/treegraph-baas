@@ -37,9 +37,9 @@ public class HeartbeatService {
 		
 		List<CompletableFuture<NodeBo>> futureList = nodes.stream().map(node -> {
 			String nodeIp = node.getNodeIp();
-			int jsonRpcHttpPort = nodeIdRpcPortMap.get(node.getId());
+			Integer jsonRpcHttpPort = nodeIdRpcPortMap.get(node.getId());
 			return CompletableFuture.supplyAsync(() -> {
-				boolean status = false;//nodeHeartbeat(nodeIp, jsonRpcHttpPort);
+				boolean status = nodeHeartbeat(nodeIp, jsonRpcHttpPort);
 				return NodeBo.builder().nodeIp(nodeIp).jsonRpcHttpPort(jsonRpcHttpPort).status(status).build();
 			}, executor).exceptionally(e -> {
 				log.error("节点心跳检测异常[" + ConfluxUtils.toIpAtPort(nodeIp, jsonRpcHttpPort) + "]", e);
@@ -53,19 +53,8 @@ public class HeartbeatService {
 				.toMap(item -> ConfluxUtils.toIpAtPort(item.getNodeIp(), item.getJsonRpcHttpPort()), NodeBo::isStatus));
 	}
 	
-	public static boolean nodeHeartbeat(String nodeIp, int jsonRpcHttpPort) {
+	public static boolean nodeHeartbeat(String nodeIp, Integer jsonRpcHttpPort) {
 		boolean result = false;
-//		try {
-//			String uri = ConfluxUtils.toJsonRpcUri(nodeIp, jsonRpcHttpPort);
-//			Cfx cfx = Cfx.create(uri);
-//			Request<Status, Response> statusRequest = cfx.getStatus();
-//			log.info("HeartbeatService uri--->{}, address--->{}, txRequest--->{}", uri, "address", JSON.toJSONString(statusRequest));
-//			Status statusResponse = statusRequest.sendAndGet();
-//			log.info("HeartbeatService uri--->{}, address--->{}, txRequest--->{}, txResponse--->{}", uri, "address", JSON.toJSONString(statusRequest), statusResponse);
-//			result = statusResponse != null && statusResponse.getBlockNumber() != null;
-//		} catch (Exception e) {
-//			throw new RuntimeException(e);
-//		}
 		try {
 			String uri = ConfluxUtils.toJsonRpcUri(nodeIp, jsonRpcHttpPort);
 			Cfx cfx = Cfx.create(uri);

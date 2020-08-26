@@ -14,7 +14,7 @@ public interface NodeDas {
 	
 	List<NodePo> findAll(String consId, String ip);
 	
-	List<NodePo> findByConsIdAndChainId(String consId, String chainId);
+	List<NodePo> findByConsIdAndChainId(String consId, String chainId, boolean isAlive);
 	
 	List<NodePo> findByChainIds(List<String> chainIds);
 	

@@ -19,6 +19,8 @@ import com.google.common.collect.Maps;
 
 import conflux.web3j.Cfx;
 import conflux.web3j.Request;
+import conflux.web3j.response.Status;
+import conflux.web3j.response.Status.Response;
 import conflux.web3j.response.StringResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,10 +60,11 @@ public class HeartbeatService {
 		try {
 			String uri = ConfluxUtils.toJsonRpcUri(nodeIp, jsonRpcHttpPort);
 			Cfx cfx = Cfx.create(uri);
-			Request<String, StringResponse> statusRequest = cfx.getCustomizedRequest(StringResponse.class,
-					ConfluxConstant.RPC_BEATHEART, new Object[0]);
+			Request<Status, Response> statusRequest = cfx.getStatus();
+//			Request<String, StringResponse> statusRequest = cfx.getCustomizedRequest(StringResponse.class,
+//					ConfluxConstant.RPC_BEATHEART, new Object[0]);
 			log.info("HeartbeatService uri--->{}, txRequest--->{}", uri, JSON.toJSONString(statusRequest));
-			String statusResponse = statusRequest.sendAndGet();
+			Status statusResponse = statusRequest.sendAndGet();
 			log.info("HeartbeatService uri--->{}, txRequest--->{}, txResponse--->{}", uri, JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse));
 			result = statusResponse != null;
 		} catch (Exception e) {

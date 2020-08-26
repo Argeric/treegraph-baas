@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
-import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.service.bo.NodeBo;
 import org.treegraph.baas.core.util.ConfluxUtils;
@@ -20,8 +19,6 @@ import com.google.common.collect.Maps;
 import conflux.web3j.Cfx;
 import conflux.web3j.Request;
 import conflux.web3j.response.Status;
-import conflux.web3j.response.Status.Response;
-import conflux.web3j.response.StringResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -61,8 +58,6 @@ public class HeartbeatService {
 			String uri = ConfluxUtils.toJsonRpcUri(nodeIp, jsonRpcHttpPort);
 			Cfx cfx = Cfx.create(uri);
 			Request<Status, Status.Response> statusRequest = cfx.getStatus();
-//			Request<String, StringResponse> statusRequest = cfx.getCustomizedRequest(StringResponse.class,
-//					ConfluxConstant.RPC_BEATHEART, new Object[0]);
 			log.info("HeartbeatService uri--->{}, txRequest--->{}", uri, JSON.toJSONString(statusRequest));
 			Status statusResponse = statusRequest.sendAndGet();
 			log.info("HeartbeatService uri--->{}, txRequest--->{}, txResponse--->{}", uri, JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse));
@@ -71,9 +66,5 @@ public class HeartbeatService {
 			throw new RuntimeException(e);
 		}
 		return result;
-	}
-	
-	public static void main(String[] args) {
-		nodeHeartbeat("101.200.183.108", 12537);
 	}
 }

@@ -513,14 +513,6 @@ public class ConsortiumServicempl implements ConsortiumService {
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			customizedScriptContent.append(ConfluxConstant.PROPERTY_MINING_AUTHOR + " = \"" + miningAuthor + "\"")
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-//			customizedScriptContent.append("udp_port = " + node.getNodePort())
-//					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-//			customizedScriptContent.append("enable_discovery = false")
-//					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-//			customizedScriptContent.append("session_ip_limits = '0,0,0,0'")
-//					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-//			customizedScriptContent.append("subnet_quota = 0")
-//					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			customizedScriptContent.append("log_file='./conflux.log'")
 					.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			customizedScriptContent.append("log_level=\"trace\"")

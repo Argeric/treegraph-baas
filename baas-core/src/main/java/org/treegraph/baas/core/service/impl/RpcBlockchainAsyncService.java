@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RpcBlockchainAsyncService {
 	
 	@Async
-    public boolean checkNodeClient(List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
+    public void checkNodeClient(List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
 			List<NodeKeypairBo> removeNodeKeypairs, Map<String, NodeBo> heartbeatMap) {
     	/**
     	 * get expect epoch number
@@ -74,7 +74,6 @@ public class RpcBlockchainAsyncService {
     	for(int bftEpochNumber : bftEpochNumbers){
     		checkResult = checkResult && (bftEpochNumber == expectValue);
     	}
-    	
-    	return checkResult;
+    	log.info("checkNodeClient checkResult--->{}", checkResult);
     }
 }

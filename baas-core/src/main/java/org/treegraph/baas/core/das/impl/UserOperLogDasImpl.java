@@ -26,8 +26,8 @@ public class UserOperLogDasImpl implements UserOperLogDas{
 	
 	@Async
 	@LogSkip
-	public boolean addOperLog(UserOperLogPo userOperLog) {
-		return userOperLogPoMapper.insert(userOperLog) > 0;
+	public void addOperLog(UserOperLogPo userOperLog) {
+		userOperLogPoMapper.insert(userOperLog);
 	}
 	
 	@LogSkip

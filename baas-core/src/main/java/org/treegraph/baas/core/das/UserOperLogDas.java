@@ -6,7 +6,7 @@ import org.treegraph.baas.core.domain.UserOperLogPo;
 
 public interface UserOperLogDas {
 	
-	boolean addOperLog(UserOperLogPo userOperLog);
+	void addOperLog(UserOperLogPo userOperLog);
 	
 	List<UserOperLogPo> findAllOperLog(String userId, String userName, String operCode, String ip);
 }

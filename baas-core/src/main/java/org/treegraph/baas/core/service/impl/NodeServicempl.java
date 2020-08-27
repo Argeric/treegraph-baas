@@ -26,6 +26,7 @@ import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.NodeEnum;
+import org.treegraph.baas.core.enums.NodeEnum.Status;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.NodeService;
 import org.treegraph.baas.core.service.bo.NodeBo;
@@ -71,7 +72,9 @@ public class NodeServicempl implements NodeService {
     	
 		Map<String, NodeBo> nodeHeartbeatMap = heartbeatService.batchNodeHeartbeatPlus(nodeList);
     	
-    	List<NodeInfo> nodeInfos = nodeList.stream().map(item -> NodeInfo.builder()
+    	List<NodeInfo> nodeInfos = nodeList.stream().map(item -> {
+    			Status nodeStatus = nodeHeartbeatMap.get(item.getId()).isStatus() ? Status.RUNING : Status.STOP;
+    		    return NodeInfo.builder()
     			.id(item.getId())
     			.ip(item.getNodeIp())
     			.port(item.getNodePort()+"")
@@ -81,8 +84,8 @@ public class NodeServicempl implements NodeService {
     			.blockchainId(item.getBlockchainId())
     			.blockchainName(blockchainIdNameMap.get(item.getBlockchainId()))
     			.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
-    			.status(getNodeStatus(item.getStatus(), nodeHeartbeatMap.get(item.getId()).isStatus()))
-    			.build()).collect(Collectors.toList());
+    			.status(nodeStatus.getCode())
+    			.build();}).collect(Collectors.toList());
     	
     	return ListNodeResponse.builder()
     			.current(req.getCurrent())
@@ -95,11 +98,12 @@ public class NodeServicempl implements NodeService {
 	public NodeInfo getNodeDetail(QueryNodeDetailRequest req) {
 		NodePo nodePo = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
 		Map<String, NodeBo> nodeHeartbeatMap = heartbeatService.batchNodeHeartbeatPlus(Lists.newArrayList(nodePo));
+		Status nodeStatus = nodeHeartbeatMap.get(nodePo.getId()).isStatus() ? Status.RUNING : Status.STOP;
 		return NodeInfo.builder()
 				.ip(nodePo.getNodeIp())
 				.port(nodePo.getNodePort()+"")
 				.org(nodePo.getOrganizationName())
-				.status(getNodeStatus(nodePo.getStatus(), nodeHeartbeatMap.get(nodePo.getId()).isStatus()))
+				.status(nodeStatus.getCode())
 				.build();
 	}
 
@@ -155,17 +159,5 @@ public class NodeServicempl implements NodeService {
 		}
 		
 		return deleteNodeResult;
-	}
-
-	private int getNodeStatus(int dbStatus, Boolean heartbeat) {
-		if (dbStatus == NodeEnum.Status.TO_DEPLOY.getCode() || dbStatus == NodeEnum.Status.STOP.getCode()) {
-			return dbStatus;
-		}
-
-		if (heartbeat) {
-			return NodeEnum.Status.RUNING.getCode();
-		} else {
-			return NodeEnum.Status.EXCEPTION.getCode();
-		}
 	}
 }

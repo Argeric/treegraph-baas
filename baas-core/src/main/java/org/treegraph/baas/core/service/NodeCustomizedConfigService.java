@@ -7,7 +7,7 @@ import org.treegraph.baas.core.domain.NodePo;
 
 public interface NodeCustomizedConfigService {
 	
-	List<NodeCustomizedConfigPo> getAllProperties(List<NodePo> nodes);
-	
-	String getPropertyValueByName(String consId, String nodeId, String propertyName);
+//	List<NodeCustomizedConfigPo> getAllProperties(List<NodePo> nodes);
+//	
+//	String getPropertyValueByName(String consId, String nodeId, String propertyName);
 }

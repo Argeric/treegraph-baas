@@ -52,6 +52,7 @@ import org.treegraph.baas.core.constant.X509CertConstant;
 import org.treegraph.baas.core.das.BlockchainDas;
 import org.treegraph.baas.core.das.ConsortiumDas;
 import org.treegraph.baas.core.das.KeypairDas;
+import org.treegraph.baas.core.das.NodeCustomizedConfigDas;
 import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.das.RoleDas;
 import org.treegraph.baas.core.das.UserInfoDas;
@@ -71,7 +72,6 @@ import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.service.ConsortiumService;
-import org.treegraph.baas.core.service.NodeCustomizedConfigService;
 import org.treegraph.baas.core.service.bo.CustomizedConfigBo;
 import org.treegraph.baas.core.service.bo.OrgBo;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
@@ -111,13 +111,13 @@ public class ConsortiumServicempl implements ConsortiumService {
     
     private KeypairDas keypairDas;
     
+    private NodeCustomizedConfigDas nodeCustomizedConfigDas;
+    
     private BuildService buildService;
     
     private VaultKeypairBuildService vaultKeypairBuildService;
     
     private RpcBlockchainService rpcBlockchainService;
-    
-	private NodeCustomizedConfigService nodeCustomizedConfigService;
    
 	public ListConsResponse listCons(ListRequest req) {
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
@@ -475,7 +475,9 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			String nodePublicKeyPem = KeyUtil
 					.publicKeyToPem(KeyUtil.publicKeyFromBase64(algoNode, nodeKeypairBo.getKeypair().getPublicKey()));
-			scriptContent.append("grpc_server_key = \"\"\"" + nodePublicKeyPem + "\"\"\"")
+			String nodePrivateKeyPem = KeyUtil
+					.privateKeyToPem(KeyUtil.privateKeyFromBase64(algoNode, nodeKeypairBo.getKeypair().getPrivateKey()));
+			scriptContent.append("grpc_server_key = \"\"\"" + nodePrivateKeyPem + "\"\"\"")
 				.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			StringBuffer customizedScriptContent = buildCustomizedDeployScript(nodeKeypairBo, ecKeypair);
 			
@@ -498,7 +500,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		NodePo node = nodeKeypairBo.getNode();
 		String jsonRpcHttpPort = null;
 		String jsonRpcLocalHttpPort = null;
-		List<NodeCustomizedConfigPo> customizedConfigs = nodeCustomizedConfigService.getAllProperties(Lists.newArrayList(node));
+		List<NodeCustomizedConfigPo> customizedConfigs = nodeCustomizedConfigDas.findAll(Lists.newArrayList(node));
 		if(CollectionUtils.isNotEmpty(customizedConfigs)) {
 			for(NodeCustomizedConfigPo config:customizedConfigs) {
 				if(ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT.equalsIgnoreCase(config.getPropertyName())) {
@@ -524,7 +526,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 	}
 	
 	private CustomizedConfigBo buildCustomizedConfig(String consortiumId, List<NodePo> nodes) {
-		String stepFactorPropertyValue = nodeCustomizedConfigService.getPropertyValueByName(consortiumId, null,
+		String stepFactorPropertyValue = nodeCustomizedConfigDas.findPropertyValueByName(consortiumId, null,
 				ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT_STEP_FACTOR);
 		int stepFactor = stepFactorPropertyValue != null ? Integer.parseInt(stepFactorPropertyValue) : 0;
 		

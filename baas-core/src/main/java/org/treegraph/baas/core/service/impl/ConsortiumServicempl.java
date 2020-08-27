@@ -1,6 +1,5 @@
 package org.treegraph.baas.core.service.impl;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;

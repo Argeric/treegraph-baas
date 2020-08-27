@@ -108,7 +108,7 @@ public class ConsortiumController {
 	
 	@PostMapping("/node/create")
 	@ApiOperation("添加节点")
-	public BaasResult<Void> addNodes(@RequestBody AddNodesRequest addNodesRequest) throws IOException {
+	public BaasResult<Void> addNodes(@RequestBody AddNodesRequest addNodesRequest) throws Exception {
 		checkCreateBlockchainAndNode(addNodesRequest.getConsId());
 		consortiumService.addNodes(addNodesRequest);
 		return BaasResult.success();

@@ -473,8 +473,6 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
 			scriptContent.append("grpc_server_cert = \"\"\"" + nodeKeypairBo.getKeypair().getCertStr() + "\"\"\"")
 				.append(SplitterConstant.LINE_SEP).append(SplitterConstant.LINE_SEP);
-			String nodePublicKeyPem = KeyUtil
-					.publicKeyToPem(KeyUtil.publicKeyFromBase64(algoNode, nodeKeypairBo.getKeypair().getPublicKey()));
 			String nodePrivateKeyPem = KeyUtil
 					.privateKeyToPem(KeyUtil.privateKeyFromBase64(algoNode, nodeKeypairBo.getKeypair().getPrivateKey()));
 			scriptContent.append("grpc_server_key = \"\"\"" + nodePrivateKeyPem + "\"\"\"")

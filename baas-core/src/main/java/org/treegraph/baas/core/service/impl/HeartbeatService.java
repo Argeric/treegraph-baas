@@ -61,6 +61,7 @@ public class HeartbeatService {
 		}).collect(Collectors.toList());
 		List<NodeBo> nodeBoList = futureList.stream().map(CompletableFuture::join)
 				.collect(Collectors.toList());
+		updateNodeStatus(nodeBoList);
 		
 		return nodeBoList.stream().collect(Collectors.toMap(NodeBo::getNodeId, Function.identity()));
 	}
@@ -71,11 +72,11 @@ public class HeartbeatService {
 		Status statusResponse = null;
 		String uri = ConfluxUtils.toJsonRpcUri(nodeIp, jsonRpcHttpPort);
 		
-		Cfx cfx = Cfx.create(uri);
-		statusRequest = cfx.getStatus();
-		statusResponse = statusRequest.sendAndGet();
-		result = statusResponse != null;
 		try {
+			Cfx cfx = Cfx.create(uri);
+			statusRequest = cfx.getStatus();
+			statusResponse = statusRequest.sendAndGet();
+			result = statusResponse != null;
 		} catch (Exception e) {
 			log.error("nodeHeartbeat uri--->{}, request--->{}, response--->{}, error!", uri,
 					JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse), e);

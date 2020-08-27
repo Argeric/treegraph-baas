@@ -68,9 +68,9 @@ public class VaultKeypairBuildService {
 			/**
 			 * test start
 			 */
-			KeypairPo kp = rootKeypairs.get(0);
-			PrivateKey pk = KeyUtil.privateKeyFromBase64(algo, kp.getPrivateKey());
-			writeRootCaToVault(kp.getCertStr(), KeyUtil.privateKeyToPem(pk));
+//			KeypairPo kp = rootKeypairs.get(0);
+//			PrivateKey pk = KeyUtil.privateKeyFromBase64(algo, kp.getPrivateKey());
+//			writeRootCaToVault(kp.getCertStr(), KeyUtil.privateKeyToPem(pk));
 			/**
 			 * test end
 			 */

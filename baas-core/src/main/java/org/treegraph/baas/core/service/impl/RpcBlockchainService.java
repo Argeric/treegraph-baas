@@ -69,7 +69,7 @@ public class RpcBlockchainService {
 		List<String> validatorPublicKeys = validatorNodeKeypairs.stream().map(item -> {
 			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getKeypair().getPublicKey(),
 					item.getKeypair().getPrivateKey(), item.getKeypair().getAlgorithm());
-			return "0x"+ecKeypair.getPublicKey().toString(16);
+			return "0x"+StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0');
 		}).collect(Collectors.toList());
 		ECKeyPair proposerEcKeypair = KeyUtil.loadECKeyPairFromBase64(proposerNodeKeypair.getKeypair().getPublicKey(),
 				proposerNodeKeypair.getKeypair().getPrivateKey(), proposerNodeKeypair.getKeypair().getAlgorithm());

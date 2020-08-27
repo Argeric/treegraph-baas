@@ -16,6 +16,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 //import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SuppressWarnings("unchecked")
@@ -23,6 +24,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @PropertySource(value = { "classpath:config-biz.properties", "classpath:config-yw.properties" })
 @EnableConfigurationProperties
 @EnableScheduling
+@EnableAsync
 public class TreeGraphBaasApp extends SpringBootServletInitializer {
 	static {
 		int newMaxKeyLength;

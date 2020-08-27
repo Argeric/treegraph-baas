@@ -75,7 +75,7 @@ public class HeartbeatService {
 		try {
 			Cfx cfx = Cfx.create(uri);
 			statusRequest = cfx.getStatus();
-			statusResponse = statusRequest.sendAndGet();
+			statusResponse = statusRequest.sendAndGet(3);
 			result = statusResponse != null;
 		} catch (Exception e) {
 			log.error("nodeHeartbeat uri--->{}, request--->{}, response--->{}, error!", uri,

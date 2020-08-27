@@ -322,7 +322,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		return blockchainDas.createBlockchain(blockchain, cons);
 	}
 
-	public boolean addNodes(AddNodesRequest req) throws IOException {
+	public boolean addNodes(AddNodesRequest req) throws Exception {
 		//check
 		List<NodePo> existNodes = nodeDas.findByConsIdAndChainId(req.getConsId(), req.getBlockchainId(), false);
 		Set<String> dbIpPortSet = existNodes.stream().map(item -> item.getNodeIp() + ":" + item.getNodePort())
@@ -366,8 +366,9 @@ public class ConsortiumServicempl implements ConsortiumService {
 			List<NodeKeypairBo> existNodeKeypairs = existNodes.stream().map(
 					item -> vaultKeypairBuildService.getNodeKeypair(req.getConsId(), X509CertConstant.DEFAULT_ALGO_NODE, item, null))
 					.collect(Collectors.toList());
+			KeypairPo consortiumKeyPair = vaultKeypairBuildService.getConsortiumKeyPair(req.getConsId(), X509CertConstant.DEFAULT_ALGO_CONS, null);
 			List<NodeKeypairBo> toAddNodeKeypairs = toAddNodes.stream().map(
-					item -> vaultKeypairBuildService.getNodeKeypair(req.getConsId(), X509CertConstant.DEFAULT_ALGO_NODE, item, null))
+					item -> vaultKeypairBuildService.getNodeKeypair(req.getConsId(), X509CertConstant.DEFAULT_ALGO_NODE, item, consortiumKeyPair))
 					.collect(Collectors.toList());
 			toAddNodeKeypairs.stream().forEach(item -> item.getNode().setStatus(NodeEnum.Status.ADDING_BY_MEMBERSHIP_CHANGE.getCode()));
 			nodeDas.addNodeKeypairs(toAddNodeKeypairs, config.getStepFactorCustomizedConfig(), config.getCustomizedConfigList());

@@ -1,6 +1,5 @@
 package org.treegraph.baas.core.service;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -37,7 +36,7 @@ public interface ConsortiumService {
 
 	boolean createBlockchain(CreateBlockchainRequest createBlockchainRequest);
 
-	boolean addNodes(AddNodesRequest addNodesRequest) throws IOException;
+	boolean addNodes(AddNodesRequest addNodesRequest) throws Exception;
 
 	void downloadDeployScript(DownloadDeployScriptRequest downloadDeployScriptRequest, HttpServletResponse response) throws Exception;
 }

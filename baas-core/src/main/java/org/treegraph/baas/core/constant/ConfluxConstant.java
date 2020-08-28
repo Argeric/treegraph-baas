@@ -37,4 +37,11 @@ public class ConfluxConstant {
     public static final String PROPERTY_JSON_RPC_LOCAL_HTTP_PORT = "jsonrpc_local_http_port";
     
     public static final String PROPERTY_JSON_RPC_HTTP_PORT_STEP_FACTOR = "jsonrpc_http_port_step_factor";
+    
+    /**
+     * timeout
+     */
+    public static final int TIMEOUT_HEARTBEAT_CONNECT = 1;
+    
+    public static final int TIMEOUT_HEARTBEAT_READ = 1;
 }

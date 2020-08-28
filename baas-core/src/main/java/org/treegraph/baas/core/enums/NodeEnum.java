@@ -14,9 +14,9 @@ public class NodeEnum {
     public enum Status {
 
         /**
-         * 部署中
+         * 未启动
          */
-        TO_DEPLOY(0, "待部署"),
+        TO_DEPLOY(0, "未启动"),
 
         /**
          * 运行中

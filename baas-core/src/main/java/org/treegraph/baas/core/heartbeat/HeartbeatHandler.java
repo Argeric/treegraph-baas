@@ -1,8 +1,10 @@
 package org.treegraph.baas.core.heartbeat;
 
+import java.util.Map;
+
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
 
 public interface HeartbeatHandler {
-
-	Heartbeat send(Heartbeat heartbeat);
+    void sendHeartBeat();
+    void sendHeartBeat(Map<String, Heartbeat> nodes);
 }

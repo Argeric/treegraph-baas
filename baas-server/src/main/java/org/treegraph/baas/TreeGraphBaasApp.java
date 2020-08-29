@@ -18,6 +18,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.treegraph.baas.core.util.ApplicationStartup;
 
 @SuppressWarnings("unchecked")
 @SpringBootApplication
@@ -63,11 +64,13 @@ public class TreeGraphBaasApp extends SpringBootServletInitializer {
 		if (newMaxKeyLength < 256)
 			throw new RuntimeException(errorString);
 	}
-
-	public static void main(String[] args) {
-		Security.addProvider((Provider) new BouncyCastleProvider());
-		SpringApplication.run(TreeGraphBaasApp.class, args);
-	}
+	
+    public static void main(String[] args) {
+    	Security.addProvider((Provider) new BouncyCastleProvider());
+        SpringApplication springApplication = new SpringApplication(TreeGraphBaasApp.class);
+        springApplication.addListeners(new ApplicationStartup());
+        springApplication.run(args);
+    }
 
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {

@@ -9,7 +9,7 @@ import lombok.Data;
 @Builder
 public class Heartbeat {
 	
-    private String nodeId;
+    private String id;
     private String ip;
     private int port;
     private String lastPong;

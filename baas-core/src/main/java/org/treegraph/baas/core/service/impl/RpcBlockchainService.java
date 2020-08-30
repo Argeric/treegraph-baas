@@ -15,7 +15,9 @@ import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
-import org.treegraph.baas.core.service.bo.NodeBo;
+import org.treegraph.baas.core.enums.NodeEnum;
+import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
+import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
@@ -36,17 +38,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class RpcBlockchainService {
 	
-    private HeartbeatService heartbeatService;
-    
     private RpcBlockchainAsyncService rpcBlockchainAsyncService;
     
     public void sendMembershipChangeTransactionPlus(String consortiumId, List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
 			List<NodeKeypairBo> removeNodeKeypairs) throws IOException {
     	// get alive nodes
-		List<NodePo> existNodes = existNodeKeypairs.stream().map(item -> item.getNode()).collect(Collectors.toList());
-		Map<String, NodeBo> existNodeHeartbeatMap = heartbeatService.batchNodeHeartbeatPlus(existNodes);
 		List<NodeKeypairBo> aliveNodeKeypairs = existNodeKeypairs.stream()
-				.filter(item -> existNodeHeartbeatMap.get(item.getNode().getId()).isStatus())
+				.filter(item -> HeartbeatLinstener.getInstance().getNodeStatus(item.getNode().getConsortiumId(),
+						item.getNode().getId()) == NodeEnum.Status.RUNING)
 				.collect(Collectors.toList());
 		Assert.isTrue(CollectionUtils.isNotEmpty(aliveNodeKeypairs), "blockchain not lunched!");
     	
@@ -54,7 +53,8 @@ public class RpcBlockchainService {
     	List<NodeKeypairBo> committeeNodeKeypairs = getNodeKeypairForCommittee(aliveNodeKeypairs, removeNodeKeypairs);
 		NodeKeypairBo proposerNodeKeypair = committeeNodeKeypairs.get(0);
 		NodePo proposerNode = proposerNodeKeypair.getNode();
-		String uri = ConfluxUtils.toJsonRpcUri(proposerNode.getNodeIp(), existNodeHeartbeatMap.get(proposerNode.getId()).getJsonRpcHttpPort());
+		Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(proposerNode.getConsortiumId(), proposerNode.getId());
+		String uri = ConfluxUtils.toJsonRpcUri(proposerNode.getNodeIp(), heartbeat.getPort());
 		Cfx cfx = Cfx.create(uri);
 		
 		/*
@@ -128,7 +128,7 @@ public class RpcBlockchainService {
 		 * output:
 		 * ---boolean true/false
 		 */
-		rpcBlockchainAsyncService.checkNodeClient(aliveNodeKeypairs, addNodeKeypairs, removeNodeKeypairs, existNodeHeartbeatMap);
+		rpcBlockchainAsyncService.checkNodeClient(aliveNodeKeypairs, addNodeKeypairs, removeNodeKeypairs);
 	}
     
 	private List<NodeKeypairBo> getNodeKeypairForCommittee(List<NodeKeypairBo> existNodeKeypairs,

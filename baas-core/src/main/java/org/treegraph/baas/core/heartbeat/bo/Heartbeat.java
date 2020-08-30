@@ -2,6 +2,8 @@ package org.treegraph.baas.core.heartbeat.bo;
 
 import java.util.Map;
 
+import org.treegraph.baas.core.enums.HeartbeatEnum;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -23,4 +25,6 @@ public class Heartbeat {
     
     private String error;
     private Map<String, Object> info;
+    
+    private HeartbeatEnum.Status status;
 }

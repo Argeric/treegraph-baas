@@ -5,15 +5,9 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.util.MD5;
 import org.treegraph.baas.core.constant.ConfluxConstant;
-import org.treegraph.baas.core.das.BlockchainDas;
-import org.treegraph.baas.core.das.ConsortiumDas;
-import org.treegraph.baas.core.das.NodeDas;
+import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.heartbeat.HeartbeatClient;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
-import org.treegraph.baas.core.service.impl.BuildService;
-import org.treegraph.baas.core.service.impl.HeartbeatService;
-import org.treegraph.baas.core.service.impl.RpcBlockchainService;
-import org.treegraph.baas.core.service.impl.VaultKeypairBuildService;
 import org.treegraph.baas.core.util.ConfluxUtils;
 
 import com.alibaba.fastjson.JSON;
@@ -42,18 +36,34 @@ public class JsonRpcHeartbeatClientImpl implements HeartbeatClient{
 			error = e.getMessage();
 		}
 		
+		String lastPongMd5 = heartbeat.getPong() != null ? MD5.encode(heartbeat.getPong()) : null;
 		String pong = JSON.toJSONString(statusResponse);
+		String pongMd5 = pong != null ? MD5.encode(pong) : null;
+		HeartbeatEnum.Status status = null;
+		if(error != null){
+			status = HeartbeatEnum.Status.RED;
+		} else{
+			if(pongMd5 != null && lastPongMd5 != null && !pongMd5.equalsIgnoreCase(lastPongMd5)){
+				status = HeartbeatEnum.Status.GREEN;
+			} else{
+				status = HeartbeatEnum.Status.YELLOW;
+			}
+		}
+		
 		return Heartbeat.builder().id(heartbeat.getId())
 				.ip(heartbeat.getIp())
 				.port(heartbeat.getPort())
 				.lastPong(heartbeat.getPong())
-				.lastPongMd5(heartbeat.getLastPongMd5())
+				.lastPongMd5(lastPongMd5)
 				
 				.ping(JSON.toJSONString(statusRequest))
 				.pong(pong)
 				.pingTime(pingTime)
 				.pongTime(System.currentTimeMillis())
-				.pongMd5(pong != null ? MD5.encode(pong) : null)
-				.error(error).build();
+				.pongMd5(pongMd5)
+				.error(error)
+				
+				.status(status)
+				.build();
 	}
 }

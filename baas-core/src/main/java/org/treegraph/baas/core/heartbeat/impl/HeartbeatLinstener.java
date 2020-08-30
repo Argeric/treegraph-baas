@@ -4,6 +4,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.treegraph.baas.core.enums.HeartbeatEnum;
+import org.treegraph.baas.core.enums.NodeEnum;
+import org.treegraph.baas.core.enums.NodeEnum.Status;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
 
 import com.google.common.collect.Maps;
@@ -60,6 +63,10 @@ public class HeartbeatLinstener {
     	return nodeMap != null ? nodeMap : Maps.newHashMap();
     }
     
+    public Heartbeat getNode(String consortiumId, String nodeId) {
+    	return this.getNodes(consortiumId).get(nodeId);
+    }
+    
     public Map<String, Map<String, Long>> getNodeStatus() {
     	return consortiumNodeStatus;
     }
@@ -67,6 +74,21 @@ public class HeartbeatLinstener {
     public Map<String, Long> getNodeStatus(String consortiumId) {
     	Map<String, Long> nodeStatusMap = consortiumNodeStatus.get(consortiumId);
     	return nodeStatusMap != null ? nodeStatusMap : Maps.newHashMap();
+    }
+    
+    public NodeEnum.Status getNodeStatus(String consortiumId, String nodeId){
+    	Heartbeat heartbeat = this.getNodes(consortiumId).get(nodeId);
+		
+    	Status nodeStatus = null;
+		if(heartbeat.getStatus() == HeartbeatEnum.Status.GREEN){
+			nodeStatus = Status.RUNING;
+		} else if(heartbeat.getStatus() == HeartbeatEnum.Status.YELLOW){
+			nodeStatus = Status.EXCEPTION;
+		} else{
+			nodeStatus = Status.STOP;
+		}
+		
+		return nodeStatus;
     }
     
     public synchronized void removeInValidNode() {

@@ -28,8 +28,8 @@ import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.enums.NodeEnum.Status;
 import org.treegraph.baas.core.exception.AlertException;
+import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
 import org.treegraph.baas.core.service.NodeService;
-import org.treegraph.baas.core.service.bo.NodeBo;
 import org.treegraph.baas.core.util.DateTimeUtils;
 
 import com.github.pagehelper.PageHelper;
@@ -47,8 +47,6 @@ public class NodeServicempl implements NodeService {
     private ConsortiumDas consortiumDas;
     
     private BlockchainDas blockchainDas;
-    
-    private HeartbeatService heartbeatService;
     
     private BuildService buildService;
     
@@ -70,22 +68,20 @@ public class NodeServicempl implements NodeService {
     	List<BlockChainPo> blockchains = blockchainDas.findByIds(blockchainIds);
     	Map<String, String> blockchainIdNameMap = blockchains.stream().collect(Collectors.toMap(BlockChainPo::getId, BlockChainPo::getBlockchainName));
     	
-		Map<String, NodeBo> nodeHeartbeatMap = heartbeatService.batchNodeHeartbeatPlus(nodeList);
-    	
     	List<NodeInfo> nodeInfos = nodeList.stream().map(item -> {
-    			Status nodeStatus = nodeHeartbeatMap.get(item.getId()).isStatus() ? Status.RUNING : Status.STOP;
-    		    return NodeInfo.builder()
-    			.id(item.getId())
-    			.ip(item.getNodeIp())
-    			.port(item.getNodePort()+"")
-    			.org(item.getOrganizationName())
-    			.consId(item.getConsortiumId())
-    			.consName(consIdNameMap.get(item.getConsortiumId()))
-    			.blockchainId(item.getBlockchainId())
-    			.blockchainName(blockchainIdNameMap.get(item.getBlockchainId()))
-    			.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
-    			.status(nodeStatus.getCode())
-    			.build();}).collect(Collectors.toList());
+			Status nodeStatus = HeartbeatLinstener.getInstance().getNodeStatus(item.getConsortiumId(), item.getId());
+			return NodeInfo.builder()
+					.id(item.getId())
+					.ip(item.getNodeIp())
+					.port(item.getNodePort() + "")
+					.org(item.getOrganizationName())
+					.consId(item.getConsortiumId())
+					.consName(consIdNameMap.get(item.getConsortiumId()))
+					.blockchainId(item.getBlockchainId())
+					.blockchainName(blockchainIdNameMap.get(item.getBlockchainId()))
+					.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
+					.status(nodeStatus.getCode()).build();
+		}).collect(Collectors.toList());
     	
     	return ListNodeResponse.builder()
     			.current(req.getCurrent())
@@ -97,8 +93,7 @@ public class NodeServicempl implements NodeService {
 	
 	public NodeInfo getNodeDetail(QueryNodeDetailRequest req) {
 		NodePo nodePo = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
-		Map<String, NodeBo> nodeHeartbeatMap = heartbeatService.batchNodeHeartbeatPlus(Lists.newArrayList(nodePo));
-		Status nodeStatus = nodeHeartbeatMap.get(nodePo.getId()).isStatus() ? Status.RUNING : Status.STOP;
+		Status nodeStatus = HeartbeatLinstener.getInstance().getNodeStatus(nodePo.getConsortiumId(), nodePo.getId());
 		return NodeInfo.builder()
 				.ip(nodePo.getNodeIp())
 				.port(nodePo.getNodePort()+"")

@@ -8,20 +8,31 @@ import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.core.component.BizThreadPools;
+import org.treegraph.baas.core.das.NodeDas;
+import org.treegraph.baas.core.enums.HeartbeatEnum;
+import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.heartbeat.HeartbeatClient;
 import org.treegraph.baas.core.heartbeat.HeartbeatHandler;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
 
+import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
+
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class HeartbeatHandlerImpl implements HeartbeatHandler {
 	
 	private HeartbeatClient heartbeatClient;
+	
+    private NodeDas nodeDas;
 	
 	@Scheduled(cron="0/30 * * * * ?")
     public void sendHeartBeat() {
@@ -44,5 +55,34 @@ public class HeartbeatHandlerImpl implements HeartbeatHandler {
 		).collect(Collectors.toList());
 		List<Heartbeat> heartbeats = futureList.stream().map(CompletableFuture::join).collect(Collectors.toList());
 		heartbeats.stream().forEach(item -> nodes.put(item.getId(), item));
+		updateNodeStatus(heartbeats);
+	}
+	
+	private void updateNodeStatus(List<Heartbeat> heartbeats) {
+		List<String> greenList = Lists.newArrayList();
+		List<String> yellowList = Lists.newArrayList();
+		List<String> redList = Lists.newArrayList();
+		try {
+			heartbeats.stream().forEach(item -> {
+				if(item.getStatus() == HeartbeatEnum.Status.GREEN) {
+					greenList.add(item.getId());
+				} else if(item.getStatus() == HeartbeatEnum.Status.YELLOW) {
+					yellowList.add(item.getId());
+				} else{
+					redList.add(item.getId());
+				}
+			});
+			if(CollectionUtils.isNotEmpty(greenList)) {
+				nodeDas.modifyNodesStatus(greenList, NodeEnum.Status.RUNING);
+			}
+			if(CollectionUtils.isNotEmpty(yellowList)) {
+				nodeDas.modifyNodesStatus(yellowList, NodeEnum.Status.EXCEPTION);
+			}
+			if(CollectionUtils.isNotEmpty(redList)) {
+				nodeDas.modifyNodesStatus(redList, NodeEnum.Status.STOP);
+			}
+		} catch(Exception e) {
+			log.error("updateNodeStatus heartbeats--->{}, error!", JSON.toJSONString(heartbeats), e);
+		}
 	}
 }

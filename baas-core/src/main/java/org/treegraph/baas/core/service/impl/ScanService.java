@@ -25,7 +25,7 @@ public class ScanService {
 
 	private RestTemplate restTemplate;
 
-	public Object invoke(String url, Map<String, ?> uriVariables) {
+	public Object invoke(String url, Map<String, String> uriVariables) {
 		HttpHeaders header = new HttpHeaders();
 		header.setContentType(MediaType.parseMediaType("application/json; charset=UTF-8"));
 		

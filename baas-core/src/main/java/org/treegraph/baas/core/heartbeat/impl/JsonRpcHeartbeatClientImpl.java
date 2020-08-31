@@ -38,7 +38,7 @@ public class JsonRpcHeartbeatClientImpl implements HeartbeatClient{
 		} catch (Exception e) {
 			error = e.getMessage();
 		}
-		log.info("\theartbeat--->{}\n\tping--->{}\n\tpong--->{}", uri, JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse));
+		log.info("\n\theartbeat--->{}\n\tping--->{}\n\tpong--->{}", uri, JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse));
 		
 		String lastPongMd5 = heartbeat.getPong() != null ? MD5.encode(heartbeat.getPong()) : null;
 		String pong = JSON.toJSONString(statusResponse);

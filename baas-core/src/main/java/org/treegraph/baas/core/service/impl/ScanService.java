@@ -36,7 +36,7 @@ public class ScanService {
 				uriVariables.entrySet().stream().forEach(o -> reqBody.add(o.getKey(), o.getValue()));
 			}
 			HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<MultiValueMap<String, String>>(reqBody, header);
-			resp = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Object.class);
+			resp = restTemplate.postForEntity(url, requestEntity, Object.class);
 		} else {
 			if (uriVariables != null) {
 				UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url);

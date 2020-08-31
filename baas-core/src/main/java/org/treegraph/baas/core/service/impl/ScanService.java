@@ -32,32 +32,33 @@ public class ScanService {
 	public Object invoke(String url, Map<String, String> uriVariables) {
 		log.info("uriVariables--->" + JSON.toJSONString(uriVariables));
 		HttpHeaders header = new HttpHeaders();
-		header.setContentType(MediaType.parseMediaType("application/json; charset=UTF-8"));
 		
-		ResponseEntity<Object> resp = null;
+		ResponseEntity<Object> response = null;
 		if(url.contains("create") || url.contains("update") || url.contains("delete")) {
-			MultiValueMap<String, String> reqBody = new LinkedMultiValueMap<>();
+			header.setContentType(MediaType.parseMediaType("application/x-www-form-urlencoded; charset=UTF-8"));
+			MultiValueMap<String, String> request = new LinkedMultiValueMap<>();
 			if (uriVariables != null) {
-				uriVariables.entrySet().stream().forEach(o -> reqBody.add(o.getKey(), o.getValue()));
+				uriVariables.entrySet().stream().forEach(o -> request.add(o.getKey(), o.getValue()));
 			}
-			HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<MultiValueMap<String, String>>(reqBody, header);
+			HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<MultiValueMap<String, String>>(request, header);
 			log.info("request--->" + JSON.toJSONString(requestEntity));
-			resp = restTemplate.postForEntity(url, requestEntity, Object.class);
-			log.info("response--->" + JSON.toJSONString(resp));
+			response = restTemplate.postForEntity(url, requestEntity, Object.class);
+			log.info("response--->" + JSON.toJSONString(response));
 		} else {
+			header.setContentType(MediaType.parseMediaType("application/json; charset=UTF-8"));
 			if (uriVariables != null) {
 				UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url);
 				uriVariables.entrySet().stream().forEach(o -> builder.queryParam(o.getKey(), o.getValue()));
 				url = builder.build().encode().toString();
 			}
 			HttpEntity<Object> requestEntity = new HttpEntity<Object>(null, header);
-			resp = restTemplate.exchange(url, HttpMethod.GET, requestEntity, Object.class);
+			response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, Object.class);
 		}
 		
-		if (resp.getStatusCode() != HttpStatus.OK) {
+		if (response.getStatusCode() != HttpStatus.OK) {
 			throw new BusinessException(ErrorCodeEnum.SCAN_EXCEPTION);
 		} else {
-			return resp.getBody();
+			return response.getBody();
 		}
 	}
 	

@@ -367,10 +367,10 @@ public class ConsortiumServicempl implements ConsortiumService {
 					.collect(Collectors.toList());
 			KeypairPo consortiumKeyPair = vaultKeypairBuildService.getConsortiumKeyPair(req.getConsId(), X509CertConstant.DEFAULT_ALGO_CONS, null);
 			List<NodeKeypairBo> toAddNodeKeypairs = toAddNodes.stream().map(item -> {
-				NodeKeypairBo nodeKeypair = vaultKeypairBuildService.getNodeKeypair(req.getConsId(), X509CertConstant.DEFAULT_ALGO_NODE, item, consortiumKeyPair);
-				nodeKeypair.getNode().setStatus(NodeEnum.Status.ADDING_BY_MEMBERSHIP_CHANGE.getCode());
-				return nodeKeypair;
-			}).collect(Collectors.toList());
+					NodeKeypairBo nodeKeypair = vaultKeypairBuildService.getNodeKeypair(req.getConsId(), X509CertConstant.DEFAULT_ALGO_NODE, item, consortiumKeyPair);
+					nodeKeypair.getNode().setStatus(NodeEnum.Status.ADDING_BY_MEMBERSHIP_CHANGE.getCode());
+					return nodeKeypair;
+					}).collect(Collectors.toList());
 			nodeDas.addNodeKeypairs(toAddNodeKeypairs, config.getStepFactorCustomizedConfig(), config.getCustomizedConfigList());
 			jsonRpcService.sendMembershipChangeTransaction(req.getConsId(), existNodeKeypairs, toAddNodeKeypairs, null);
 			List<String> toAddNodeIds = toAddNodes.stream().map(NodePo::getId).collect(Collectors.toList());

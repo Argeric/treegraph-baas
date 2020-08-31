@@ -32,6 +32,7 @@ public class ApplicationStartup implements ApplicationListener<ContextRefreshedE
 		
 		// get customized config
 		List<String> nodeIds = nodes.stream().map(NodePo::getId).collect(Collectors.toList());
+		if(CollectionUtils.isEmpty(nodeIds)) return;
 		NodeCustomizedConfigDas customizedConfigDas = ac.getBean(NodeCustomizedConfigDas.class);
 		List<NodeCustomizedConfigPo> customizedConfigList = customizedConfigDas.findAll(null, nodeIds);	
 		Map<String, Integer> rpcHttpPortMap = customizedConfigList.stream()

@@ -25,19 +25,20 @@ public class JsonRpcHeartbeatClientImpl implements HeartbeatClient{
 	
 	public Heartbeat send(Heartbeat heartbeat) {
 		long pingTime = System.currentTimeMillis();
+		String uri = null;
 		Request<Status, Status.Response> statusRequest = null;
 		Status statusResponse = null;
 		String error = null;
 		
 		try {
-			String uri = ConfluxUtils.toJsonRpcUri(heartbeat.getIp(), heartbeat.getPort());
+			uri = ConfluxUtils.toJsonRpcUri(heartbeat.getIp(), heartbeat.getPort());
 			Cfx cfx = Cfx.create(uri, ConfluxConstant.TIMEOUT_HEARTBEAT_CONNECT, ConfluxConstant.TIMEOUT_HEARTBEAT_READ, TimeUnit.SECONDS);
 			statusRequest = cfx.getStatus();
 			statusResponse = statusRequest.sendAndGet();
 		} catch (Exception e) {
 			error = e.getMessage();
 		}
-		log.info("\n\n\n\nheartbeat\n\n\n\nping--->{}\n\n\n\npong--->{}", JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse));
+		log.info("\theartbeat--->{}\n\tping--->{}\n\tpong--->{}", uri, JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse));
 		
 		String lastPongMd5 = heartbeat.getPong() != null ? MD5.encode(heartbeat.getPong()) : null;
 		String pong = JSON.toJSONString(statusResponse);

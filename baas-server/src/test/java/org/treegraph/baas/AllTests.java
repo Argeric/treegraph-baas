@@ -70,9 +70,9 @@ public class AllTests {
 	
 	private static boolean initialized = false;
 	
-	private static String testConsortiumId = "01a85609-ff5a-4a60-a616-74931df5ad61";
+	private static String testConsortiumId = "4ac28868-00c3-4923-94a9-7fd1d50a5e06";
 	
-	private static String testBlockchainId = "1cf87b8e-ecce-42b6-9c69-5e66108cc563";
+	private static String testBlockchainId = "f1d17b8a-40fd-4680-aff4-43ad5340993b";
 	
 	private static String binaryPath  = "/opt/software/tree-graph/target/release/conflux_production";
 	
@@ -125,49 +125,49 @@ public class AllTests {
          */
         Timer timer  = new Timer();
         timer.schedule(new TransactionGenerator(nodeKeypairs, jsonRpcHttpPortMap), 0 ,1000);
-        TimeUnit.SECONDS.sleep(60);
+        TimeUnit.HOURS.sleep(6);
         
-        /**
-         * add node
-         */
-        NodeInfo node1 = NodeInfo.builder()
-        		.ip(toAddNodeIp).port(toAddNodePort+"").org("org1").build();
-        AddNodesRequest addNodesRequest = AddNodesRequest.builder()
-        		.consId(testConsortiumId)
-        		.blockchainId(testBlockchainId)
-        		.nodes(Lists.newArrayList(node1))
-        		.build();
-        MvcResult addResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/node/create")
-				.contentType(MediaType.APPLICATION_JSON_UTF8)
-				.header("X-Token", token)
-				.content(JSON.toJSONString(addNodesRequest)))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andDo(MockMvcResultHandlers.print())
-				.andReturn();
-        TimeUnit.SECONDS.sleep(60);
-        
-        /**
-         * start new node
-         */
-        NodePo node11 = nodeDas.findByIpPort(node1.getIp(), Integer.parseInt(node1.getPort()));
-        log.info("node11--->{}", JSON.toJSONString(node11));
-        generateScripts(node11.getConsortiumId(), Lists.newArrayList(node11.getId()));
-        writeScripts(newNodeScriptPath, newNodeConfigPath);
-		deployBlockchain(newNodeConfigPath);
-        
-       	/**
-       	 * delete node
-       	 */
-        DeleteNodeRequest delNodeRequest = DeleteNodeRequest.builder()
-        		.id(node11.getId()).ip(node1.getId()).port(node1.getPort()).build();
-        MvcResult removeResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/del")
-				.contentType(MediaType.APPLICATION_JSON_UTF8)
-				.header("X-Token", token)
-				.content(JSON.toJSONString(delNodeRequest)))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andDo(MockMvcResultHandlers.print())
-				.andReturn();
-        TimeUnit.SECONDS.sleep(60 * 60);
+//        /**
+//         * add node
+//         */
+//        NodeInfo node1 = NodeInfo.builder()
+//        		.ip(toAddNodeIp).port(toAddNodePort+"").org("org1").build();
+//        AddNodesRequest addNodesRequest = AddNodesRequest.builder()
+//        		.consId(testConsortiumId)
+//        		.blockchainId(testBlockchainId)
+//        		.nodes(Lists.newArrayList(node1))
+//        		.build();
+//        MvcResult addResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/node/create")
+//				.contentType(MediaType.APPLICATION_JSON_UTF8)
+//				.header("X-Token", token)
+//				.content(JSON.toJSONString(addNodesRequest)))
+//				.andExpect(MockMvcResultMatchers.status().isOk())
+//				.andDo(MockMvcResultHandlers.print())
+//				.andReturn();
+//        TimeUnit.SECONDS.sleep(60);
+//        
+//        /**
+//         * start new node
+//         */
+//        NodePo node11 = nodeDas.findByIpPort(node1.getIp(), Integer.parseInt(node1.getPort()));
+//        log.info("node11--->{}", JSON.toJSONString(node11));
+//        generateScripts(node11.getConsortiumId(), Lists.newArrayList(node11.getId()));
+//        writeScripts(newNodeScriptPath, newNodeConfigPath);
+//		deployBlockchain(newNodeConfigPath);
+//        
+//       	/**
+//       	 * delete node
+//       	 */
+//        DeleteNodeRequest delNodeRequest = DeleteNodeRequest.builder()
+//        		.id(node11.getId()).ip(node1.getId()).port(node1.getPort()).build();
+//        MvcResult removeResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/del")
+//				.contentType(MediaType.APPLICATION_JSON_UTF8)
+//				.header("X-Token", token)
+//				.content(JSON.toJSONString(delNodeRequest)))
+//				.andExpect(MockMvcResultMatchers.status().isOk())
+//				.andDo(MockMvcResultHandlers.print())
+//				.andReturn();
+//        TimeUnit.SECONDS.sleep(60 * 60);
     }
     
 	private void login() throws Exception {

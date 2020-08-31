@@ -51,7 +51,7 @@ public class ScanController {
 	@ApiOperation("scan请求转发")
 	public Object listBlock(HttpServletRequest request, @RequestBody Map<String, Map<String, String>> requestParams) throws Exception {
 		Map<String, String> selfParams = requestParams.get("self");
-		String chainId = selfParams.get("blockchainId");
+		String chainId = (String)selfParams.get("blockchainId");
 		
 		String requestUri = request.getRequestURI().replace("/"+chainId, "");
 		String scanUri = requestUri.startsWith("/scan") ? (uriScan + requestUri.replaceFirst("scan", "api"))

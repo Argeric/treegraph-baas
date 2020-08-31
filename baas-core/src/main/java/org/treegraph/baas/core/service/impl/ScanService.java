@@ -17,15 +17,20 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.treegraph.baas.core.enums.ErrorCodeEnum;
 import org.treegraph.baas.core.exception.BusinessException;
 
+import com.alibaba.fastjson.JSON;
+
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class ScanService {
 
 	private RestTemplate restTemplate;
 
 	public Object invoke(String url, Map<String, String> uriVariables) {
+		log.info("uriVariables--->" + JSON.toJSONString(uriVariables));
 		HttpHeaders header = new HttpHeaders();
 		header.setContentType(MediaType.parseMediaType("application/json; charset=UTF-8"));
 		
@@ -36,7 +41,9 @@ public class ScanService {
 				uriVariables.entrySet().stream().forEach(o -> reqBody.add(o.getKey(), o.getValue()));
 			}
 			HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<MultiValueMap<String, String>>(reqBody, header);
+			log.info("request--->" + JSON.toJSONString(requestEntity));
 			resp = restTemplate.postForEntity(url, requestEntity, Object.class);
+			log.info("response--->" + JSON.toJSONString(resp));
 		} else {
 			if (uriVariables != null) {
 				UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url);

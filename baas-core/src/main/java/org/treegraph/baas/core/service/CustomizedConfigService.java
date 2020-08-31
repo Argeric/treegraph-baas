@@ -1,6 +1,6 @@
 package org.treegraph.baas.core.service;
 
-public interface NodeCustomizedConfigService {
+public interface CustomizedConfigService {
 	
 //	List<NodeCustomizedConfigPo> getAllProperties(List<NodePo> nodes);
 //	

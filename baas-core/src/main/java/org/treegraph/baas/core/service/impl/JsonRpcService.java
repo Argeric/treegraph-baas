@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -36,11 +37,11 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class RpcBlockchainService {
+public class JsonRpcService {
 	
-    private RpcBlockchainAsyncService rpcBlockchainAsyncService;
+    private JsonRpcAsyncService jsonRpcAsyncService;
     
-    public void sendMembershipChangeTransactionPlus(String consortiumId, List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
+    public void sendMembershipChangeTransaction(String consortiumId, List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
 			List<NodeKeypairBo> removeNodeKeypairs) throws IOException {
     	// get alive nodes
 		List<NodeKeypairBo> aliveNodeKeypairs = existNodeKeypairs.stream()
@@ -55,7 +56,7 @@ public class RpcBlockchainService {
 		NodePo proposerNode = proposerNodeKeypair.getNode();
 		Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(proposerNode.getConsortiumId(), proposerNode.getId());
 		String uri = ConfluxUtils.toJsonRpcUri(proposerNode.getNodeIp(), heartbeat.getPort());
-		Cfx cfx = Cfx.create(uri);
+		Cfx cfx = Cfx.create(uri, 1, 1, TimeUnit.SECONDS);
 		
 		/*
 		 * 1. RPC name:cfx_getMembershipChangeRawTransaction 
@@ -128,7 +129,7 @@ public class RpcBlockchainService {
 		 * output:
 		 * ---boolean true/false
 		 */
-		rpcBlockchainAsyncService.checkNodeClient(aliveNodeKeypairs, addNodeKeypairs, removeNodeKeypairs);
+		jsonRpcAsyncService.checkNodeClient(aliveNodeKeypairs, addNodeKeypairs, removeNodeKeypairs);
 	}
     
 	private List<NodeKeypairBo> getNodeKeypairForCommittee(List<NodeKeypairBo> existNodeKeypairs,

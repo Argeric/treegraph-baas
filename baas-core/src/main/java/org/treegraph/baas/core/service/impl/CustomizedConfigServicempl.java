@@ -1,13 +1,13 @@
 package org.treegraph.baas.core.service.impl;
 
 import org.springframework.stereotype.Service;
-import org.treegraph.baas.core.service.NodeCustomizedConfigService;
+import org.treegraph.baas.core.service.CustomizedConfigService;
 
 import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
-public class NodeCustomizedConfigServicempl implements NodeCustomizedConfigService {
+public class CustomizedConfigServicempl implements CustomizedConfigService {
 //    
 //	private NodeCustomizedConfigDas nodeCustomizedConfigDas;
 // 

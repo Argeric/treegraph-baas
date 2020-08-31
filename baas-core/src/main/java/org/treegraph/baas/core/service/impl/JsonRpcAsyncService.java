@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class RpcBlockchainAsyncService {
+public class JsonRpcAsyncService {
 	
 	@Async
     public void checkNodeClient(List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
@@ -59,7 +59,7 @@ public class RpcBlockchainAsyncService {
     	existNodeKeypairs.stream().filter(item -> !removedNodeIds.contains(item.getNode().getId())).forEach(item -> {
     		Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(item.getNode().getConsortiumId(), item.getNode().getId());
 	    	String uri = ConfluxUtils.toJsonRpcUri(item.getNode().getNodeIp(), heartbeat.getPort());
-	    	Cfx cfx = Cfx.create(uri);
+	    	Cfx cfx = Cfx.create(uri, 1, 1, TimeUnit.SECONDS);
 	    	log.info("checkNodeClient uri--->{}", uri);
 	    	Request<BigInteger, BigIntResponse> getBftEpochNumberRequest = cfx.getCustomizedRequest(BigIntResponse.class, ConfluxConstant.RPC_GET_BFT_EPOCH_NUMBER);
 	    	log.info("checkNodeClient uri--->{}, txRequest--->{}", uri, JSON.toJSONString(getBftEpochNumberRequest));

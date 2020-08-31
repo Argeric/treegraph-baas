@@ -116,7 +116,7 @@ public class ConsortiumServicempl implements ConsortiumService {
     
     private VaultKeypairBuildService vaultKeypairBuildService;
     
-    private RpcBlockchainService rpcBlockchainService;
+    private JsonRpcService jsonRpcService;
    
 	public ListConsResponse listCons(ListRequest req) {
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
@@ -372,7 +372,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 				return nodeKeypair;
 			}).collect(Collectors.toList());
 			nodeDas.addNodeKeypairs(toAddNodeKeypairs, config.getStepFactorCustomizedConfig(), config.getCustomizedConfigList());
-			rpcBlockchainService.sendMembershipChangeTransactionPlus(req.getConsId(), existNodeKeypairs, toAddNodeKeypairs, null);
+			jsonRpcService.sendMembershipChangeTransaction(req.getConsId(), existNodeKeypairs, toAddNodeKeypairs, null);
 			List<String> toAddNodeIds = toAddNodes.stream().map(NodePo::getId).collect(Collectors.toList());
 			nodeDas.modifyNodesStatus(toAddNodeIds, NodeEnum.Status.ADDED_BY_MEMBERSHIP_CHANGE);
 		}

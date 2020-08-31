@@ -50,7 +50,7 @@ public class NodeServicempl implements NodeService {
     
     private BuildService buildService;
     
-    private RpcBlockchainService rpcBlockchainService;
+    private JsonRpcService jsonRpcService;
     
     private VaultKeypairBuildService vaultKeypairBuildService;
  
@@ -149,7 +149,7 @@ public class NodeServicempl implements NodeService {
 					.collect(Collectors.toList());
 			List<String> nodeIds = Lists.newArrayList(node.getId());
 			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.REMOVING_BY_MEMBERSHIP_CHANGE);
-			rpcBlockchainService.sendMembershipChangeTransactionPlus(consId, existNodeKeypairs, null, toRemoveNodeKeypairs);
+			jsonRpcService.sendMembershipChangeTransaction(consId, existNodeKeypairs, null, toRemoveNodeKeypairs);
 			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.REMOVED_BY_MEMBERSHIP_CHANGE);
 		}
 		

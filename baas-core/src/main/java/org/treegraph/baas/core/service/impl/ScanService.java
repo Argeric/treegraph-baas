@@ -31,11 +31,11 @@ public class ScanService {
 		
 		ResponseEntity<Object> resp = null;
 		if(url.contains("create") || url.contains("update") || url.contains("delete")) {
-			MultiValueMap<String, Object> reqBody = new LinkedMultiValueMap<>();
+			MultiValueMap<String, String> reqBody = new LinkedMultiValueMap<>();
 			if (uriVariables != null) {
 				uriVariables.entrySet().stream().forEach(o -> reqBody.add(o.getKey(), o.getValue()));
 			}
-			HttpEntity<Object> requestEntity = new HttpEntity<Object>(reqBody, header);
+			HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<MultiValueMap<String, String>>(reqBody, header);
 			resp = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Object.class);
 		} else {
 			if (uriVariables != null) {

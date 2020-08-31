@@ -38,7 +38,6 @@ public class HeartbeatHandlerImpl implements HeartbeatHandler {
     public void sendHeartBeat() {
         HeartbeatLinstener linstener = HeartbeatLinstener.getInstance();
         Map<String, Map<String, Heartbeat>> consortiums = linstener.getNodes();
-        log.info("sendHeartBeat--->" + JSON.toJSONString(consortiums));
         Iterator<Entry<String, Map<String, Heartbeat>>> consortiumIter = consortiums.entrySet().iterator();
         
         while(consortiumIter.hasNext()){
@@ -55,6 +54,7 @@ public class HeartbeatHandlerImpl implements HeartbeatHandler {
 				.exceptionally(e -> null)
 		).collect(Collectors.toList());
 		List<Heartbeat> heartbeats = futureList.stream().map(CompletableFuture::join).collect(Collectors.toList());
+		log.info("heartbeat--->" + JSON.toJSONString(heartbeats));
 		heartbeats.stream().forEach(item -> nodes.put(item.getId(), item));
 		updateNodeStatus(heartbeats);
 	}

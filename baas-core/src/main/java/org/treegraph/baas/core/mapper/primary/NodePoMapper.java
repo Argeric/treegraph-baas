@@ -25,6 +25,7 @@ public interface NodePoMapper {
 
     Optional<NodePo> selectByPrimaryKey(String id);
 
+    @GlobalLevel
     int updateByExampleSelective(@Param("record") NodePo record, @Param("example") NodePoExample example);
 
     int updateByExample(@Param("record") NodePo record, @Param("example") NodePoExample example);

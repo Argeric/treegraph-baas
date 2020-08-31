@@ -42,7 +42,7 @@ public class ApplicationStartup implements ApplicationListener<ContextRefreshedE
 		// register nodes
 		HeartbeatLinstener heartbeatListener = HeartbeatLinstener.getInstance();
 		nodes.stream().forEach(node -> {
-			if(heartbeatListener.isNodeValid(node.getConsortiumId(), node.getId())){
+			if(!heartbeatListener.isNodeValid(node.getConsortiumId(), node.getId())){
 				Heartbeat nodeInfo = Heartbeat.builder()
 						.id(node.getId())
 						.ip(node.getNodeIp())

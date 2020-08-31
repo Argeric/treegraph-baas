@@ -17,7 +17,7 @@ public class HeartbeatClient implements Runnable {
     public void run() {
         try {
             while (isRunning) {
-                HeartbeatHandler handler = RPClient.getRemoteProxyObj(HeartbeatHandler.class, new InetSocketAddress(serverIP, serverPort));
+                HeartbeatHandler handler = null;//RPClient.getRemoteProxyObj(HeartbeatHandler.class, new InetSocketAddress(serverIP, serverPort));
                 long startTime = System.currentTimeMillis();
                 // 是否达到发送心跳的周期时间
                 if (startTime - lastHeartbeat > heartBeatInterval) {

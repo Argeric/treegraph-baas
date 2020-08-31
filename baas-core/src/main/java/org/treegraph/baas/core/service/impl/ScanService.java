@@ -33,8 +33,11 @@ public class ScanService {
 			uriVariables.entrySet().stream().forEach(o -> builder.queryParam(o.getKey(), o.getValue()));
 			url = builder.build().encode().toString();
 		}
-		
-		ResponseEntity<Object> resp = restTemplate.exchange(url, HttpMethod.GET, requestEntity, Object.class);
+		HttpMethod  httpMethod = HttpMethod.GET;
+		if(url.contains("create") || url.contains("update") || url.contains("delete")) {
+			httpMethod = HttpMethod.POST;
+		}
+		ResponseEntity<Object> resp = restTemplate.exchange(url, httpMethod, requestEntity, Object.class);
 		if (resp.getStatusCode() != HttpStatus.OK) {
 			throw new BusinessException(ErrorCodeEnum.SCAN_EXCEPTION);
 		} else {

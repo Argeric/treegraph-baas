@@ -20,6 +20,7 @@ public interface NodePoMapper {
 
     int insertSelective(NodePo record);
 
+    @GlobalLevel
     List<NodePo> selectByExample(NodePoExample example);
 
     Optional<NodePo> selectByPrimaryKey(String id);

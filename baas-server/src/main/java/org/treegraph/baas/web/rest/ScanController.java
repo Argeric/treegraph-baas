@@ -43,7 +43,10 @@ public class ScanController {
 			"/scan/token/query",
 			"/scan/address/query",
 			"/contract/account/token/list",
-			"/contract/contract/query"
+			"/contract/contract/query",
+			"/contract/contract/create",
+			"/contract/contract/update",
+			"/contract/contract/delete"
 	})
 	@ApiOperation("scan请求转发")
 	public Object listBlock(HttpServletRequest request, @RequestBody Map<String, Map<String, String>> requestParams) throws Exception {

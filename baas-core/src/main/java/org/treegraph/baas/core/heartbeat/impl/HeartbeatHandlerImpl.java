@@ -54,7 +54,7 @@ public class HeartbeatHandlerImpl implements HeartbeatHandler {
 				.exceptionally(e -> null)
 		).collect(Collectors.toList());
 		List<Heartbeat> heartbeats = futureList.stream().map(CompletableFuture::join).collect(Collectors.toList());
-		log.info("heartbeat--->" + JSON.toJSONString(heartbeats));
+		log.info("heartbeat--->{}", JSON.toJSONString(heartbeats));
 		heartbeats.stream().forEach(item -> nodes.put(item.getId(), item));
 		updateNodeStatus(heartbeats);
 	}

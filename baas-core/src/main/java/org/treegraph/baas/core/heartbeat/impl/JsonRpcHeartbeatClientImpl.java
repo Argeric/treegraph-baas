@@ -16,9 +16,11 @@ import conflux.web3j.Cfx;
 import conflux.web3j.Request;
 import conflux.web3j.response.Status;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class JsonRpcHeartbeatClientImpl implements HeartbeatClient{
 	
 	public Heartbeat send(Heartbeat heartbeat) {
@@ -35,6 +37,7 @@ public class JsonRpcHeartbeatClientImpl implements HeartbeatClient{
 		} catch (Exception e) {
 			error = e.getMessage();
 		}
+		log.info("\n\n\n\nheartbeat\n\n\n\nping--->{}\n\n\n\npong--->{}", JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse));
 		
 		String lastPongMd5 = heartbeat.getPong() != null ? MD5.encode(heartbeat.getPong()) : null;
 		String pong = JSON.toJSONString(statusResponse);

@@ -38,6 +38,7 @@ public class HeartbeatHandlerImpl implements HeartbeatHandler {
     public void sendHeartBeat() {
         HeartbeatLinstener linstener = HeartbeatLinstener.getInstance();
         Map<String, Map<String, Heartbeat>> consortiums = linstener.getNodes();
+        log.info("sendHeartBeat--->" + JSON.toJSONString(consortiums));
         Iterator<Entry<String, Map<String, Heartbeat>>> consortiumIter = consortiums.entrySet().iterator();
         
         while(consortiumIter.hasNext()){

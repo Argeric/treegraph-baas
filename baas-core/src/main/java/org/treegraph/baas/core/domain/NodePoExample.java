@@ -575,6 +575,66 @@ public class NodePoExample {
             return (Criteria) this;
         }
 
+        public Criteria andMembershipStatusIsNull() {
+            addCriterion("node.membership_status is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipStatusIsNotNull() {
+            addCriterion("node.membership_status is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipStatusEqualTo(Integer value) {
+            addCriterion("node.membership_status =", value, "membershipStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipStatusNotEqualTo(Integer value) {
+            addCriterion("node.membership_status <>", value, "membershipStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipStatusGreaterThan(Integer value) {
+            addCriterion("node.membership_status >", value, "membershipStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipStatusGreaterThanOrEqualTo(Integer value) {
+            addCriterion("node.membership_status >=", value, "membershipStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipStatusLessThan(Integer value) {
+            addCriterion("node.membership_status <", value, "membershipStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipStatusLessThanOrEqualTo(Integer value) {
+            addCriterion("node.membership_status <=", value, "membershipStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipStatusIn(List<Integer> values) {
+            addCriterion("node.membership_status in", values, "membershipStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipStatusNotIn(List<Integer> values) {
+            addCriterion("node.membership_status not in", values, "membershipStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipStatusBetween(Integer value1, Integer value2) {
+            addCriterion("node.membership_status between", value1, value2, "membershipStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipStatusNotBetween(Integer value1, Integer value2) {
+            addCriterion("node.membership_status not between", value1, value2, "membershipStatus");
+            return (Criteria) this;
+        }
+
         public Criteria andDeleteFlagIsNull() {
             addCriterion("node.delete_flag is null");
             return (Criteria) this;

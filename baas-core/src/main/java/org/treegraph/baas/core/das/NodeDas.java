@@ -13,6 +13,8 @@ public interface NodeDas {
 	
 	Optional<NodePo> findById(String id);
 	
+	List<NodePo> findByIds(List<String> id);
+	
 	List<NodePo> findAll(String consId, String ip);
 	
 	List<NodePo> findByConsIdAndChainId(String consId, String chainId, boolean isAlive);

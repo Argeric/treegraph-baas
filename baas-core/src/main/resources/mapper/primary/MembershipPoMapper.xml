@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.treegraph.baas.core.mapper.primary.MembershipPoMapper">
+  <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.MembershipPo">
+    <id column="membership_id" jdbcType="VARCHAR" property="id" />
+    <result column="membership_membership_change_id" jdbcType="VARCHAR" property="membershipChangeId" />
+    <result column="membership_consortium_id" jdbcType="VARCHAR" property="consortiumId" />
+    <result column="membership_node_ip" jdbcType="VARCHAR" property="nodeIp" />
+    <result column="membership_node_port" jdbcType="INTEGER" property="nodePort" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    membership.id as membership_id, membership.membership_change_id as membership_membership_change_id, 
+    membership.consortium_id as membership_consortium_id, membership.node_ip as membership_node_ip, 
+    membership.node_port as membership_node_port
+  </sql>
+  <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.MembershipPoExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from membership membership
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from membership membership
+    where membership.id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from membership
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.MembershipPoExample">
+    delete from membership membership
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.MembershipPo" useGeneratedKeys="true">
+    insert into membership (membership_change_id, consortium_id, 
+      node_ip, node_port)
+    values (#{membershipChangeId,jdbcType=VARCHAR}, #{consortiumId,jdbcType=VARCHAR}, 
+      #{nodeIp,jdbcType=VARCHAR}, #{nodePort,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.MembershipPo" useGeneratedKeys="true">
+    insert into membership
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="membershipChangeId != null">
+        membership_change_id,
+      </if>
+      <if test="consortiumId != null">
+        consortium_id,
+      </if>
+      <if test="nodeIp != null">
+        node_ip,
+      </if>
+      <if test="nodePort != null">
+        node_port,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="membershipChangeId != null">
+        #{membershipChangeId,jdbcType=VARCHAR},
+      </if>
+      <if test="consortiumId != null">
+        #{consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="nodeIp != null">
+        #{nodeIp,jdbcType=VARCHAR},
+      </if>
+      <if test="nodePort != null">
+        #{nodePort,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="org.treegraph.baas.core.domain.MembershipPoExample" resultType="java.lang.Long">
+    select count(*) from membership membership
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update membership membership
+    <set>
+      <if test="record.id != null">
+        membership.id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.membershipChangeId != null">
+        membership.membership_change_id = #{record.membershipChangeId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.consortiumId != null">
+        membership.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nodeIp != null">
+        membership.node_ip = #{record.nodeIp,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nodePort != null">
+        membership.node_port = #{record.nodePort,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update membership membership
+    set membership.id = #{record.id,jdbcType=VARCHAR},
+      membership.membership_change_id = #{record.membershipChangeId,jdbcType=VARCHAR},
+      membership.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      membership.node_ip = #{record.nodeIp,jdbcType=VARCHAR},
+      membership.node_port = #{record.nodePort,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="org.treegraph.baas.core.domain.MembershipPo">
+    update membership
+    <set>
+      <if test="membershipChangeId != null">
+        membership_change_id = #{membershipChangeId,jdbcType=VARCHAR},
+      </if>
+      <if test="consortiumId != null">
+        consortium_id = #{consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="nodeIp != null">
+        node_ip = #{nodeIp,jdbcType=VARCHAR},
+      </if>
+      <if test="nodePort != null">
+        node_port = #{nodePort,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.MembershipPo">
+    update membership
+    set membership_change_id = #{membershipChangeId,jdbcType=VARCHAR},
+      consortium_id = #{consortiumId,jdbcType=VARCHAR},
+      node_ip = #{nodeIp,jdbcType=VARCHAR},
+      node_port = #{nodePort,jdbcType=INTEGER}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

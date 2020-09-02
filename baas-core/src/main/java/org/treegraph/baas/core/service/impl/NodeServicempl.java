@@ -108,7 +108,7 @@ public class NodeServicempl implements NodeService {
 
 	public boolean modifyNode(ModifyNodeRequest req) {
 		NodePo node = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
-		Assert.isTrue(!NodeEnum.Status.isRuningOrDeploying(node.getStatus()),
+		Assert.isTrue(!NodeEnum.Status.isRuning(node.getStatus()),
 				"节点在运行中或部署中，不可修改[" + req.getIp() + ":" + req.getPort() + "]");
 		
 		NodePo nodePo = NodePo.builder().id(req.getId())
@@ -125,7 +125,7 @@ public class NodeServicempl implements NodeService {
 	public boolean deleteNode(DeleteNodeRequest req) throws IOException {
 		//check
 		NodePo node = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
-		Assert.isTrue(!NodeEnum.Status.isRuningOrDeploying(node.getStatus()),
+		Assert.isTrue(!NodeEnum.Status.isRuning(node.getStatus()),
 				"节点在运行中或部署中，不可修改[" + req.getIp() + ":" + req.getPort() + "]");
 		String consId = node.getConsortiumId();
 		String blockchainId = node.getBlockchainId();
@@ -148,9 +148,9 @@ public class NodeServicempl implements NodeService {
 					item -> vaultKeypairBuildService.getNodeKeypair(consId, X509CertConstant.DEFAULT_ALGO_NODE, item, null))
 					.collect(Collectors.toList());
 			List<String> nodeIds = Lists.newArrayList(node.getId());
-			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.REMOVING_BY_MEMBERSHIP_CHANGE);
+			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.TO_LAUNCH);
 			jsonRpcService.sendMembershipChangeTransaction(consId, existNodeKeypairs, null, toRemoveNodeKeypairs);
-			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.REMOVED_BY_MEMBERSHIP_CHANGE);
+			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.TO_LAUNCH);
 		}
 		
 		return deleteNodeResult;

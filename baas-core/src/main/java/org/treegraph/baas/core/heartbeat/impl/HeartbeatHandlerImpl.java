@@ -80,7 +80,7 @@ public class HeartbeatHandlerImpl implements HeartbeatHandler {
 				nodeDas.modifyNodesStatus(yellowList, NodeEnum.Status.EXCEPTION);
 			}
 			if(CollectionUtils.isNotEmpty(redList)) {
-				nodeDas.modifyNodesStatus(redList, NodeEnum.Status.STOP);
+				nodeDas.modifyNodesStatus(redList, NodeEnum.Status.TO_LAUNCH);
 			}
 		} catch(Exception e) {
 			log.error("updateNodeStatus heartbeats--->{}, error!", JSON.toJSONString(heartbeats), e);

@@ -342,7 +342,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.organizationName(item.getOrg())
 				.nodeIp(item.getIp())
 				.nodePort(Integer.parseInt(item.getPort()))
-				.status(NodeEnum.Status.TO_DEPLOY.getCode())
+				.status(NodeEnum.Status.TO_LAUNCH.getCode())
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
 				.createTime(now)
 				.createBy(operUser)
@@ -368,13 +368,19 @@ public class ConsortiumServicempl implements ConsortiumService {
 			KeypairPo consortiumKeyPair = vaultKeypairBuildService.getConsortiumKeyPair(req.getConsId(), X509CertConstant.DEFAULT_ALGO_CONS, null);
 			List<NodeKeypairBo> toAddNodeKeypairs = toAddNodes.stream().map(item -> {
 					NodeKeypairBo nodeKeypair = vaultKeypairBuildService.getNodeKeypair(req.getConsId(), X509CertConstant.DEFAULT_ALGO_NODE, item, consortiumKeyPair);
-					nodeKeypair.getNode().setStatus(NodeEnum.Status.ADDING_BY_MEMBERSHIP_CHANGE.getCode());
+					nodeKeypair.getNode().setMembershipStatus(NodeEnum.MembershipStatus.ADDING.getCode());
 					return nodeKeypair;
 					}).collect(Collectors.toList());
 			nodeDas.addNodeKeypairs(toAddNodeKeypairs, config.getStepFactorCustomizedConfig(), config.getCustomizedConfigList());
+			
+			
+			//TODO
+			
+			
+			
 			jsonRpcService.sendMembershipChangeTransaction(req.getConsId(), existNodeKeypairs, toAddNodeKeypairs, null);
 			List<String> toAddNodeIds = toAddNodes.stream().map(NodePo::getId).collect(Collectors.toList());
-			nodeDas.modifyNodesStatus(toAddNodeIds, NodeEnum.Status.ADDED_BY_MEMBERSHIP_CHANGE);
+			nodeDas.modifyNodesStatus(toAddNodeIds, NodeEnum.Status.TO_LAUNCH);
 		}
 		
 		return addNodeResult;

@@ -43,9 +43,14 @@ public class NodePo implements Serializable {
     private String organizationName;
 
     /**
-     * 0-未启动，1-运行中，2-已停止
+     * 0-未启动，1-运行中，2-异常
      */
     private Integer status;
+
+    /**
+     * 21-添加进行中，22-添加成功，23-添加失败，31-删除进行中，32-删除成功，33-删除失败
+     */
+    private Integer membershipStatus;
 
     /**
      * 0-未删除，1-已删除

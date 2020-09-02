@@ -50,6 +50,17 @@ public class NodeDasImpl implements NodeDas {
 		return nodePoMapper.selectByPrimaryKey(id);
 	}
 	
+	public List<NodePo> findByIds(List<String> ids){
+		NodePoExample example = new NodePoExample();
+		Criteria criteria = example.createCriteria();
+		if (CollectionUtils.isNotEmpty(ids)) {
+			criteria.andIdIn(ids);
+		}
+		criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		example.setOrderByClause("create_time desc");
+		return nodePoMapper.selectByExample(example);
+	}
+	
 	public List<NodePo> findAll(String consId, String ip) {
 		NodePoExample example = new NodePoExample();
 		Criteria criteria = example.createCriteria();
@@ -136,7 +147,7 @@ public class NodeDasImpl implements NodeDas {
 		// add nodes
 		List<NodePo> nodes = nodeKeypairBoList.stream().map(NodeKeypairBo::getNode).collect(Collectors.toList());
 		succFlag = succFlag && nodePoMapper.bulkInsert(nodes) == nodes.size();
-		// add keypairs
+		// add keypairs and nodekeys
 		for(NodeKeypairBo nodeKeypairBo : nodeKeypairBoList){
 			if(nodeKeypairBo.getKeypair().getId() == null){
 				KeypairPo keypair = nodeKeypairBo.getKeypair();

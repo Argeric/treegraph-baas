@@ -85,7 +85,7 @@ public class HeartbeatLinstener {
 		} else if(heartbeat.getStatus() == HeartbeatEnum.Status.YELLOW){
 			nodeStatus = Status.EXCEPTION;
 		} else{
-			nodeStatus = Status.STOP;
+			nodeStatus = Status.TO_LAUNCH;
 		}
 		
 		return nodeStatus;

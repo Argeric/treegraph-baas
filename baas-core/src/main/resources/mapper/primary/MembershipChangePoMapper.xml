@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.treegraph.baas.core.mapper.primary.MembershipChangePoMapper">
+  <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.MembershipChangePo">
+    <id column="membershipChange_id" jdbcType="BIGINT" property="id" />
+    <result column="membershipChange_consortium_id" jdbcType="VARCHAR" property="consortiumId" />
+    <result column="membershipChange_blockchain_id" jdbcType="VARCHAR" property="blockchainId" />
+    <result column="membershipChange_change_type" jdbcType="INTEGER" property="changeType" />
+    <result column="membershipChange_status" jdbcType="INTEGER" property="status" />
+    <result column="membershipChange_validator_nodes" jdbcType="VARCHAR" property="validatorNodes" />
+    <result column="membershipChange_pre_bft_epoch_number" jdbcType="BIGINT" property="preBftEpochNumber" />
+    <result column="membershipChange_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="membershipChange_update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="membershipChange_create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="membershipChange_update_by" jdbcType="VARCHAR" property="updateBy" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    membershipChange.id as membershipChange_id, membershipChange.consortium_id as membershipChange_consortium_id, 
+    membershipChange.blockchain_id as membershipChange_blockchain_id, membershipChange.change_type as membershipChange_change_type, 
+    membershipChange.`status` as `membershipChange_status`, membershipChange.validator_nodes as membershipChange_validator_nodes, 
+    membershipChange.pre_bft_epoch_number as membershipChange_pre_bft_epoch_number, membershipChange.create_time as membershipChange_create_time, 
+    membershipChange.update_time as membershipChange_update_time, membershipChange.create_by as membershipChange_create_by, 
+    membershipChange.update_by as membershipChange_update_by
+  </sql>
+  <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.MembershipChangePoExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from membership_change membershipChange
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from membership_change membershipChange
+    where membershipChange.id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from membership_change
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.MembershipChangePoExample">
+    delete from membership_change membershipChange
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.MembershipChangePo" useGeneratedKeys="true">
+    insert into membership_change (consortium_id, blockchain_id, change_type, 
+      `status`, validator_nodes, pre_bft_epoch_number, 
+      create_time, update_time, create_by, 
+      update_by)
+    values (#{consortiumId,jdbcType=VARCHAR}, #{blockchainId,jdbcType=VARCHAR}, #{changeType,jdbcType=INTEGER}, 
+      #{status,jdbcType=INTEGER}, #{validatorNodes,jdbcType=VARCHAR}, #{preBftEpochNumber,jdbcType=BIGINT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.MembershipChangePo" useGeneratedKeys="true">
+    insert into membership_change
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="consortiumId != null">
+        consortium_id,
+      </if>
+      <if test="blockchainId != null">
+        blockchain_id,
+      </if>
+      <if test="changeType != null">
+        change_type,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="validatorNodes != null">
+        validator_nodes,
+      </if>
+      <if test="preBftEpochNumber != null">
+        pre_bft_epoch_number,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="createBy != null">
+        create_by,
+      </if>
+      <if test="updateBy != null">
+        update_by,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="consortiumId != null">
+        #{consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="blockchainId != null">
+        #{blockchainId,jdbcType=VARCHAR},
+      </if>
+      <if test="changeType != null">
+        #{changeType,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="validatorNodes != null">
+        #{validatorNodes,jdbcType=VARCHAR},
+      </if>
+      <if test="preBftEpochNumber != null">
+        #{preBftEpochNumber,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null">
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateBy != null">
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="org.treegraph.baas.core.domain.MembershipChangePoExample" resultType="java.lang.Long">
+    select count(*) from membership_change membershipChange
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update membership_change membershipChange
+    <set>
+      <if test="record.id != null">
+        membershipChange.id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.consortiumId != null">
+        membershipChange.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.blockchainId != null">
+        membershipChange.blockchain_id = #{record.blockchainId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.changeType != null">
+        membershipChange.change_type = #{record.changeType,jdbcType=INTEGER},
+      </if>
+      <if test="record.status != null">
+        membershipChange.`status` = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.validatorNodes != null">
+        membershipChange.validator_nodes = #{record.validatorNodes,jdbcType=VARCHAR},
+      </if>
+      <if test="record.preBftEpochNumber != null">
+        membershipChange.pre_bft_epoch_number = #{record.preBftEpochNumber,jdbcType=BIGINT},
+      </if>
+      <if test="record.createTime != null">
+        membershipChange.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null">
+        membershipChange.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createBy != null">
+        membershipChange.create_by = #{record.createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateBy != null">
+        membershipChange.update_by = #{record.updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update membership_change membershipChange
+    set membershipChange.id = #{record.id,jdbcType=BIGINT},
+      membershipChange.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      membershipChange.blockchain_id = #{record.blockchainId,jdbcType=VARCHAR},
+      membershipChange.change_type = #{record.changeType,jdbcType=INTEGER},
+      membershipChange.`status` = #{record.status,jdbcType=INTEGER},
+      membershipChange.validator_nodes = #{record.validatorNodes,jdbcType=VARCHAR},
+      membershipChange.pre_bft_epoch_number = #{record.preBftEpochNumber,jdbcType=BIGINT},
+      membershipChange.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      membershipChange.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      membershipChange.create_by = #{record.createBy,jdbcType=VARCHAR},
+      membershipChange.update_by = #{record.updateBy,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="org.treegraph.baas.core.domain.MembershipChangePo">
+    update membership_change
+    <set>
+      <if test="consortiumId != null">
+        consortium_id = #{consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="blockchainId != null">
+        blockchain_id = #{blockchainId,jdbcType=VARCHAR},
+      </if>
+      <if test="changeType != null">
+        change_type = #{changeType,jdbcType=INTEGER},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="validatorNodes != null">
+        validator_nodes = #{validatorNodes,jdbcType=VARCHAR},
+      </if>
+      <if test="preBftEpochNumber != null">
+        pre_bft_epoch_number = #{preBftEpochNumber,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null">
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateBy != null">
+        update_by = #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.MembershipChangePo">
+    update membership_change
+    set consortium_id = #{consortiumId,jdbcType=VARCHAR},
+      blockchain_id = #{blockchainId,jdbcType=VARCHAR},
+      change_type = #{changeType,jdbcType=INTEGER},
+      `status` = #{status,jdbcType=INTEGER},
+      validator_nodes = #{validatorNodes,jdbcType=VARCHAR},
+      pre_bft_epoch_number = #{preBftEpochNumber,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      update_by = #{updateBy,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -9,6 +9,7 @@
     <result column="node_node_port" jdbcType="INTEGER" property="nodePort" />
     <result column="node_organization_name" jdbcType="VARCHAR" property="organizationName" />
     <result column="node_status" jdbcType="INTEGER" property="status" />
+    <result column="node_membership_status" jdbcType="INTEGER" property="membershipStatus" />
     <result column="node_delete_flag" jdbcType="INTEGER" property="deleteFlag" />
     <result column="node_create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="node_update_time" jdbcType="TIMESTAMP" property="updateTime" />
@@ -76,8 +77,9 @@
   <sql id="Base_Column_List">
     node.id as node_id, node.consortium_id as node_consortium_id, node.blockchain_id as node_blockchain_id, 
     node.node_ip as node_node_ip, node.node_port as node_node_port, node.organization_name as node_organization_name, 
-    node.`status` as `node_status`, node.delete_flag as node_delete_flag, node.create_time as node_create_time, 
-    node.update_time as node_update_time, node.create_by as node_create_by, node.update_by as node_update_by
+    node.`status` as `node_status`, node.membership_status as node_membership_status, 
+    node.delete_flag as node_delete_flag, node.create_time as node_create_time, node.update_time as node_update_time, 
+    node.create_by as node_create_by, node.update_by as node_update_by
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.NodePoExample" resultMap="BaseResultMap">
     select
@@ -112,14 +114,14 @@
   <insert id="insert" parameterType="org.treegraph.baas.core.domain.NodePo">
     insert into node (id, consortium_id, blockchain_id, 
       node_ip, node_port, organization_name, 
-      `status`, delete_flag, create_time, 
-      update_time, create_by, update_by
-      )
+      `status`, membership_status, delete_flag, 
+      create_time, update_time, create_by, 
+      update_by)
     values (#{id,jdbcType=VARCHAR}, #{consortiumId,jdbcType=VARCHAR}, #{blockchainId,jdbcType=VARCHAR}, 
       #{nodeIp,jdbcType=VARCHAR}, #{nodePort,jdbcType=INTEGER}, #{organizationName,jdbcType=VARCHAR}, 
-      #{status,jdbcType=INTEGER}, #{deleteFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{updateBy,jdbcType=VARCHAR}
-      )
+      #{status,jdbcType=INTEGER}, #{membershipStatus,jdbcType=INTEGER}, #{deleteFlag,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateBy,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="org.treegraph.baas.core.domain.NodePo">
     insert into node
@@ -144,6 +146,9 @@
       </if>
       <if test="status != null">
         `status`,
+      </if>
+      <if test="membershipStatus != null">
+        membership_status,
       </if>
       <if test="deleteFlag != null">
         delete_flag,
@@ -182,6 +187,9 @@
       </if>
       <if test="status != null">
         #{status,jdbcType=INTEGER},
+      </if>
+      <if test="membershipStatus != null">
+        #{membershipStatus,jdbcType=INTEGER},
       </if>
       <if test="deleteFlag != null">
         #{deleteFlag,jdbcType=INTEGER},
@@ -230,6 +238,9 @@
       <if test="record.status != null">
         node.`status` = #{record.status,jdbcType=INTEGER},
       </if>
+      <if test="record.membershipStatus != null">
+        node.membership_status = #{record.membershipStatus,jdbcType=INTEGER},
+      </if>
       <if test="record.deleteFlag != null">
         node.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       </if>
@@ -259,6 +270,7 @@
       node.node_port = #{record.nodePort,jdbcType=INTEGER},
       node.organization_name = #{record.organizationName,jdbcType=VARCHAR},
       node.`status` = #{record.status,jdbcType=INTEGER},
+      node.membership_status = #{record.membershipStatus,jdbcType=INTEGER},
       node.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       node.create_time = #{record.createTime,jdbcType=TIMESTAMP},
       node.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
@@ -289,6 +301,9 @@
       <if test="status != null">
         `status` = #{status,jdbcType=INTEGER},
       </if>
+      <if test="membershipStatus != null">
+        membership_status = #{membershipStatus,jdbcType=INTEGER},
+      </if>
       <if test="deleteFlag != null">
         delete_flag = #{deleteFlag,jdbcType=INTEGER},
       </if>
@@ -315,6 +330,7 @@
       node_port = #{nodePort,jdbcType=INTEGER},
       organization_name = #{organizationName,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=INTEGER},
+      membership_status = #{membershipStatus,jdbcType=INTEGER},
       delete_flag = #{deleteFlag,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP},
@@ -355,5 +371,5 @@
              #{item.updateBy,jdbcType=VARCHAR}
           )
       </foreach>
-  </insert>
+  </insert>  
 </mapper>

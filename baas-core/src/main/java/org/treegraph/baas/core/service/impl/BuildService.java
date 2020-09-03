@@ -1,5 +1,6 @@
 package org.treegraph.baas.core.service.impl;
 
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +14,11 @@ import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.Role;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
+import org.treegraph.baas.core.constant.SplitterConstant;
 import org.treegraph.baas.core.das.PermissionDas;
 import org.treegraph.baas.core.domain.ConsortiumPo;
+import org.treegraph.baas.core.domain.MembershipChangePo;
+import org.treegraph.baas.core.domain.MembershipPo;
 import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.RolePermissionPo;
@@ -23,6 +27,7 @@ import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserOrganizationPo;
 import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
+import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.service.bo.OrgBo;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
@@ -215,6 +220,35 @@ public class BuildService {
 			.createBy(operUser)
 			.updateTime(now)
 			.updateBy(operUser)
+			.build();
+	}
+	
+	public MembershipChangePo buildMembershipChangePo(String consId, String blockchainId, int changeType,
+			BigInteger preBftEpochNumber, List<String> validatorNodeIds) {
+		LocalDateTime now = LocalDateTime.now();
+		String operUser = WebHelper.getUserId();
+		return  MembershipChangePo.builder()
+			.consortiumId(consId)
+			.blockchainId(blockchainId)
+			.changeType(changeType)
+			.status(MembershipEnum.Status.INIT.getCode())
+			.validatorNodes(SplitterConstant.COMMA_JOINER.join(validatorNodeIds))
+			.preBftEpochNumber(preBftEpochNumber.longValue())
+			.createTime(now)
+			.updateTime(now)
+			.createBy(operUser)
+			.updateBy(operUser)
+			.build();
+	}
+	
+	public MembershipPo buildMembership(Long membershipChangeId, String consId, String nodeId, String nodeIp,
+			int nodePort) {
+		return MembershipPo.builder()
+			.membershipChangeId(membershipChangeId)
+			.consortiumId(consId)
+			.nodeId(nodeId)
+			.nodeIp(nodeIp)
+			.nodePort(nodePort)
 			.build();
 	}
 }

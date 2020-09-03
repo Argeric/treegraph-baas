@@ -184,62 +184,52 @@ public class MembershipPoExample {
             return (Criteria) this;
         }
 
-        public Criteria andMembershipChangeIdEqualTo(String value) {
+        public Criteria andMembershipChangeIdEqualTo(Long value) {
             addCriterion("membership.membership_change_id =", value, "membershipChangeId");
             return (Criteria) this;
         }
 
-        public Criteria andMembershipChangeIdNotEqualTo(String value) {
+        public Criteria andMembershipChangeIdNotEqualTo(Long value) {
             addCriterion("membership.membership_change_id <>", value, "membershipChangeId");
             return (Criteria) this;
         }
 
-        public Criteria andMembershipChangeIdGreaterThan(String value) {
+        public Criteria andMembershipChangeIdGreaterThan(Long value) {
             addCriterion("membership.membership_change_id >", value, "membershipChangeId");
             return (Criteria) this;
         }
 
-        public Criteria andMembershipChangeIdGreaterThanOrEqualTo(String value) {
+        public Criteria andMembershipChangeIdGreaterThanOrEqualTo(Long value) {
             addCriterion("membership.membership_change_id >=", value, "membershipChangeId");
             return (Criteria) this;
         }
 
-        public Criteria andMembershipChangeIdLessThan(String value) {
+        public Criteria andMembershipChangeIdLessThan(Long value) {
             addCriterion("membership.membership_change_id <", value, "membershipChangeId");
             return (Criteria) this;
         }
 
-        public Criteria andMembershipChangeIdLessThanOrEqualTo(String value) {
+        public Criteria andMembershipChangeIdLessThanOrEqualTo(Long value) {
             addCriterion("membership.membership_change_id <=", value, "membershipChangeId");
             return (Criteria) this;
         }
 
-        public Criteria andMembershipChangeIdLike(String value) {
-            addCriterion("membership.membership_change_id like", value, "membershipChangeId");
-            return (Criteria) this;
-        }
-
-        public Criteria andMembershipChangeIdNotLike(String value) {
-            addCriterion("membership.membership_change_id not like", value, "membershipChangeId");
-            return (Criteria) this;
-        }
-
-        public Criteria andMembershipChangeIdIn(List<String> values) {
+        public Criteria andMembershipChangeIdIn(List<Long> values) {
             addCriterion("membership.membership_change_id in", values, "membershipChangeId");
             return (Criteria) this;
         }
 
-        public Criteria andMembershipChangeIdNotIn(List<String> values) {
+        public Criteria andMembershipChangeIdNotIn(List<Long> values) {
             addCriterion("membership.membership_change_id not in", values, "membershipChangeId");
             return (Criteria) this;
         }
 
-        public Criteria andMembershipChangeIdBetween(String value1, String value2) {
+        public Criteria andMembershipChangeIdBetween(Long value1, Long value2) {
             addCriterion("membership.membership_change_id between", value1, value2, "membershipChangeId");
             return (Criteria) this;
         }
 
-        public Criteria andMembershipChangeIdNotBetween(String value1, String value2) {
+        public Criteria andMembershipChangeIdNotBetween(Long value1, Long value2) {
             addCriterion("membership.membership_change_id not between", value1, value2, "membershipChangeId");
             return (Criteria) this;
         }
@@ -311,6 +301,76 @@ public class MembershipPoExample {
 
         public Criteria andConsortiumIdNotBetween(String value1, String value2) {
             addCriterion("membership.consortium_id not between", value1, value2, "consortiumId");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodeIdIsNull() {
+            addCriterion("membership.node_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodeIdIsNotNull() {
+            addCriterion("membership.node_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodeIdEqualTo(String value) {
+            addCriterion("membership.node_id =", value, "nodeId");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodeIdNotEqualTo(String value) {
+            addCriterion("membership.node_id <>", value, "nodeId");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodeIdGreaterThan(String value) {
+            addCriterion("membership.node_id >", value, "nodeId");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodeIdGreaterThanOrEqualTo(String value) {
+            addCriterion("membership.node_id >=", value, "nodeId");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodeIdLessThan(String value) {
+            addCriterion("membership.node_id <", value, "nodeId");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodeIdLessThanOrEqualTo(String value) {
+            addCriterion("membership.node_id <=", value, "nodeId");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodeIdLike(String value) {
+            addCriterion("membership.node_id like", value, "nodeId");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodeIdNotLike(String value) {
+            addCriterion("membership.node_id not like", value, "nodeId");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodeIdIn(List<String> values) {
+            addCriterion("membership.node_id in", values, "nodeId");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodeIdNotIn(List<String> values) {
+            addCriterion("membership.node_id not in", values, "nodeId");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodeIdBetween(String value1, String value2) {
+            addCriterion("membership.node_id between", value1, value2, "nodeId");
+            return (Criteria) this;
+        }
+
+        public Criteria andNodeIdNotBetween(String value1, String value2) {
+            addCriterion("membership.node_id not between", value1, value2, "nodeId");
             return (Criteria) this;
         }
 

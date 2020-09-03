@@ -1,6 +1,7 @@
 package org.treegraph.baas.core.service.impl;
 
 import java.io.OutputStream;
+import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -59,6 +60,8 @@ import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.BlockChainPo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.KeypairPo;
+import org.treegraph.baas.core.domain.MembershipChangePo;
+import org.treegraph.baas.core.domain.MembershipPo;
 import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.RolePo;
@@ -68,8 +71,10 @@ import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.enums.BlockchainEnum;
 import org.treegraph.baas.core.enums.ConsortiumEnum;
 import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
+import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.enums.UserEnum;
+import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
 import org.treegraph.baas.core.service.ConsortiumService;
 import org.treegraph.baas.core.service.bo.CustomizedConfigBo;
 import org.treegraph.baas.core.service.bo.OrgBo;
@@ -371,14 +376,28 @@ public class ConsortiumServicempl implements ConsortiumService {
 					nodeKeypair.getNode().setMembershipStatus(NodeEnum.MembershipStatus.ADDING.getCode());
 					return nodeKeypair;
 					}).collect(Collectors.toList());
-			nodeDas.addNodeKeypairs(toAddNodeKeypairs, config.getStepFactorCustomizedConfig(), config.getCustomizedConfigList());
+			
+			List<NodeKeypairBo> aliveNodeKeypairs = existNodeKeypairs.stream()
+					.filter(item -> HeartbeatLinstener.getInstance().getNodeStatus(item.getNode().getConsortiumId(),
+							item.getNode().getId()) == NodeEnum.Status.RUNING)
+					.collect(Collectors.toList());
+			Assert.isTrue(CollectionUtils.isNotEmpty(aliveNodeKeypairs), "blockchain not lunched!");
+			List<NodeKeypairBo> committeeNodeKeypairs = jsonRpcService.getNodeKeypairForCommittee(aliveNodeKeypairs, null);
+			List<NodeKeypairBo> validatorNodeKeypairs = jsonRpcService.getNodeKeypairForValidator(aliveNodeKeypairs, toAddNodeKeypairs, null);
+			
+			NodePo proposerNode = committeeNodeKeypairs.get(0).getNode();
+			BigInteger preBftEpochNumber = jsonRpcService.getBftEpochNumber(proposerNode.getConsortiumId(), proposerNode.getId());
+			List<String> validatorNodeIds = committeeNodeKeypairs.stream().map(item -> item.getNode().getId()).collect(Collectors.toList());
+			MembershipChangePo membershipChange = buildService.buildMembershipChangePo(req.getConsId(),
+					req.getBlockchainId(), MembershipEnum.Type.ADD.getCode(), preBftEpochNumber, validatorNodeIds);
+			List<MembershipPo> memberships = toAddNodes.stream().map(item -> buildService.buildMembership(null,
+					item.getConsortiumId(), item.getId(), item.getNodeIp(), item.getNodePort()))
+					.collect(Collectors.toList());
+			nodeDas.addNodeKeypairs(toAddNodeKeypairs, config.getStepFactorCustomizedConfig(), config.getCustomizedConfigList(), membershipChange, memberships);
 			
 			
-			//TODO
+			jsonRpcService.sendMembershipChangeTransactionPlus(req.getConsId(), aliveNodeKeypairs, committeeNodeKeypairs, validatorNodeKeypairs);
 			
-			
-			
-			jsonRpcService.sendMembershipChangeTransaction(req.getConsId(), existNodeKeypairs, toAddNodeKeypairs, null);
 			List<String> toAddNodeIds = toAddNodes.stream().map(NodePo::getId).collect(Collectors.toList());
 			nodeDas.modifyNodesStatus(toAddNodeIds, NodeEnum.Status.TO_LAUNCH);
 		}

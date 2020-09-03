@@ -19,12 +19,17 @@ public class MembershipPo implements Serializable {
     /**
      * 变更请求id
      */
-    private String membershipChangeId;
+    private Long membershipChangeId;
 
     /**
      * 联盟id
      */
     private String consortiumId;
+
+    /**
+     * 节点id
+     */
+    private String nodeId;
 
     /**
      * 节点ip

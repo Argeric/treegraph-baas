@@ -38,6 +38,8 @@ public class MembershipEnum {
     @Getter
     @AllArgsConstructor
     public enum Status {
+    	
+        INIT(0, "initialized"),
 
         SELECT_PROPOSER_SUCCESS(201, "选择proposer成功"),
 

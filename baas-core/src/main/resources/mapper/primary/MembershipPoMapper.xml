@@ -3,8 +3,9 @@
 <mapper namespace="org.treegraph.baas.core.mapper.primary.MembershipPoMapper">
   <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.MembershipPo">
     <id column="membership_id" jdbcType="VARCHAR" property="id" />
-    <result column="membership_membership_change_id" jdbcType="VARCHAR" property="membershipChangeId" />
+    <result column="membership_membership_change_id" jdbcType="BIGINT" property="membershipChangeId" />
     <result column="membership_consortium_id" jdbcType="VARCHAR" property="consortiumId" />
+    <result column="membership_node_id" jdbcType="VARCHAR" property="nodeId" />
     <result column="membership_node_ip" jdbcType="VARCHAR" property="nodeIp" />
     <result column="membership_node_port" jdbcType="INTEGER" property="nodePort" />
   </resultMap>
@@ -68,8 +69,8 @@
   </sql>
   <sql id="Base_Column_List">
     membership.id as membership_id, membership.membership_change_id as membership_membership_change_id, 
-    membership.consortium_id as membership_consortium_id, membership.node_ip as membership_node_ip, 
-    membership.node_port as membership_node_port
+    membership.consortium_id as membership_consortium_id, membership.node_id as membership_node_id, 
+    membership.node_ip as membership_node_ip, membership.node_port as membership_node_port
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.MembershipPoExample" resultMap="BaseResultMap">
     select
@@ -103,9 +104,11 @@
   </delete>
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.MembershipPo" useGeneratedKeys="true">
     insert into membership (membership_change_id, consortium_id, 
-      node_ip, node_port)
-    values (#{membershipChangeId,jdbcType=VARCHAR}, #{consortiumId,jdbcType=VARCHAR}, 
-      #{nodeIp,jdbcType=VARCHAR}, #{nodePort,jdbcType=INTEGER})
+      node_id, node_ip, node_port
+      )
+    values (#{membershipChangeId,jdbcType=BIGINT}, #{consortiumId,jdbcType=VARCHAR}, 
+      #{nodeId,jdbcType=VARCHAR}, #{nodeIp,jdbcType=VARCHAR}, #{nodePort,jdbcType=INTEGER}
+      )
   </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.MembershipPo" useGeneratedKeys="true">
     insert into membership
@@ -116,6 +119,9 @@
       <if test="consortiumId != null">
         consortium_id,
       </if>
+      <if test="nodeId != null">
+        node_id,
+      </if>
       <if test="nodeIp != null">
         node_ip,
       </if>
@@ -125,10 +131,13 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="membershipChangeId != null">
-        #{membershipChangeId,jdbcType=VARCHAR},
+        #{membershipChangeId,jdbcType=BIGINT},
       </if>
       <if test="consortiumId != null">
         #{consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="nodeId != null">
+        #{nodeId,jdbcType=VARCHAR},
       </if>
       <if test="nodeIp != null">
         #{nodeIp,jdbcType=VARCHAR},
@@ -151,10 +160,13 @@
         membership.id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.membershipChangeId != null">
-        membership.membership_change_id = #{record.membershipChangeId,jdbcType=VARCHAR},
+        membership.membership_change_id = #{record.membershipChangeId,jdbcType=BIGINT},
       </if>
       <if test="record.consortiumId != null">
         membership.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nodeId != null">
+        membership.node_id = #{record.nodeId,jdbcType=VARCHAR},
       </if>
       <if test="record.nodeIp != null">
         membership.node_ip = #{record.nodeIp,jdbcType=VARCHAR},
@@ -170,8 +182,9 @@
   <update id="updateByExample" parameterType="map">
     update membership membership
     set membership.id = #{record.id,jdbcType=VARCHAR},
-      membership.membership_change_id = #{record.membershipChangeId,jdbcType=VARCHAR},
+      membership.membership_change_id = #{record.membershipChangeId,jdbcType=BIGINT},
       membership.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      membership.node_id = #{record.nodeId,jdbcType=VARCHAR},
       membership.node_ip = #{record.nodeIp,jdbcType=VARCHAR},
       membership.node_port = #{record.nodePort,jdbcType=INTEGER}
     <if test="_parameter != null">
@@ -182,10 +195,13 @@
     update membership
     <set>
       <if test="membershipChangeId != null">
-        membership_change_id = #{membershipChangeId,jdbcType=VARCHAR},
+        membership_change_id = #{membershipChangeId,jdbcType=BIGINT},
       </if>
       <if test="consortiumId != null">
         consortium_id = #{consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="nodeId != null">
+        node_id = #{nodeId,jdbcType=VARCHAR},
       </if>
       <if test="nodeIp != null">
         node_ip = #{nodeIp,jdbcType=VARCHAR},
@@ -198,8 +214,9 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.MembershipPo">
     update membership
-    set membership_change_id = #{membershipChangeId,jdbcType=VARCHAR},
+    set membership_change_id = #{membershipChangeId,jdbcType=BIGINT},
       consortium_id = #{consortiumId,jdbcType=VARCHAR},
+      node_id = #{nodeId,jdbcType=VARCHAR},
       node_ip = #{nodeIp,jdbcType=VARCHAR},
       node_port = #{nodePort,jdbcType=INTEGER}
     where id = #{id,jdbcType=VARCHAR}

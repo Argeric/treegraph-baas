@@ -15,6 +15,8 @@ import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.KeypairPo;
+import org.treegraph.baas.core.domain.MembershipChangePo;
+import org.treegraph.baas.core.domain.MembershipPo;
 import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.domain.NodePo;
@@ -143,6 +145,44 @@ public class NodeDasImpl implements NodeDas {
 	
 	public boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList, NodeCustomizedConfigPo stepFactorConfig,
 			List<NodeCustomizedConfigPo> customizedConfigList) {
+		boolean succFlag =  Boolean.TRUE;
+		// add nodes
+		List<NodePo> nodes = nodeKeypairBoList.stream().map(NodeKeypairBo::getNode).collect(Collectors.toList());
+		succFlag = succFlag && nodePoMapper.bulkInsert(nodes) == nodes.size();
+		// add keypairs and nodekeys
+		for(NodeKeypairBo nodeKeypairBo : nodeKeypairBoList){
+			if(nodeKeypairBo.getKeypair().getId() == null){
+				KeypairPo keypair = nodeKeypairBo.getKeypair();
+				NodeKeyPo nodeKey = nodeKeypairBo.getNodeKey();
+				succFlag = succFlag && keypairPoMapper.insert(keypair) > 0;
+				nodeKey.setKeypairId(keypair.getId());
+				succFlag = succFlag && nodeKeyPoMapper.insert(nodeKey) > 0;
+			}
+		}
+		// add or update stepFactorCustomizedConfig
+		if(stepFactorConfig != null) {
+			NodeCustomizedConfigPo customizedConfig = nodeCustomizedConfigDas.findConfigByPropertyName(
+					stepFactorConfig.getConsortiumId(), null, stepFactorConfig.getPropertyName());
+			if(customizedConfig != null) {
+				stepFactorConfig.setId(customizedConfig.getId());
+				nodeCustomizedConfigDas.modify(stepFactorConfig);
+			} else {
+				nodeCustomizedConfigDas.add(stepFactorConfig);
+			}
+		}
+		// add customized configration
+		if(CollectionUtils.isNotEmpty(customizedConfigList)) {
+			succFlag = succFlag && nodeCustomizedConfigDas.batchAdd(customizedConfigList);
+		}
+		// add heartbeat listener
+		addHeartbeatListener(nodes, customizedConfigList);
+		
+		return succFlag;
+	}
+	
+	public boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList, NodeCustomizedConfigPo stepFactorConfig,
+			List<NodeCustomizedConfigPo> customizedConfigList, MembershipChangePo membershipChange,
+			List<MembershipPo> memberships) {
 		boolean succFlag =  Boolean.TRUE;
 		// add nodes
 		List<NodePo> nodes = nodeKeypairBoList.stream().map(NodeKeypairBo::getNode).collect(Collectors.toList());

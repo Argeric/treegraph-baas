@@ -224,7 +224,7 @@ public class BuildService {
 	}
 	
 	public MembershipChangePo buildMembershipChangePo(String consId, String blockchainId, int changeType,
-			BigInteger preBftEpochNumber, List<String> validatorNodeIds) {
+			BigInteger preBftEpochNumber, List<String> committeeNodeIds) {
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		return  MembershipChangePo.builder()
@@ -232,7 +232,7 @@ public class BuildService {
 			.blockchainId(blockchainId)
 			.changeType(changeType)
 			.status(MembershipEnum.Status.INIT.getCode())
-			.validatorNodes(SplitterConstant.COMMA_JOINER.join(validatorNodeIds))
+			.committeeNodes(SplitterConstant.COMMA_JOINER.join(committeeNodeIds))
 			.preBftEpochNumber(preBftEpochNumber.longValue())
 			.createTime(now)
 			.updateTime(now)

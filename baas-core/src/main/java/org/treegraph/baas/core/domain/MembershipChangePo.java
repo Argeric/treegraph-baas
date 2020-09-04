@@ -40,7 +40,7 @@ public class MembershipChangePo implements Serializable {
     /**
      * 参与校验的节点
      */
-    private String validatorNodes;
+    private String committeeNodes;
 
     /**
      * 变更前bftEpochNumber

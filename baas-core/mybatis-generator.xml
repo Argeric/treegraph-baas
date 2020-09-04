@@ -107,13 +107,13 @@
         </table>              
         <table tableName="node" domainObjectName="NodePo" alias="node">
         </table>
-        <table tableName="membership_change" domainObjectName="MembershipChangePo" alias="membershipChange">
-        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table> 
-        -->
         <table tableName="membership" domainObjectName="MembershipPo" alias="membership">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>         
+        -->
+        <table tableName="membership_change" domainObjectName="MembershipChangePo" alias="membershipChange">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table> 
     </context>
 
 </generatorConfiguration>

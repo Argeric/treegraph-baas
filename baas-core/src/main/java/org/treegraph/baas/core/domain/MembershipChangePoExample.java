@@ -425,73 +425,73 @@ public class MembershipChangePoExample {
             return (Criteria) this;
         }
 
-        public Criteria andValidatorNodesIsNull() {
-            addCriterion("membershipChange.validator_nodes is null");
+        public Criteria andCommitteeNodesIsNull() {
+            addCriterion("membershipChange.committee_nodes is null");
             return (Criteria) this;
         }
 
-        public Criteria andValidatorNodesIsNotNull() {
-            addCriterion("membershipChange.validator_nodes is not null");
+        public Criteria andCommitteeNodesIsNotNull() {
+            addCriterion("membershipChange.committee_nodes is not null");
             return (Criteria) this;
         }
 
-        public Criteria andValidatorNodesEqualTo(String value) {
-            addCriterion("membershipChange.validator_nodes =", value, "validatorNodes");
+        public Criteria andCommitteeNodesEqualTo(String value) {
+            addCriterion("membershipChange.committee_nodes =", value, "committeeNodes");
             return (Criteria) this;
         }
 
-        public Criteria andValidatorNodesNotEqualTo(String value) {
-            addCriterion("membershipChange.validator_nodes <>", value, "validatorNodes");
+        public Criteria andCommitteeNodesNotEqualTo(String value) {
+            addCriterion("membershipChange.committee_nodes <>", value, "committeeNodes");
             return (Criteria) this;
         }
 
-        public Criteria andValidatorNodesGreaterThan(String value) {
-            addCriterion("membershipChange.validator_nodes >", value, "validatorNodes");
+        public Criteria andCommitteeNodesGreaterThan(String value) {
+            addCriterion("membershipChange.committee_nodes >", value, "committeeNodes");
             return (Criteria) this;
         }
 
-        public Criteria andValidatorNodesGreaterThanOrEqualTo(String value) {
-            addCriterion("membershipChange.validator_nodes >=", value, "validatorNodes");
+        public Criteria andCommitteeNodesGreaterThanOrEqualTo(String value) {
+            addCriterion("membershipChange.committee_nodes >=", value, "committeeNodes");
             return (Criteria) this;
         }
 
-        public Criteria andValidatorNodesLessThan(String value) {
-            addCriterion("membershipChange.validator_nodes <", value, "validatorNodes");
+        public Criteria andCommitteeNodesLessThan(String value) {
+            addCriterion("membershipChange.committee_nodes <", value, "committeeNodes");
             return (Criteria) this;
         }
 
-        public Criteria andValidatorNodesLessThanOrEqualTo(String value) {
-            addCriterion("membershipChange.validator_nodes <=", value, "validatorNodes");
+        public Criteria andCommitteeNodesLessThanOrEqualTo(String value) {
+            addCriterion("membershipChange.committee_nodes <=", value, "committeeNodes");
             return (Criteria) this;
         }
 
-        public Criteria andValidatorNodesLike(String value) {
-            addCriterion("membershipChange.validator_nodes like", value, "validatorNodes");
+        public Criteria andCommitteeNodesLike(String value) {
+            addCriterion("membershipChange.committee_nodes like", value, "committeeNodes");
             return (Criteria) this;
         }
 
-        public Criteria andValidatorNodesNotLike(String value) {
-            addCriterion("membershipChange.validator_nodes not like", value, "validatorNodes");
+        public Criteria andCommitteeNodesNotLike(String value) {
+            addCriterion("membershipChange.committee_nodes not like", value, "committeeNodes");
             return (Criteria) this;
         }
 
-        public Criteria andValidatorNodesIn(List<String> values) {
-            addCriterion("membershipChange.validator_nodes in", values, "validatorNodes");
+        public Criteria andCommitteeNodesIn(List<String> values) {
+            addCriterion("membershipChange.committee_nodes in", values, "committeeNodes");
             return (Criteria) this;
         }
 
-        public Criteria andValidatorNodesNotIn(List<String> values) {
-            addCriterion("membershipChange.validator_nodes not in", values, "validatorNodes");
+        public Criteria andCommitteeNodesNotIn(List<String> values) {
+            addCriterion("membershipChange.committee_nodes not in", values, "committeeNodes");
             return (Criteria) this;
         }
 
-        public Criteria andValidatorNodesBetween(String value1, String value2) {
-            addCriterion("membershipChange.validator_nodes between", value1, value2, "validatorNodes");
+        public Criteria andCommitteeNodesBetween(String value1, String value2) {
+            addCriterion("membershipChange.committee_nodes between", value1, value2, "committeeNodes");
             return (Criteria) this;
         }
 
-        public Criteria andValidatorNodesNotBetween(String value1, String value2) {
-            addCriterion("membershipChange.validator_nodes not between", value1, value2, "validatorNodes");
+        public Criteria andCommitteeNodesNotBetween(String value1, String value2) {
+            addCriterion("membershipChange.committee_nodes not between", value1, value2, "committeeNodes");
             return (Criteria) this;
         }
 

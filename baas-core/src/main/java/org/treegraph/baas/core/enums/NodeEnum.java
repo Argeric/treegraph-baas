@@ -53,35 +53,19 @@ public class NodeEnum {
     @Getter
     @AllArgsConstructor
     public enum MembershipStatus {
+    	
+        TO_LAUNCH_FIRST_TIME(20, "待首次启动"),
 
-        /**
-         * 添加节点中
-         */
         ADDING(21, "添加节点中"),
         
-        /**
-         * 添加节点成功
-         */
         ADD_SUCCESS(22, "添加节点成功"),
         
-        /**
-         * 添加节点失败
-         */
         ADD_FAILURE(23, "添加节点失败"),
         
-        /**
-         * 移除节点中
-         */
         REMOVING(31, "移除节点中"),
         
-        /**
-         * 移除节点成功
-         */
         REMOVE_SUCCESS(32, "移除节点成功"),
         
-        /**
-         * 移除节点失败
-         */
         REMOVE_FAILURE(33, "移除节点失败"),
 
         ;

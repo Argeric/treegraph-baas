@@ -3,7 +3,6 @@ package org.treegraph.baas.core.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-
 public class MembershipEnum {
 
 	 /**
@@ -67,17 +66,21 @@ public class MembershipEnum {
 
         ;
 
-        private Integer code;
+        private int code;
 
         private String desc;
 
         public static Status getByCode(int code) {
             for (Status s : Status.values()) {
-                if (s.code.equals(code)) {
+                if (s.code == code) {
                     return s;
                 }
             }
             return null;
+        }
+        
+        public boolean ifFail() {
+        	return this.code > SELECT_PROPOSER_FAILURE.getCode();
         }
     }
 }

@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.core.constant.ConfluxConstant;
+import org.treegraph.baas.core.das.MembershipChangeDas;
 import org.treegraph.baas.core.das.NodeCustomizedConfigDas;
 import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
@@ -48,6 +49,8 @@ public class NodeDasImpl implements NodeDas {
 	
 	private NodeCustomizedConfigDas nodeCustomizedConfigDas;
 
+	private MembershipChangeDas membershipDas;
+	
 	public Optional<NodePo> findById(String id) {
 		return nodePoMapper.selectByPrimaryKey(id);
 	}
@@ -212,6 +215,8 @@ public class NodeDasImpl implements NodeDas {
 		if(CollectionUtils.isNotEmpty(customizedConfigList)) {
 			succFlag = succFlag && nodeCustomizedConfigDas.batchAdd(customizedConfigList);
 		}
+		// add membership change and memberships
+		succFlag = succFlag && membershipDas.addMembershipChange(membershipChange, memberships);
 		// add heartbeat listener
 		addHeartbeatListener(nodes, customizedConfigList);
 		

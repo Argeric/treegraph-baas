@@ -7,7 +7,7 @@
     <result column="membershipChange_blockchain_id" jdbcType="VARCHAR" property="blockchainId" />
     <result column="membershipChange_change_type" jdbcType="INTEGER" property="changeType" />
     <result column="membershipChange_status" jdbcType="INTEGER" property="status" />
-    <result column="membershipChange_validator_nodes" jdbcType="VARCHAR" property="validatorNodes" />
+    <result column="membershipChange_committee_nodes" jdbcType="VARCHAR" property="committeeNodes" />
     <result column="membershipChange_pre_bft_epoch_number" jdbcType="BIGINT" property="preBftEpochNumber" />
     <result column="membershipChange_create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="membershipChange_update_time" jdbcType="TIMESTAMP" property="updateTime" />
@@ -75,7 +75,7 @@
   <sql id="Base_Column_List">
     membershipChange.id as membershipChange_id, membershipChange.consortium_id as membershipChange_consortium_id, 
     membershipChange.blockchain_id as membershipChange_blockchain_id, membershipChange.change_type as membershipChange_change_type, 
-    membershipChange.`status` as `membershipChange_status`, membershipChange.validator_nodes as membershipChange_validator_nodes, 
+    membershipChange.`status` as `membershipChange_status`, membershipChange.committee_nodes as membershipChange_committee_nodes, 
     membershipChange.pre_bft_epoch_number as membershipChange_pre_bft_epoch_number, membershipChange.create_time as membershipChange_create_time, 
     membershipChange.update_time as membershipChange_update_time, membershipChange.create_by as membershipChange_create_by, 
     membershipChange.update_by as membershipChange_update_by
@@ -112,11 +112,11 @@
   </delete>
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.MembershipChangePo" useGeneratedKeys="true">
     insert into membership_change (consortium_id, blockchain_id, change_type, 
-      `status`, validator_nodes, pre_bft_epoch_number, 
+      `status`, committee_nodes, pre_bft_epoch_number, 
       create_time, update_time, create_by, 
       update_by)
     values (#{consortiumId,jdbcType=VARCHAR}, #{blockchainId,jdbcType=VARCHAR}, #{changeType,jdbcType=INTEGER}, 
-      #{status,jdbcType=INTEGER}, #{validatorNodes,jdbcType=VARCHAR}, #{preBftEpochNumber,jdbcType=BIGINT}, 
+      #{status,jdbcType=INTEGER}, #{committeeNodes,jdbcType=VARCHAR}, #{preBftEpochNumber,jdbcType=BIGINT}, 
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
       #{updateBy,jdbcType=VARCHAR})
   </insert>
@@ -135,8 +135,8 @@
       <if test="status != null">
         `status`,
       </if>
-      <if test="validatorNodes != null">
-        validator_nodes,
+      <if test="committeeNodes != null">
+        committee_nodes,
       </if>
       <if test="preBftEpochNumber != null">
         pre_bft_epoch_number,
@@ -167,8 +167,8 @@
       <if test="status != null">
         #{status,jdbcType=INTEGER},
       </if>
-      <if test="validatorNodes != null">
-        #{validatorNodes,jdbcType=VARCHAR},
+      <if test="committeeNodes != null">
+        #{committeeNodes,jdbcType=VARCHAR},
       </if>
       <if test="preBftEpochNumber != null">
         #{preBftEpochNumber,jdbcType=BIGINT},
@@ -211,8 +211,8 @@
       <if test="record.status != null">
         membershipChange.`status` = #{record.status,jdbcType=INTEGER},
       </if>
-      <if test="record.validatorNodes != null">
-        membershipChange.validator_nodes = #{record.validatorNodes,jdbcType=VARCHAR},
+      <if test="record.committeeNodes != null">
+        membershipChange.committee_nodes = #{record.committeeNodes,jdbcType=VARCHAR},
       </if>
       <if test="record.preBftEpochNumber != null">
         membershipChange.pre_bft_epoch_number = #{record.preBftEpochNumber,jdbcType=BIGINT},
@@ -241,7 +241,7 @@
       membershipChange.blockchain_id = #{record.blockchainId,jdbcType=VARCHAR},
       membershipChange.change_type = #{record.changeType,jdbcType=INTEGER},
       membershipChange.`status` = #{record.status,jdbcType=INTEGER},
-      membershipChange.validator_nodes = #{record.validatorNodes,jdbcType=VARCHAR},
+      membershipChange.committee_nodes = #{record.committeeNodes,jdbcType=VARCHAR},
       membershipChange.pre_bft_epoch_number = #{record.preBftEpochNumber,jdbcType=BIGINT},
       membershipChange.create_time = #{record.createTime,jdbcType=TIMESTAMP},
       membershipChange.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
@@ -266,8 +266,8 @@
       <if test="status != null">
         `status` = #{status,jdbcType=INTEGER},
       </if>
-      <if test="validatorNodes != null">
-        validator_nodes = #{validatorNodes,jdbcType=VARCHAR},
+      <if test="committeeNodes != null">
+        committee_nodes = #{committeeNodes,jdbcType=VARCHAR},
       </if>
       <if test="preBftEpochNumber != null">
         pre_bft_epoch_number = #{preBftEpochNumber,jdbcType=BIGINT},
@@ -293,7 +293,7 @@
       blockchain_id = #{blockchainId,jdbcType=VARCHAR},
       change_type = #{changeType,jdbcType=INTEGER},
       `status` = #{status,jdbcType=INTEGER},
-      validator_nodes = #{validatorNodes,jdbcType=VARCHAR},
+      committee_nodes = #{committeeNodes,jdbcType=VARCHAR},
       pre_bft_epoch_number = #{preBftEpochNumber,jdbcType=BIGINT},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP},

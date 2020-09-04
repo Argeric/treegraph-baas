@@ -149,7 +149,7 @@ public class NodeServicempl implements NodeService {
 					.collect(Collectors.toList());
 			List<String> nodeIds = Lists.newArrayList(node.getId());
 			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.TO_LAUNCH);
-			jsonRpcService.sendMembershipChangeTransaction(consId, existNodeKeypairs, null, toRemoveNodeKeypairs);
+			//jsonRpcService.sendMembershipChangeTransaction(consId, existNodeKeypairs, null, toRemoveNodeKeypairs);
 			nodeDas.modifyNodesStatus(nodeIds, NodeEnum.Status.TO_LAUNCH);
 		}
 		

@@ -1,6 +1,7 @@
 package org.treegraph.baas.core.mapper.primary;
 
 import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.MembershipPo;
 import org.treegraph.baas.core.domain.MembershipPoExample;
@@ -27,4 +28,6 @@ public interface MembershipPoMapper {
     int updateByPrimaryKeySelective(MembershipPo record);
 
     int updateByPrimaryKey(MembershipPo record);
+    
+    int bulkInsert(List<MembershipPo> list);
 }

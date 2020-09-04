@@ -1,6 +1,8 @@
 package org.treegraph.baas.core.mapper.primary;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.MembershipChangePo;
 import org.treegraph.baas.core.domain.MembershipChangePoExample;
@@ -18,7 +20,7 @@ public interface MembershipChangePoMapper {
 
     List<MembershipChangePo> selectByExample(MembershipChangePoExample example);
 
-    MembershipChangePo selectByPrimaryKey(Long id);
+    Optional<MembershipChangePo> selectByPrimaryKey(Long id);
 
     int updateByExampleSelective(@Param("record") MembershipChangePo record, @Param("example") MembershipChangePoExample example);
 

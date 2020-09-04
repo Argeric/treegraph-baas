@@ -71,6 +71,7 @@ import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.enums.BlockchainEnum;
 import org.treegraph.baas.core.enums.ConsortiumEnum;
 import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
+import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
 import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.enums.UserEnum;
@@ -348,6 +349,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.nodeIp(item.getIp())
 				.nodePort(Integer.parseInt(item.getPort()))
 				.status(NodeEnum.Status.TO_LAUNCH.getCode())
+				.membershipStatus(MembershipStatus.TO_LAUNCH_FIRST_TIME.getCode())
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
 				.createTime(now)
 				.createBy(operUser)
@@ -382,8 +384,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 							item.getNode().getId()) == NodeEnum.Status.RUNING)
 					.collect(Collectors.toList());
 			Assert.isTrue(CollectionUtils.isNotEmpty(aliveNodeKeypairs), "blockchain not lunched!");
-			List<NodeKeypairBo> committeeNodeKeypairs = jsonRpcService.getNodeKeypairForCommittee(aliveNodeKeypairs, null);
-			List<NodeKeypairBo> validatorNodeKeypairs = jsonRpcService.getNodeKeypairForValidator(aliveNodeKeypairs, toAddNodeKeypairs, null);
+			List<NodeKeypairBo> committeeNodeKeypairs = getNodeKeypairForCommittee(aliveNodeKeypairs, null);
+			List<NodeKeypairBo> validatorNodeKeypairs = getNodeKeypairForValidator(aliveNodeKeypairs, toAddNodeKeypairs, null);
 			
 			NodePo proposerNode = committeeNodeKeypairs.get(0).getNode();
 			BigInteger preBftEpochNumber = jsonRpcService.getBftEpochNumber(proposerNode.getConsortiumId(), proposerNode.getId());
@@ -395,9 +397,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 					.collect(Collectors.toList());
 			nodeDas.addNodeKeypairs(toAddNodeKeypairs, config.getStepFactorCustomizedConfig(), config.getCustomizedConfigList(), membershipChange, memberships);
 			
-			
-			jsonRpcService.sendMembershipChangeTransactionPlus(req.getConsId(), aliveNodeKeypairs, committeeNodeKeypairs, validatorNodeKeypairs);
-			
+			MembershipEnum.Status changeStatus = jsonRpcService.sendMembershipChangeTransactionPlus(membershipChange.getId(), aliveNodeKeypairs, committeeNodeKeypairs, validatorNodeKeypairs);
+			if(changeStatus.ifFail());//TODO
 			List<String> toAddNodeIds = toAddNodes.stream().map(NodePo::getId).collect(Collectors.toList());
 			nodeDas.modifyNodesStatus(toAddNodeIds, NodeEnum.Status.TO_LAUNCH);
 		}
@@ -573,4 +574,31 @@ public class ConsortiumServicempl implements ConsortiumService {
 		return CustomizedConfigBo.builder().customizedConfigList(customizedConfigList)
 				.stepFactorCustomizedConfig(stepFactorCustomizedConfig).build();
 	}
+	
+	private List<NodeKeypairBo> getNodeKeypairForCommittee(List<NodeKeypairBo> existNodeKeypairs,
+			List<NodeKeypairBo> removeNodeKeypairs) {
+    	List<NodeKeypairBo> leftNodeKeypairs = Lists.newArrayList(existNodeKeypairs);
+    	if(CollectionUtils.isNotEmpty(removeNodeKeypairs)) {
+    		Set<String> toRemoveNodeIdSet = removeNodeKeypairs.stream().map(item -> item.getNode().getId()).collect(Collectors.toSet());
+    		leftNodeKeypairs = leftNodeKeypairs.stream()
+    				.filter(item -> !toRemoveNodeIdSet.contains(item.getNode().getId())).collect(Collectors.toList());
+    	}
+    	
+    	return leftNodeKeypairs;
+    }
+    
+	private List<NodeKeypairBo> getNodeKeypairForValidator(List<NodeKeypairBo> existNodeKeypairs, List<NodeKeypairBo> addNodeKeypairs,
+    		List<NodeKeypairBo> removeNodeKeypairs) {
+    	List<NodeKeypairBo> leftNodeKeypairs = Lists.newArrayList(existNodeKeypairs);
+    	if(CollectionUtils.isNotEmpty(removeNodeKeypairs)) {
+    		Set<String> toRemoveNodeIdSet = removeNodeKeypairs.stream().map(item -> item.getNode().getId()).collect(Collectors.toSet());
+    		leftNodeKeypairs = leftNodeKeypairs.stream()
+    				.filter(item -> !toRemoveNodeIdSet.contains(item.getNode().getId())).collect(Collectors.toList());
+    	}
+    	if(CollectionUtils.isNotEmpty(addNodeKeypairs)) {
+    		leftNodeKeypairs.addAll(addNodeKeypairs);
+    	}
+    	
+    	return leftNodeKeypairs;
+    }
 }

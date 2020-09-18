@@ -48,10 +48,12 @@ public class CertificateDeferDasImpl implements CertificateDeferDas {
 		boolean isSuccess = Boolean.TRUE;
 		isSuccess = isSuccess && certificateDeferPoMapper.updateByPrimaryKeySelective(defer) > 0;
 		
-		KeypairPo record = KeypairPo.builder().deleteFlag(deleteFlag).build();
-		KeypairPoExample example = new KeypairPoExample();
-		example.createCriteria().andIdIn(keypairIds);
-		isSuccess = isSuccess && keypairPoMapper.updateByExampleSelective(record, example) == keypairIds.size();
+		if(CollectionUtils.isNotEmpty(keypairIds)) {
+			KeypairPo record = KeypairPo.builder().deleteFlag(deleteFlag).build();
+			KeypairPoExample example = new KeypairPoExample();
+			example.createCriteria().andIdIn(keypairIds);
+			isSuccess = isSuccess && keypairPoMapper.updateByExampleSelective(record, example) == keypairIds.size();
+		}
 		
 		isSuccess = isSuccess && keypairPoMapper.insert(newKeypair) > 0;
 		return isSuccess;

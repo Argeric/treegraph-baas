@@ -13,32 +13,32 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserLoginTokenPo implements Serializable {
     /**
-     * 主键
+     * 
      */
     private Long id;
 
     /**
-     * 用户id
+     * id
      */
     private String userId;
 
     /**
-     * 登陆后token
+     * token
      */
     private String token;
 
     /**
-     * 过期时间，单位秒
+     * 
      */
     private Integer expire;
 
     /**
-     * 创建时间
+     * 
      */
     private LocalDateTime createTime;
 
     /**
-     * 更新时间
+     * 
      */
     private LocalDateTime updateTime;
 

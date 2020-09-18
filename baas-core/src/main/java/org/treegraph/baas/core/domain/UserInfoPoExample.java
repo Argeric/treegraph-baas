@@ -525,6 +525,66 @@ public class UserInfoPoExample {
             return (Criteria) this;
         }
 
+        public Criteria andTryTimesIsNull() {
+            addCriterion("userInfo.try_times is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryTimesIsNotNull() {
+            addCriterion("userInfo.try_times is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryTimesEqualTo(Integer value) {
+            addCriterion("userInfo.try_times =", value, "tryTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryTimesNotEqualTo(Integer value) {
+            addCriterion("userInfo.try_times <>", value, "tryTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryTimesGreaterThan(Integer value) {
+            addCriterion("userInfo.try_times >", value, "tryTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryTimesGreaterThanOrEqualTo(Integer value) {
+            addCriterion("userInfo.try_times >=", value, "tryTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryTimesLessThan(Integer value) {
+            addCriterion("userInfo.try_times <", value, "tryTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryTimesLessThanOrEqualTo(Integer value) {
+            addCriterion("userInfo.try_times <=", value, "tryTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryTimesIn(List<Integer> values) {
+            addCriterion("userInfo.try_times in", values, "tryTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryTimesNotIn(List<Integer> values) {
+            addCriterion("userInfo.try_times not in", values, "tryTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryTimesBetween(Integer value1, Integer value2) {
+            addCriterion("userInfo.try_times between", value1, value2, "tryTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andTryTimesNotBetween(Integer value1, Integer value2) {
+            addCriterion("userInfo.try_times not between", value1, value2, "tryTimes");
+            return (Criteria) this;
+        }
+
         public Criteria andStatusIsNull() {
             addCriterion("userInfo.`status` is null");
             return (Criteria) this;

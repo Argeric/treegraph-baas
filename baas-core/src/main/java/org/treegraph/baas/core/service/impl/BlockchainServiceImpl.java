@@ -42,6 +42,8 @@ import org.treegraph.baas.core.util.DateTimeUtils;
 import org.treegraph.baas.core.util.DateUtils;
 import org.treegraph.baas.core.util.crypto.x509.CertUtil;
 
+import static org.treegraph.baas.core.util.DateTimeUtils.FORMAT_yyyyMMddHHmmss;
+
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -77,19 +79,23 @@ public class BlockchainServiceImpl implements BlockchainService {
 		List<BlockChainPo> blockchains = pageInfo.getList();
 		List<String> consIdList = blockchains.stream().map(BlockChainPo::getConsortiumId).collect(Collectors.toList());
 		List<ConsortiumPo> consList = consortiumDas.findByIds(consIdList);
-		Map<String, ConsortiumPo> consMap = consList.stream().collect(Collectors.toMap(ConsortiumPo::getConsortiumId, Function.identity()));
+		Map<String, ConsortiumPo> consMap = consList.stream()
+				.collect(Collectors.toMap(ConsortiumPo::getConsortiumId, Function.identity()));
 		log.info("consMap:"+JSON.toJSONString(consMap));
 		
 		List<String> creatorIds = blockchains.stream().map(BlockChainPo::getCreateBy).collect(Collectors.toList());
 		List<UserInfoPo> users = userInfoDas.findByIds(creatorIds);
-		Map<String, UserInfoPo> userMap = users.stream().collect(Collectors.toMap(UserInfoPo::getId, Function.identity()));
+		Map<String, UserInfoPo> userMap = users.stream()
+				.collect(Collectors.toMap(UserInfoPo::getId, Function.identity()));
 		log.info("userMap:"+JSON.toJSONString(userMap));
 		
 		List<String> chainIdList = blockchains.stream().map(BlockChainPo::getId).collect(Collectors.toList());
 		List<NodePo> nodes = nodeDas.findByChainIds(chainIdList);
-		Map<String, Long> chainCountMap = nodes.stream().collect(Collectors.groupingBy(NodePo::getBlockchainId, Collectors.counting()));
+		Map<String, Long> chainCountMap = nodes.stream()
+				.collect(Collectors.groupingBy(NodePo::getBlockchainId, Collectors.counting()));
 		
-		List<KeypairPo> consKeypairs = keypairDas.findAll(consIdList, CryptoEnum.KeyType.CONSORTIUM.getCode(), CryptoEnum.Algo.RSA.getCode());
+		List<KeypairPo> consKeypairs = keypairDas.findAll(consIdList, CryptoEnum.KeyType.CONSORTIUM.getCode(),
+				CryptoEnum.Algo.RSA.getCode());
 		Map<String, List<String>> expireDateMap = Maps.newHashMap();
 		consKeypairs.stream().forEach(item -> {
 			try {
@@ -146,10 +152,11 @@ public class BlockchainServiceImpl implements BlockchainService {
 	}
 
 	public QueryBlockchainDetailResponse getBlockchainDetail(QueryBlockchainDetailRequest req) {
-		
-		BlockChainPo chain = blockchainDas.findById(req.getId()).orElseThrow(() -> new AlertException("blockchain.not.found"));
-		ConsortiumPo cons = consortiumDas.findById(chain.getConsortiumId()).orElseThrow(() -> new AlertException("consortium.not.found"));
-		List<NodePo> nodes = nodeDas.findByConsIdAndChainId(cons.getConsortiumId(), chain.getId(), false);
+		BlockChainPo chain = blockchainDas.findById(req.getId())
+				.orElseThrow(() -> new AlertException("blockchain.not.found"));
+		ConsortiumPo cons = consortiumDas.findById(chain.getConsortiumId())
+				.orElseThrow(() -> new AlertException("consortium.not.found"));
+		List<NodePo> nodes = nodeDas.findByConsIdAndChainId(cons.getConsortiumId(), chain.getId());
 		List<NodeInfo> nodeInfos = nodes.stream().map(item -> NodeInfo.builder()
 				.ip(item.getNodeIp())
 				.port(item.getNodePort()+"")
@@ -175,17 +182,18 @@ public class BlockchainServiceImpl implements BlockchainService {
 	}
 
 	public ListCertResponse listCert(ListCertRequest req) {
-		
 		List<CertificateRequestPo> certReqList = certDas.findByBlockchainId(req.getBlockchainId());
-		List<String> applyeeIds = certReqList.stream().map(CertificateRequestPo::getApplyUserId).collect(Collectors.toList());
+		List<String> applyeeIds = certReqList.stream().map(CertificateRequestPo::getApplyUserId)
+				.collect(Collectors.toList());
 		List<UserInfoPo> users = userInfoDas.findByIds(applyeeIds);
-		Map<String, UserInfoPo> userMap = users.stream().collect(Collectors.toMap(UserInfoPo::getId, Function.identity()));
+		Map<String, UserInfoPo> userMap = users.stream()
+				.collect(Collectors.toMap(UserInfoPo::getId, Function.identity()));
 		
 		List<CertInfo> list = certReqList.stream().map(item -> CertInfo.builder()
 				.id(req.getBlockchainId())
 				.name(userMap.get(item.getApplyUserId()).getName())
 				.account(userMap.get(item.getApplyUserId()).getAccount())
-				.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
+				.createTime(DateTimeUtils.formatTime(item.getCreateTime(), FORMAT_yyyyMMddHHmmss))
 				.build()).collect(Collectors.toList());
 		
 		return ListCertResponse.builder()
@@ -194,7 +202,6 @@ public class BlockchainServiceImpl implements BlockchainService {
 	}
 
 	public boolean downloadCert(DownloadCertRequest downloadCertRequest) {
-
 		return false;
 	}
 	

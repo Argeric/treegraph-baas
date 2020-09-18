@@ -7,7 +7,6 @@ import org.treegraph.baas.core.domain.BlockChainPo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
 
 public interface BlockchainDas {
-	
 	List<BlockChainPo> findByIds(List<String> ids);
 	
 	Optional<BlockChainPo> findById(String id);

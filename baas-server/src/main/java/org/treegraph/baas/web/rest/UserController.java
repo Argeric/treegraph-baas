@@ -20,6 +20,7 @@ import org.treegraph.baas.api.dto.request.ListUserRequest;
 import org.treegraph.baas.api.dto.request.ModifyPwdRequest;
 import org.treegraph.baas.api.dto.request.ModifyUserRequest;
 import org.treegraph.baas.api.dto.request.QueryUserRequest;
+import org.treegraph.baas.api.dto.request.UnfrozenUserRequest;
 import org.treegraph.baas.api.dto.response.ListUserResponse;
 import org.treegraph.baas.core.service.LoginService;
 import org.treegraph.baas.core.service.UserService;
@@ -99,6 +100,13 @@ public class UserController {
 	public BaasResult<Void> deleteUser(@RequestBody DeleteUserRequest deleteUserRequest) {
 		checkDelUser(deleteUserRequest);
 		userService.deleteUser(deleteUserRequest);
+		return BaasResult.success();
+	}
+	
+	@PostMapping("/unfrozen")
+	@ApiOperation("解冻用户")
+	public BaasResult<Void> unfrozenUser(@RequestBody UnfrozenUserRequest unfrozenUserRequest) {
+		userService.unfrozenUser(unfrozenUserRequest);
 		return BaasResult.success();
 	}
 	

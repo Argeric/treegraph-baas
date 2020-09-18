@@ -16,6 +16,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.AuthInfo;
 import org.treegraph.baas.api.dto.response.LoginResponse;
+import org.treegraph.baas.core.constant.UserConstant;
 import org.treegraph.baas.core.das.PermissionDas;
 import org.treegraph.baas.core.das.RoleDas;
 import org.treegraph.baas.core.das.UserInfoDas;
@@ -65,14 +66,33 @@ public class LoginServicempl implements LoginService {
     	
 		UserInfoPo user = userInfoDas.findByAccount(accountNo)
 				.orElseThrow(() -> new AlertException("用户不存在"));
-        Assert.isTrue(UserEnum.Status.isAvailable(user.getStatus()), "用户已禁用");
-        Assert.state(passwordService.matches(password, user.getPassword()), "密码错误");
+        Assert.isTrue(UserEnum.Status.isAvailable(user.getStatus()), "该用户已冻结，请联系管理员解冻");
+        
+        boolean isSysAdmin = isSysAdmin(user.getId());
+        if(isSysAdmin) {
+        	Assert.isTrue(passwordService.matches(password, user.getPassword()), "密码错误");
+        } else {
+	        UserInfoPo userUpdate = validateTryTimes(password, user);
+			Assert.isTrue(userUpdate.getTryTimes() > 0 && userUpdate.getTryTimes() < UserConstant.LOGIN_MAX_TRY_TIMES,
+					"密码错误,共" + UserConstant.LOGIN_MAX_TRY_TIMES + "次尝试机会，还剩"
+							+ (UserConstant.LOGIN_MAX_TRY_TIMES - userUpdate.getTryTimes()) + "次尝试");
+			Assert.isTrue(UserEnum.Status.isAvailable(userUpdate.getStatus()), "该用户已冻结，请联系管理员解冻");
+        }
         
         boolean needChangePwd = password.equals(defaultPassword);
         LoginResponse userDetailInfo = loginAfter(user, needChangePwd, Login.LOGIN, request);
         
         return userDetailInfo;
     }
+
+	private UserInfoPo validateTryTimes(String password, UserInfoPo user) {
+		boolean isPassCorrect = passwordService.matches(password, user.getPassword());
+        int tryTimes = isPassCorrect ? 0 : user.getTryTimes() + 1;
+        int status = tryTimes >= UserConstant.LOGIN_MAX_TRY_TIMES ? UserEnum.Status.FROZEN.getCode() : user.getStatus();
+        UserInfoPo userUpdate = UserInfoPo.builder().id(user.getId()).tryTimes(tryTimes).status(status).build();
+        userInfoDas.updateUser(userUpdate);
+		return userUpdate;
+	}
 
     private LoginResponse loginAfter(UserInfoPo user, boolean needChangePwd, Login login,
         HttpServletRequest request) {
@@ -156,4 +176,15 @@ public class LoginServicempl implements LoginService {
 
 		return authInfos;
 	}
+    
+    public boolean isSysAdmin(String userId) {
+    	List<PermissionInfoBo> permInfos = permissionDas.findPermissionInfoByUserId(userId);
+    	for(PermissionInfoBo permInfo:permInfos){
+    		Integer roleType = permInfo.getRoleType();
+    		if(roleType == UserEnum.Role.SYS_ADMIN.getCode()) {
+    			return Boolean.TRUE;
+    		}
+    	}
+    	return  Boolean.FALSE;
+    }
 }

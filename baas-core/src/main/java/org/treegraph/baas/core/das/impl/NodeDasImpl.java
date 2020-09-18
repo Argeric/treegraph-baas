@@ -23,13 +23,16 @@ import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.NodePoExample;
 import org.treegraph.baas.core.domain.NodePoExample.Criteria;
+import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.enums.NodeEnum;
+import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
 import org.treegraph.baas.core.mapper.primary.ConsortiumPoMapper;
 import org.treegraph.baas.core.mapper.primary.KeypairPoMapper;
 import org.treegraph.baas.core.mapper.primary.NodeKeyPoMapper;
 import org.treegraph.baas.core.mapper.primary.NodePoMapper;
+import org.treegraph.baas.core.util.LogSkip;
 
 import com.google.common.collect.Lists;
 
@@ -80,15 +83,12 @@ public class NodeDasImpl implements NodeDas {
 		return nodePoMapper.selectByExample(example);
 	}
 
-	public List<NodePo> findByConsIdAndChainId(String consId, String chainId, boolean isAlive) {
+	public List<NodePo> findByConsIdAndChainId(String consId, String chainId) {
 		NodePoExample example = new NodePoExample();
 		Criteria criteria = example.createCriteria();
 		criteria.andConsortiumIdEqualTo(consId)
 				.andBlockchainIdEqualTo(chainId)
 				.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-		if(isAlive) {
-			criteria.andStatusEqualTo(NodeEnum.Status.RUNING.getCode().intValue());
-		}
 		example.setOrderByClause("create_time desc");
 		return nodePoMapper.selectByExample(example);
 	}
@@ -222,17 +222,54 @@ public class NodeDasImpl implements NodeDas {
 		
 		return succFlag;
 	}
+	
+	public boolean addNodesMembershipChange(List<String> nodeIds, MembershipStatus membershipStatus,
+			MembershipChangePo membershipChange, List<MembershipPo> memberships) {
+		boolean succFlag =  Boolean.TRUE;
+		// update node membership status
+		NodePo record = NodePo.builder().membershipStatus(membershipStatus.getCode()).build();
+		NodePoExample example = new NodePoExample();
+		Criteria criteria = example.createCriteria();
+		criteria.andIdIn(nodeIds);
+		succFlag = succFlag &&  nodePoMapper.updateByExampleSelective(record, example) == nodeIds.size();
+		// add membershipChange and memberships
+		succFlag = succFlag && membershipDas.addMembershipChange(membershipChange, memberships);
+		
+		return succFlag;
+	}
 
 	public boolean modifyNode(NodePo node) {
 		return nodePoMapper.updateByPrimaryKeySelective(node) > 0;
 	}
 	
+	@LogSkip
 	public boolean modifyNodesStatus(List<String> nodeIds, NodeEnum.Status status) {
 		NodePo record = NodePo.builder().status(status.getCode()).build();
 		NodePoExample example = new NodePoExample();
 		Criteria criteria = example.createCriteria();
 		criteria.andIdIn(nodeIds);
 		return nodePoMapper.updateByExampleSelective(record, example) == nodeIds.size();
+	}
+	
+	public boolean modifyNodesMembershipStatus(List<String> nodeIds, MembershipStatus membershipStatus,
+			Long membershipChangeId, MembershipEnum.Status membershipChangeStatus) {
+		boolean succFlag = Boolean.TRUE;
+		// update node membership status
+		NodePo record = NodePo.builder().membershipStatus(membershipStatus.getCode()).build();
+		if (membershipStatus == MembershipStatus.ADD_SUCCESS 
+				|| membershipStatus == MembershipStatus.ADD_FAILURE
+				|| membershipStatus == MembershipStatus.REMOVE_SUCCESS
+				|| membershipStatus == MembershipStatus.REMOVE_FAILURE) {
+			record.setMembershipFinalStatus(record.getMembershipStatus());/*set membership final state*/
+		}
+		NodePoExample example = new NodePoExample();
+		Criteria criteria = example.createCriteria();
+		criteria.andIdIn(nodeIds);
+		succFlag = succFlag &&  nodePoMapper.updateByExampleSelective(record, example) == nodeIds.size();
+		// update membership change status
+		List<Long> membershipChangeIds = Lists.newArrayList(membershipChangeId);
+		succFlag = succFlag &&  membershipDas.modifyMembershipChangeStatus(membershipChangeIds, membershipChangeStatus);
+		return succFlag;
 	}
 	
 	public boolean deleteNodes(NodePo node, ConsortiumPo cons) {

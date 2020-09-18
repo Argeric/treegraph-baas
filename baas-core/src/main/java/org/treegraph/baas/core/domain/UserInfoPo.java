@@ -43,6 +43,11 @@ public class UserInfoPo implements Serializable {
     private String password;
 
     /**
+     * 尝试登陆次数
+     */
+    private Integer tryTimes;
+
+    /**
      * 1-启用，2-禁用
      */
     private Integer status;

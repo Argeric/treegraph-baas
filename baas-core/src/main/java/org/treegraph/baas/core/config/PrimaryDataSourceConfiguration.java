@@ -58,7 +58,9 @@ public class PrimaryDataSourceConfiguration {
 
     @Bean(name = "primarySqlSessionFactory")
     @Primary
-    public SqlSessionFactory primarySqlSessionFactory(@Qualifier("primaryDataSource") DataSource primaryDataSource, @Qualifier("dataScopePlugin") DataScopePlugin dataScopePlugin/*, @Qualifier("pageInterceptor") PageInterceptor pageInterceptor*/)
+    public SqlSessionFactory primarySqlSessionFactory(@Qualifier("primaryDataSource") DataSource primaryDataSource,
+    		@Qualifier("dataScopePlugin") DataScopePlugin dataScopePlugin
+    		/*, @Qualifier("pageInterceptor") PageInterceptor pageInterceptor*/)
             throws Exception {
         final SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(primaryDataSource);

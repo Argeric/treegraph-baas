@@ -11,6 +11,7 @@ import org.treegraph.baas.api.dto.request.AddNodesRequest;
 import org.treegraph.baas.api.dto.request.CreateBlockchainRequest;
 import org.treegraph.baas.api.dto.request.CreateConsAdminRequest;
 import org.treegraph.baas.api.dto.request.CreateConsRequest;
+import org.treegraph.baas.api.dto.request.DeferCertificateRequest;
 import org.treegraph.baas.api.dto.request.DeleteConsRequest;
 import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
 import org.treegraph.baas.api.dto.request.ModifyConsRequest;
@@ -38,5 +39,8 @@ public interface ConsortiumService {
 
 	boolean addNodes(AddNodesRequest addNodesRequest) throws Exception;
 
-	void downloadDeployScript(DownloadDeployScriptRequest downloadDeployScriptRequest, HttpServletResponse response) throws Exception;
+	void downloadDeployScript(DownloadDeployScriptRequest downloadDeployScriptRequest, HttpServletResponse response)
+			throws Exception;
+	
+	void deferConsortiumCert(DeferCertificateRequest req) throws Exception;
 }

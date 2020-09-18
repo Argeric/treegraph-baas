@@ -44,7 +44,7 @@ public class KeypairBuildService {
 		}
 		
 		KeyPair rootKeyPair = KeyUtil.generateKeyPair(algo);
-		Certificate rootCA = CertUtil.generateRootCA(new X500Name(X509CertConstant.ROOT_CA_SUBJECT), rootKeyPair,
+		Certificate rootCA = CertUtil.generateRootCA(new X500Name(X509CertConstant.SUBJECT_ROOT_CA), rootKeyPair,
 				CertUtil.getNotBefore(), CertUtil.getNotAfter(365 * 10));
 		String rootPublicKey = KeyUtil.publicKeyToBase64(rootKeyPair.getPublic());
 		String rootPrivateKey = KeyUtil.privateKeyToBase64(rootKeyPair.getPrivate());
@@ -78,7 +78,7 @@ public class KeypairBuildService {
 		
 		KeyPair consortiumKeyPair = KeyUtil.generateKeyPair(algo);
 		PKCS10CertificationRequest consortiumCsr = CertUtil.generateCSR(
-				new X500Name(X509CertConstant.CONSORTIUM_CERT_SUBJECT), consortiumKeyPair.getPublic(),
+				new X500Name(X509CertConstant.SUBJECT_CONSORTIUM_CERT), consortiumKeyPair.getPublic(),
 				consortiumKeyPair.getPrivate());
 		String consortiumPublicKey = KeyUtil.publicKeyToBase64(consortiumKeyPair.getPublic());
 		String consortiumPrivateKey = KeyUtil.privateKeyToBase64(consortiumKeyPair.getPrivate());

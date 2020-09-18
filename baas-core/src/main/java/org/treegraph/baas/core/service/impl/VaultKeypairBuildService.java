@@ -78,13 +78,13 @@ public class VaultKeypairBuildService {
 		}
 		
 		KeyPair rootKeyPair = KeyUtil.generateKeyPair(algo);
-		Certificate rootCA = CertUtil.generateRootCA(new X500Name(X509CertConstant.ROOT_CA_SUBJECT), rootKeyPair,
+		Certificate rootCA = CertUtil.generateRootCA(new X500Name(X509CertConstant.SUBJECT_ROOT_CA), rootKeyPair,
 				CertUtil.getNotBefore(), CertUtil.getNotAfter(365 * 10));
 		String rootPublicKey = KeyUtil.publicKeyToBase64(rootKeyPair.getPublic());
 		String rootPrivateKey = KeyUtil.privateKeyToBase64(rootKeyPair.getPrivate());
 		String rootCa = CertUtil.certToPem(rootCA);
 		
-		if(X509CertConstant.SIGN_CERTIFICATE_REQUEST == CryptoEnum.SignCertificateRequest.VAULT) {
+		if(X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.VAULT) {
 			writeRootCaToVault(rootCa, KeyUtil.privateKeyToPem(rootKeyPair.getPrivate()));
 		}
 		
@@ -114,18 +114,23 @@ public class VaultKeypairBuildService {
 			return consortiumKeypairs.get(0);
 		}
 		
+		return geneConsKeyPair(consortiumId, algo, rootKeypair);
+	}
+	
+	public KeypairPo geneConsKeyPair(String consortiumId, String algo, KeypairPo rootKeypair)
+			throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, Exception {
 		KeyPair consortiumKeyPair = KeyUtil.generateKeyPair(algo);
 		PKCS10CertificationRequest consortiumCsr = CertUtil.generateCSR(
-				new X500Name(X509CertConstant.CONSORTIUM_CERT_SUBJECT), consortiumKeyPair.getPublic(),
+				new X500Name(X509CertConstant.SUBJECT_CONSORTIUM_CERT), consortiumKeyPair.getPublic(),
 				consortiumKeyPair.getPrivate());
 		String consortiumPublicKey = KeyUtil.publicKeyToBase64(consortiumKeyPair.getPublic());
 		String consortiumPrivateKey = KeyUtil.privateKeyToBase64(consortiumKeyPair.getPrivate());
 		String consortiumCsrStr = CertUtil.csrToPem(consortiumCsr);
 		
 		String consortiumCertStr = null;
-		if(X509CertConstant.SIGN_CERTIFICATE_REQUEST == CryptoEnum.SignCertificateRequest.BC) {
+		if(X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.BC) {
 			consortiumCertStr = signCertificateRequestByBC(algo, rootKeypair, consortiumCsr, true);
-		} else if(X509CertConstant.SIGN_CERTIFICATE_REQUEST == CryptoEnum.SignCertificateRequest.VAULT) {
+		} else if(X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.VAULT) {
 			consortiumCertStr = signCertificateRequestByVault(consortiumCsr);
 		} else {
 			throw new RuntimeException("not support sign certificate request");
@@ -154,7 +159,8 @@ public class VaultKeypairBuildService {
 		if(CollectionUtils.isNotEmpty(nodeKeys)) {
 			List<Long> keypairIds = nodeKeys.stream().map(item -> item.getKeypairId()).collect(Collectors.toList());
 			List<KeypairPo> nodeKeypairs = keypairDas.findByIds(keypairIds);
-			Optional<KeypairPo> keypairOp = nodeKeypairs.stream().filter(item -> item.getAlgorithm().equalsIgnoreCase(algo)).findFirst();
+			Optional<KeypairPo> keypairOp = nodeKeypairs.stream()
+					.filter(item -> item.getAlgorithm().equalsIgnoreCase(algo)).findFirst();
 			if(keypairOp.isPresent()){
 				return NodeKeypairBo.builder().keypair(keypairOp.get()).node(node).build();
 			}
@@ -177,10 +183,10 @@ public class VaultKeypairBuildService {
 		if(consortiumKeypair != null) {
 			try {
 				PKCS10CertificationRequest nodeCsr = CertUtil.generateCSR(
-						new X500Name(X509CertConstant.NODE_CERT_SUBJECT), nodeKeyPair.getPublic(),
+						new X500Name(X509CertConstant.SUBJECT_NODE_CERT), nodeKeyPair.getPublic(),
 						nodeKeyPair.getPrivate());
 				nodeCsrStr = CertUtil.csrToPem(nodeCsr);
-				nodeCertStr = signCertificateRequestByBC(X509CertConstant.DEFAULT_ALGO_CONS, consortiumKeypair, nodeCsr, false);
+				nodeCertStr = signCertificateRequestByBC(X509CertConstant.ALGO_CONS, consortiumKeypair, nodeCsr, false);
 			} catch(Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -254,15 +260,15 @@ public class VaultKeypairBuildService {
 			PKCS10CertificationRequest csr, boolean isEntityCert) throws Exception, CertificateEncodingException {
 		PrivateKey rootPrivateKey = KeyUtil.privateKeyFromBase64(algo, keypair.getPrivateKey());
 		byte[] rootCertBytes = CertUtil.certFromPem(keypair.getCertStr()).getEncoded();
-		Certificate consortiumCert = CertUtil.generateCert(csr, rootPrivateKey, rootCertBytes,
-				CertUtil.getNotBefore(), CertUtil.getNotAfter(X509CertConstant.CONSORTIUM_CERT_EXPIRE_DYAS), isEntityCert);
+		Certificate consortiumCert = CertUtil.generateCert(csr, rootPrivateKey, rootCertBytes, CertUtil.getNotBefore(),
+				CertUtil.getNotAfter(X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DYAS), isEntityCert);
 		return CertUtil.certToPem(consortiumCert);
 	}
 
 	private String signCertificateRequestByVault(PKCS10CertificationRequest consortiumCsr) throws Exception {
 		VaultCertificateRequest request = VaultCertificateRequest.builder()
-				.ttl(Duration.ofDays(X509CertConstant.CONSORTIUM_CERT_EXPIRE_DYAS))
-				.commonName(X509CertConstant.CONSORTIUM_CERT_COMMON_NAME).build();
+				.ttl(Duration.ofDays(X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DYAS))
+				.commonName(X509CertConstant.COMMON_NAME_CONSORTIUM_CERT).build();
 		VaultSignCertificateRequestResponse certificateResponse = vaultOperations
 				.opsForPki(X509CertConstant.VAULT_PKI_PATH).signCertificateRequest(
 						X509CertConstant.VAULT_ROLE_ISSUE_CERTIFICATE, CertUtil.csrToPem(consortiumCsr), request);

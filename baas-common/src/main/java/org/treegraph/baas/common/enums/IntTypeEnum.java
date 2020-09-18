@@ -2,12 +2,6 @@ package org.treegraph.baas.common.enums;
 
 /** 
  * 0/1操作枚举类
- * 
- * <p>
- * <a href="ManbaEnums.java"><i>View Source</i></a>
- * </p>
- * @version 1.0
- * @since 1.0 
 */
 public enum IntTypeEnum{
     /**

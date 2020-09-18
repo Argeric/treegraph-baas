@@ -36,8 +36,8 @@ public class RestConfiguration {
 	
 	@Bean
 	public RestTemplate restTemplate(){
-		final RestTemplate restTemplate = restTemplateBuilder.setConnectTimeout(Duration.ofMillis(5000)).setReadTimeout(Duration.ofMillis(5000))
-				.build();
+		final RestTemplate restTemplate = restTemplateBuilder.setConnectTimeout(Duration.ofMillis(5000))
+				.setReadTimeout(Duration.ofMillis(5000)).build();
 		
 		 // 添加拦截器
         List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
@@ -63,7 +63,9 @@ public class RestConfiguration {
 		}
 
 		private void traceRequest(Long seq, HttpRequest request, byte[] body) {
-			log.info("rest[request][seq:{}] uri:{},header:{},requestbody:{},method:{}", seq, request.getURI(), request.getHeaders().toString(), new String(body, StandardCharsets.UTF_8), request.getMethodValue());
+			log.info("rest[request][seq:{}] uri:{},header:{},requestbody:{},method:{}", seq, request.getURI(),
+					request.getHeaders().toString(), new String(body, StandardCharsets.UTF_8),
+					request.getMethodValue());
 		}
 
 		private void traceResponse(Long seq, ClientHttpResponse response) throws IOException {
@@ -76,7 +78,9 @@ public class RestConfiguration {
 					line = bufferedReader.readLine();
 				}
 			}
-			log.info("rest[response][seq:{}] statusCode:{},statusText:{},headers:{},responseBody:{}", seq, response.getStatusCode(), response.getStatusText(), response.getHeaders().toString(), inputStringBuilder.toString());
+			log.info("rest[response][seq:{}] statusCode:{},statusText:{},headers:{},responseBody:{}", seq,
+					response.getStatusCode(), response.getStatusText(), response.getHeaders().toString(),
+					inputStringBuilder.toString());
 		}
 	}
 

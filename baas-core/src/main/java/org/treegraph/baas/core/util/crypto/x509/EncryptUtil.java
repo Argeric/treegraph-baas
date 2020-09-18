@@ -16,7 +16,8 @@ public class EncryptUtil {
 	/**
 	 * 公钥加密/解密
 	 */
-	public static byte[] codecByPublicKey(String algo, boolean encryptMode, PublicKey publicKey, byte[] data) throws Exception {
+	public static byte[] codecByPublicKey(String algo, boolean encryptMode, PublicKey publicKey, byte[] data)
+			throws Exception {
 		Cipher cipher = null;
 		try {
 			if(algo.equalsIgnoreCase(CryptoEnum.Algo.ECC.getCode()) ||

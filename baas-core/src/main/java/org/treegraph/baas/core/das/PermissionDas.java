@@ -9,7 +9,6 @@ import org.treegraph.baas.core.domain.PermissionPo;
 import org.treegraph.baas.core.domain.RolePermissionPo;
 
 public interface PermissionDas {
-	
 	Optional<PermissionPo> findById(Long permissionId);
 	
 	List<PermissionPo> findByIds(List<Long> permissionIds);

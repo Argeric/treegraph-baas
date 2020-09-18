@@ -1,5 +1,10 @@
 package org.treegraph.baas.core.service.impl;
 
+import static org.treegraph.baas.core.constant.ConfluxConstant.RPC_ADD_DELETE_NODE;
+import static org.treegraph.baas.core.constant.ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM;
+import static org.treegraph.baas.core.constant.ConfluxConstant.RPC_GET_BFT_EPOCH_NUMBER;
+import static org.treegraph.baas.core.constant.ConfluxConstant.RPC_UPDATE_CERT;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.List;
@@ -12,15 +17,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.core.component.BizTimer;
-import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
+import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.enums.MembershipEnum;
+import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
 import org.treegraph.baas.core.task.CheckMembershipChangeTimerTask;
 import org.treegraph.baas.core.util.ConfluxUtils;
+import org.treegraph.baas.core.util.IdWorker;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
 
@@ -42,9 +49,9 @@ import lombok.extern.slf4j.Slf4j;
 public class JsonRpcService {
 	
 	public MembershipEnum.Status sendMembershipChangeTransactionPlus(long membershipChangeId,
-			List<NodeKeypairBo> aliveNodeKeypairs, List<NodeKeypairBo> committeeNodeKeypairs,
-			List<NodeKeypairBo> validatorNodeKeypairs) throws IOException {
+			List<NodeKeypairBo> committeeNodeKeypairs, List<NodeKeypairBo> validatorNodeKeypairs) throws IOException {
     	MembershipEnum.Status status = null;
+    	Long seq = IdWorker.generateId();
     	/**
     	 * 1. select a proposer in committee
     	 */
@@ -52,14 +59,21 @@ public class JsonRpcService {
     	Cfx cfx = null;
     	NodeKeypairBo proposerNodeKeypair = null;
     	try {
-			proposerNodeKeypair = committeeNodeKeypairs.get(0);
+			proposerNodeKeypair = committeeNodeKeypairs.stream()
+					.filter(item -> HeartbeatEnum.Status.GREEN == HeartbeatLinstener.getInstance()
+							.getNode(item.getNode().getConsortiumId(), item.getNode().getId()).getStatus())
+					.findFirst().orElseThrow(() -> new AlertException("alive.proposer.node.not.found"));
 			NodePo proposerNode = proposerNodeKeypair.getNode();
-			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(proposerNode.getConsortiumId(), proposerNode.getId());
+			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(proposerNode.getConsortiumId(),
+					proposerNode.getId());
 			uri = ConfluxUtils.toJsonRpcUri(heartbeat.getIp(), heartbeat.getPort());
 			cfx = Cfx.create(uri, 1, 1, TimeUnit.SECONDS);
 			status = MembershipEnum.Status.SELECT_PROPOSER_SUCCESS;
     	} catch(Exception e) {
+    		log.error("[seq={}][membership change]select proposer error:", seq, e);
     		return MembershipEnum.Status.SELECT_PROPOSER_FAILURE;
+    	} finally {
+    		log.info("[seq={}][membership change]select proposer success!", seq);
     	}
 		
 		/**
@@ -70,6 +84,7 @@ public class JsonRpcService {
 		 * output: 
 		 * ---string raw_json
 		 */
+    	Request<String, StringResponse> applyRequest = null;
     	String applyResponse = null;
     	try {
 			List<String> validatorPublicKeys = validatorNodeKeypairs.stream().map(item -> {
@@ -77,18 +92,21 @@ public class JsonRpcService {
 						item.getKeypair().getPrivateKey(), item.getKeypair().getAlgorithm());
 				return "0x"+StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0');
 			}).collect(Collectors.toList());
-			ECKeyPair proposerEcKeypair = KeyUtil.loadECKeyPairFromBase64(proposerNodeKeypair.getKeypair().getPublicKey(),
-					proposerNodeKeypair.getKeypair().getPrivateKey(), proposerNodeKeypair.getKeypair().getAlgorithm());
+			ECKeyPair proposerEcKeypair = KeyUtil.loadECKeyPairFromBase64(
+					proposerNodeKeypair.getKeypair().getPublicKey(), proposerNodeKeypair.getKeypair().getPrivateKey(),
+					proposerNodeKeypair.getKeypair().getAlgorithm());
 			String proposerPublicKey = "0x"+StringUtils.leftPad(proposerEcKeypair.getPublicKey().toString(16), 128, '0');
-			Request<String, StringResponse> applyRequest = cfx.getCustomizedRequest(StringResponse.class,
-					ConfluxConstant.RPC_ADD_DELETE_NODE, validatorPublicKeys, proposerPublicKey);
-			log.info("RpcBlockchainService uri--->{}, txRequest--->{}", uri, JSON.toJSONString(applyRequest));
+			applyRequest = cfx.getCustomizedRequest(StringResponse.class,
+					RPC_ADD_DELETE_NODE, validatorPublicKeys, proposerPublicKey);
 			applyResponse = applyRequest.sendAndGet();
-			log.info("RpcBlockchainService uri--->{}, txRequest--->{}, txResponse--->{}", uri, JSON.toJSONString(applyRequest), applyResponse);
-			Assert.isTrue(applyResponse != null, ConfluxConstant.RPC_ADD_DELETE_NODE + " error");
+			Assert.isTrue(applyResponse != null, RPC_ADD_DELETE_NODE + " error");
 			status = MembershipEnum.Status.REQUEST_MEMBERSHIP_CHANGE_SUCCESS;
     	} catch(Exception e) {
+    		log.error("[seq={}][membership change]request change error:", seq, e);
     		return MembershipEnum.Status.REQUEST_MEMBERSHIP_CHANGE_FAILURE;
+    	} finally {
+			log.info("[seq={}][membership change]uri--->{}, txRequest--->{}, txResponse--->{}", seq, uri,
+					JSON.toJSONString(applyRequest), applyResponse);
     	}
 		
 		/**
@@ -102,16 +120,18 @@ public class JsonRpcService {
     	try {
 			byte[] rawJsonBytes = applyResponse.getBytes("UTF-8");
 			committeeNodeKeypairs.stream().forEach(item -> {
-				ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getKeypair().getPublicKey(), item.getKeypair().getPrivateKey(),
-						item.getKeypair().getAlgorithm());
+				ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(item.getKeypair().getPublicKey(),
+						item.getKeypair().getPrivateKey(), item.getKeypair().getAlgorithm());
 				String signature = ConfluxUtils.signMessage(rawJsonBytes, ecKeypair);
 				
 				ringSignatureMap.put(item.getKeypair(), signature);
 			});
 			status = MembershipEnum.Status.SIGNATURE_MEMBERSHIP_SUCCESS;
-			log.info("RpcBlockchainService ringSignatureMap--->{}", JSON.toJSONString(ringSignatureMap));
     	} catch(Exception e) {
+    		log.error("[seq={}][membership change]ring signature error:", seq, e);
     		return MembershipEnum.Status.SIGNATURE_MEMBERSHIP_FAILURE;
+    	} finally {
+			log.info("[seq={}][membership change]ringSignatureMap--->{}", seq, JSON.toJSONString(ringSignatureMap));
     	}
 
 		/**
@@ -123,6 +143,8 @@ public class JsonRpcService {
 		 * output:
 		 * ---string okay/fail
 		 */
+    	Request<String, StringResponse> confirmRequest = null;
+    	String confirmResponse = null;
     	try {
 			List<String> committeePublicKeys = Lists.newArrayList();
 			List<String> ringSignatures = Lists.newArrayList();
@@ -132,37 +154,77 @@ public class JsonRpcService {
 				committeePublicKeys.add("0x"+ StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0'));
 				ringSignatures.add(item.getValue().substring(2));
 			});
-			Request<String, StringResponse> confirmRequest = cfx.getCustomizedRequest(StringResponse.class,
-					ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM, applyResponse, committeePublicKeys, ringSignatures);
-			log.info("RpcBlockchainService uri--->{}, txRequest--->{}", uri, JSON.toJSONString(confirmRequest));
-			String confirmResponse = confirmRequest.sendAndGet();
+			confirmRequest = cfx.getCustomizedRequest(StringResponse.class,
+					RPC_ADD_DELETE_NODE_CONFIRM, applyResponse, committeePublicKeys, ringSignatures);
+			confirmResponse = confirmRequest.sendAndGet();
 			status = MembershipEnum.Status.CONFIRM_MEMBERSHIP_CHANGE_SUCCESS;
-			log.info("RpcBlockchainService uri--->{}, txRequest--->{}, txResponse--->{}", uri, JSON.toJSONString(confirmRequest), confirmResponse);
     	} catch(Exception e) {
+    		log.error("[seq={}][membership change]confirm change error:", seq, e);
     		return MembershipEnum.Status.CONFIRM_MEMBERSHIP_CHANGE_FAILURE;
+    	} finally {
+			log.info("[seq={}][membership change]uri--->{}, txRequest--->{}, txResponse--->{}", seq, uri,
+					JSON.toJSONString(confirmRequest), confirmResponse);
     	}
     	
     	/**
     	 * 5. delay query BFT epoch number
     	 */
     	try {
-    		BizTimer.DELAY_TIMER.newTimeout(new CheckMembershipChangeTimerTask(membershipChangeId), 60, TimeUnit.SECONDS);
+			BizTimer.DELAY_TIMER.newTimeout(new CheckMembershipChangeTimerTask(membershipChangeId), 60,
+					TimeUnit.SECONDS);
     		status = MembershipEnum.Status.LAUNCH_CHECK_THREAD_SUCCESS;
     	} catch(Exception e) {
+    		log.error("[seq={}][membership change]async check error:", seq, e);
     		return MembershipEnum.Status.LAUNCH_CHECK_THREAD_FAILURE;
+    	} finally {
+    		log.info("[seq={}][membership change]async check started!", seq);
     	}
 
     	return status;
 	}
     
 	public BigInteger getBftEpochNumber(String consId, String nodeId) {
-		Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, nodeId);
-		String uri = ConfluxUtils.toJsonRpcUri(heartbeat.getIp(), heartbeat.getPort());
-		Cfx cfx = Cfx.create(uri, 1, 1, TimeUnit.SECONDS);
-		Request<BigInteger, BigIntResponse> getBftEpochNumberRequest = cfx.getCustomizedRequest(BigIntResponse.class, ConfluxConstant.RPC_GET_BFT_EPOCH_NUMBER);
-		log.info("checkNodeClient uri--->{}, txRequest--->{}", uri, JSON.toJSONString(getBftEpochNumberRequest));
-		BigInteger getBftEpochNumberResponse = getBftEpochNumberRequest.sendAndGet();
-		log.info("checkNodeClient uri--->{}, txRequest--->{}, txResponse--->{}", uri, JSON.toJSONString(getBftEpochNumberRequest), getBftEpochNumberResponse);
+		String uri = null;
+		Request<BigInteger, BigIntResponse> getBftEpochNumberRequest = null;
+		BigInteger getBftEpochNumberResponse = null;
+		try {
+			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, nodeId);
+			uri = ConfluxUtils.toJsonRpcUri(heartbeat.getIp(), heartbeat.getPort());
+			Cfx cfx = Cfx.create(uri, 1, 1, TimeUnit.SECONDS);
+			getBftEpochNumberRequest = cfx.getCustomizedRequest(BigIntResponse.class, RPC_GET_BFT_EPOCH_NUMBER);
+			getBftEpochNumberResponse = getBftEpochNumberRequest.sendAndGet();
+		} catch(Exception e) {
+			log.error("[get bftEpochNumber]error:", e);
+			return BigInteger.valueOf(-1L);
+		} finally {
+			log.info("[get bftEpochNumber]uri--->{}, txRequest--->{}, txResponse--->{}", uri,
+					JSON.toJSONString(getBftEpochNumberRequest), getBftEpochNumberResponse);
+		}
 		return getBftEpochNumberResponse;
+	}
+	
+	public boolean updateCert(String consId, List<String> membershipNodeIds, String consCertPem, String grpcKeyPem,
+			String grpcCertPem) {
+		String uri = null;
+		Request<String, StringResponse> req = null;
+		String resp = null;
+		try {
+			String proposerNodeId = membershipNodeIds.stream()
+					.filter(item -> HeartbeatEnum.Status.GREEN == HeartbeatLinstener.getInstance().getNode(consId, item)
+							.getStatus())
+					.findFirst().orElseThrow(() -> new AlertException("alive.proposer.node.not.found"));
+			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, proposerNodeId);
+			uri = ConfluxUtils.toJsonRpcUri(heartbeat.getIp(), heartbeat.getPort());
+			Cfx cfx = Cfx.create(uri, 1, 1, TimeUnit.SECONDS);
+			req = cfx.getCustomizedRequest(StringResponse.class, RPC_UPDATE_CERT, consCertPem, grpcKeyPem, grpcCertPem);
+			resp = req.sendAndGet();
+		} catch(Exception e) {
+			log.error("[update credential]error:", e);
+			return Boolean.FALSE;
+		} finally {
+			log.info("[update credential]uri--->{}, txRequest--->{}, txResponse--->{}", uri,
+					JSON.toJSONString(req), resp);
+		}
+		return Boolean.TRUE;
 	}
 }

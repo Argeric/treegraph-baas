@@ -32,13 +32,14 @@ public class JsonRpcHeartbeatClientImpl implements HeartbeatClient{
 		
 		try {
 			uri = ConfluxUtils.toJsonRpcUri(heartbeat.getIp(), heartbeat.getPort());
-			Cfx cfx = Cfx.create(uri, ConfluxConstant.TIMEOUT_HEARTBEAT_CONNECT, ConfluxConstant.TIMEOUT_HEARTBEAT_READ, TimeUnit.SECONDS);
+			Cfx cfx = Cfx.create(uri, ConfluxConstant.TIMEOUT_CONNECT, ConfluxConstant.TIMEOUT_READ, TimeUnit.SECONDS);
 			statusRequest = cfx.getStatus();
 			statusResponse = statusRequest.sendAndGet();
 		} catch (Exception e) {
 			error = e.getMessage();
 		}
-		log.info("\n\theartbeat--->{}\n\tping--->{}\n\tpong--->{}", uri, JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse));
+		log.info("\n\theartbeat--->{}\n\tping--->{}\n\tpong--->{}\\n\\terror--->{}", uri,
+				JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse), error);
 		
 		String lastPongMd5 = heartbeat.getPong() != null ? MD5.encode(heartbeat.getPong()) : null;
 		String pong = JSON.toJSONString(statusResponse);

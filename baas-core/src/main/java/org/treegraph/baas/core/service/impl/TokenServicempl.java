@@ -106,7 +106,7 @@ public class TokenServicempl implements TokenService {
     	String userId = JwtUtils.getUid(paraMap);
     	String account = JwtUtils.getAccount(paraMap);
     	String name = JwtUtils.getName(paraMap);
-    	UserInfoPo user = userInfoDas.findById(userId).orElseThrow(() -> new AlertException("用户不存在["+userId+"]"));
+		UserInfoPo user = userInfoDas.findById(userId).orElseThrow(() -> new AlertException("用户不存在[" + userId + "]"));
     	Assert.isTrue(user.getAccount().equals(account), "用户账户不一致["+userId+"]");
     	Assert.isTrue(user.getName().equals(name), "用户姓名不一致["+userId+"]");
     	
@@ -116,7 +116,8 @@ public class TokenServicempl implements TokenService {
     	
     	// check token expire
     	int expireSecs = userToken.getExpire();
-    	long loginSecs = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")) - userToken.getCreateTime().toEpochSecond(ZoneOffset.of("+8"));
+		long loginSecs = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"))
+				- userToken.getCreateTime().toEpochSecond(ZoneOffset.of("+8"));
     	Assert.isTrue(loginSecs - expireSecs < 0, "token失效，请重新登陆!["+userId+"]");
     	
     	return user;
@@ -130,14 +131,17 @@ public class TokenServicempl implements TokenService {
     	Long inviteId = Long.parseLong(JwtUtils.getInviteId(paraMap));
     	String inviter = JwtUtils.getInviter(paraMap);
     	String accepter = JwtUtils.getAccepter(paraMap);
-    	UserInvitePo invite = inviteUserDas.findById(inviteId).orElseThrow(() -> new AlertException("邀请不存在["+inviteId+"]"));
+		UserInvitePo invite = inviteUserDas.findById(inviteId)
+				.orElseThrow(() -> new AlertException("邀请不存在[" + inviteId + "]"));
     	Assert.isTrue(invite.getInviter().equals(inviter), "邀请人不一致["+invite.getInviter()+"]");
     	Assert.isTrue(invite.getAccepter().equals(accepter), "被邀请人不一致["+invite.getAccepter()+"]");
-    	Assert.isTrue(inviter.equals(WebHelper.getUserId()), "被邀请人和登陆用户不一致["+invite.getInviter()+"]["+WebHelper.getUserId()+"]");
+		Assert.isTrue(inviter.equals(WebHelper.getUserId()),
+				"被邀请人和登陆用户不一致[" + invite.getInviter() + "][" + WebHelper.getUserId() + "]");
     	
     	// check token expire
     	int expireSecs = invite.getExpire();
-    	long loginSecs = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")) - invite.getCreateTime().toEpochSecond(ZoneOffset.of("+8"));
+		long loginSecs = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"))
+				- invite.getCreateTime().toEpochSecond(ZoneOffset.of("+8"));
     	Assert.isTrue(loginSecs - expireSecs < 0, "邀请失效，请重新让管理员发邀请!["+inviteId+"]");
     	
     	return invite;
@@ -174,7 +178,8 @@ public class TokenServicempl implements TokenService {
     	consPermMap.values().stream().forEach(item -> ownPerms.addAll(item));
     	String reqPerm = URI_PERMISSION_MAP.get(uri);
     	boolean permit = TAG_DATA_PERMISSION.equals(reqPerm) || ownPerms.contains(reqPerm);
-    	log.info("uri======>"+uri+"\npermit======>"+permit+"\nreqPerm======>"+reqPerm+"\nownPerms======>"+JSON.toJSONString(ownPerms));
+		log.info("uri======>" + uri + "\npermit======>" + permit + "\nreqPerm======>" + reqPerm + "\nownPerms======>"
+				+ JSON.toJSONString(ownPerms));
     	Assert.isTrue(permit, "没有此访问权限");
     }
     

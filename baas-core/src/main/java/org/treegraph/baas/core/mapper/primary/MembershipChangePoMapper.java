@@ -6,7 +6,9 @@ import java.util.Optional;
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.MembershipChangePo;
 import org.treegraph.baas.core.domain.MembershipChangePoExample;
+import org.treegraph.baas.core.persistence.GlobalLevel;
 
+@GlobalLevel
 public interface MembershipChangePoMapper {
     long countByExample(MembershipChangePoExample example);
 

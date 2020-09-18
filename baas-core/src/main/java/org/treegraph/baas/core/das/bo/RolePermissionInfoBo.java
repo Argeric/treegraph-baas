@@ -13,7 +13,6 @@ import lombok.Data;
 @Data
 @Builder
 public class RolePermissionInfoBo {
-	
 	private String roleId;
 	
 	private Integer roleType;

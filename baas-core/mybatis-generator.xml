@@ -21,11 +21,17 @@
 			<property name="suppressAllComments" value="true" />
 		</commentGenerator>
 
-
+	
+		<!-- 
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://127.0.0.1:3306/baas_tgc?tinyInt1isBit=false&amp;
+                        useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull"
+                        userId="root" password="12345678"/>  
+        -->                
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
                         connectionURL="jdbc:mysql://101.200.183.108:13306/baas_tgc?tinyInt1isBit=false&amp;
                         useUnicode=true&amp;characterEncoding=UTF-8&amp;zeroDateTimeBehavior=convertToNull"
-                        userId="root" password="conflux123"/>               
+                        userId="root" password="conflux123"/>                                                    
 		
         <!-- 处理TINYINT(1) 等 -->
         <!-- <javaTypeResolver type="com.yyfq.tsms.mybatis.generator.plugin.DefaultJavaTypeResolverDefault">
@@ -62,8 +68,6 @@
         </table>
         <table tableName="role" domainObjectName="RolePo" alias="role">
         </table>
-        <table tableName="user_info" domainObjectName="UserInfoPo" alias="userInfo">
-        </table>
         <table tableName="user_invite" domainObjectName="UserInvitePo" alias="userInvite">
         <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>   
@@ -84,9 +88,6 @@
         <table tableName="permission" domainObjectName="PermissionPo" alias="permission">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>        
-        <table tableName="user_login_token" domainObjectName="UserLoginTokenPo" alias="userLoginToken">
-        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table> 
         <table tableName="user_oper_log" domainObjectName="UserOperLogPo" alias="userOperLog">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>         
@@ -105,15 +106,23 @@
         <table tableName="node_customized_config" domainObjectName="NodeCustomizedConfigPo" alias="nodeCustomizedConfig">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>              
-        <table tableName="node" domainObjectName="NodePo" alias="node">
-        </table>
         <table tableName="membership" domainObjectName="MembershipPo" alias="membership">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>         
-        -->
         <table tableName="membership_change" domainObjectName="MembershipChangePo" alias="membershipChange">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table> 
+        <table tableName="user_info" domainObjectName="UserInfoPo" alias="userInfo">
+        </table>                 
+        <table tableName="user_login_token" domainObjectName="UserLoginTokenPo" alias="userLoginToken">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="node" domainObjectName="NodePo" alias="node">
+        </table>   
+        -->
+        <table tableName="certificate_defer" domainObjectName="CertificateDeferPo" alias="certificateDefer">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>                
     </context>
 
 </generatorConfiguration>

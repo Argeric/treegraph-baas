@@ -1,7 +1,6 @@
 package org.treegraph.baas.core.constant;
 
 public class ConfluxConstant {
-	
 	/**
 	 * rpc 
 	 */
@@ -12,6 +11,8 @@ public class ConfluxConstant {
     public static final String RPC_ADD_DELETE_NODE_CONFIRM = "cfx_constructAndSendNewConsortiumMembershipTrans";
     
     public static final String RPC_GET_BFT_EPOCH_NUMBER = "cfx_getBFTEpochNumber";
+    
+    public static final String RPC_UPDATE_CERT = "cfx_updateConsortiumAndGrpcCredential";
     
     /**
      * port
@@ -41,7 +42,7 @@ public class ConfluxConstant {
     /**
      * timeout
      */
-    public static final int TIMEOUT_HEARTBEAT_CONNECT = 1;
+    public static final int TIMEOUT_CONNECT = 1;
     
-    public static final int TIMEOUT_HEARTBEAT_READ = 1;
+    public static final int TIMEOUT_READ = 1;
 }

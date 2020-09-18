@@ -11,6 +11,7 @@ import org.treegraph.baas.api.dto.request.ListUserRequest;
 import org.treegraph.baas.api.dto.request.ModifyPwdRequest;
 import org.treegraph.baas.api.dto.request.ModifyUserRequest;
 import org.treegraph.baas.api.dto.request.QueryUserRequest;
+import org.treegraph.baas.api.dto.request.UnfrozenUserRequest;
 import org.treegraph.baas.api.dto.response.ListUserResponse;
 
 public interface UserService {
@@ -30,4 +31,6 @@ public interface UserService {
 	boolean modifyPwd(ModifyPwdRequest modifyPwdRequest);
 	
 	boolean modifyUser(ModifyUserRequest modifyUserRequest);
+	
+	boolean unfrozenUser(UnfrozenUserRequest unfrozenUserRequest);
 }

@@ -4,6 +4,9 @@ import static org.treegraph.baas.core.constant.ConfluxConstant.RPC_ADD_DELETE_NO
 import static org.treegraph.baas.core.constant.ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM;
 import static org.treegraph.baas.core.constant.ConfluxConstant.RPC_GET_BFT_EPOCH_NUMBER;
 import static org.treegraph.baas.core.constant.ConfluxConstant.RPC_UPDATE_CERT;
+import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -17,9 +20,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.core.component.BizTimer;
+import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
+import org.treegraph.baas.core.das.bo.NodeKeypairInfoBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
+import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.exception.AlertException;
@@ -47,6 +53,8 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Slf4j
 public class JsonRpcService {
+	
+    private KeypairDas keypairDas;
 	
 	public MembershipEnum.Status sendMembershipChangeTransactionPlus(long membershipChangeId,
 			List<NodeKeypairBo> committeeNodeKeypairs, List<NodeKeypairBo> validatorNodeKeypairs) throws IOException {
@@ -203,25 +211,20 @@ public class JsonRpcService {
 		return getBftEpochNumberResponse;
 	}
 	
-	public boolean updateCert(String consId, List<String> membershipNodeIds, String consCertPem, String grpcKeyPem,
-			String grpcCertPem) {
+	public boolean updateCert(String consId, String consCertPem, List<String> membershipNodeIds) {
 		String uri = null;
 		Request<String, StringResponse> req = null;
 		String resp = null;
 		try {
-			// for test start
-			Map<String, Heartbeat> nodes = HeartbeatLinstener.getInstance().getNodes(consId);
-			log.info("nodesHeartbeat--->{}", JSON.toJSONString(nodes));
-			// for test end
 			String proposerNodeId = membershipNodeIds.stream()
-					.filter(item -> {
-							HeartbeatEnum.Status status = HeartbeatLinstener.getInstance().getNode(consId, item).getStatus();
-							boolean result = HeartbeatEnum.Status.GREEN == status;
-							log.info("nodesHeartbeat green.heartbeat--->{}, node.heartbeat--->{}, result--->{}", HeartbeatEnum.Status.GREEN, status, result);
-							return result;
-							}
-					)
+					.filter(item -> HeartbeatEnum.Status.GREEN == HeartbeatLinstener.getInstance().getNode(consId, item)
+							.getStatus())
 					.findFirst().orElseThrow(() -> new AlertException("alive.proposer.node.not.found"));
+			NodeKeypairInfoBo proposerKeypair = keypairDas.findAll(consId, KeyType.NODE.getCode(), ALGO_NODE,
+					Lists.newArrayList(proposerNodeId)).get(0);
+			String grpcKeyPem = privateKeyToPem(privateKeyFromBase64(ALGO_NODE, proposerKeypair.getPrivateKey()));
+			String grpcCertPem = proposerKeypair.getCertStr();
+			
 			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, proposerNodeId);
 			uri = ConfluxUtils.toJsonRpcUri(heartbeat.getIp(), heartbeat.getPort());
 			Cfx cfx = Cfx.create(uri, 1, 1, TimeUnit.SECONDS);

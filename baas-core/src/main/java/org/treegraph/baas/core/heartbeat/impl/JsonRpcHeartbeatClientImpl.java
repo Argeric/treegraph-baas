@@ -38,8 +38,6 @@ public class JsonRpcHeartbeatClientImpl implements HeartbeatClient{
 		} catch (Exception e) {
 			error = e.getMessage();
 		}
-		log.info("\n\theartbeat--->{}\n\tping--->{}\n\tpong--->{}\\n\\terror--->{}", uri,
-				JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse), error);
 		
 		String lastPongMd5 = heartbeat.getPong() != null ? MD5.encode(heartbeat.getPong()) : null;
 		String pong = JSON.toJSONString(statusResponse);
@@ -54,6 +52,9 @@ public class JsonRpcHeartbeatClientImpl implements HeartbeatClient{
 				status = HeartbeatEnum.Status.YELLOW;
 			}
 		}
+		//log.info("\n\theartbeat--->{}\n\tping--->{}\n\tpong--->{}\\n\\terror--->{}", uri,
+		//		JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse), error);
+		log.info("{} heartbeat:{}", ConfluxUtils.toIpAtPort(heartbeat.getIp(), heartbeat.getPort()), status);
 		
 		return Heartbeat.builder().id(heartbeat.getId())
 				.ip(heartbeat.getIp())

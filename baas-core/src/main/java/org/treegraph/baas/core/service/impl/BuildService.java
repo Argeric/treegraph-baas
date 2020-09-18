@@ -399,7 +399,7 @@ public class BuildService {
 				.build();
 	}
 	
-	public KeypairPo buildKeypairPoFromDefer(CertificateDeferPo defer) {
+	public KeypairPo buildConsortiumKeypairPoFromDefer(CertificateDeferPo defer) {
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		return KeypairPo.builder()
@@ -409,7 +409,7 @@ public class BuildService {
 				.certStr(defer.getCertStr())
 				.algorithm(defer.getAlgorithm())
 				.consortiumId(defer.getConsortiumId())
-				.keyType(KeyType.NODE.getCode())
+				.keyType(KeyType.CONSORTIUM.getCode())
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
 				.createTime(now)
 				.createBy(operUser)

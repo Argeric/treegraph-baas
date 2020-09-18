@@ -80,6 +80,7 @@ public class TokenServicempl implements TokenService {
     	URI_PERMISSION_MAP.put("/cons/blockchain/create", PermissionPoint.CREATE_BLOCKCHAIN.getCode());
     	URI_PERMISSION_MAP.put("/cons/node/create", PermissionPoint.CREATE_NODE.getCode());
     	URI_PERMISSION_MAP.put("/cons/script/download", PermissionPoint.CREATE_BLOCKCHAIN.getCode());
+    	URI_PERMISSION_MAP.put("/cons/cert/defer", PermissionPoint.UPDATE_CONS.getCode());
     	// blockchain module
     	URI_PERMISSION_MAP.put("/blockchain/list", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
     	URI_PERMISSION_MAP.put("/blockchain/query", PermissionPoint.VIEW_BLOCKCHAIN.getCode());

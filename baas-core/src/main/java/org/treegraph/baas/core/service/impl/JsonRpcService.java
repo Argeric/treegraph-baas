@@ -217,14 +217,13 @@ public class JsonRpcService {
 		String resp = null;
 		try {
 			// for test start
-			Map<String, Heartbeat> nodes = HeartbeatLinstener.getInstance().getNodes(consId);
-			log.info("nodesHeartbeat--->{}", JSON.toJSONString(nodes));
+			// Map<String, Heartbeat> nodes = HeartbeatLinstener.getInstance().getNodes(consId);
+			// log.info("nodesHeartbeat--->{}", JSON.toJSONString(nodes));
 			// for test end
 			String proposerNodeId = membershipNodeIds.stream()
 					.filter(item -> {
-							HeartbeatEnum.Status status = HeartbeatLinstener.getInstance().getNode(consId, item).getStatus();
-							boolean result = HeartbeatEnum.Status.GREEN == status;
-							log.info("nodesHeartbeat green.heartbeat--->{}, node.heartbeat--->{}, result--->{}", HeartbeatEnum.Status.GREEN, status, result);
+							boolean result = HeartbeatLinstener.getInstance().getNode(consId, item).getStatus() == HeartbeatEnum.Status.GREEN;
+							log.info("nodesHeartbeat result--->{}", result);
 							return result;
 							}
 					)

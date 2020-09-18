@@ -642,7 +642,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		List<String> membershipNodeIds = existNodes.stream().filter(item -> buildService.isMembershipNode(item))
 				.map(NodePo::getId).collect(Collectors.toList());
 		String certStr = consKeypair.getCertStr();
-		boolean isSuccess = jsonRpcService.updateCert(consId, membershipNodeIds, certStr, null, null);
+		boolean isSuccess = jsonRpcService.updateCert(consId, membershipNodeIds, certStr, "", "");
 		
 		// response failure
 		CertificateDeferPo deferUpdate = buildService.buildCertificateDeferUpdate(defer.getId());

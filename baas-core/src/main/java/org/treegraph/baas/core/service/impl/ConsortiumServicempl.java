@@ -23,8 +23,10 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -100,6 +102,7 @@ import org.treegraph.baas.core.service.bo.UserInfoBo;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.DateTimeUtils;
 import org.treegraph.baas.core.util.LogSkip;
+import org.treegraph.baas.core.util.crypto.x509.CertUtil;
 import org.treegraph.baas.core.util.crypto.x509.EncryptUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.treegraph.baas.core.util.crypto.x509.SignUtil;
@@ -631,9 +634,18 @@ public class ConsortiumServicempl implements ConsortiumService {
 			throw new AlertException("processing.defer.exist");
 		}
 		
+		// get not after of last certificate
+		List<KeypairPo> consKeypairs = keypairDas.findAll(consId, KeyType.CONSORTIUM.getCode(), ALGO_CONS);
+		Date notAfter = new Date();
+		if(CollectionUtils.isNotEmpty(consKeypairs)) {
+			KeypairPo consKeypairDb = consKeypairs.get(0);
+			X509Certificate cert = CertUtil.certFromPem(consKeypairDb.getCertStr());
+			notAfter = cert.getNotAfter();
+		}
+		
 		// build defer request
 		KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair(ALGO_CONS);
-		KeypairPo consKeypair = vaultKeypairBuildService.geneConsKeyPair(consId, ALGO_CONS, rootKeypair);
+		KeypairPo consKeypair = vaultKeypairBuildService.geneConsKeyPair(consId, ALGO_CONS, rootKeypair, notAfter);
 		CertificateDeferPo defer = buildService.buildCertificateDefer(consKeypair);
 		certificateDeferDas.createCertificateDefer(defer);
 		
@@ -654,7 +666,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		// response success
 		deferUpdate.setStatus(DeferStatus.SUCCESS.getCode());
-		List<KeypairPo> consKeypairs = keypairDas.findAll(consId, KeyType.CONSORTIUM.getCode(), ALGO_CONS);
+		//List<KeypairPo> consKeypairs = keypairDas.findAll(consId, KeyType.CONSORTIUM.getCode(), ALGO_CONS);
 		List<Long> oldKeypairIds = consKeypairs.stream().map(KeypairPo::getId).collect(Collectors.toList());
 		KeypairPo newKeypair = buildService.buildConsortiumKeypairPoFromDefer(defer);
 		certificateDeferDas.modifyCertificateDefer(deferUpdate, oldKeypairIds, IntTypeEnum.TRUE.getValue(), newKeypair);

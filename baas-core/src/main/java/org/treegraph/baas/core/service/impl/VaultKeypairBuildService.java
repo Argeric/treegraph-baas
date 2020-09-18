@@ -9,6 +9,7 @@ import java.security.cert.CertificateEncodingException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,10 +115,10 @@ public class VaultKeypairBuildService {
 			return consortiumKeypairs.get(0);
 		}
 		
-		return geneConsKeyPair(consortiumId, algo, rootKeypair);
+		return geneConsKeyPair(consortiumId, algo, rootKeypair, new Date());
 	}
 	
-	public KeypairPo geneConsKeyPair(String consortiumId, String algo, KeypairPo rootKeypair)
+	public KeypairPo geneConsKeyPair(String consortiumId, String algo, KeypairPo rootKeypair, Date notBefore)
 			throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, Exception {
 		KeyPair consortiumKeyPair = KeyUtil.generateKeyPair(algo);
 		PKCS10CertificationRequest consortiumCsr = CertUtil.generateCSR(

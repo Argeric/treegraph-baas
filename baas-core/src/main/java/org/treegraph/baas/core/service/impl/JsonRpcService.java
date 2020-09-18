@@ -216,9 +216,18 @@ public class JsonRpcService {
 		Request<String, StringResponse> req = null;
 		String resp = null;
 		try {
+			// for test start
+			Map<String, Heartbeat> nodes = HeartbeatLinstener.getInstance().getNodes(consId);
+			log.info("nodesHeartbeat--->{}", JSON.toJSONString(nodes));
+			// for test end
 			String proposerNodeId = membershipNodeIds.stream()
-					.filter(item -> HeartbeatEnum.Status.GREEN == HeartbeatLinstener.getInstance().getNode(consId, item)
-							.getStatus())
+					.filter(item -> {
+							HeartbeatEnum.Status status = HeartbeatLinstener.getInstance().getNode(consId, item).getStatus();
+							boolean result = HeartbeatEnum.Status.GREEN == status;
+							log.info("nodesHeartbeat green.heartbeat--->{}, node.heartbeat--->{}, result--->{}", HeartbeatEnum.Status.GREEN, status, result);
+							return result;
+							}
+					)
 					.findFirst().orElseThrow(() -> new AlertException("alive.proposer.node.not.found"));
 			NodeKeypairInfoBo proposerKeypair = keypairDas.findAll(consId, KeyType.NODE.getCode(), ALGO_NODE,
 					Lists.newArrayList(proposerNodeId)).get(0);

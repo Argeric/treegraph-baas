@@ -54,7 +54,7 @@ public class JsonRpcHeartbeatClientImpl implements HeartbeatClient{
 		}
 		//log.info("\n\theartbeat--->{}\n\tping--->{}\n\tpong--->{}\\n\\terror--->{}", uri,
 		//		JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse), error);
-		log.info("{} heartbeat:{}", ConfluxUtils.toIpAtPort(heartbeat.getIp(), heartbeat.getPort()), status);
+		log.info("{} heartbeat:{}", ConfluxUtils.toIpAtPortForLog(heartbeat.getIp(), heartbeat.getPort()), status);
 		
 		return Heartbeat.builder().id(heartbeat.getId())
 				.ip(heartbeat.getIp())

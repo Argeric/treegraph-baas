@@ -1,4 +1,5 @@
 package org.treegraph.baas.core.util;
+import org.apache.commons.lang3.StringUtils;
 import org.treegraph.baas.core.constant.CharacterConstant;
 import org.treegraph.baas.core.enums.CryptoEnum;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
@@ -29,6 +30,11 @@ public class ConfluxUtils {
 	
 	public static String toIpAtPort(String nodeIp, Integer jsonRpcHttpPort) {
 		return nodeIp + CharacterConstant.AT + jsonRpcHttpPort;
+	}
+	
+	public static String toIpAtPortForLog(String nodeIp, Integer jsonRpcHttpPort) {
+		String uri = nodeIp + CharacterConstant.AT + jsonRpcHttpPort;
+		return StringUtils.rightPad(uri, 21, " ");
 	}
 	
 	public static String signMessage(byte[] message, ECKeyPair ecKeyPair) {

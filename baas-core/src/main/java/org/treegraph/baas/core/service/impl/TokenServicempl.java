@@ -60,6 +60,7 @@ public class TokenServicempl implements TokenService {
     	URI_PERMISSION_MAP.put("/user/create", PermissionPoint.CREATE_CONS_USER.getCode());
     	URI_PERMISSION_MAP.put("/user/modify", PermissionPoint.UPDATE_CONS_USER.getCode());
     	URI_PERMISSION_MAP.put("/user/invite", PermissionPoint.CREATE_CONS_USER.getCode());
+    	URI_PERMISSION_MAP.put("/user/unfrozen", PermissionPoint.CREATE_CONS_USER.getCode());
     	URI_PERMISSION_MAP.put("/user/invite/accept", null);
     	URI_PERMISSION_MAP.put("/user/pwd/modify", null);
     	URI_PERMISSION_MAP.put("/user/del", PermissionPoint.UPDATE_CONS_USER.getCode());

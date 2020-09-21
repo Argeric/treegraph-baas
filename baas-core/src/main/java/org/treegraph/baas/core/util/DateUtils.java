@@ -633,11 +633,4 @@ public final class DateUtils {
 		final LocalDate end = dateToLocaleDate(endDate);
 		return (int) (end.toEpochDay() - start.toEpochDay());
 	}
-
-	public static void main(String[] args) throws InterruptedException, ParseException {
-		Date d = getDate("2019-06-23 16:57:28", SYSTEM_TIMESTAMP_FORMAT);
-		Date d2 = new Date();
-		System.out.println(betweenDays(d2, d));
-	}
-
 }

@@ -636,7 +636,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		// get not after of last certificate
 		List<KeypairPo> consKeypairs = keypairDas.findAll(consId, KeyType.CONSORTIUM.getCode(), ALGO_CONS);
-		Date notAfter = new Date();
+		Date notAfter = null;
 		if(CollectionUtils.isNotEmpty(consKeypairs)) {
 			KeypairPo consKeypairDb = consKeypairs.get(0);
 			X509Certificate cert = CertUtil.certFromPem(consKeypairDb.getCertStr());

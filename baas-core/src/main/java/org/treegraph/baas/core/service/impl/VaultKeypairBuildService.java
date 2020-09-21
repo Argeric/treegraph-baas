@@ -8,6 +8,7 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.CryptoEnum;
 import org.treegraph.baas.core.exception.AlertException;
+import org.treegraph.baas.core.util.DateUtils;
 import org.treegraph.baas.core.util.crypto.x509.CertUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 
@@ -115,10 +117,10 @@ public class VaultKeypairBuildService {
 			return consortiumKeypairs.get(0);
 		}
 		
-		return geneConsKeyPair(consortiumId, algo, rootKeypair, new Date());
+		return geneConsKeyPair(consortiumId, algo, rootKeypair, null);
 	}
 	
-	public KeypairPo geneConsKeyPair(String consortiumId, String algo, KeypairPo rootKeypair, Date notBefore)
+	public KeypairPo geneConsKeyPair(String consortiumId, String algo, KeypairPo rootKeypair, Date lastCertExpireDate)
 			throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, Exception {
 		KeyPair consortiumKeyPair = KeyUtil.generateKeyPair(algo);
 		PKCS10CertificationRequest consortiumCsr = CertUtil.generateCSR(
@@ -132,7 +134,7 @@ public class VaultKeypairBuildService {
 		if(X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.BC) {
 			consortiumCertStr = signCertificateRequestByBC(algo, rootKeypair, consortiumCsr, true);
 		} else if(X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.VAULT) {
-			consortiumCertStr = signCertificateRequestByVault(consortiumCsr);
+			consortiumCertStr = signCertificateRequestByVault(consortiumCsr, lastCertExpireDate);
 		} else {
 			throw new RuntimeException("not support sign certificate request");
 		}
@@ -266,9 +268,15 @@ public class VaultKeypairBuildService {
 		return CertUtil.certToPem(consortiumCert);
 	}
 
-	private String signCertificateRequestByVault(PKCS10CertificationRequest consortiumCsr) throws Exception {
+	private String signCertificateRequestByVault(PKCS10CertificationRequest consortiumCsr, Date lastCertExpireDate) throws Exception {
+		int lastCertLeftDays = 0;
+		if(lastCertExpireDate != null) {
+			lastCertLeftDays = DateUtils.betweenDays(Calendar.getInstance().getTime(), lastCertExpireDate);
+			lastCertLeftDays = lastCertLeftDays > 0 ? lastCertLeftDays : 0;
+		}
+		
 		VaultCertificateRequest request = VaultCertificateRequest.builder()
-				.ttl(Duration.ofDays(X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DYAS))
+				.ttl(Duration.ofDays(lastCertLeftDays + X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DYAS))
 				.commonName(X509CertConstant.COMMON_NAME_CONSORTIUM_CERT).build();
 		VaultSignCertificateRequestResponse certificateResponse = vaultOperations
 				.opsForPki(X509CertConstant.VAULT_PKI_PATH).signCertificateRequest(

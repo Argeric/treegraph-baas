@@ -33,11 +33,15 @@ import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.LogService;
 import org.treegraph.baas.core.service.LoginService;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Validated
 @Service
+@Slf4j
 public class LoginServicempl implements LoginService {
 
 	@Autowired
@@ -70,13 +74,18 @@ public class LoginServicempl implements LoginService {
         
         boolean isSysAdmin = isSysAdmin(user.getId());
         if(isSysAdmin) {
-        	Assert.isTrue(passwordService.matches(password, user.getPassword()), "密码错误");
+        	boolean flag = passwordService.matches(password, user.getPassword());
+        	log.info("user:{},passwordService.matches:{}", user.getId(), flag);
+        	Assert.isTrue(flag, "密码错误");
         } else {
 	        UserInfoPo userUpdate = validateTryTimes(password, user);
+	        log.info("user:{},userUpdate:{}", user.getId(), JSON.toJSONString(userUpdate));
 			Assert.isTrue(userUpdate.getTryTimes() > 0 && userUpdate.getTryTimes() < UserConstant.LOGIN_MAX_TRY_TIMES,
 					"密码错误,共" + UserConstant.LOGIN_MAX_TRY_TIMES + "次尝试机会，还剩"
 							+ (UserConstant.LOGIN_MAX_TRY_TIMES - userUpdate.getTryTimes()) + "次尝试");
+			log.info("user:{},userUpdate1:{}", user.getId(), JSON.toJSONString(userUpdate));
 			Assert.isTrue(UserEnum.Status.isAvailable(userUpdate.getStatus()), "该用户已冻结，请联系管理员解冻");
+			log.info("user:{},userUpdate2:{}", user.getId(), JSON.toJSONString(userUpdate));
         }
         
         boolean needChangePwd = password.equals(defaultPassword);
@@ -86,10 +95,13 @@ public class LoginServicempl implements LoginService {
     }
 
 	private UserInfoPo validateTryTimes(String password, UserInfoPo user) {
-		boolean isPassCorrect = passwordService.matches(password, user.getPassword());
-        int tryTimes = isPassCorrect ? 0 : user.getTryTimes() + 1;
+		boolean isMatch = passwordService.matches(password, user.getPassword());
+		log.info("user:{},isMatch:{}", user.getId(), JSON.toJSONString(isMatch));
+        int tryTimes = isMatch ? 0 : user.getTryTimes() + 1;
         int status = tryTimes >= UserConstant.LOGIN_MAX_TRY_TIMES ? UserEnum.Status.FROZEN.getCode() : user.getStatus();
+        log.info("user:{},tryTimes:{},status:{}", user.getId(), tryTimes, status);
         UserInfoPo userUpdate = UserInfoPo.builder().id(user.getId()).tryTimes(tryTimes).status(status).build();
+        log.info("user:{},userUpdate:{}", user.getId(), JSON.toJSONString(userUpdate));
         userInfoDas.updateUser(userUpdate);
 		return userUpdate;
 	}

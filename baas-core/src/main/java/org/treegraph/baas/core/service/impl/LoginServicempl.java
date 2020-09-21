@@ -80,11 +80,11 @@ public class LoginServicempl implements LoginService {
         } else {
 	        UserInfoPo userUpdate = validateTryTimes(password, user);
 	        log.info("user:{},userUpdate:{}", user.getId(), JSON.toJSONString(userUpdate));
+	        Assert.isTrue(UserEnum.Status.isAvailable(userUpdate.getStatus()), "该用户已冻结，请联系管理员解冻");
+	        log.info("user:{},userUpdate1:{}", user.getId(), JSON.toJSONString(userUpdate));
 			Assert.isTrue(userUpdate.getTryTimes() == 0,
 					"密码错误,共" + UserConstant.LOGIN_MAX_TRY_TIMES + "次尝试机会，还剩"
 							+ (UserConstant.LOGIN_MAX_TRY_TIMES - userUpdate.getTryTimes()) + "次尝试");
-			log.info("user:{},userUpdate1:{}", user.getId(), JSON.toJSONString(userUpdate));
-			Assert.isTrue(UserEnum.Status.isAvailable(userUpdate.getStatus()), "该用户已冻结，请联系管理员解冻");
 			log.info("user:{},userUpdate2:{}", user.getId(), JSON.toJSONString(userUpdate));
         }
         

@@ -214,7 +214,7 @@ public class UserServicempl implements UserService {
 	public ListUserResponse listUser(ListUserRequest req){
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
 		List<UserInfoPo> userList = userInfoDas.findAll(req.getAccount(), req.getName(), req.getEmail(),
-				req.getPhone());
+				req.getPhone(), req.getStatus());
 		PageInfo<UserInfoPo> pageInfo = new PageInfo<>(userList);
 		
 		List<UserInfoPo> list = pageInfo.getList();

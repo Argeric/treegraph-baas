@@ -88,7 +88,7 @@ public class UserInfoDasImpl implements UserInfoDas{
         return userInfoPoMapper.selectByExample(example);
     }
     
-    public List<UserInfoPo> findAll(String account, String name, String email, String phone) {
+    public List<UserInfoPo> findAll(String account, String name, String email, String phone, Integer status) {
 		if (!PermHelper.getSysAdminFlag()) {
 			return userInfoPoMapper.selectUserList(account, name, email, phone,
 					Lists.newArrayList(PermHelper.getConsIdSet()), WebHelper.getUserId());
@@ -107,6 +107,9 @@ public class UserInfoDasImpl implements UserInfoDas{
     	}
     	if(StringUtils.isNotBlank(phone)) {
     		criteria.andPhoneEqualTo(phone);
+    	}
+    	if(status != null) {
+    		criteria.andStatusEqualTo(status);
     	}
     	criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
     	example.setOrderByClause("create_time desc");

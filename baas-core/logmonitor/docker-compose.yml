@@ -1,0 +1,48 @@
+version: '3'
+services:
+
+  web:
+    restart: always
+    image: quay.io/blacklabelops/logio:latest
+    container_name: baas_log_web
+    environment:
+      - LOGIO_ADMIN_USER=
+      - LOGIO_ADMIN_PASSWORD=
+      - LOGIO_CERTIFICATE_DNAME=
+    ports:
+      - ${HOST_WEB_PORT}:28778
+    volumes:
+      - "/opt/service"
+    networks:
+      - baas_log_net
+  
+  harvester:
+    restart: always      
+    image: quay.io/blacklabelops/logio:latest
+    container_name: baas_log_harvester
+    environment:
+      - LOGIO_HARVESTER_MASTER_HOST=baas_log_web
+      - LOGIO_HARVESTER_MASTER_PORT=28777
+      - DELAYED_START=10
+      - LOGIO_HARVESTER_NODENAME=node
+      - LOGIO_HARVESTER_STREAMNAME=stream
+      - LOGIO_HARVESTER_LOGFILES=
+      - LOGS_DIRECTORIES=/logio/log_dir
+      - LOG_FILE_PATTERN=conflux*.log
+    volumes:
+      - ${HOST_LOG_PATH}:/logio/log_dir
+    networks:
+      - baas_log_net
+    depends_on:
+      - web
+    links:
+      - web
+    user: root
+    command: harvester
+
+networks:
+  baas_log_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${CONTAINER_NETWORK}

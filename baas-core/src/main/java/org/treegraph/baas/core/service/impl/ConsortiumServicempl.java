@@ -18,6 +18,7 @@ import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
 import static org.treegraph.baas.core.util.DateTimeUtils.FORMAT_yyyyMMddHHmmss;
 import static org.treegraph.baas.core.util.ConfluxUtils.toIpAtPort;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
@@ -101,6 +102,7 @@ import org.treegraph.baas.core.service.bo.RoleInfoBo;
 import org.treegraph.baas.core.service.bo.UserInfoBo;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.DateTimeUtils;
+import org.treegraph.baas.core.util.FileUtils;
 import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.crypto.x509.CertUtil;
 import org.treegraph.baas.core.util.crypto.x509.EncryptUtil;
@@ -450,6 +452,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			zipOutputStream.putNextEntry(new ZipEntry(item.getKey() + FILE_SEP + "customized_config.toml"));
 			zipOutputStream.write(item.getValue().get(1).getBytes());
 			zipOutputStream.closeEntry();
+			buildLogMonitorScripts(item.getKey(), zipOutputStream);
 		}
 		zipOutputStream.close();
 		log.info("write deploy script finished[{}]", consortiumId);
@@ -458,6 +461,26 @@ public class ConsortiumServicempl implements ConsortiumService {
 		ConsortiumPo cons = buildService.buildToUpdateCons(consortiumId, EstablishStep.DOWNLOADED_SCRIPTS);
 		consortiumDas.modifyCons(cons);
 		log.info("update consortium status finished[{}]", consortiumId);
+	}
+
+	private void buildLogMonitorScripts(String nodeKey, ZipOutputStream zipOutputStream)
+			throws IOException {
+		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/docker-compose.yml"));
+		String dockerCompose = FileUtils.readFile("./logmonitor/docker-compose.yml");
+		zipOutputStream.write(dockerCompose.getBytes());
+		zipOutputStream.closeEntry();
+		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/start_log_monitor.sh"));
+		String startLogMonitor = FileUtils.readFile("./logmonitor/start_log_monitor.sh");
+		zipOutputStream.write(startLogMonitor.getBytes());
+		zipOutputStream.closeEntry();
+		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/stop_log_monitor.sh"));
+		String stopLogMonitor = FileUtils.readFile("./logmonitor/stop_log_monitor.sh");
+		zipOutputStream.write(stopLogMonitor.getBytes());
+		zipOutputStream.closeEntry();
+		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/.env"));
+		String env = FileUtils.readFile("./logmonitor/start_log_monitor.sh");
+		zipOutputStream.write(env.getBytes());
+		zipOutputStream.closeEntry();
 	}
 	
 	private void checkExistNode(NodePo node) {

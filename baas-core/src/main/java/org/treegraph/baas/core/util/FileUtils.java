@@ -1,8 +1,11 @@
 package org.treegraph.baas.core.util;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -48,4 +51,17 @@ public class FileUtils {
 			throw new RuntimeException("unzip file error!", e);
 		}
 	}
+	
+	public static String readFile(String path) {
+		StringBuffer str = new StringBuffer();
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"))) {
+			String line = null;
+			while ((line = in.readLine()) != null) {
+				str.append(line).append(System.getProperty("line.separator"));
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("read file error!", e);
+		}
+		return str.toString();
+    }
 }

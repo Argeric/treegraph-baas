@@ -467,7 +467,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 	private void buildLogMonitorScripts(String nodeKey, ZipOutputStream zipOutputStream)
 			throws IOException {
 		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/docker-compose.yml"));
-		String dockerCompose = FileUtils.readFile(ResourceUtils.getFile("classpath:logmonitor/docker-compose.yml"));
+		String dockerCompose = FileUtils.readFile(ResourceUtils.getFile("classpath:docker-compose.yml"));
 		zipOutputStream.write(dockerCompose.getBytes());
 		zipOutputStream.closeEntry();
 		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/start_log_monitor.sh"));

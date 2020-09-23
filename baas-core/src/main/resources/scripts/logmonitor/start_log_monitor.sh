@@ -24,6 +24,7 @@ while getopts "p:P:n:" opt; do
   esac
 done
 
+touch .env
 cat > .env <<_EOF_
 HOST_LOG_PATH=$HOST_LOG_PATH
 HOST_WEB_PORT=$HOST_WEB_PORT

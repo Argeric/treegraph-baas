@@ -471,7 +471,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		for (String file : files) {
 			zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor" + FILE_SEP + file));
 			ClassPathResource resource = new ClassPathResource("scripts/logmonitor/" + file);
-			String content = FileUtils.readFile(resource.getFile());
+			String content = FileUtils.readFile(resource.getInputStream());
 			zipOutputStream.write(content.getBytes());
 			zipOutputStream.closeEntry();
 		}

@@ -2,8 +2,6 @@ package org.treegraph.baas.core.util;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -11,7 +9,6 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.springframework.util.ResourceUtils;
 import org.treegraph.baas.core.constant.SplitterConstant;
 
 public class FileUtils {
@@ -54,9 +51,9 @@ public class FileUtils {
 		}
 	}
 	
-	public static String readFile(File file) {
+	public static String readFile(InputStream ins) {
 		StringBuffer str = new StringBuffer();
-		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(ins, "UTF-8"))) {
 			String line = null;
 			while ((line = in.readLine()) != null) {
 				str.append(line).append(System.getProperty("line.separator"));
@@ -66,9 +63,4 @@ public class FileUtils {
 		}
 		return str.toString();
     }
-	
-	public static void main(String[] args) throws FileNotFoundException {
-		String dockerCompose = FileUtils.readFile(ResourceUtils.getFile("classpath:scripts/logmonitor/docker-compose.yml"));
-		System.out.println(dockerCompose);
-	}
 }

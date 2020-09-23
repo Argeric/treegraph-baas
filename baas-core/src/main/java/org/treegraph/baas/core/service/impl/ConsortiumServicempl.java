@@ -47,6 +47,7 @@ import org.bouncycastle.util.encoders.Base64;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.ResourceUtils;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.ConsAdminInfo;
 import org.treegraph.baas.api.dto.ConsDetailInfo;
@@ -469,19 +470,19 @@ public class ConsortiumServicempl implements ConsortiumService {
 	private void buildLogMonitorScripts(String nodeKey, ZipOutputStream zipOutputStream)
 			throws IOException {
 		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/docker-compose.yml"));
-		String dockerCompose = FileUtils.readFile(resourceLoader.getResource("classpath:scripts/logmonitor/docker-compose.yml").getFile());
+		String dockerCompose = FileUtils.readFile(ResourceUtils.getFile("classpath:/scripts/logmonitor/docker-compose.yml"));
 		zipOutputStream.write(dockerCompose.getBytes());
 		zipOutputStream.closeEntry();
 		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/start_log_monitor.sh"));
-		String startLogMonitor = FileUtils.readFile(resourceLoader.getResource("classpath:scripts/logmonitor/start_log_monitor.sh").getFile());
+		String startLogMonitor = FileUtils.readFile(ResourceUtils.getFile("classpath:/scripts/logmonitor/start_log_monitor.sh"));
 		zipOutputStream.write(startLogMonitor.getBytes());
 		zipOutputStream.closeEntry();
 		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/stop_log_monitor.sh"));
-		String stopLogMonitor = FileUtils.readFile(resourceLoader.getResource("classpath:scripts/logmonitor/stop_log_monitor.sh").getFile());
+		String stopLogMonitor = FileUtils.readFile(ResourceUtils.getFile("classpath:/scripts/logmonitor/stop_log_monitor.sh"));
 		zipOutputStream.write(stopLogMonitor.getBytes());
 		zipOutputStream.closeEntry();
 		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/.env"));
-		String env = FileUtils.readFile(resourceLoader.getResource("classpath:scripts/logmonitor/.env").getFile());
+		String env = FileUtils.readFile(ResourceUtils.getFile("classpath:/scripts/logmonitor/.env"));
 		zipOutputStream.write(env.getBytes());
 		zipOutputStream.closeEntry();
 	}

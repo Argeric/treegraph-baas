@@ -3,14 +3,22 @@ package org.treegraph.baas.core.service.impl;
 import static org.treegraph.baas.core.constant.CharacterConstant.AT;
 import static org.treegraph.baas.core.constant.CharacterConstant.COLON;
 import static org.treegraph.baas.core.constant.CharacterConstant.COMMA;
-import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSON_RPC_HTTP_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSON_RPC_LOCAL_HTTP_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT_STEP_FACTOR;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSON_RPC_LOCAL_HTTP_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_JSON_RPC_HTTP_PORT_STEP;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_JSON_RPC_LOCAL_HTTP_PORT_INTERVAL;
+import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSON_RPC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSON_RPC_LOCAL_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSON_RPC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSON_RPC_PORT_STEP_FACTOR;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSON_RPC_LOC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT_STEP_FACTOR;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_CONTAINER_NETWORK_STEP_FACTOR;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_CONTAINER_NETWORK;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_LOG_MONITOR_WEB_PORT_STEP;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_JSON_RPC_PORT_STEP;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_LOG_MONITOR_CONTAINER_NETWORK_STEP;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_JSON_RPC_LOCAL_PORT_INTERVAL;
 import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_SWITCH;
+import static org.treegraph.baas.core.constant.MonitorConstant.DEFAULT_HOST_WEB_PORT;
+import static org.treegraph.baas.core.constant.MonitorConstant.DEFAULT_CONTAINER_NETWORK;
 import static org.treegraph.baas.core.constant.SplitterConstant.FILE_SEP;
 import static org.treegraph.baas.core.constant.SplitterConstant.LINE_SEP;
 import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
@@ -396,15 +404,15 @@ public class ConsortiumServicempl implements ConsortiumService {
 		if(establishStep < EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
 			ConsortiumPo cons = buildService.buildToUpdateCons(consId, EstablishStep.TO_DEPLOY);
 			addNodeResult = nodeDas.addNodes(toInsertDbNodes/* exclude exist nodes */, cons,
-					config.getStepFactorCustomizedConfig(), config.getCustomizedConfigList());
+					config.getStepFactorConfigList(), config.getConfigList());
 		}
 		
 		// after download deploy scripts, need check chain is launched already
 		if(establishStep == EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
 			MembershipChangeBo changeBo = buildService.preMembershipChange(consId, blockchainId,
 					existNodes, toAddNodes, null, finalStateNodeMap/*exclude exist final state nodes*/);
-			nodeDas.addNodeKeypairs(changeBo.getToInsertDbNodeKeypairs(), config.getStepFactorCustomizedConfig(),
-					config.getCustomizedConfigList(), changeBo.getMembershipChange(), changeBo.getNodeMemberships());
+			nodeDas.addNodeKeypairs(changeBo.getToInsertDbNodeKeypairs(), config.getStepFactorConfigList(),
+					config.getConfigList(), changeBo.getMembershipChange(), changeBo.getNodeMemberships());
 			
 			MembershipEnum.Status membershipChangeStatus = jsonRpcService.sendMembershipChangeTransactionPlus(
 					changeBo.getMembershipChange().getId(), changeBo.getCommitteeNodeKeypairs(),
@@ -603,18 +611,18 @@ public class ConsortiumServicempl implements ConsortiumService {
 		List<NodeCustomizedConfigPo> customizedConfigs = nodeCustomizedConfigDas.findAll(Lists.newArrayList(node));
 		if(CollectionUtils.isNotEmpty(customizedConfigs)) {
 			for(NodeCustomizedConfigPo config:customizedConfigs) {
-				if(PROPERTY_JSON_RPC_HTTP_PORT.equalsIgnoreCase(config.getPropertyName())) {
+				if(PROPERTY_JSON_RPC_PORT.equalsIgnoreCase(config.getPropertyName())) {
 					jsonRpcHttpPort = config.getPropertyValue();
 				}
-				if(PROPERTY_JSON_RPC_LOCAL_HTTP_PORT.equalsIgnoreCase(config.getPropertyName())) {
+				if(PROPERTY_JSON_RPC_LOC_PORT.equalsIgnoreCase(config.getPropertyName())) {
 					jsonRpcLocalHttpPort = config.getPropertyValue();
 				}
 			}
 		}
 		StringBuffer customizedScriptContent = new StringBuffer();
-		customizedScriptContent.append(PROPERTY_JSON_RPC_HTTP_PORT + " = " + jsonRpcHttpPort)
+		customizedScriptContent.append(PROPERTY_JSON_RPC_PORT + " = " + jsonRpcHttpPort)
 				.append(LINE_SEP).append(LINE_SEP);
-		customizedScriptContent.append(PROPERTY_JSON_RPC_LOCAL_HTTP_PORT + " = " + jsonRpcLocalHttpPort)
+		customizedScriptContent.append(PROPERTY_JSON_RPC_LOC_PORT + " = " + jsonRpcLocalHttpPort)
 				.append(LINE_SEP).append(LINE_SEP);
 		customizedScriptContent.append("mining_author = \"" + ConfluxUtils.toAddress(ecKeypair) + "\"")
 				.append(LINE_SEP).append(LINE_SEP);
@@ -626,30 +634,66 @@ public class ConsortiumServicempl implements ConsortiumService {
 	}
 	
 	private CustomizedConfigBo buildCustomizedConfig(String consortiumId, List<NodePo> nodes) {
-		String stepFactorPropertyValue = nodeCustomizedConfigDas.findPropertyValueByName(consortiumId, null,
-				PROPERTY_JSON_RPC_HTTP_PORT_STEP_FACTOR);
-		int stepFactor = stepFactorPropertyValue != null ? Integer.parseInt(stepFactorPropertyValue) : 0;
+		String jsonRpcPortStepFactorDb = nodeCustomizedConfigDas.findPropertyValueByName(consortiumId, null,
+				PROPERTY_JSON_RPC_PORT_STEP_FACTOR);
+		int stepFactor = jsonRpcPortStepFactorDb != null ? Integer.parseInt(jsonRpcPortStepFactorDb) : 0;
 		
-		List<NodeCustomizedConfigPo> customizedConfigList = Lists.newArrayList();
+		List<NodeCustomizedConfigPo> configList = Lists.newArrayList();
 		for(NodePo node:nodes){
 			int jsonRpcHttpPort = TEST_SWITCH
-					? DEFAULT_JSON_RPC_HTTP_PORT + (stepFactor++) * TEST_JSON_RPC_HTTP_PORT_STEP
-					: DEFAULT_JSON_RPC_HTTP_PORT;
-			int jsonRpcLocalHttpPort = TEST_SWITCH
-					? jsonRpcHttpPort + TEST_JSON_RPC_LOCAL_HTTP_PORT_INTERVAL
-					: DEFAULT_JSON_RPC_LOCAL_HTTP_PORT;
-			customizedConfigList.add(buildService.buildNodeCustomizedConfig(node,
-					PROPERTY_JSON_RPC_HTTP_PORT, jsonRpcHttpPort + ""));
-			customizedConfigList.add(buildService.buildNodeCustomizedConfig(node,
-					PROPERTY_JSON_RPC_LOCAL_HTTP_PORT, jsonRpcLocalHttpPort + ""));
+					? DEFAULT_JSON_RPC_PORT + (stepFactor++) * TEST_JSON_RPC_PORT_STEP
+					: DEFAULT_JSON_RPC_PORT;
+			int jsonRpcLocHttpPort = TEST_SWITCH
+					? jsonRpcHttpPort + TEST_JSON_RPC_LOCAL_PORT_INTERVAL
+					: DEFAULT_JSON_RPC_LOCAL_PORT;
+			configList.add(buildService.buildNodeConfig(node, PROPERTY_JSON_RPC_PORT, jsonRpcHttpPort + ""));
+			configList.add(buildService.buildNodeConfig(node, PROPERTY_JSON_RPC_LOC_PORT, jsonRpcLocHttpPort + ""));
 		}
 		
-		NodeCustomizedConfigPo stepFactorCustomizedConfig = buildService.buildNodeCustomizedConfig(
+		NodeCustomizedConfigPo jsonRpcStepFactorConfig = buildService.buildNodeConfig(
 				NodePo.builder().id(IntTypeEnum.FALSE.getValue() + "").consortiumId(consortiumId).build(),
-				PROPERTY_JSON_RPC_HTTP_PORT_STEP_FACTOR, stepFactor + "");
+				PROPERTY_JSON_RPC_PORT_STEP_FACTOR, stepFactor + "");
+		List<NodeCustomizedConfigPo> stepFactorConfigList = Lists.newArrayList(jsonRpcStepFactorConfig);
 		
-		return CustomizedConfigBo.builder().customizedConfigList(customizedConfigList)
-				.stepFactorCustomizedConfig(stepFactorCustomizedConfig).build();
+		CustomizedConfigBo logMonitorConfig = buildCustomizedConfigLogMonitor(consortiumId, nodes);
+		configList.addAll(logMonitorConfig.getConfigList());
+		stepFactorConfigList.addAll(logMonitorConfig.getStepFactorConfigList());
+		
+		return CustomizedConfigBo.builder().configList(configList).stepFactorConfigList(stepFactorConfigList).build();
+	}
+	
+	private CustomizedConfigBo buildCustomizedConfigLogMonitor(String consortiumId, List<NodePo> nodes) {
+		String webPortStepFactorDb = nodeCustomizedConfigDas.findPropertyValueByName(consortiumId, null,
+				PROPERTY_LOG_MONITOR_WEB_PORT_STEP_FACTOR);
+		String contNetworkStepFactorDb = nodeCustomizedConfigDas.findPropertyValueByName(consortiumId, null,
+				PROPERTY_LOG_MONITOR_CONTAINER_NETWORK_STEP_FACTOR);
+		int webPortStepFactor = webPortStepFactorDb != null ? Integer.parseInt(webPortStepFactorDb) : 0;
+		int networkStepFactor = contNetworkStepFactorDb != null ? Integer.parseInt(contNetworkStepFactorDb) : 18;
+		
+		List<NodeCustomizedConfigPo> configList = Lists.newArrayList();
+		for(NodePo node:nodes){
+			int webPort = TEST_SWITCH
+					? DEFAULT_HOST_WEB_PORT + (webPortStepFactor++) * TEST_LOG_MONITOR_WEB_PORT_STEP
+					: DEFAULT_HOST_WEB_PORT;
+			configList.add(buildService.buildNodeConfig(node, PROPERTY_LOG_MONITOR_WEB_PORT, webPort + ""));
+			
+			int newNetworkSegment = (networkStepFactor++) * TEST_LOG_MONITOR_CONTAINER_NETWORK_STEP;
+			String contNetwork = TEST_SWITCH
+					? MessageFormat.format(MonitorConstant.PLACEHOLDER_CONTAINER_NETWORK, newNetworkSegment)
+					: DEFAULT_CONTAINER_NETWORK;
+			configList.add(buildService.buildNodeConfig(node, PROPERTY_LOG_MONITOR_CONTAINER_NETWORK, contNetwork));
+		}
+		
+		NodeCustomizedConfigPo webPortStepFactorConfig = buildService.buildNodeConfig(
+				NodePo.builder().id(IntTypeEnum.FALSE.getValue() + "").consortiumId(consortiumId).build(),
+				PROPERTY_LOG_MONITOR_WEB_PORT_STEP_FACTOR, webPortStepFactor + "");
+		NodeCustomizedConfigPo networkStepFactorConfig = buildService.buildNodeConfig(
+				NodePo.builder().id(IntTypeEnum.FALSE.getValue() + "").consortiumId(consortiumId).build(),
+				PROPERTY_LOG_MONITOR_CONTAINER_NETWORK_STEP_FACTOR, networkStepFactor + "");
+		List<NodeCustomizedConfigPo> stepFactorConfigList = Lists.newArrayList(webPortStepFactorConfig,
+				networkStepFactorConfig);
+		
+		return CustomizedConfigBo.builder().configList(configList).stepFactorConfigList(stepFactorConfigList).build();
 	}
 	
 	public void deferConsortiumCert(DeferCertificateRequest req) throws Exception {

@@ -30,13 +30,13 @@ public interface NodeDas {
 	boolean addNodesMembershipChange(List<String> nodeIds, NodeEnum.MembershipStatus membershipStatus,
 			MembershipChangePo membershipChange, List<MembershipPo> memberships);
 	
-	boolean addNodes(List<NodePo> list, ConsortiumPo cons, NodeCustomizedConfigPo stepFactorConfig,
-			List<NodeCustomizedConfigPo> customizedConfigList);
+	boolean addNodes(List<NodePo> nodes, ConsortiumPo cons, List<NodeCustomizedConfigPo> stepFactorConfigList,
+			List<NodeCustomizedConfigPo> configList);
 	
 	boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList, NodeCustomizedConfigPo stepFactorConfig,
 			List<NodeCustomizedConfigPo> customizedConfigList);
 	
-	boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList, NodeCustomizedConfigPo stepFactorConfig,
+	boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList, List<NodeCustomizedConfigPo> stepFactorConfigList,
 			List<NodeCustomizedConfigPo> customizedConfigList, MembershipChangePo membershipChange,
 			List<MembershipPo> memberships);
 

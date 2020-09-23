@@ -116,8 +116,8 @@ public class NodeDasImpl implements NodeDas {
 		return nodePoMapper.countByExample(example);
 	}
 
-	public boolean addNodes(List<NodePo> nodes, ConsortiumPo cons, NodeCustomizedConfigPo stepFactorConfig,
-			List<NodeCustomizedConfigPo> customizedConfigList) {
+	public boolean addNodes(List<NodePo> nodes, ConsortiumPo cons, List<NodeCustomizedConfigPo> stepFactorConfigList,
+			List<NodeCustomizedConfigPo> configList) {
 		boolean succFlag =  Boolean.TRUE;
 		// add nodes
 		succFlag = succFlag && nodePoMapper.bulkInsert(nodes) == nodes.size();
@@ -125,23 +125,25 @@ public class NodeDasImpl implements NodeDas {
 		if(cons != null) {
 			succFlag = succFlag && consortiumPoMapper.updateByPrimaryKeySelective(cons) > 0;
 		}
-		// add or update stepFactorCustomizedConfig
-		if(stepFactorConfig != null) {
-			NodeCustomizedConfigPo customizedConfig = nodeCustomizedConfigDas.findConfigByPropertyName(
-					stepFactorConfig.getConsortiumId(), null, stepFactorConfig.getPropertyName());
-			if(customizedConfig != null) {
-				stepFactorConfig.setId(customizedConfig.getId());
-				nodeCustomizedConfigDas.modify(stepFactorConfig);
-			} else {
-				nodeCustomizedConfigDas.add(stepFactorConfig);
+		// add or update stepFactorConfig
+		if(CollectionUtils.isNotEmpty(stepFactorConfigList)) {
+			for(NodeCustomizedConfigPo stepFactorConfig:stepFactorConfigList) {
+				NodeCustomizedConfigPo config = nodeCustomizedConfigDas.findConfigByPropertyName(
+						stepFactorConfig.getConsortiumId(), null, stepFactorConfig.getPropertyName());
+				if(config != null) {
+					stepFactorConfig.setId(config.getId());
+					succFlag = succFlag && nodeCustomizedConfigDas.modify(stepFactorConfig);
+				} else {
+					succFlag = succFlag && nodeCustomizedConfigDas.add(stepFactorConfig);
+				}
 			}
 		}
-		// add customized configration
-		if(CollectionUtils.isNotEmpty(customizedConfigList)) {
-			succFlag = succFlag && nodeCustomizedConfigDas.batchAdd(customizedConfigList);
+		// add config
+		if(CollectionUtils.isNotEmpty(configList)) {
+			succFlag = succFlag && nodeCustomizedConfigDas.batchAdd(configList);
 		}
 		// add heartbeat listener
-		addHeartbeatListener(nodes, customizedConfigList);
+		addHeartbeatListener(nodes, configList);
 		
 		return succFlag;
 	}
@@ -183,8 +185,9 @@ public class NodeDasImpl implements NodeDas {
 		return succFlag;
 	}
 	
-	public boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList, NodeCustomizedConfigPo stepFactorConfig,
-			List<NodeCustomizedConfigPo> customizedConfigList, MembershipChangePo membershipChange,
+	public boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList,
+			List<NodeCustomizedConfigPo> stepFactorConfigList, List<NodeCustomizedConfigPo> customizedConfigList,
+			MembershipChangePo membershipChange,
 			List<MembershipPo> memberships) {
 		boolean succFlag =  Boolean.TRUE;
 		// add nodes
@@ -201,14 +204,16 @@ public class NodeDasImpl implements NodeDas {
 			}
 		}
 		// add or update stepFactorCustomizedConfig
-		if(stepFactorConfig != null) {
-			NodeCustomizedConfigPo customizedConfig = nodeCustomizedConfigDas.findConfigByPropertyName(
-					stepFactorConfig.getConsortiumId(), null, stepFactorConfig.getPropertyName());
-			if(customizedConfig != null) {
-				stepFactorConfig.setId(customizedConfig.getId());
-				nodeCustomizedConfigDas.modify(stepFactorConfig);
-			} else {
-				nodeCustomizedConfigDas.add(stepFactorConfig);
+		if(CollectionUtils.isNotEmpty(stepFactorConfigList)) {
+			for(NodeCustomizedConfigPo stepFactorConfig:stepFactorConfigList) {
+				NodeCustomizedConfigPo config = nodeCustomizedConfigDas.findConfigByPropertyName(
+						stepFactorConfig.getConsortiumId(), null, stepFactorConfig.getPropertyName());
+				if(config != null) {
+					stepFactorConfig.setId(config.getId());
+					succFlag = succFlag && nodeCustomizedConfigDas.modify(stepFactorConfig);
+				} else {
+					succFlag = succFlag && nodeCustomizedConfigDas.add(stepFactorConfig);
+				}
 			}
 		}
 		// add customized configration
@@ -290,7 +295,7 @@ public class NodeDasImpl implements NodeDas {
 	private void addHeartbeatListener(List<NodePo> nodes, List<NodeCustomizedConfigPo> customizedConfigList) {
 		HeartbeatLinstener heartbeatListener = HeartbeatLinstener.getInstance();
 		Map<String, Integer> rpcHttpPortMap = customizedConfigList.stream()
-				.filter(item -> item.getPropertyName().equalsIgnoreCase(ConfluxConstant.PROPERTY_JSON_RPC_HTTP_PORT))
+				.filter(item -> item.getPropertyName().equalsIgnoreCase(ConfluxConstant.PROPERTY_JSON_RPC_PORT))
 				.collect(Collectors.toMap(NodeCustomizedConfigPo::getNodeId, item -> Integer.parseInt(item.getPropertyValue())));
 		nodes.stream().forEach(node -> {
 			if(!heartbeatListener.isNodeValid(node.getConsortiumId(), node.getId())){

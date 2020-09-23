@@ -227,7 +227,7 @@ public class BuildService {
 				.build();
 	}
 	
-	public NodeCustomizedConfigPo buildNodeCustomizedConfig(NodePo node, String key, String value) {
+	public NodeCustomizedConfigPo buildNodeConfig(NodePo node, String key, String value) {
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		return NodeCustomizedConfigPo.builder()

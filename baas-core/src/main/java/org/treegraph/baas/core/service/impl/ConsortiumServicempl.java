@@ -467,19 +467,19 @@ public class ConsortiumServicempl implements ConsortiumService {
 	private void buildLogMonitorScripts(String nodeKey, ZipOutputStream zipOutputStream)
 			throws IOException {
 		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/docker-compose.yml"));
-		String dockerCompose = FileUtils.readFile(ResourceUtils.getFile("classpath:docker-compose.yml"));
+		String dockerCompose = FileUtils.readFile(ResourceUtils.getFile("classpath:scripts/logmonitor/docker-compose.yml"));
 		zipOutputStream.write(dockerCompose.getBytes());
 		zipOutputStream.closeEntry();
 		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/start_log_monitor.sh"));
-		String startLogMonitor = FileUtils.readFile(ResourceUtils.getFile("classpath:logmonitor/start_log_monitor.sh"));
+		String startLogMonitor = FileUtils.readFile(ResourceUtils.getFile("classpath:scripts/logmonitor/start_log_monitor.sh"));
 		zipOutputStream.write(startLogMonitor.getBytes());
 		zipOutputStream.closeEntry();
 		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/stop_log_monitor.sh"));
-		String stopLogMonitor = FileUtils.readFile(ResourceUtils.getFile("classpath:logmonitor/stop_log_monitor.sh"));
+		String stopLogMonitor = FileUtils.readFile(ResourceUtils.getFile("classpath:scripts/logmonitor/stop_log_monitor.sh"));
 		zipOutputStream.write(stopLogMonitor.getBytes());
 		zipOutputStream.closeEntry();
 		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/.env"));
-		String env = FileUtils.readFile(ResourceUtils.getFile("classpath:logmonitor/start_log_monitor.sh"));
+		String env = FileUtils.readFile(ResourceUtils.getFile("classpath:scripts/logmonitor/start_log_monitor.sh"));
 		zipOutputStream.write(env.getBytes());
 		zipOutputStream.closeEntry();
 	}

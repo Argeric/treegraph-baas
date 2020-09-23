@@ -25,6 +25,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import java.text.MessageFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -67,6 +68,7 @@ import org.treegraph.baas.api.dto.request.QueryConsRequest;
 import org.treegraph.baas.api.dto.response.ListConsResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
+import org.treegraph.baas.core.constant.MonitorConstant;
 import org.treegraph.baas.core.das.BlockchainDas;
 import org.treegraph.baas.core.das.CertificateDeferDas;
 import org.treegraph.baas.core.das.ConsortiumDas;
@@ -466,12 +468,22 @@ public class ConsortiumServicempl implements ConsortiumService {
 
 	private void buildLogMonitorScripts(String nodeKey, ZipOutputStream zipOutputStream)
 			throws IOException {
-		List<String> files = Lists.newArrayList("docker-compose.yml", "start_log_monitor.sh", "stop_log_monitor.sh");
+		List<String> files = Lists.newArrayList("docker-compose.yml", "start_log_monitor.sh", "stop_log_monitor.sh",
+				".env");
 		for (String file : files) {
 			zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor" + FILE_SEP + file));
-			ClassPathResource resource = new ClassPathResource("scripts/logmonitor/" + file);
-			String content = FileUtils.readFile(resource.getInputStream());
-			zipOutputStream.write(content.getBytes());
+			byte[] contentBytes = null;
+			if(!".env".equals(file)) {
+				ClassPathResource resource = new ClassPathResource("scripts/logmonitor/" + file);
+				String content = FileUtils.readFile(resource.getInputStream());
+				contentBytes = content.getBytes();
+			} else {
+				String envFile = MessageFormat.format(MonitorConstant.LOG_MONITOR_ENV_FILE,
+						MonitorConstant.DEFAULT_HOST_LOG_PATH, MonitorConstant.DEFAULT_HOST_WEB_PORT.toString(),
+						MonitorConstant.DEFAULT_CONTAINER_NETWORK);
+				contentBytes = envFile.getBytes();
+			}
+			zipOutputStream.write(contentBytes);
 			zipOutputStream.closeEntry();
 		}
 	}
@@ -682,7 +694,6 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		// response success
 		deferUpdate.setStatus(DeferStatus.SUCCESS.getCode());
-		//List<KeypairPo> consKeypairs = keypairDas.findAll(consId, KeyType.CONSORTIUM.getCode(), ALGO_CONS);
 		List<Long> oldKeypairIds = consKeypairs.stream().map(KeypairPo::getId).collect(Collectors.toList());
 		KeypairPo newKeypair = buildService.buildConsortiumKeypairPoFromDefer(defer);
 		certificateDeferDas.modifyCertificateDefer(deferUpdate, oldKeypairIds, IntTypeEnum.TRUE.getValue(), newKeypair);

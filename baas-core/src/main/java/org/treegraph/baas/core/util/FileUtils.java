@@ -52,9 +52,9 @@ public class FileUtils {
 		}
 	}
 	
-	public static String readFile(String path) {
+	public static String readFile(File file) {
 		StringBuffer str = new StringBuffer();
-		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"))) {
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
 			String line = null;
 			while ((line = in.readLine()) != null) {
 				str.append(line).append(System.getProperty("line.separator"));

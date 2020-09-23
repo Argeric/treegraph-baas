@@ -15,8 +15,8 @@ import static org.treegraph.baas.core.constant.SplitterConstant.FILE_SEP;
 import static org.treegraph.baas.core.constant.SplitterConstant.LINE_SEP;
 import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
 import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
-import static org.treegraph.baas.core.util.DateTimeUtils.FORMAT_yyyyMMddHHmmss;
 import static org.treegraph.baas.core.util.ConfluxUtils.toIpAtPort;
+import static org.treegraph.baas.core.util.DateTimeUtils.FORMAT_yyyyMMddHHmmss;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -46,6 +46,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Base64;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.ResourceUtils;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.ConsAdminInfo;
 import org.treegraph.baas.api.dto.ConsDetailInfo;
@@ -466,19 +467,19 @@ public class ConsortiumServicempl implements ConsortiumService {
 	private void buildLogMonitorScripts(String nodeKey, ZipOutputStream zipOutputStream)
 			throws IOException {
 		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/docker-compose.yml"));
-		String dockerCompose = FileUtils.readFile("./logmonitor/docker-compose.yml");
+		String dockerCompose = FileUtils.readFile(ResourceUtils.getFile("classpath:logmonitor/docker-compose.yml"));
 		zipOutputStream.write(dockerCompose.getBytes());
 		zipOutputStream.closeEntry();
 		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/start_log_monitor.sh"));
-		String startLogMonitor = FileUtils.readFile("./logmonitor/start_log_monitor.sh");
+		String startLogMonitor = FileUtils.readFile(ResourceUtils.getFile("classpath:logmonitor/start_log_monitor.sh"));
 		zipOutputStream.write(startLogMonitor.getBytes());
 		zipOutputStream.closeEntry();
 		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/stop_log_monitor.sh"));
-		String stopLogMonitor = FileUtils.readFile("./logmonitor/stop_log_monitor.sh");
+		String stopLogMonitor = FileUtils.readFile(ResourceUtils.getFile("classpath:logmonitor/stop_log_monitor.sh"));
 		zipOutputStream.write(stopLogMonitor.getBytes());
 		zipOutputStream.closeEntry();
 		zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor/.env"));
-		String env = FileUtils.readFile("./logmonitor/start_log_monitor.sh");
+		String env = FileUtils.readFile(ResourceUtils.getFile("classpath:logmonitor/start_log_monitor.sh"));
 		zipOutputStream.write(env.getBytes());
 		zipOutputStream.closeEntry();
 	}

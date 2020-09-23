@@ -9,7 +9,6 @@ import org.treegraph.baas.core.domain.UserRolePo;
 
 
 public interface RoleDas {
-	
 	Optional<RolePo> findById(String roleId);
 	
 	List<RolePo> findByIds(List<String> roleIds);

@@ -1,7 +1,6 @@
 package org.treegraph.baas.core.constant;
 
 public class CharacterConstant {
-
 	public static final String COMMA = ",";
 	public static final String DOT = ".";
 	public static final String COLON = ":";

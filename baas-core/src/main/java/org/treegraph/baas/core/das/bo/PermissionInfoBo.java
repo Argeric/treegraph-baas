@@ -17,7 +17,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PermissionInfoBo implements Serializable {
-	
 	private String consId;
 	
 	private String roleId;

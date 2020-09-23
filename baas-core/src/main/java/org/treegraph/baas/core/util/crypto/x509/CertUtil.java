@@ -93,8 +93,8 @@ public class CertUtil {
 		}
 	}
 
-	public static Certificate generateCert(PKCS10CertificationRequest csr, PrivateKey issuerPrivateKey, byte[] issuerCert,
-			Date notBefore, Date notAfter, boolean isCACert) throws Exception {
+	public static Certificate generateCert(PKCS10CertificationRequest csr, PrivateKey issuerPrivateKey,
+			byte[] issuerCert, Date notBefore, Date notAfter, boolean isCACert) throws Exception {
 		X509CertificateHolder issuer = new X509CertificateHolder(issuerCert);
 		if (!verifyCSR(csr))
 			throw new IllegalArgumentException("证书请求验证失败");

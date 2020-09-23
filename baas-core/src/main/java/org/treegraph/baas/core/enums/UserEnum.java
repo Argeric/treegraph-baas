@@ -20,15 +20,14 @@ public class UserEnum {
     public enum Status {
 
         /**
-         * 禁用
+         * 冻结
          */
-        DISABLE(0, "禁用"),
+        FROZEN(0, "冻结"),
 
         /**
          * 启用
          */
         AVAILABLE(1, "启用"),
-
         ;
 
         private int code;
@@ -47,6 +46,10 @@ public class UserEnum {
         public static boolean isAvailable(int status) {
             return AVAILABLE.getCode() == status;
         }
+        
+        public static boolean isFrozen(int status) {
+            return FROZEN.getCode() == status;
+        }
     }
     
     /**
@@ -61,7 +64,6 @@ public class UserEnum {
         CONSORTIUM_ADMIN(2, "联盟管理员"),
         
         COMMON_USER(3, "普通角色"),
-
         ;
 
         private int code;

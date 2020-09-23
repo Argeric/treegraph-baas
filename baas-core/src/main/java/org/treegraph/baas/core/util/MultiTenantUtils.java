@@ -32,7 +32,9 @@ public class MultiTenantUtils {
     private static final String WHERE_STATEMENT = "WHERE";
     private static final String AND_STATEMENT = "AND";
     private static final String LIMIT_STATEMENT = "LIMIT";
-    private static final Set<String> STATEMENT_SET = Sets.newHashSet("from", "join", "left", "right", "on", "where", "and", "select", "(select", "group", "by", "having", "order", "union", "all", "insert", "update", "set", "delete", "asc", "desc", "limit");
+	private static final Set<String> STATEMENT_SET = Sets.newHashSet("from", "join", "left", "right", "on", "where",
+			"and", "select", "(select", "group", "by", "having", "order", "union", "all", "insert", "update", "set",
+			"delete", "asc", "desc", "limit");
     private static final Set<String> SUFFIX_STATEMENT_SET = ImmutableSet.of("GROUP", "ORDER", LIMIT_STATEMENT);
     private static final String ONE = "1";
     private static final String START_CONDITION = "1 = 1";
@@ -47,8 +49,9 @@ public class MultiTenantUtils {
      * @param companyId      公司ID
      * @return 处理过SQL
      */
-    public static String addTenantIsolatingCondition(SqlCommandType sqlCommandType, String rawSql, long companyId) {
-        return addTenantIsolatingConditionAndLimit(sqlCommandType, rawSql, COMPANY_ID_CONDITION, String.valueOf(companyId), true, DEFAULT_LIMIT_THRESHOLD);
+	public static String addTenantIsolatingCondition(SqlCommandType sqlCommandType, String rawSql, long companyId) {
+		return addTenantIsolatingConditionAndLimit(sqlCommandType, rawSql, COMPANY_ID_CONDITION,
+				String.valueOf(companyId), true, DEFAULT_LIMIT_THRESHOLD);
     }
 
     /**
@@ -60,9 +63,11 @@ public class MultiTenantUtils {
      * @param consIdCond         LIKE "('a','b','c')"
      * @return 处理过SQL
      */
-    public static String addTenantIsolatingCondition(SqlCommandType sqlCommandType, String rawSql, String isolatingCondition, String consIdCond) {
-        return addTenantIsolatingConditionAndLimit(sqlCommandType, rawSql, isolatingCondition, consIdCond, true, DEFAULT_LIMIT_THRESHOLD);
-    }
+	public static String addTenantIsolatingCondition(SqlCommandType sqlCommandType, String rawSql,
+			String isolatingCondition, String consIdCond) {
+		return addTenantIsolatingConditionAndLimit(sqlCommandType, rawSql, isolatingCondition, consIdCond, true,
+				DEFAULT_LIMIT_THRESHOLD);
+	}
     
     /**
      * 主表必须有别名，如果为子查询，最外层的语句不会拼查询条件，对没有WHERE条件的语句不会拼查询条件，批量更新，删除
@@ -74,7 +79,8 @@ public class MultiTenantUtils {
      * @param limitThreshold limit阈值
      * @return 处理过SQL
      */
-    public static String addTenantIsolatingConditionAndLimit(SqlCommandType sqlCommandType, String rawSql, String isolatingCondition, String tenantId, boolean limited, int limitThreshold) {
+	public static String addTenantIsolatingConditionAndLimit(SqlCommandType sqlCommandType, String rawSql,
+			String isolatingCondition, String tenantId, boolean limited, int limitThreshold) {
         if (StringUtils.isBlank(isolatingCondition)) {
             isolatingCondition = COMPANY_ID_CONDITION;
         }
@@ -106,7 +112,8 @@ public class MultiTenantUtils {
         }
     }
 
-    private static String parseSelect(String rawSql, String isolatingCondition, String tenantId, boolean limited, int limitThreshold) {
+	private static String parseSelect(String rawSql, String isolatingCondition, String tenantId, boolean limited,
+			int limitThreshold) {
         StringTokenizer rawSqlStringTokenizer = new StringTokenizer(rawSql);
         boolean succeed = false;
         List<String> segmentSqlList = Lists.newArrayListWithExpectedSize(200);
@@ -184,13 +191,16 @@ public class MultiTenantUtils {
             }
             String tableName = tableNameStack.pop();
             if (!UNDERSCORE.equals(tableName)) {
-                segmentSqlList.add(StringUtils.join(START_CONDITION, BLANK, AND_STATEMENT, BLANK, tableName, DOT, isolatingCondition, tenantId));
+				segmentSqlList.add(StringUtils.join(START_CONDITION, BLANK, AND_STATEMENT, BLANK, tableName, DOT,
+						isolatingCondition, tenantId));
             } else {
-                segmentSqlList.add(StringUtils.join(START_CONDITION, BLANK, AND_STATEMENT, BLANK, isolatingCondition, tenantId));
+				segmentSqlList.add(
+						StringUtils.join(START_CONDITION, BLANK, AND_STATEMENT, BLANK, isolatingCondition, tenantId));
             }
         }
         if (!succeed) {
-            throw new BusinessException(ErrorCodeEnum.BUSINESS_EXCEPTION.getCode(), "add multi tenant isolating failed, sql = " + rawSql);
+			throw new BusinessException(ErrorCodeEnum.BUSINESS_EXCEPTION.getCode(),
+					"add multi tenant isolating failed, sql = " + rawSql);
         }
         if (CollectionUtils.isNotEmpty(suffixSqlList)) {
             segmentSqlList.addAll(suffixSqlList);
@@ -221,7 +231,8 @@ public class MultiTenantUtils {
             segmentSqlList.add(StringUtils.join(WHERE_STATEMENT, BLANK, isolatingCondition, tenantId));
         }
         if (!succeed) {
-            throw new BusinessException(ErrorCodeEnum.BUSINESS_EXCEPTION.getCode(), "add multi tenant isolating failed, sql = " + rawSql);
+			throw new BusinessException(ErrorCodeEnum.BUSINESS_EXCEPTION.getCode(),
+					"add multi tenant isolating failed, sql = " + rawSql);
         }
         return StringUtils.join(segmentSqlList, BLANK);
     }

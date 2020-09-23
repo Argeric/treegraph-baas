@@ -48,7 +48,12 @@ public class NodePo implements Serializable {
     private Integer status;
 
     /**
-     * 21-添加进行中，22-添加成功，23-添加失败，31-删除进行中，32-删除成功，33-删除失败
+     * 
+     */
+    private Integer membershipFinalStatus;
+
+    /**
+     * 20-待首次启动，21-添加进行中，22-添加成功，23-添加失败，31-删除进行中，32-删除成功，33-删除失败
      */
     private Integer membershipStatus;
 

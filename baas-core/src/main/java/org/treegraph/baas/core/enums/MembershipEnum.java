@@ -79,7 +79,7 @@ public class MembershipEnum {
             return null;
         }
         
-        public boolean ifFail() {
+        public boolean isFail() {
         	return this.code > SELECT_PROPOSER_FAILURE.getCode();
         }
     }

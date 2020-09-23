@@ -13,7 +13,6 @@ import org.treegraph.baas.core.domain.UserOrganizationPo;
 import org.treegraph.baas.core.domain.UserRolePo;
 
 public interface UserInfoDas {
-
 	Optional<UserInfoPo> findById(String userId);
 	
 	List<UserInfoPo> findByIds(List<String> userIds);
@@ -36,7 +35,7 @@ public interface UserInfoDas {
 
 	boolean delUser(UserInfoPo user, List<Long> userRoleIds);
 
-	List<UserInfoPo> findAll(String account, String name, String email, String phone);
+	List<UserInfoPo> findAll(String account, String name, String email, String phone, Integer status);
 	
 	boolean updateUser(UserInfoPo user);
 

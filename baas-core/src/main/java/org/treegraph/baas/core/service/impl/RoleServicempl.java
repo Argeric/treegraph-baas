@@ -84,7 +84,6 @@ public class RoleServicempl implements RoleService {
 	}
 
    	public boolean modifyRole(ModifyRoleRequest req) {
-   		
    		String roleId = req.getId();
    		String consId = req.getConsId();
    		RolePo role = roleDas.findById(roleId).orElseThrow(() -> new AlertException("role.not.found["+roleId+"]"));
@@ -101,9 +100,11 @@ public class RoleServicempl implements RoleService {
    		if(CollectionUtils.isNotEmpty(reqPermissionCodes)) {
    			Map<String, Long> permissionCodeIdMap = validatePermissions(reqPermissionCodes);
 	   		List<RolePermissionPo> dbRolePermissions = permissionDas.findRolePermissionsByRoleId(roleId);
-	   		List<Long> dbPermissionIds = dbRolePermissions.stream().map(RolePermissionPo::getPermissionId).collect(Collectors.toList());
+			List<Long> dbPermissionIds = dbRolePermissions.stream().map(RolePermissionPo::getPermissionId)
+					.collect(Collectors.toList());
 	   		List<PermissionPo> dbPermissions = permissionDas.findByIds(dbPermissionIds);
-	   		List<String> dbPermissionCodes = dbPermissions.stream().map(PermissionPo::getPermissionCode).collect(Collectors.toList());
+			List<String> dbPermissionCodes = dbPermissions.stream().map(PermissionPo::getPermissionCode)
+					.collect(Collectors.toList());
 	   		
 	   		List<String> interset = Lists.newArrayList();
 	   		interset.addAll(reqPermissionCodes);
@@ -121,7 +122,8 @@ public class RoleServicempl implements RoleService {
 					.updateTime(now)
 					.updateBy(WebHelper.getUserId())
 	   				.build()).collect(Collectors.toList());
-	   		toDelPermIds = dbPermissionCodes.stream().map(item -> permissionCodeIdMap.get(item)).collect(Collectors.toList());;
+			toDelPermIds = dbPermissionCodes.stream().map(item -> permissionCodeIdMap.get(item))
+					.collect(Collectors.toList());
    		}
    		
    		return roleDas.modifyRole(roleId, updateRole, toDelPermIds, toAddPerms);

@@ -21,7 +21,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NodeKeypairBo implements Serializable {
-	
 	private KeypairPo keypair;
 	
 	private NodeKeyPo nodeKey;

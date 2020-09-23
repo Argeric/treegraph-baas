@@ -575,6 +575,66 @@ public class NodePoExample {
             return (Criteria) this;
         }
 
+        public Criteria andMembershipFinalStatusIsNull() {
+            addCriterion("node.membership_final_status is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipFinalStatusIsNotNull() {
+            addCriterion("node.membership_final_status is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipFinalStatusEqualTo(Integer value) {
+            addCriterion("node.membership_final_status =", value, "membershipFinalStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipFinalStatusNotEqualTo(Integer value) {
+            addCriterion("node.membership_final_status <>", value, "membershipFinalStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipFinalStatusGreaterThan(Integer value) {
+            addCriterion("node.membership_final_status >", value, "membershipFinalStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipFinalStatusGreaterThanOrEqualTo(Integer value) {
+            addCriterion("node.membership_final_status >=", value, "membershipFinalStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipFinalStatusLessThan(Integer value) {
+            addCriterion("node.membership_final_status <", value, "membershipFinalStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipFinalStatusLessThanOrEqualTo(Integer value) {
+            addCriterion("node.membership_final_status <=", value, "membershipFinalStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipFinalStatusIn(List<Integer> values) {
+            addCriterion("node.membership_final_status in", values, "membershipFinalStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipFinalStatusNotIn(List<Integer> values) {
+            addCriterion("node.membership_final_status not in", values, "membershipFinalStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipFinalStatusBetween(Integer value1, Integer value2) {
+            addCriterion("node.membership_final_status between", value1, value2, "membershipFinalStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andMembershipFinalStatusNotBetween(Integer value1, Integer value2) {
+            addCriterion("node.membership_final_status not between", value1, value2, "membershipFinalStatus");
+            return (Criteria) this;
+        }
+
         public Criteria andMembershipStatusIsNull() {
             addCriterion("node.membership_status is null");
             return (Criteria) this;

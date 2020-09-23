@@ -22,6 +22,7 @@ import org.treegraph.baas.api.dto.request.ListUserRequest;
 import org.treegraph.baas.api.dto.request.ModifyPwdRequest;
 import org.treegraph.baas.api.dto.request.ModifyUserRequest;
 import org.treegraph.baas.api.dto.request.QueryUserRequest;
+import org.treegraph.baas.api.dto.request.UnfrozenUserRequest;
 import org.treegraph.baas.api.dto.response.ListUserResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
@@ -46,6 +47,8 @@ import org.treegraph.baas.core.service.bo.OrgBo;
 import org.treegraph.baas.core.service.bo.UserInfoBo;
 import org.treegraph.baas.core.service.bo.UserOrgBo;
 import org.treegraph.baas.core.util.DateTimeUtils;
+
+import static org.treegraph.baas.core.util.DateTimeUtils.FORMAT_yyyyMMddHHmmss;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -153,8 +156,11 @@ public class UserServicempl implements UserService {
 		UserInfoPo userInfo = userInfoDas.findByAccount(req.getAccount())
 				.orElseThrow(() -> new AlertException("user.not.found"));
 		List<Role> roles = validateRoleInfo(req.getRoles());
-		List<UserRoleInvitePo> userRoleInvites = roles.stream()
-				.map(item -> UserRoleInvitePo.builder().inviteId(null).userId(userInfo.getId()).roleId(item.getRoleId()).build())
+		List<UserRoleInvitePo> userRoleInvites = roles.stream().map(item -> UserRoleInvitePo.builder()
+						.inviteId(null)
+						.userId(userInfo.getId())
+						.roleId(item.getRoleId())
+						.build())
 				.collect(Collectors.toList());
 		
 		String oper = WebHelper.getUserId();
@@ -208,7 +214,7 @@ public class UserServicempl implements UserService {
 	public ListUserResponse listUser(ListUserRequest req){
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
 		List<UserInfoPo> userList = userInfoDas.findAll(req.getAccount(), req.getName(), req.getEmail(),
-				req.getPhone());
+				req.getPhone(), req.getStatus());
 		PageInfo<UserInfoPo> pageInfo = new PageInfo<>(userList);
 		
 		List<UserInfoPo> list = pageInfo.getList();
@@ -222,7 +228,7 @@ public class UserServicempl implements UserService {
 						.phone(item.getPhone())
 						.email(item.getEmail())
 						.status(item.getStatus())
-						.createTime(DateTimeUtils.formatTime(item.getCreateTime(),DateTimeUtils.FORMAT_yyyyMMddHHmmss))
+						.createTime(DateTimeUtils.formatTime(item.getCreateTime(), FORMAT_yyyyMMddHHmmss))
 						.roles(roleMap.get(item.getId()))
 						.build())
 				.collect(Collectors.toList());
@@ -306,6 +312,17 @@ public class UserServicempl implements UserService {
 				userOrgBo.getToDelUserOrgIds(), userOrgBo.getToAddUserOrgs());
 	}
 	
+    public boolean unfrozenUser(UnfrozenUserRequest unfrozenUserRequest) {
+    	String accountNo = unfrozenUserRequest.getAccountNo();
+    	UserInfoPo user = userInfoDas.findByAccount(accountNo)
+				.orElseThrow(() -> new AlertException("用户不存在"));
+        Assert.isTrue(UserEnum.Status.isFrozen(user.getStatus()), "该用户未冻结，无需解冻");
+        
+		UserInfoPo userUpdate = UserInfoPo.builder().id(user.getId()).tryTimes(0)
+				.status(UserEnum.Status.AVAILABLE.getCode()).build();
+        return userInfoDas.updateUser(userUpdate);
+    }
+	
 	private List<Role> validateRoleInfo(List<RoleInfo> roles) {
 		if(CollectionUtils.isEmpty(roles)) {
 			return Lists.newArrayList();
@@ -339,11 +356,13 @@ public class UserServicempl implements UserService {
 		List<UserRolePo> userRoles = roleDas.findUserRolesByUserIds(userIds);
 		List<String> allRoleIds = userRoles.stream().map(UserRolePo::getRoleId).collect(Collectors.toList());
 		List<RolePo> allRolePos = roleDas.findByIds(allRoleIds);
-		Map<String, RolePo> allRoleMap = allRolePos.stream().collect(Collectors.toMap(RolePo::getId, Functions.identity()));
+		Map<String, RolePo> allRoleMap = allRolePos.stream()
+				.collect(Collectors.toMap(RolePo::getId, Functions.identity()));
 		
 		List<String> allConsIds = allRolePos.stream().map(RolePo::getConsortiumId).collect(Collectors.toList());
 		List<ConsortiumPo> allCons = consortiumDas.findByIds(allConsIds);
-		Map<String, ConsortiumPo> allConsMap = allCons.stream().collect(Collectors.toMap(ConsortiumPo::getConsortiumId, Functions.identity()));
+		Map<String, ConsortiumPo> allConsMap = allCons.stream()
+				.collect(Collectors.toMap(ConsortiumPo::getConsortiumId, Functions.identity()));
 		
 		List<UserOrganizationPo> allUserOrgs = userInfoDas.findUserOrgsByUserIds(userIds);
 		Map<String, List<UserOrganizationPo>> allOrgsMap = allUserOrgs.stream()
@@ -353,7 +372,8 @@ public class UserServicempl implements UserService {
 				.collect(Collectors.toMap(item -> item.getKey(), item -> {
 					List<String> roleIds = item.getValue().stream().map(UserRolePo::getRoleId)
 							.collect(Collectors.toList());
-					List<RolePo> rolePos = roleIds.stream().map(roleId -> allRoleMap.get(roleId)).collect(Collectors.toList());
+					List<RolePo> rolePos = roleIds.stream().map(roleId -> allRoleMap.get(roleId))
+							.collect(Collectors.toList());
 					Map<String, List<RolePo>> rolePoMap = rolePos.stream()
 							.collect(Collectors.groupingBy(RolePo::getConsortiumId));
 

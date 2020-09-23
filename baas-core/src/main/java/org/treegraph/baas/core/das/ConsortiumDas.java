@@ -11,7 +11,6 @@ import org.treegraph.baas.core.domain.ConsortiumPo;
  * @version 1.0
  */
 public interface ConsortiumDas {
-	
 	Optional<ConsortiumPo> findById(String id);
 
 	List<ConsortiumPo> findByIds(List<String> ids);

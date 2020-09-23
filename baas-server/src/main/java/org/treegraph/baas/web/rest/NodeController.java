@@ -1,7 +1,5 @@
 package org.treegraph.baas.web.rest;
 
-import java.io.IOException;
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,7 +61,7 @@ public class NodeController {
 	
 	@PostMapping("/del")
 	@ApiOperation("修改节点")
-	public BaasResult<Void> modifyNode(@RequestBody DeleteNodeRequest delNodeRequest) throws IOException {
+	public BaasResult<Void> modifyNode(@RequestBody DeleteNodeRequest delNodeRequest) throws Exception {
 		nodeService.deleteNode(delNodeRequest);
 		return BaasResult.success();
 	}

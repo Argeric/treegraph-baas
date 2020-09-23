@@ -1,4 +1,5 @@
 package org.treegraph.baas.common.util;
+
 public class SkipDataScopeThreadLocal {
 
     private SkipDataScopeThreadLocal(){}

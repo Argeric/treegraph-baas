@@ -7,7 +7,6 @@ import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserLoginTokenPo;
 
 public interface UserTokenDas {
-
   String createToken(@NotNull UserInfoPo user);
 
   String updateByUserId(String token, @NotEmpty String userId);

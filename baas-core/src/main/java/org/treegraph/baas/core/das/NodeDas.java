@@ -9,23 +9,26 @@ import org.treegraph.baas.core.domain.MembershipChangePo;
 import org.treegraph.baas.core.domain.MembershipPo;
 import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodePo;
+import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.enums.NodeEnum;
 
 public interface NodeDas {
-	
 	Optional<NodePo> findById(String id);
 	
 	List<NodePo> findByIds(List<String> id);
 	
 	List<NodePo> findAll(String consId, String ip);
 	
-	List<NodePo> findByConsIdAndChainId(String consId, String chainId, boolean isAlive);
+	List<NodePo> findByConsIdAndChainId(String consId, String chainId);
 	
 	List<NodePo> findByChainIds(List<String> chainIds);
 	
 	NodePo findByIpPort(String ip, Integer port);
 	
 	long count();
+	
+	boolean addNodesMembershipChange(List<String> nodeIds, NodeEnum.MembershipStatus membershipStatus,
+			MembershipChangePo membershipChange, List<MembershipPo> memberships);
 	
 	boolean addNodes(List<NodePo> list, ConsortiumPo cons, NodeCustomizedConfigPo stepFactorConfig,
 			List<NodeCustomizedConfigPo> customizedConfigList);
@@ -40,6 +43,9 @@ public interface NodeDas {
 	boolean modifyNode(NodePo node);
 	
 	boolean modifyNodesStatus(List<String> nodeIds, NodeEnum.Status status);
+	
+	boolean modifyNodesMembershipStatus(List<String> nodeIds, NodeEnum.MembershipStatus membershipStatus,
+			Long membershipChangeId, MembershipEnum.Status membershipChangeStatus);
 	
 	boolean deleteNodes(NodePo node, ConsortiumPo cons);
 	

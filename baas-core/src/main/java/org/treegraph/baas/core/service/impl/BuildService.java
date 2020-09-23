@@ -1,5 +1,8 @@
 package org.treegraph.baas.core.service.impl;
 
+import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
+import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
+
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,13 +13,18 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
+import org.treegraph.baas.api.dto.NodeInfo;
 import org.treegraph.baas.api.dto.Role;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.constant.SplitterConstant;
 import org.treegraph.baas.core.das.PermissionDas;
+import org.treegraph.baas.core.das.bo.NodeKeypairBo;
+import org.treegraph.baas.core.domain.CertificateDeferPo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
+import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.MembershipChangePo;
 import org.treegraph.baas.core.domain.MembershipPo;
 import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
@@ -26,13 +34,22 @@ import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserOrganizationPo;
 import org.treegraph.baas.core.domain.UserRolePo;
+import org.treegraph.baas.core.enums.CertificateEnum.DeferStatus;
 import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
+import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
+import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.enums.MembershipEnum;
+import org.treegraph.baas.core.enums.NodeEnum;
+import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
+import org.treegraph.baas.core.exception.AlertException;
+import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
 import org.treegraph.baas.core.enums.UserEnum;
+import org.treegraph.baas.core.service.bo.MembershipChangeBo;
 import org.treegraph.baas.core.service.bo.OrgBo;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
 import org.treegraph.baas.core.service.bo.UserInfoBo;
 import org.treegraph.baas.core.service.bo.UserOrgBo;
+import org.treegraph.baas.core.util.ConfluxUtils;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Functions;
@@ -51,9 +68,12 @@ public class BuildService {
     private PermissionDas permissionDas;
 	
     private PasswordService passwordService;
+    
+    private VaultKeypairBuildService vaultKeypairBuildService;
+    
+    private JsonRpcService jsonRpcService;
 
 	public RoleInfoBo buildRole(int roleType, String roleName, String consId, List<String> reqPermissions) {
-		
    		LocalDateTime now = LocalDateTime.now();
    		String oper = WebHelper.getUserId();
    		RolePo role = RolePo.builder()
@@ -92,8 +112,8 @@ public class BuildService {
 				.build();
 	}
 	
-	public UserInfoBo buildUser(String account, String name, String phone, String email, String pwd, List<Role> roles, List<OrgBo> orgs) {
-		
+	public UserInfoBo buildUser(String account, String name, String phone, String email, String pwd, List<Role> roles,
+			List<OrgBo> orgs) {
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		UserInfoPo user = UserInfoPo.builder()
@@ -223,6 +243,77 @@ public class BuildService {
 			.build();
 	}
 	
+	public MembershipChangeBo preMembershipChange(String consId, String blockchainId, List<NodePo> existNodes,
+			List<NodePo> toAddNodes, List<NodePo> toRemoveNodes, Map<String, NodePo> finalStateNodeMap)
+			throws Exception {
+		// process null case
+		toAddNodes = CollectionUtils.isEmpty(toAddNodes) ? Lists.newArrayList() : toAddNodes;
+		toRemoveNodes = CollectionUtils.isEmpty(toRemoveNodes) ? Lists.newArrayList() : toRemoveNodes;
+		boolean isAddNode = toAddNodes.size() > 0;
+		
+		// get classified node keypairs
+		List<NodeKeypairBo> existDbNodeKeypairs = existNodes.stream().map(
+				item -> vaultKeypairBuildService.getNodeKeypair(consId, ALGO_NODE, item, null))
+				.collect(Collectors.toList());
+		KeypairPo consKeyPair = vaultKeypairBuildService.getConsortiumKeyPair(consId, ALGO_CONS, null);
+		List<NodeKeypairBo> toAddNodeKeypairs = toAddNodes.stream().map(item -> {
+				NodeKeypairBo nodeKeypair = vaultKeypairBuildService.getNodeKeypair(consId, ALGO_NODE, item, consKeyPair);
+				nodeKeypair.getNode().setMembershipStatus(MembershipStatus.ADD_START.getCode());
+				return nodeKeypair;
+				}).collect(Collectors.toList());
+		List<NodeKeypairBo> toInsertDbNodeKeypairs = toAddNodeKeypairs.stream().filter(item -> {
+				String uri = ConfluxUtils.toIpAtPort(item.getNode().getNodeIp(), item.getNode().getNodePort());
+				return !finalStateNodeMap.containsKey(uri);
+				}).collect(Collectors.toList());
+		List<NodeKeypairBo> toRemoveNodeKeypairs = toRemoveNodes.stream().map(
+				item -> vaultKeypairBuildService.getNodeKeypair(consId, ALGO_NODE, item, null))
+				.collect(Collectors.toList());
+		
+		// get node keypairs for rpc of add/delete nodes
+		List<NodeKeypairBo> membershipNodeKeypairs = existDbNodeKeypairs.stream()
+				.filter(item -> isMembershipNode(item.getNode())).collect(Collectors.toList());
+		Assert.isTrue(CollectionUtils.isNotEmpty(membershipNodeKeypairs), "membership.node.not.found");
+		List<NodeKeypairBo> committeeNodeKeypairs = this.getNodeKeypairForCommittee(membershipNodeKeypairs,
+				isAddNode ? null : toRemoveNodeKeypairs);
+		List<NodeKeypairBo> validatorNodeKeypairs = this.getNodeKeypairForValidator(membershipNodeKeypairs,
+				isAddNode ? toAddNodeKeypairs : null, isAddNode ? null : toRemoveNodeKeypairs);
+		
+		// record pre-bftEpochNumber、committeeNodeIds for this add/delete nodes request
+		NodeKeypairBo proposerNodeKeypair = committeeNodeKeypairs.stream()
+				.filter(item -> HeartbeatEnum.Status.GREEN == HeartbeatLinstener.getInstance()
+						.getNode(item.getNode().getConsortiumId(), item.getNode().getId()).getStatus())
+				.findFirst().orElseThrow(() -> new AlertException("alive.proposer.node.not.found"));
+		NodePo proposerNode = proposerNodeKeypair.getNode();
+		BigInteger preBftEpochNumber = jsonRpcService.getBftEpochNumber(proposerNode.getConsortiumId(), proposerNode.getId());
+		List<String> committeeNodeIds = committeeNodeKeypairs.stream().map(item -> item.getNode().getId())
+				.collect(Collectors.toList());
+		MembershipChangePo membershipChange = this.buildMembershipChangePo(consId, blockchainId,
+				isAddNode ? MembershipEnum.Type.ADD.getCode() : MembershipEnum.Type.REMOVE.getCode(), preBftEpochNumber,
+				committeeNodeIds);
+		List<NodePo> membershipChangeNodes = isAddNode ? toAddNodes : toRemoveNodes;
+		List<MembershipPo> nodeMemberships = membershipChangeNodes.stream().map(item -> this.buildMembership(null,
+				item.getConsortiumId(), item.getId(), item.getNodeIp(), item.getNodePort()))
+				.collect(Collectors.toList());
+		
+		return MembershipChangeBo.builder()
+				.existDbNodeKeypairs(existDbNodeKeypairs)
+				.toAddNodeKeypairs(toAddNodeKeypairs)
+				.toInsertDbNodeKeypairs(toInsertDbNodeKeypairs)
+				.toRemoveNodeKeypairs(toRemoveNodeKeypairs)
+				.membershipNodeKeypairs(membershipNodeKeypairs)
+				.committeeNodeKeypairs(committeeNodeKeypairs)
+				.validatorNodeKeypairs(validatorNodeKeypairs)
+				.membershipChange(membershipChange)
+				.nodeMemberships(nodeMemberships)
+				.build();
+	}
+
+	public boolean isMembershipNode(NodePo node) {
+		return node.getMembershipFinalStatus() != null
+				&& (node.getMembershipFinalStatus() == MembershipStatus.ADD_SUCCESS.getCode() || 
+					node.getMembershipFinalStatus() == MembershipStatus.TO_LAUNCH_FIRST_TIME.getCode());
+	}
+	
 	public MembershipChangePo buildMembershipChangePo(String consId, String blockchainId, int changeType,
 			BigInteger preBftEpochNumber, List<String> committeeNodeIds) {
 		LocalDateTime now = LocalDateTime.now();
@@ -250,5 +341,100 @@ public class BuildService {
 			.nodeIp(nodeIp)
 			.nodePort(nodePort)
 			.build();
+	}
+	
+	public List<NodeKeypairBo> getNodeKeypairForCommittee(List<NodeKeypairBo> existNodeKeypairs,
+			List<NodeKeypairBo> removeNodeKeypairs) {
+    	List<NodeKeypairBo> leftNodeKeypairs = Lists.newArrayList(existNodeKeypairs);
+    	if(CollectionUtils.isNotEmpty(removeNodeKeypairs)) {
+			Set<String> toRemoveNodeIdSet = removeNodeKeypairs.stream().map(item -> item.getNode().getId())
+					.collect(Collectors.toSet());
+			leftNodeKeypairs = leftNodeKeypairs.stream()
+					.filter(item -> !toRemoveNodeIdSet.contains(item.getNode().getId())).collect(Collectors.toList());
+    	}
+    	
+    	return leftNodeKeypairs;
+    }
+    
+	public List<NodeKeypairBo> getNodeKeypairForValidator(List<NodeKeypairBo> existNodeKeypairs,
+			List<NodeKeypairBo> addNodeKeypairs, List<NodeKeypairBo> removeNodeKeypairs) {
+    	List<NodeKeypairBo> leftNodeKeypairs = Lists.newArrayList(existNodeKeypairs);
+    	if(CollectionUtils.isNotEmpty(removeNodeKeypairs)) {
+			Set<String> toRemoveNodeIdSet = removeNodeKeypairs.stream().map(item -> item.getNode().getId())
+					.collect(Collectors.toSet());
+			leftNodeKeypairs = leftNodeKeypairs.stream()
+					.filter(item -> !toRemoveNodeIdSet.contains(item.getNode().getId())).collect(Collectors.toList());
+    	}
+    	if(CollectionUtils.isNotEmpty(addNodeKeypairs)) {
+    		leftNodeKeypairs.addAll(addNodeKeypairs);
+    	}
+    	
+    	return leftNodeKeypairs;
+    }
+	
+	public CertificateDeferPo buildCertificateDefer(KeypairPo keypair) {
+		LocalDateTime now = LocalDateTime.now();
+		String operUser = WebHelper.getUserId();
+		return CertificateDeferPo.builder()
+				.publicKey(keypair.getPublicKey())
+				.privateKey(keypair.getPrivateKey())
+				.csrStr(keypair.getCsrStr())
+				.certStr(keypair.getCertStr())
+				.algorithm(keypair.getAlgorithm())
+				.consortiumId(keypair.getConsortiumId())
+				.status(DeferStatus.INITIAL.getCode())
+				.deleteFlag(IntTypeEnum.FALSE.getValue())
+				.createTime(now)
+				.createBy(operUser)
+				.updateTime(now)
+				.updateBy(operUser)
+				.build();
+	}
+	
+	public CertificateDeferPo buildCertificateDeferUpdate(Long id) {
+		return CertificateDeferPo.builder()
+				.id(id)
+				.updateTime(LocalDateTime.now())
+				.updateBy(WebHelper.getUserId())
+				.build();
+	}
+	
+	public KeypairPo buildConsortiumKeypairPoFromDefer(CertificateDeferPo defer) {
+		LocalDateTime now = LocalDateTime.now();
+		String operUser = WebHelper.getUserId();
+		return KeypairPo.builder()
+				.publicKey(defer.getPublicKey())
+				.privateKey(defer.getPrivateKey())
+				.csrStr(defer.getCsrStr())
+				.certStr(defer.getCertStr())
+				.algorithm(defer.getAlgorithm())
+				.consortiumId(defer.getConsortiumId())
+				.keyType(KeyType.CONSORTIUM.getCode())
+				.deleteFlag(IntTypeEnum.FALSE.getValue())
+				.createTime(now)
+				.createBy(operUser)
+				.updateTime(now)
+				.updateBy(operUser)
+				.build();
+	}
+	
+	public NodePo buildToAddNode(String consId, String blockchainId, NodeInfo nodeInfo, LocalDateTime now) {
+		String operUser = WebHelper.getUserId();
+		return NodePo.builder()
+				.id(UUID.randomUUID().toString())
+				.consortiumId(consId)
+				.blockchainId(blockchainId)
+				.organizationName(nodeInfo.getOrg())
+				.nodeIp(nodeInfo.getIp())
+				.nodePort(Integer.parseInt(nodeInfo.getPort()))
+				.status(NodeEnum.Status.TO_LAUNCH.getCode())
+				.membershipFinalStatus(MembershipStatus.TO_LAUNCH_FIRST_TIME.getCode())
+				.membershipStatus(MembershipStatus.TO_LAUNCH_FIRST_TIME.getCode())
+				.deleteFlag(IntTypeEnum.FALSE.getValue())
+				.createTime(now)
+				.createBy(operUser)
+				.updateTime(now)
+				.updateBy(operUser)
+				.build();
 	}
 }

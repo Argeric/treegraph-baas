@@ -20,6 +20,7 @@ import org.treegraph.baas.core.heartbeat.HeartbeatHandler;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 
 import lombok.AllArgsConstructor;
@@ -54,7 +55,7 @@ public class HeartbeatHandlerImpl implements HeartbeatHandler {
 				.exceptionally(e -> null)
 		).collect(Collectors.toList());
 		List<Heartbeat> heartbeats = futureList.stream().map(CompletableFuture::join).collect(Collectors.toList());
-		log.info("heartbeat--->{}", JSON.toJSONString(heartbeats));
+		log.debug("heartbeat--->{}", JSONObject.toJSONString(heartbeats, true));
 		heartbeats.stream().forEach(item -> nodes.put(item.getId(), item));
 		updateNodeStatus(heartbeats);
 	}

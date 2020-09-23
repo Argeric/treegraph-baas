@@ -8,7 +8,6 @@ import org.treegraph.baas.core.das.bo.NodeKeypairInfoBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 
 public interface KeypairDas {
-	
 	Optional<KeypairPo> findById(Long id);
 	
 	List<KeypairPo> findByIds(List<Long> ids);

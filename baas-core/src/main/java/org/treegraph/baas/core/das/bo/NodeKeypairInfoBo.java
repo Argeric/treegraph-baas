@@ -21,6 +21,11 @@ public class NodeKeypairInfoBo implements Serializable {
      * 私钥
      */
     private String privateKey;
+    
+    /**
+     * 证书
+     */
+    private String certStr;
 
     /**
      * 加密算法，支持ecc，sm2， rsa

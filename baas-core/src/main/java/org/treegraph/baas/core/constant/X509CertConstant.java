@@ -1,27 +1,20 @@
 package org.treegraph.baas.core.constant;
 
 import org.treegraph.baas.core.enums.CryptoEnum;
-import org.treegraph.baas.core.enums.CryptoEnum.SignCertificateRequest;
+import org.treegraph.baas.core.enums.CryptoEnum.SignCertificateType;
 
 public class X509CertConstant {
-	
-	public static final String DEFAULT_ALGO_CONS = CryptoEnum.Algo.RSA.getCode();
-	
-	public static final String DEFAULT_ALGO_NODE = CryptoEnum.Algo.ECC.getCode();
+	public static final String ALGO_CONS = CryptoEnum.Algo.RSA.getCode();
+	public static final String ALGO_NODE = CryptoEnum.Algo.ECC.getCode();
 
-	public static final String ROOT_CA_SUBJECT = "CN=rootCA,OU=it-dept,O=conflux-chain,L=SH,ST=SH,C=CN";
-
-	public static final String CONSORTIUM_CERT_SUBJECT = "CN=baas.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN";
+	public static final String SUBJECT_ROOT_CA = "CN=rootCA,OU=it-dept,O=conflux-chain,L=SH,ST=SH,C=CN";
+	public static final String SUBJECT_CONSORTIUM_CERT = "CN=baas.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN";
+	public static final String SUBJECT_NODE_CERT = "CN=node.baas.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN";
 	
-	public static final String NODE_CERT_SUBJECT = "CN=node.baas.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN";
+	public static final String COMMON_NAME_CONSORTIUM_CERT= "baas.conflux-chain.org";
 	
-	public static final String CONSORTIUM_CERT_COMMON_NAME = "baas.conflux-chain.org";
-	
-	public static final int CONSORTIUM_CERT_EXPIRE_DYAS = 365;
-	
-	public static final SignCertificateRequest SIGN_CERTIFICATE_REQUEST = CryptoEnum.SignCertificateRequest.VAULT;
-	
+	public static final SignCertificateType SIGN_CERTIFICATE_TYPE = CryptoEnum.SignCertificateType.VAULT;
+	public static final int EXPIRE_CONSORTIUM_CERT_IN_DYAS = 365;
 	public static final String VAULT_ROLE_ISSUE_CERTIFICATE = "baasroot";
-	
-	public static final String VAULT_PKI_PATH = "pki_baas_" + DEFAULT_ALGO_CONS;
+	public static final String VAULT_PKI_PATH = "pki_baas_" + ALGO_CONS;
 }

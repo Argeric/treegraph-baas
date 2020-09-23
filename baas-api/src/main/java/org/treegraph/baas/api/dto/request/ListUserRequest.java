@@ -16,12 +16,15 @@ public class ListUserRequest extends ListRequest{
 	private String email;
 	
 	private String phone;
+	
+	private Integer status;
 
-	public ListUserRequest(int current, int pageSize, String account, String name, String email, String phone) {
+	public ListUserRequest(int current, int pageSize, String account, String name, String email, String phone, Integer status) {
 		super(current, pageSize);
 		this.account = account;
 		this.name = name;
 		this.email = email;
 		this.phone = phone;
+		this.status = status;
 	}
 }

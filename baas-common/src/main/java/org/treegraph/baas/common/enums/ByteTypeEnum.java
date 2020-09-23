@@ -1,14 +1,5 @@
 package org.treegraph.baas.common.enums;
-/** 
- * 功能描述
- * 
- * <p>
- * <a href="ManbaEnums.java"><i>View Source</i></a>
- * </p>
- * @author xiaochang.xu@mljr.com
- * @version 1.0
- * @since 1.0 
-*/
+
 public enum ByteTypeEnum{
     /**
      * 真
@@ -61,5 +52,4 @@ public enum ByteTypeEnum{
     public String getName(){
         return name;
     }
-    
 }

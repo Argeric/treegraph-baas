@@ -371,6 +371,7 @@
   <resultMap id="BaseResultMap2" type="org.treegraph.baas.core.das.bo.NodeKeypairInfoBo">
     <result column="keypair_public_key" jdbcType="VARCHAR" property="publicKey" />
     <result column="keypair_private_key" jdbcType="VARCHAR" property="privateKey" />
+    <result column="keypair_cert_str" jdbcType="VARCHAR" property="certStr" />
     <result column="keypair_algorithm" jdbcType="VARCHAR" property="algorithm" />
     <result column="keypair_consortium_id" jdbcType="VARCHAR" property="consortiumId" />
     <result column="keypair_key_type" jdbcType="INTEGER" property="keyType" />
@@ -381,6 +382,7 @@
   <select id="selectAllByNodeIds" resultMap="BaseResultMap2">
 		SELECT keypair.public_key as keypair_public_key, 
 			keypair.private_key as keypair_private_key, 
+			keypair.cert_str as keypair_cert_str, 
 			keypair.algorithm as keypair_algorithm,
 			keypair.consortium_id as keypair_consortium_id,
 			keypair.`key_type` as keypair_key_type,

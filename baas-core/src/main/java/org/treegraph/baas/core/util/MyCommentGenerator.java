@@ -14,11 +14,20 @@ import java.util.Properties;
  * mybatis generator生成注释插件
  */
 public class MyCommentGenerator extends DefaultCommentGenerator {
-    private Properties properties;
-    private Properties systemPro;
-    private boolean suppressDate;
-    private boolean suppressAllComments;
-    private String currentDateStr;
+	
+	private boolean suppressAllComments;
+	
+    @SuppressWarnings("unused")
+	private Properties properties;
+    
+    @SuppressWarnings("unused")
+	private Properties systemPro;
+    
+    @SuppressWarnings("unused")
+	private boolean suppressDate;
+    
+    @SuppressWarnings("unused")
+	private String currentDateStr;
 
     public MyCommentGenerator() {
         super();

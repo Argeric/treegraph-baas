@@ -69,7 +69,8 @@ public class LogAspect {
             result = joinPoint.proceed();
         } catch (Throwable e) {
         	addOperLog(methodName, JSON.toJSONString(argArrays), StringUtils.substring(e.getMessage(), 0, 100));
-            log.error("[userId={}]{} resp:{},elapsed:{},err:", userId, methodName, JSON.toJSONString(result), stopWatch.getTime(), e);
+			log.error("[userId={}]{} resp:{},elapsed:{},err:", userId, methodName, JSON.toJSONString(result),
+					stopWatch.getTime(), e);
             throw e;
         }
         addOperLog(methodName, JSON.toJSONString(argArrays), JSON.toJSONString(result));

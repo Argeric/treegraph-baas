@@ -1,6 +1,5 @@
 package org.treegraph.baas.web.rest;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -19,6 +18,7 @@ import org.treegraph.baas.api.dto.request.AddNodesRequest;
 import org.treegraph.baas.api.dto.request.CreateBlockchainRequest;
 import org.treegraph.baas.api.dto.request.CreateConsAdminRequest;
 import org.treegraph.baas.api.dto.request.CreateConsRequest;
+import org.treegraph.baas.api.dto.request.DeferCertificateRequest;
 import org.treegraph.baas.api.dto.request.DeleteConsRequest;
 import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
 import org.treegraph.baas.api.dto.request.ModifyConsRequest;
@@ -119,6 +119,13 @@ public class ConsortiumController {
 	@ApiOperation("获取部署脚本")
 	public void getDeployScript(@RequestBody DownloadDeployScriptRequest downloadDeployScriptRequest, HttpServletResponse response) throws Exception {
 		consortiumService.downloadDeployScript(downloadDeployScriptRequest, response);
+	}
+	
+	@PostMapping("/cert/defer")
+	@ApiOperation("证书延期")
+	public BaasResult<Void> deferCert(@RequestBody DeferCertificateRequest deferCertificateRequest) throws Exception {
+		consortiumService.deferConsortiumCert(deferCertificateRequest);
+		return BaasResult.success();
 	}
 
 	private void checkCreateConsAndAdmin() {

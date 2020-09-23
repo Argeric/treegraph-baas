@@ -12,8 +12,8 @@ public class PermHelper {
 	private static final ThreadLocal<Map<String, Set<String>>> consPermMapThreadLocal = new ThreadLocal<>();
 	private static final ThreadLocal<String> consIdsCondThreadLocal = new ThreadLocal<>();
 	
-	
-	public static void init(boolean sysAdminFlag, Set<String> consAdminSet, Set<String> consIdSet, Map<String, Set<String>> consPermMap, String consIdsCond) {
+	public static void init(boolean sysAdminFlag, Set<String> consAdminSet, Set<String> consIdSet,
+			Map<String, Set<String>> consPermMap, String consIdsCond) {
 		sysAdminFlagThreadLocal.set(sysAdminFlag);
 		consAdminSetThreadLocal.set(consAdminSet);
 		consIdSetThreadLocal.set(consIdSet);

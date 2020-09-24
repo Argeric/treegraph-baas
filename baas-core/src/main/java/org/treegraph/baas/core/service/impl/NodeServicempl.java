@@ -1,5 +1,7 @@
 package org.treegraph.baas.core.service.impl;
 
+import static org.treegraph.baas.core.util.ConfluxUtils.toUri;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +24,6 @@ import org.treegraph.baas.core.das.NodeCustomizedConfigDas;
 import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.domain.BlockChainPo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
-import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.MembershipEnum;
@@ -34,7 +35,6 @@ import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
 import org.treegraph.baas.core.service.NodeService;
 import org.treegraph.baas.core.service.bo.MembershipChangeBo;
 import org.treegraph.baas.core.util.DateTimeUtils;
-import static org.treegraph.baas.core.util.ConfluxUtils.toUri;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -74,12 +74,6 @@ public class NodeServicempl implements NodeService {
 		Map<String, String> blockchainIdNameMap = blockchains.stream()
 				.collect(Collectors.toMap(BlockChainPo::getId, BlockChainPo::getBlockchainName));
     	
-		List<String> nodeIds = nodeList.stream().map(NodePo::getId).collect(Collectors.toList());
-		List<NodeCustomizedConfigPo> configList = nodeCustomizedConfigDas.findConfigByPropertyName(nodeIds,
-				ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT);
-		Map<String, String> configMap = configList.stream()
-				.collect(Collectors.toMap(NodeCustomizedConfigPo::getNodeId, NodeCustomizedConfigPo::getPropertyValue));
-		
     	List<NodeInfo> nodeInfos = nodeList.stream().map(item -> {
 			Status nodeStatus = HeartbeatLinstener.getInstance().getNodeStatus(item.getConsortiumId(), item.getId());
 			
@@ -94,7 +88,6 @@ public class NodeServicempl implements NodeService {
 					.blockchainName(blockchainIdNameMap.get(item.getBlockchainId()))
 					.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
 					.status(nodeStatus.getCode())
-					.logMonitorUri(toUri(item.getNodeIp(), Integer.parseInt(configMap.get(item.getId()))))
 					.build();
 		}).collect(Collectors.toList());
     	
@@ -107,13 +100,24 @@ public class NodeServicempl implements NodeService {
 	}
 	
 	public NodeInfo getNodeDetail(QueryNodeDetailRequest req) {
-		NodePo nodePo = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
-		Status nodeStatus = HeartbeatLinstener.getInstance().getNodeStatus(nodePo.getConsortiumId(), nodePo.getId());
+		NodePo node = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
+		ConsortiumPo consortium = consortiumDas.findById(node.getConsortiumId())
+				.orElseThrow(() -> new AlertException("consortium.not.found"));
+		BlockChainPo blockchain = blockchainDas.findById(node.getBlockchainId())
+				.orElseThrow(() -> new AlertException("blockchain.not.found"));
+		Status nodeStatus = HeartbeatLinstener.getInstance().getNodeStatus(node.getConsortiumId(), node.getId());
+		String logMonitorPort = nodeCustomizedConfigDas.findPropertyValueByName(node.getConsortiumId(), node.getId(),
+				ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT);
 		return NodeInfo.builder()
-				.ip(nodePo.getNodeIp())
-				.port(nodePo.getNodePort()+"")
-				.org(nodePo.getOrganizationName())
+				.consId(node.getConsortiumId())
+				.consName(consortium.getName())
+				.blockchainId(node.getBlockchainId())
+				.blockchainName(blockchain.getBlockchainName())
+				.ip(node.getNodeIp())
+				.port(node.getNodePort()+"")
+				.org(node.getOrganizationName())
 				.status(nodeStatus.getCode())
+				.logMonitorUri(toUri(node.getNodeIp(), Integer.parseInt(logMonitorPort)))
 				.build();
 	}
 

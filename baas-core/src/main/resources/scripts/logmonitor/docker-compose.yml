@@ -4,7 +4,7 @@ services:
   web:
     restart: always
     image: quay.io/blacklabelops/logio:latest
-    container_name: baas_log_web
+    container_name: baas_log_web${HOST_WEB_PORT}
     environment:
       - LOGIO_ADMIN_USER=
       - LOGIO_ADMIN_PASSWORD=
@@ -19,7 +19,7 @@ services:
   harvester:
     restart: always      
     image: quay.io/blacklabelops/logio:latest
-    container_name: baas_log_harvester
+    container_name: baas_log_harvester${HOST_WEB_PORT}
     environment:
       - LOGIO_HARVESTER_MASTER_HOST=baas_log_web
       - LOGIO_HARVESTER_MASTER_PORT=28777

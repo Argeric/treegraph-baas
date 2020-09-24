@@ -15,11 +15,14 @@ import org.treegraph.baas.api.dto.request.QueryNodeDetailRequest;
 import org.treegraph.baas.api.dto.request.QueryNodeLogRequest;
 import org.treegraph.baas.api.dto.response.ListNodeResponse;
 import org.treegraph.baas.common.util.WebHelper;
+import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.das.BlockchainDas;
 import org.treegraph.baas.core.das.ConsortiumDas;
+import org.treegraph.baas.core.das.NodeCustomizedConfigDas;
 import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.domain.BlockChainPo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
+import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.MembershipEnum;
@@ -31,6 +34,7 @@ import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
 import org.treegraph.baas.core.service.NodeService;
 import org.treegraph.baas.core.service.bo.MembershipChangeBo;
 import org.treegraph.baas.core.util.DateTimeUtils;
+import static org.treegraph.baas.core.util.ConfluxUtils.toUri;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -47,6 +51,8 @@ public class NodeServicempl implements NodeService {
     private ConsortiumDas consortiumDas;
     
     private BlockchainDas blockchainDas;
+    
+    private NodeCustomizedConfigDas nodeCustomizedConfigDas;
     
     private BuildService buildService;
     
@@ -68,8 +74,15 @@ public class NodeServicempl implements NodeService {
 		Map<String, String> blockchainIdNameMap = blockchains.stream()
 				.collect(Collectors.toMap(BlockChainPo::getId, BlockChainPo::getBlockchainName));
     	
+		List<String> nodeIds = nodeList.stream().map(NodePo::getId).collect(Collectors.toList());
+		List<NodeCustomizedConfigPo> configList = nodeCustomizedConfigDas.findConfigByPropertyName(nodeIds,
+				ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT);
+		Map<String, String> configMap = configList.stream()
+				.collect(Collectors.toMap(NodeCustomizedConfigPo::getNodeId, NodeCustomizedConfigPo::getPropertyValue));
+		
     	List<NodeInfo> nodeInfos = nodeList.stream().map(item -> {
 			Status nodeStatus = HeartbeatLinstener.getInstance().getNodeStatus(item.getConsortiumId(), item.getId());
+			
 			return NodeInfo.builder()
 					.id(item.getId())
 					.ip(item.getNodeIp())
@@ -80,7 +93,9 @@ public class NodeServicempl implements NodeService {
 					.blockchainId(item.getBlockchainId())
 					.blockchainName(blockchainIdNameMap.get(item.getBlockchainId()))
 					.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
-					.status(nodeStatus.getCode()).build();
+					.status(nodeStatus.getCode())
+					.logMonitorUri(toUri(item.getNodeIp(), Integer.parseInt(configMap.get(item.getId()))))
+					.build();
 		}).collect(Collectors.toList());
     	
     	return ListNodeResponse.builder()

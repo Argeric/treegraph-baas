@@ -24,7 +24,7 @@ public class ConfluxUtils {
 		return toAddress(ecKeypair);
 	}
 	
-	public static String toJsonRpcUri(String nodeIp, Integer jsonRpcHttpPort) {
+	public static String toUri(String nodeIp, Integer jsonRpcHttpPort) {
 		return "http://"+nodeIp + CharacterConstant.COLON + jsonRpcHttpPort;
 	}
 	

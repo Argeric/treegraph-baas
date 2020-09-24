@@ -31,7 +31,7 @@ public class JsonRpcHeartbeatClientImpl implements HeartbeatClient{
 		String error = null;
 		
 		try {
-			uri = ConfluxUtils.toJsonRpcUri(heartbeat.getIp(), heartbeat.getPort());
+			uri = ConfluxUtils.toUri(heartbeat.getIp(), heartbeat.getPort());
 			Cfx cfx = Cfx.create(uri, ConfluxConstant.TIMEOUT_CONNECT, ConfluxConstant.TIMEOUT_READ, TimeUnit.SECONDS);
 			statusRequest = cfx.getStatus();
 			statusResponse = statusRequest.sendAndGet();

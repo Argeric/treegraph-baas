@@ -121,6 +121,10 @@ import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.treegraph.baas.core.util.crypto.x509.SignUtil;
 import org.web3j.crypto.ECKeyPair;
 
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFromBase64;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
+
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Functions;
@@ -491,12 +495,11 @@ public class ConsortiumServicempl implements ConsortiumService {
 			NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypair(consortiumId, ALGO_NODE, node,
 					consKeypair);
 			nodeKeypairBoList.add(nodeKeypairBo);
-			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
+			ECKeyPair ecKeypair = loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
 					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
 			consortiumNodes.append("cfxnode://");
 			consortiumNodes.append(StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0') 
-					+ AT + nodeKeypairBo.getNode().getNodeIp()
-					+ COLON + nodeKeypairBo.getNode().getNodePort());
+					+ AT + nodeKeypairBo.getNode().getNodeIp() + COLON + nodeKeypairBo.getNode().getNodePort());
 			if(!node.getId().equalsIgnoreCase(nodes.get(nodes.size()-1).getId())) {
 				consortiumNodes.append(COMMA);
 			}
@@ -507,62 +510,57 @@ public class ConsortiumServicempl implements ConsortiumService {
 		byte[] consNodesDigestCipher = EncryptUtil.codecByPrivateKey(ALGO_CONS, true, privateKey, consNodesSHA3);
 		String consNodesDigest = Base64.toBase64String(consNodesDigestCipher);
 		
+		// node config
+		List<NodeCustomizedConfigPo> configList = nodeCustomizedConfigDas.findAll(consortiumId, null);
+		Map<String, Map<String, String>> configMap = Maps.newHashMap();
+		configList.stream().filter(item -> !item.getNodeId().equals(IntTypeEnum.FALSE.getValue().toString()))
+				.collect(Collectors.groupingBy(NodeCustomizedConfigPo::getNodeId))
+				.forEach((nodeId, nodeConfigs) -> {
+					Map<String, String> nodeConfigMap = nodeConfigs.stream().collect(Collectors
+							.toMap(NodeCustomizedConfigPo::getPropertyName, NodeCustomizedConfigPo::getPropertyValue));
+					configMap.put(nodeId, nodeConfigMap);
+				});
+		
 		// script content
 		Map<String, Map<String, String>> nodeScriptContentMap = new HashMap<>();
-		for(NodeKeypairBo nodeKeypairBo:nodeKeypairBoList){
+		for (NodeKeypairBo nodeKeypair : nodeKeypairBoList) {
+			NodePo node = nodeKeypair.getNode();
+			KeypairPo keypair = nodeKeypair.getKeypair();
+			ECKeyPair ecKeypair = loadECKeyPairFromBase64(keypair.getPublicKey(), keypair.getPrivateKey(),
+					keypair.getAlgorithm());
+			String ecPub = StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0');
+			String ecPri = StringUtils.leftPad(ecKeypair.getPrivateKey().toString(16), 64, '0');
+			String nodePrivateKeyPem = privateKeyToPem(privateKeyFromBase64(ALGO_NODE, keypair.getPrivateKey()));
 			StringBuffer scriptContent = new StringBuffer();
-			scriptContent.append("consortium_cert = \"\"\"" + consKeypair.getCertStr() + "\"\"\"")
-					.append(LINE_SEP).append(LINE_SEP);
-			scriptContent.append("consortium_nodes = \"\"\"" + consortiumNodes.toString() + "\"\"\"")
-					.append(LINE_SEP).append(LINE_SEP);
-			scriptContent.append("consortium_nodes_digest = \"" + consNodesDigest + "\"")
-					.append(LINE_SEP).append(LINE_SEP);
-			ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
-					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
-			scriptContent.append("consortium_keypair = \"" + StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0')
-					+ COMMA + StringUtils.leftPad(ecKeypair.getPrivateKey().toString(16), 64, '0') + "\"")
-				    .append(LINE_SEP).append(LINE_SEP);
-			scriptContent.append("grpc_server_cert = \"\"\"" + nodeKeypairBo.getKeypair().getCertStr() + "\"\"\"")
-					.append(LINE_SEP).append(LINE_SEP);
-			String nodePrivateKeyPem = KeyUtil
-					.privateKeyToPem(KeyUtil.privateKeyFromBase64(ALGO_NODE, nodeKeypairBo.getKeypair().getPrivateKey()));
-			scriptContent.append("grpc_server_key = \"\"\"" + nodePrivateKeyPem + "\"\"\"")
-					.append(LINE_SEP).append(LINE_SEP);
-			StringBuffer customizedScriptContent = buildCustomizedDeployScript(nodeKeypairBo, ecKeypair);
-			Map<String, String> logMonitorScritps = buildLogMonitorScript();
+			append(scriptContent, "consortium_cert = \"\"\"" + consKeypair.getCertStr() + "\"\"\"");
+			append(scriptContent, "consortium_nodes = \"\"\"" + consortiumNodes.toString() + "\"\"\"");
+			append(scriptContent, "consortium_nodes_digest = \"" + consNodesDigest + "\"");
+			append(scriptContent, "consortium_keypair = \"" + ecPub + COMMA + ecPri + "\"");
+			append(scriptContent, "grpc_server_cert = \"\"\"" + keypair.getCertStr() + "\"\"\"");
+			append(scriptContent, "grpc_server_key = \"\"\"" + nodePrivateKeyPem + "\"\"\"");
+			Map<String, String> configs = configMap.get(node.getId());
+			StringBuffer customizedScriptContent = buildCustomizedDeployScript(node.getId(), ecKeypair, configs);
+			Map<String, String> logMonitorScritps = buildLogMonitorScript(node.getId(), configs);
 			
 			// build script map
 			Map<String, String> scripts = Maps.newHashMap();
 			scripts.put("config.toml", scriptContent.toString());
 			scripts.put("customized_config.toml", customizedScriptContent.toString());
 			scripts.putAll(logMonitorScritps);
-			nodeScriptContentMap.put(nodeKeypairBo.getNode().getNodeIp() + AT + nodeKeypairBo.getNode().getNodePort(),
-					scripts);
+			nodeScriptContentMap.put(node.getNodeIp() + AT + node.getNodePort(), scripts);
 		}
 		
-		// save key pair and write script
+		// save key pair
 		keypairDas.addKeyPairInfo(rootKeypair, consKeypair, nodeKeypairBoList);
 		log.info("build deploy script finished[{}]", consortiumId);
 		return nodeScriptContentMap;
 	}
 
-	private StringBuffer buildCustomizedDeployScript(NodeKeypairBo nodeKeypairBo, ECKeyPair ecKeypair) {
+	private StringBuffer buildCustomizedDeployScript(String nodeId, ECKeyPair ecKeypair, Map<String, String> configs) {
 		// node customized script content
-		NodePo node = nodeKeypairBo.getNode();
-		String jsonRpcHttpPort = null;
-		String jsonRpcLocalHttpPort = null;
-		List<NodeCustomizedConfigPo> customizedConfigs = nodeCustomizedConfigDas.findAll(Lists.newArrayList(node));
-		if(CollectionUtils.isNotEmpty(customizedConfigs)) {
-			for(NodeCustomizedConfigPo config:customizedConfigs) {
-				if(PROPERTY_JSON_RPC_PORT.equalsIgnoreCase(config.getPropertyName())) {
-					jsonRpcHttpPort = config.getPropertyValue();
-				}
-				if(PROPERTY_JSON_RPC_LOC_PORT.equalsIgnoreCase(config.getPropertyName())) {
-					jsonRpcLocalHttpPort = config.getPropertyValue();
-				}
-			}
-		}
 		StringBuffer customizedScriptContent = new StringBuffer();
+		String jsonRpcHttpPort = configs.get(PROPERTY_JSON_RPC_PORT);
+		String jsonRpcLocalHttpPort = configs.get(PROPERTY_JSON_RPC_LOC_PORT);
 		customizedScriptContent.append(PROPERTY_JSON_RPC_PORT + " = " + jsonRpcHttpPort)
 				.append(LINE_SEP).append(LINE_SEP);
 		customizedScriptContent.append(PROPERTY_JSON_RPC_LOC_PORT + " = " + jsonRpcLocalHttpPort)
@@ -576,25 +574,30 @@ public class ConsortiumServicempl implements ConsortiumService {
 		return customizedScriptContent;
 	}
 
-	private Map<String, String> buildLogMonitorScript() {
-		Map<String, String> logMonitorScritpMap = Maps.newHashMap();
+	private Map<String, String> buildLogMonitorScript(String nodeId, Map<String, String> configs) {
+		Map<String, String> scripts = Maps.newHashMap();
 		List<String> files = Lists.newArrayList("docker-compose.yml", "start_log_monitor.sh", 
 				"stop_log_monitor.sh", ".env");
 		files.stream().forEach(item -> {
 			String content = null;
 			if(".env".equals(item)) {
+				String webPort = configs.get(PROPERTY_LOG_MONITOR_WEB_PORT);
+				String network = configs.get(PROPERTY_LOG_MONITOR_CONTAINER_NETWORK);
 				content = MessageFormat.format(MonitorConstant.LOG_MONITOR_ENV_FILE,
-						MonitorConstant.DEFAULT_HOST_LOG_PATH, MonitorConstant.DEFAULT_HOST_WEB_PORT.toString(),
-						MonitorConstant.DEFAULT_CONTAINER_NETWORK);
+						MonitorConstant.DEFAULT_HOST_LOG_PATH, webPort, network);
 			} else {
 				content = FileUtils.readFile(new ClassPathResource("scripts/logmonitor/" + item));
 				
 			}
-			logMonitorScritpMap.put("log_monitor" + FILE_SEP + item, content);
+			scripts.put("log_monitor" + FILE_SEP + item, content);
 		});
-		return logMonitorScritpMap;
+		return scripts;
 	}
 
+	private void append(StringBuffer strBuf, String str) {
+		strBuf.append(str).append(LINE_SEP).append(LINE_SEP);
+	}
+	
 	private void checkExistNode(NodePo node) {
 		int membershipStatus = node.getMembershipStatus();
 		if (membershipStatus == MembershipStatus.ADD_START.getCode()

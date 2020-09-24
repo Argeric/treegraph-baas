@@ -9,6 +9,7 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.springframework.core.io.ClassPathResource;
 import org.treegraph.baas.core.constant.SplitterConstant;
 
 public class FileUtils {
@@ -50,6 +51,19 @@ public class FileUtils {
 			throw new RuntimeException("unzip file error!", e);
 		}
 	}
+	
+	public static String readFile(ClassPathResource resource) {
+		StringBuffer str = new StringBuffer();
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(resource.getInputStream(), "UTF-8"))) {
+			String line = null;
+			while ((line = in.readLine()) != null) {
+				str.append(line).append(System.getProperty("line.separator"));
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("read file error!", e);
+		}
+		return str.toString();
+    }
 	
 	public static String readFile(InputStream ins) {
 		StringBuffer str = new StringBuffer();

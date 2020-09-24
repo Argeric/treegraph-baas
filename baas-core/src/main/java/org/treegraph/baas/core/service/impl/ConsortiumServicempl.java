@@ -26,7 +26,6 @@ import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
 import static org.treegraph.baas.core.util.ConfluxUtils.toIpAtPort;
 import static org.treegraph.baas.core.util.DateTimeUtils.FORMAT_yyyyMMddHHmmss;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
@@ -39,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -434,10 +434,10 @@ public class ConsortiumServicempl implements ConsortiumService {
 		Assert.notNull(consortiumId, "consortiumId.not.found");
 		List<NodePo> nodes = nodeDas.findAll(consortiumId, null);
 		Assert.notEmpty(nodes, "node.not.found");
-		Map<String, List<String>> nodeScriptMap = buildDeployScript(consortiumId, nodes);
+		Map<String, Map<String, String>> nodeScriptMap = buildDeployScript(consortiumId, nodes);
 		
 		// filter to download script
-		Map<String, List<String>> toDownloadNodeScriptMap = Maps.newHashMap();
+		Map<String, Map<String, String>> toDownloadNodeScriptMap = Maps.newHashMap();
 		List<String> toDownloadNodeIdList = req.getNodeId();
 		if(CollectionUtils.isNotEmpty(toDownloadNodeIdList)) {
 			Set<String>	toDownloadNodeIdSet = new HashSet<>(toDownloadNodeIdList);
@@ -456,14 +456,17 @@ public class ConsortiumServicempl implements ConsortiumService {
 		resp.setContentType("application/zip");
 		resp.setHeader("Content-disposition", "attachment; filename=\"deploy.zip\"");
 		ZipOutputStream zipOutputStream = new ZipOutputStream((OutputStream) resp.getOutputStream());
-		for(Map.Entry<String, List<String>> item : toDownloadNodeScriptMap.entrySet()){
-			zipOutputStream.putNextEntry(new ZipEntry(item.getKey() + FILE_SEP + "config.toml"));
-			zipOutputStream.write(item.getValue().get(0).getBytes());
-			zipOutputStream.closeEntry();
-			zipOutputStream.putNextEntry(new ZipEntry(item.getKey() + FILE_SEP + "customized_config.toml"));
-			zipOutputStream.write(item.getValue().get(1).getBytes());
-			zipOutputStream.closeEntry();
-			buildLogMonitorScripts(item.getKey(), zipOutputStream);
+		for(Map.Entry<String, Map<String, String>> item : toDownloadNodeScriptMap.entrySet()){
+			String basePath = item.getKey();
+			Map<String, String> scripts = item.getValue();
+			Iterator<String> iter = scripts.keySet().iterator();
+			while(iter.hasNext()) {
+				String path = iter.next();
+				String content = scripts.get(path);
+				zipOutputStream.putNextEntry(new ZipEntry(basePath + FILE_SEP + path));
+				zipOutputStream.write(content.getBytes());
+				zipOutputStream.closeEntry();
+			}
 		}
 		zipOutputStream.close();
 		log.info("write deploy script finished[{}]", consortiumId);
@@ -474,69 +477,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		log.info("update consortium status finished[{}]", consortiumId);
 	}
 
-	private void buildLogMonitorScripts(String nodeKey, ZipOutputStream zipOutputStream)
-			throws IOException {
-		List<String> files = Lists.newArrayList("docker-compose.yml", "start_log_monitor.sh", "stop_log_monitor.sh",
-				".env");
-		for (String file : files) {
-			zipOutputStream.putNextEntry(new ZipEntry(nodeKey + FILE_SEP + "log_monitor" + FILE_SEP + file));
-			byte[] contentBytes = null;
-			if(!".env".equals(file)) {
-				ClassPathResource resource = new ClassPathResource("scripts/logmonitor/" + file);
-				String content = FileUtils.readFile(resource.getInputStream());
-				contentBytes = content.getBytes();
-			} else {
-				String envFile = MessageFormat.format(MonitorConstant.LOG_MONITOR_ENV_FILE,
-						MonitorConstant.DEFAULT_HOST_LOG_PATH, MonitorConstant.DEFAULT_HOST_WEB_PORT.toString(),
-						MonitorConstant.DEFAULT_CONTAINER_NETWORK);
-				contentBytes = envFile.getBytes();
-			}
-			zipOutputStream.write(contentBytes);
-			zipOutputStream.closeEntry();
-		}
-	}
-	
-	private void checkExistNode(NodePo node) {
-		int membershipStatus = node.getMembershipStatus();
-		if (membershipStatus == MembershipStatus.ADD_START.getCode()
-				|| membershipStatus == MembershipStatus.ADD_CHECK_THREAD_LAUNCH.getCode()
-				|| membershipStatus == MembershipStatus.REMOVE_START.getCode()
-				|| membershipStatus == MembershipStatus.REMOVE_CHECK_THREAD_LAUNCH.getCode()) {
-			throw new AlertException(9999, "待添加节点处理中["+membershipStatus+"]，请稍候！");
-		}
-	}
-	
-	/**
-	 * case 1. not added/delete ever can be added/deleted
-	 * case 2. nodes which are added/deleted success or fail can be repeatly added/deleted
-	 * @param item
-	 * @param existNodeMap
-	 * @param existAddSuccessNodeMap
-	 * @param existAddFailNodeMap
-	 * @param existRemoveSuccessNodeMap
-	 * @param existRemoveFailNodeMap
-	 */
-	private void checkToAddNode(NodeInfo item, Map<String, NodePo> existNodeMap,
-			Map<String, NodePo> finalStateNodeMap) {
-		String ipPortPair = toIpAtPort(item.getIp(), Integer.parseInt(item.getPort()));
-		NodePo node = existNodeMap.get(ipPortPair);
-		if (node == null) {
-			return;
-		}
-		checkExistNode(node);
-		
-		Integer membershipFinalStatus = node.getMembershipFinalStatus();
-		if(membershipFinalStatus != null) {
-			if (membershipFinalStatus == MembershipStatus.ADD_SUCCESS.getCode()
-					|| membershipFinalStatus == MembershipStatus.ADD_FAILURE.getCode()
-					|| membershipFinalStatus == MembershipStatus.REMOVE_SUCCESS.getCode()
-					|| membershipFinalStatus == MembershipStatus.REMOVE_FAILURE.getCode()) {
-				finalStateNodeMap.put(ipPortPair, node);
-			}
-		}
-	}
-
-	private Map<String, List<String>> buildDeployScript(String consortiumId, List<NodePo> nodes)
+	private Map<String, Map<String, String>> buildDeployScript(String consortiumId, List<NodePo> nodes)
 			throws Exception, NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
 		// certificate info
 		KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair(ALGO_CONS);
@@ -567,7 +508,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		String consNodesDigest = Base64.toBase64String(consNodesDigestCipher);
 		
 		// script content
-		Map<String, List<String>> nodeScriptContentMap = new HashMap<>();
+		Map<String, Map<String, String>> nodeScriptContentMap = new HashMap<>();
 		for(NodeKeypairBo nodeKeypairBo:nodeKeypairBoList){
 			StringBuffer scriptContent = new StringBuffer();
 			scriptContent.append("consortium_cert = \"\"\"" + consKeypair.getCertStr() + "\"\"\"")
@@ -588,11 +529,13 @@ public class ConsortiumServicempl implements ConsortiumService {
 			scriptContent.append("grpc_server_key = \"\"\"" + nodePrivateKeyPem + "\"\"\"")
 					.append(LINE_SEP).append(LINE_SEP);
 			StringBuffer customizedScriptContent = buildCustomizedDeployScript(nodeKeypairBo, ecKeypair);
+			Map<String, String> logMonitorScritps = buildLogMonitorScript();
 			
 			// build script map
-			List<String> scripts = Lists.newArrayList();
-			scripts.add(scriptContent.toString());
-			scripts.add(customizedScriptContent.toString());
+			Map<String, String> scripts = Maps.newHashMap();
+			scripts.put("config.toml", scriptContent.toString());
+			scripts.put("customized_config.toml", customizedScriptContent.toString());
+			scripts.putAll(logMonitorScritps);
 			nodeScriptContentMap.put(nodeKeypairBo.getNode().getNodeIp() + AT + nodeKeypairBo.getNode().getNodePort(),
 					scripts);
 		}
@@ -631,6 +574,65 @@ public class ConsortiumServicempl implements ConsortiumService {
 		customizedScriptContent.append("log_level = \"info\"")
 				.append(LINE_SEP).append(LINE_SEP);
 		return customizedScriptContent;
+	}
+
+	private Map<String, String> buildLogMonitorScript() {
+		Map<String, String> logMonitorScritpMap = Maps.newHashMap();
+		List<String> files = Lists.newArrayList("docker-compose.yml", "start_log_monitor.sh", 
+				"stop_log_monitor.sh", ".env");
+		files.stream().forEach(item -> {
+			String content = null;
+			if(".env".equals(item)) {
+				content = MessageFormat.format(MonitorConstant.LOG_MONITOR_ENV_FILE,
+						MonitorConstant.DEFAULT_HOST_LOG_PATH, MonitorConstant.DEFAULT_HOST_WEB_PORT.toString(),
+						MonitorConstant.DEFAULT_CONTAINER_NETWORK);
+			} else {
+				content = FileUtils.readFile(new ClassPathResource("scripts/logmonitor/" + item));
+				
+			}
+			logMonitorScritpMap.put("log_monitor" + FILE_SEP + item, content);
+		});
+		return logMonitorScritpMap;
+	}
+
+	private void checkExistNode(NodePo node) {
+		int membershipStatus = node.getMembershipStatus();
+		if (membershipStatus == MembershipStatus.ADD_START.getCode()
+				|| membershipStatus == MembershipStatus.ADD_CHECK_THREAD_LAUNCH.getCode()
+				|| membershipStatus == MembershipStatus.REMOVE_START.getCode()
+				|| membershipStatus == MembershipStatus.REMOVE_CHECK_THREAD_LAUNCH.getCode()) {
+			throw new AlertException(9999, "待添加节点处理中["+membershipStatus+"]，请稍候！");
+		}
+	}
+	
+	/**
+	 * case 1. not added/delete ever can be added/deleted
+	 * case 2. nodes which are added/deleted success or fail can be repeatly added/deleted
+	 * @param item
+	 * @param existNodeMap
+	 * @param existAddSuccessNodeMap
+	 * @param existAddFailNodeMap
+	 * @param existRemoveSuccessNodeMap
+	 * @param existRemoveFailNodeMap
+	 */
+	private void checkToAddNode(NodeInfo item, Map<String, NodePo> existNodeMap,
+			Map<String, NodePo> finalStateNodeMap) {
+		String ipPortPair = toIpAtPort(item.getIp(), Integer.parseInt(item.getPort()));
+		NodePo node = existNodeMap.get(ipPortPair);
+		if (node == null) {
+			return;
+		}
+		checkExistNode(node);
+		
+		Integer membershipFinalStatus = node.getMembershipFinalStatus();
+		if(membershipFinalStatus != null) {
+			if (membershipFinalStatus == MembershipStatus.ADD_SUCCESS.getCode()
+					|| membershipFinalStatus == MembershipStatus.ADD_FAILURE.getCode()
+					|| membershipFinalStatus == MembershipStatus.REMOVE_SUCCESS.getCode()
+					|| membershipFinalStatus == MembershipStatus.REMOVE_FAILURE.getCode()) {
+				finalStateNodeMap.put(ipPortPair, node);
+			}
+		}
 	}
 	
 	private CustomizedConfigBo buildCustomizedConfig(String consortiumId, List<NodePo> nodes) {

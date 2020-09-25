@@ -6,7 +6,8 @@ public class MonitorConstant {
 	public static final String DEFAULT_CONTAINER_NETWORK = "178.18.0.0/16";
 	public static final String PLACEHOLDER_CONTAINER_NETWORK = "178.{0}.0.0/16";
 	public static final String LOG_MONITOR_ENV_FILE = 
-			"HOST_LOG_PATH={0}\n"
-			+ "HOST_WEB_PORT={1}\n" 
-			+ "CONTAINER_NETWORK={2}";
+			"COMPOSE_PROJECT_NAME={0}\n"
+			+ "HOST_LOG_PATH={1}\n"
+			+ "HOST_WEB_PORT={2}\n" 
+			+ "CONTAINER_NETWORK={3}";
 }

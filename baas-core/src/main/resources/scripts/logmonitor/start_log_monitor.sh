@@ -24,14 +24,15 @@ while getopts "p:P:n:" opt; do
   esac
 done
 
-if [ "$HOST_LOG_PATH" ]; then
-	sed -i "1c HOST_LOG_PATH=$HOST_LOG_PATH" .env
-fi
 if [ "$HOST_WEB_PORT" ]; then
-	sed -i "2c HOST_WEB_PORT=$HOST_WEB_PORT" .env
+	sed -i "1c COMPOSE_PROJECT_NAME=$HOST_WEB_PORT" .env
+	sed -i "3c HOST_WEB_PORT=$HOST_WEB_PORT" .env
+fi
+if [ "$HOST_LOG_PATH" ]; then
+	sed -i "2c HOST_LOG_PATH=$HOST_LOG_PATH" .env
 fi
 if [ "$CONTAINER_NETWORK" ]; then
-	sed -i "3c CONTAINER_NETWORK=$CONTAINER_NETWORK" .env
+	sed -i "4c CONTAINER_NETWORK=$CONTAINER_NETWORK" .env
 fi
 
 docker-compose up -d

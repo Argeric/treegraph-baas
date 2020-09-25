@@ -583,7 +583,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			if(".env".equals(item)) {
 				String webPort = configs.get(PROPERTY_LOG_MONITOR_WEB_PORT);
 				String network = configs.get(PROPERTY_LOG_MONITOR_CONTAINER_NETWORK);
-				content = MessageFormat.format(MonitorConstant.LOG_MONITOR_ENV_FILE,
+				content = MessageFormat.format(MonitorConstant.LOG_MONITOR_ENV_FILE, webPort,
 						MonitorConstant.DEFAULT_HOST_LOG_PATH, webPort, network);
 			} else {
 				content = FileUtils.readFile(new ClassPathResource("scripts/logmonitor/" + item));

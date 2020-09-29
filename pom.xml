@@ -344,6 +344,7 @@
                 <configuration>
                     <includes>
                         <include>**/*.*</include>
+                        <include>**/.env</include>
                     </includes>
                 </configuration>
             </plugin>

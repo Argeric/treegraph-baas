@@ -17,27 +17,39 @@ public class ConfluxConstant {
     /**
      * port
      */
-    public static final int DEFAULT_JSON_RPC_HTTP_PORT = 12537;
+    public static final int DEFAULT_JSON_RPC_PORT = 12537;
     
-    public static final int DEFAULT_JSON_RPC_LOCAL_HTTP_PORT = 12539;
+    public static final int DEFAULT_JSON_RPC_LOCAL_PORT = 12539;
     
     /**
      * test
      */
     public static final boolean TEST_SWITCH = true;
     
-    public static final int TEST_JSON_RPC_HTTP_PORT_STEP = 1;
+    public static final int TEST_JSON_RPC_PORT_STEP = 1;
     
-    public static final int TEST_JSON_RPC_LOCAL_HTTP_PORT_INTERVAL = 100;
+    public static final int TEST_JSON_RPC_LOCAL_PORT_INTERVAL = 100;
+    
+    public static final int TEST_LOG_MONITOR_WEB_PORT_STEP = 1;
+    
+    public static final int TEST_LOG_MONITOR_CONTAINER_NETWORK_STEP = 1;
     
     /**
      * customized property
      */
-    public static final String PROPERTY_JSON_RPC_HTTP_PORT = "jsonrpc_http_port";
+    public static final String PROPERTY_JSON_RPC_PORT = "jsonrpc_http_port";
     
-    public static final String PROPERTY_JSON_RPC_LOCAL_HTTP_PORT = "jsonrpc_local_http_port";
+    public static final String PROPERTY_JSON_RPC_LOC_PORT = "jsonrpc_local_http_port";
     
-    public static final String PROPERTY_JSON_RPC_HTTP_PORT_STEP_FACTOR = "jsonrpc_http_port_step_factor";
+    public static final String PROPERTY_JSON_RPC_PORT_STEP_FACTOR = "jsonrpc_http_port_step_factor";
+    
+    public static final String PROPERTY_LOG_MONITOR_WEB_PORT = "logmonitor_web_port";
+    
+    public static final String PROPERTY_LOG_MONITOR_CONTAINER_NETWORK = "logmonitor_container_network";
+    
+    public static final String PROPERTY_LOG_MONITOR_WEB_PORT_STEP_FACTOR = "logmonitor_web_port_step_factor";
+    
+    public static final String PROPERTY_LOG_MONITOR_CONTAINER_NETWORK_STEP_FACTOR = "logmonitor_container_network_step_factor";
     
     /**
      * timeout

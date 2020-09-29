@@ -31,4 +31,6 @@ public class NodeInfo {
 	private String createTime;
 	
 	private Integer status;
+	
+	private String logMonitorUri;
 }

@@ -74,7 +74,7 @@ public class JsonRpcService {
 			NodePo proposerNode = proposerNodeKeypair.getNode();
 			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(proposerNode.getConsortiumId(),
 					proposerNode.getId());
-			uri = ConfluxUtils.toJsonRpcUri(heartbeat.getIp(), heartbeat.getPort());
+			uri = ConfluxUtils.toUri(heartbeat.getIp(), heartbeat.getPort());
 			cfx = Cfx.create(uri, 1, 1, TimeUnit.SECONDS);
 			status = MembershipEnum.Status.SELECT_PROPOSER_SUCCESS;
     	} catch(Exception e) {
@@ -197,7 +197,7 @@ public class JsonRpcService {
 		BigInteger getBftEpochNumberResponse = null;
 		try {
 			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, nodeId);
-			uri = ConfluxUtils.toJsonRpcUri(heartbeat.getIp(), heartbeat.getPort());
+			uri = ConfluxUtils.toUri(heartbeat.getIp(), heartbeat.getPort());
 			Cfx cfx = Cfx.create(uri, 1, 1, TimeUnit.SECONDS);
 			getBftEpochNumberRequest = cfx.getCustomizedRequest(BigIntResponse.class, RPC_GET_BFT_EPOCH_NUMBER);
 			getBftEpochNumberResponse = getBftEpochNumberRequest.sendAndGet();
@@ -226,7 +226,7 @@ public class JsonRpcService {
 			String grpcCertPem = proposerKeypair.getCertStr();
 			
 			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, proposerNodeId);
-			uri = ConfluxUtils.toJsonRpcUri(heartbeat.getIp(), heartbeat.getPort());
+			uri = ConfluxUtils.toUri(heartbeat.getIp(), heartbeat.getPort());
 			Cfx cfx = Cfx.create(uri, 1, 1, TimeUnit.SECONDS);
 			req = cfx.getCustomizedRequest(StringResponse.class, RPC_UPDATE_CERT, consCertPem, grpcKeyPem, grpcCertPem);
 			resp = req.sendAndGet();

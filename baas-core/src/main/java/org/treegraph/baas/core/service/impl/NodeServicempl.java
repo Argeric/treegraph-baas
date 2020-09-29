@@ -1,5 +1,7 @@
 package org.treegraph.baas.core.service.impl;
 
+import static org.treegraph.baas.core.util.ConfluxUtils.toUri;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -15,8 +17,10 @@ import org.treegraph.baas.api.dto.request.QueryNodeDetailRequest;
 import org.treegraph.baas.api.dto.request.QueryNodeLogRequest;
 import org.treegraph.baas.api.dto.response.ListNodeResponse;
 import org.treegraph.baas.common.util.WebHelper;
+import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.das.BlockchainDas;
 import org.treegraph.baas.core.das.ConsortiumDas;
+import org.treegraph.baas.core.das.NodeCustomizedConfigDas;
 import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.domain.BlockChainPo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
@@ -48,6 +52,8 @@ public class NodeServicempl implements NodeService {
     
     private BlockchainDas blockchainDas;
     
+    private NodeCustomizedConfigDas nodeCustomizedConfigDas;
+    
     private BuildService buildService;
     
     private JsonRpcService jsonRpcService;
@@ -70,6 +76,7 @@ public class NodeServicempl implements NodeService {
     	
     	List<NodeInfo> nodeInfos = nodeList.stream().map(item -> {
 			Status nodeStatus = HeartbeatLinstener.getInstance().getNodeStatus(item.getConsortiumId(), item.getId());
+			
 			return NodeInfo.builder()
 					.id(item.getId())
 					.ip(item.getNodeIp())
@@ -80,7 +87,8 @@ public class NodeServicempl implements NodeService {
 					.blockchainId(item.getBlockchainId())
 					.blockchainName(blockchainIdNameMap.get(item.getBlockchainId()))
 					.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
-					.status(nodeStatus.getCode()).build();
+					.status(nodeStatus.getCode())
+					.build();
 		}).collect(Collectors.toList());
     	
     	return ListNodeResponse.builder()
@@ -92,13 +100,24 @@ public class NodeServicempl implements NodeService {
 	}
 	
 	public NodeInfo getNodeDetail(QueryNodeDetailRequest req) {
-		NodePo nodePo = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
-		Status nodeStatus = HeartbeatLinstener.getInstance().getNodeStatus(nodePo.getConsortiumId(), nodePo.getId());
+		NodePo node = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
+		ConsortiumPo consortium = consortiumDas.findById(node.getConsortiumId())
+				.orElseThrow(() -> new AlertException("consortium.not.found"));
+		BlockChainPo blockchain = blockchainDas.findById(node.getBlockchainId())
+				.orElseThrow(() -> new AlertException("blockchain.not.found"));
+		Status nodeStatus = HeartbeatLinstener.getInstance().getNodeStatus(node.getConsortiumId(), node.getId());
+		String logMonitorPort = nodeCustomizedConfigDas.findPropertyValueByName(node.getConsortiumId(), node.getId(),
+				ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT);
 		return NodeInfo.builder()
-				.ip(nodePo.getNodeIp())
-				.port(nodePo.getNodePort()+"")
-				.org(nodePo.getOrganizationName())
+				.consId(node.getConsortiumId())
+				.consName(consortium.getName())
+				.blockchainId(node.getBlockchainId())
+				.blockchainName(blockchain.getBlockchainName())
+				.ip(node.getNodeIp())
+				.port(node.getNodePort()+"")
+				.org(node.getOrganizationName())
 				.status(nodeStatus.getCode())
+				.logMonitorUri(toUri(node.getNodeIp(), Integer.parseInt(logMonitorPort)))
 				.build();
 	}
 

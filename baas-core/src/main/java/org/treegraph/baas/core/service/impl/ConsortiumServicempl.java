@@ -3,28 +3,32 @@ package org.treegraph.baas.core.service.impl;
 import static org.treegraph.baas.core.constant.CharacterConstant.AT;
 import static org.treegraph.baas.core.constant.CharacterConstant.COLON;
 import static org.treegraph.baas.core.constant.CharacterConstant.COMMA;
-import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSON_RPC_PORT;
+import static org.treegraph.baas.core.constant.CharacterConstant.DOT;
 import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSON_RPC_LOCAL_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSON_RPC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSON_RPC_LOC_PORT;
 import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSON_RPC_PORT;
 import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSON_RPC_PORT_STEP_FACTOR;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSON_RPC_LOC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT_STEP_FACTOR;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_CONTAINER_NETWORK_STEP_FACTOR;
 import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_CONTAINER_NETWORK;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_LOG_MONITOR_WEB_PORT_STEP;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_CONTAINER_NETWORK_STEP_FACTOR;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT_STEP_FACTOR;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_JSON_RPC_LOCAL_PORT_INTERVAL;
 import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_JSON_RPC_PORT_STEP;
 import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_LOG_MONITOR_CONTAINER_NETWORK_STEP;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_JSON_RPC_LOCAL_PORT_INTERVAL;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_LOG_MONITOR_WEB_PORT_STEP;
 import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_SWITCH;
-import static org.treegraph.baas.core.constant.MonitorConstant.DEFAULT_HOST_WEB_PORT;
 import static org.treegraph.baas.core.constant.MonitorConstant.DEFAULT_CONTAINER_NETWORK;
+import static org.treegraph.baas.core.constant.MonitorConstant.DEFAULT_HOST_WEB_PORT;
 import static org.treegraph.baas.core.constant.SplitterConstant.FILE_SEP;
 import static org.treegraph.baas.core.constant.SplitterConstant.LINE_SEP;
 import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
 import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
 import static org.treegraph.baas.core.util.ConfluxUtils.toIpAtPort;
 import static org.treegraph.baas.core.util.DateTimeUtils.FORMAT_yyyyMMddHHmmss;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFromBase64;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 
 import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
@@ -120,10 +124,6 @@ import org.treegraph.baas.core.util.crypto.x509.EncryptUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.treegraph.baas.core.util.crypto.x509.SignUtil;
 import org.web3j.crypto.ECKeyPair;
-
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFromBase64;
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -540,13 +540,15 @@ public class ConsortiumServicempl implements ConsortiumService {
 			append(scriptContent, "grpc_server_key = \"\"\"" + nodePrivateKeyPem + "\"\"\"");
 			Map<String, String> configs = configMap.get(node.getId());
 			StringBuffer customizedScriptContent = buildCustomizedDeployScript(node.getId(), ecKeypair, configs);
-			Map<String, String> logMonitorScritps = buildLogMonitorScript(node.getId(), configs);
+			Map<String, String> logMonitorScripts = buildLogMonitorScript(node.getId(), configs);
+			Map<String, String> sysMonitorScripts = buildSysMonitorScript(node.getId(), configs);
 			
 			// build script map
 			Map<String, String> scripts = Maps.newHashMap();
 			scripts.put("config.toml", scriptContent.toString());
 			scripts.put("customized_config.toml", customizedScriptContent.toString());
-			scripts.putAll(logMonitorScritps);
+			scripts.putAll(logMonitorScripts);
+			scripts.putAll(sysMonitorScripts);
 			nodeScriptContentMap.put(node.getNodeIp() + AT + node.getNodePort(), scripts);
 		}
 		
@@ -576,24 +578,62 @@ public class ConsortiumServicempl implements ConsortiumService {
 
 	private Map<String, String> buildLogMonitorScript(String nodeId, Map<String, String> configs) {
 		Map<String, String> scripts = Maps.newHashMap();
-		List<String> files = Lists.newArrayList("docker-compose.yml", "start_log_monitor.sh", 
-				"stop_log_monitor.sh", ".env");
+		List<String> files = Lists.newArrayList(
+				"log_monitor/start_log_monitor.sh", 
+				"log_monitor/stop_log_monitor.sh", 
+				"log_monitor/docker-compose.yml", 
+				"log_monitor/.env"//from string with placeholder
+				);
 		files.stream().forEach(item -> {
 			String content = null;
-			if(".env".equals(item)) {
+			if(item.endsWith(".env")) {
 				String webPort = configs.get(PROPERTY_LOG_MONITOR_WEB_PORT);
 				String network = configs.get(PROPERTY_LOG_MONITOR_CONTAINER_NETWORK);
 				content = MessageFormat.format(MonitorConstant.LOG_MONITOR_ENV_FILE, webPort,
 						MonitorConstant.DEFAULT_HOST_LOG_PATH, webPort, network);
 			} else {
-				content = FileUtils.readFile(new ClassPathResource("scripts/logmonitor/" + item));
+				content = FileUtils.readFile(new ClassPathResource("scripts/" + item));
 				
 			}
-			scripts.put("log_monitor" + FILE_SEP + item, content);
+			scripts.put(item, content);
 		});
 		return scripts;
 	}
-
+	
+	private Map<String, String> buildSysMonitorScript(String nodeId, Map<String, String> configs){
+		Map<String, String> scripts = Maps.newHashMap();
+		List<String> files = Lists.newArrayList(
+				"sys_monitor/start_sys_monitor.sh",
+				"sys_monitor/stop_sys_monitor.sh",
+				"sys_monitor/docker-compose.yml",
+				"sys_monitor/.env",//from string with placeholder
+				"sys_monitor/grafana/dashboard/home.json",
+				"sys_monitor/grafana/datasource/home.ymal",//from string with placeholder
+				"sys_monitor/grafana/data/",
+				"sys_monitor/prometheus/prometheus.yml"//from string with placeholder
+				);
+		files.stream().forEach(item -> {
+			String content = null;
+			String logMonitorWebPort = configs.get(PROPERTY_LOG_MONITOR_WEB_PORT);
+			String logMonitorNetwork = configs.get(PROPERTY_LOG_MONITOR_CONTAINER_NETWORK);
+			String webPort = (Integer.parseInt(logMonitorWebPort) - 10000) + "";
+			String highestNetSeg = StringUtils.substringBefore(logMonitorNetwork, DOT);
+			String leftNetSeg = StringUtils.substringAfter(logMonitorNetwork, DOT);
+			String network = (Integer.parseInt(highestNetSeg) + 1) + DOT + leftNetSeg;
+			if(item.endsWith(".env")) {
+				content = MessageFormat.format(MonitorConstant.SYS_MONITOR_ENV_FILE, webPort, webPort, network);
+			} else if(item.endsWith("home.ymal")) {
+				content = MessageFormat.format(MonitorConstant.SYS_MONITOR_GRAFANA_DATASOURCE_FILE, webPort);
+			} else if(item.endsWith("prometheus.yml")) {
+				content = MessageFormat.format(MonitorConstant.SYS_MONITOR_PROMETHEUS_CONFIG_FILE, webPort);
+			} else {
+				content = FileUtils.readFile(new ClassPathResource("scripts/" + item));
+			}
+			scripts.put(item, content);
+		});
+		return scripts;
+	}
+	
 	private void append(StringBuffer strBuf, String str) {
 		strBuf.append(str).append(LINE_SEP).append(LINE_SEP);
 	}

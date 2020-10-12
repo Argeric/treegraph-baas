@@ -42,7 +42,9 @@ import org.treegraph.baas.api.dto.response.LoginResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.BlockchainDas;
+import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.domain.BlockChainPo;
+import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.util.FileUtils;
 
 import com.alibaba.fastjson.JSON;
@@ -71,6 +73,9 @@ public class BlockchainCreationTests {
 	
 	@Autowired
 	private BlockchainDas blockchainDas;
+	
+	@Autowired
+    private UserInfoDas userInfoDas;
 	
 	//=====================================================================================================================
 	// test paras
@@ -345,24 +350,23 @@ public class BlockchainCreationTests {
 	
 	@Test
 	private void testRemoveConsortiumAdmin() throws Exception {
-		List<String> userIds = Lists.newArrayList();//TODO
-		for(String userId:userIds) {
-			DeleteUserRequest deleteUserRequest = DeleteUserRequest.builder()
-					.id(userId).build();
-			MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/user/del")
-					.contentType(MediaType.APPLICATION_JSON_UTF8)
-					.header("X-Token", token)
-					.content(JSON.toJSONString(deleteUserRequest)))
-					.andExpect(MockMvcResultMatchers.status().isOk())
-					.andDo(MockMvcResultHandlers.print())
-					.andReturn();
-			BaasResult<Boolean> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-					new TypeReference<BaasResult<Boolean>>() {});
-			Boolean succFlag = baasResult.getData();
-			log.info("[step--->testRemoveConsortiumAdmin]remove admin--->{}", userId);
-			Assert.assertTrue("[step--->testRemoveConsortiumAdmin]remove admin--->" + userId, succFlag != null && succFlag);
-		}
-		log.info("[step--->testRemoveConsortiumAdmin]remove admin completed!");
+		UserInfoPo admin = userInfoDas.findByAccount(adminAccount)
+				.orElseThrow(() -> new RuntimeException("user.not.found"));
+		String userId = admin.getId();
+		DeleteUserRequest deleteUserRequest = DeleteUserRequest.builder()
+				.id(userId).build();
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/user/del")
+				.contentType(MediaType.APPLICATION_JSON_UTF8)
+				.header("X-Token", token)
+				.content(JSON.toJSONString(deleteUserRequest)))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
+		BaasResult<Boolean> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
+				new TypeReference<BaasResult<Boolean>>() {});
+		Boolean succFlag = baasResult.getData();
+		log.info("[step--->testRemoveConsortiumAdmin]remove admin--->{}", userId);
+		Assert.assertTrue("[step--->testRemoveConsortiumAdmin]remove admin--->" + userId, succFlag != null && succFlag);
 	}
 	
 	@Test

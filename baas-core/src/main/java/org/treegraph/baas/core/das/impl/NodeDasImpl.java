@@ -295,7 +295,7 @@ public class NodeDasImpl implements NodeDas {
 	private void addHeartbeatListener(List<NodePo> nodes, List<NodeCustomizedConfigPo> customizedConfigList) {
 		HeartbeatLinstener heartbeatListener = HeartbeatLinstener.getInstance();
 		Map<String, Integer> rpcHttpPortMap = customizedConfigList.stream()
-				.filter(item -> item.getPropertyName().equalsIgnoreCase(ConfluxConstant.PROPERTY_JSON_RPC_PORT))
+				.filter(item -> item.getPropertyName().equalsIgnoreCase(ConfluxConstant.PROPERTY_JSONRPC_PORT))
 				.collect(Collectors.toMap(NodeCustomizedConfigPo::getNodeId, item -> Integer.parseInt(item.getPropertyValue())));
 		nodes.stream().forEach(node -> {
 			if(!heartbeatListener.isNodeValid(node.getConsortiumId(), node.getId())){

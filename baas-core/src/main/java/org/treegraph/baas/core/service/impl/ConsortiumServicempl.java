@@ -4,17 +4,19 @@ import static org.treegraph.baas.core.constant.CharacterConstant.AT;
 import static org.treegraph.baas.core.constant.CharacterConstant.COLON;
 import static org.treegraph.baas.core.constant.CharacterConstant.COMMA;
 import static org.treegraph.baas.core.constant.CharacterConstant.DOT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSON_RPC_LOCAL_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSON_RPC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSON_RPC_LOC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSON_RPC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSON_RPC_PORT_STEP_FACTOR;
+import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSONRPC_LOCAL_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSONRPC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_GRPC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_LOC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_PORT_STEP_FACTOR;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_GRPC_PORT;
 import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_CONTAINER_NETWORK;
 import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_CONTAINER_NETWORK_STEP_FACTOR;
 import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT;
 import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT_STEP_FACTOR;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_JSON_RPC_LOCAL_PORT_INTERVAL;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_JSON_RPC_PORT_STEP;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_RPC_PORT_INTERVAL;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_JSONRPC_PORT_STEP;
 import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_LOG_MONITOR_CONTAINER_NETWORK_STEP;
 import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_LOG_MONITOR_WEB_PORT_STEP;
 import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_SWITCH;
@@ -561,11 +563,14 @@ public class ConsortiumServicempl implements ConsortiumService {
 	private StringBuffer buildCustomizedDeployScript(String nodeId, ECKeyPair ecKeypair, Map<String, String> configs) {
 		// node customized script content
 		StringBuffer customizedScriptContent = new StringBuffer();
-		String jsonRpcHttpPort = configs.get(PROPERTY_JSON_RPC_PORT);
-		String jsonRpcLocalHttpPort = configs.get(PROPERTY_JSON_RPC_LOC_PORT);
-		customizedScriptContent.append(PROPERTY_JSON_RPC_PORT + " = " + jsonRpcHttpPort)
+		String jsonRpcHttpPort = configs.get(PROPERTY_JSONRPC_PORT);
+		String jsonRpcLocalHttpPort = configs.get(PROPERTY_JSONRPC_LOC_PORT);
+		customizedScriptContent.append(PROPERTY_JSONRPC_PORT + " = " + jsonRpcHttpPort)
 				.append(LINE_SEP).append(LINE_SEP);
-		customizedScriptContent.append(PROPERTY_JSON_RPC_LOC_PORT + " = " + jsonRpcLocalHttpPort)
+		customizedScriptContent.append(PROPERTY_JSONRPC_LOC_PORT + " = " + jsonRpcLocalHttpPort)
+				.append(LINE_SEP).append(LINE_SEP);
+		customizedScriptContent.append(PROPERTY_GRPC_PORT + "=" + ( TEST_SWITCH
+				? jsonRpcLocalHttpPort + TEST_RPC_PORT_INTERVAL : DEFAULT_GRPC_PORT))
 				.append(LINE_SEP).append(LINE_SEP);
 		customizedScriptContent.append("mining_author = \"" + ConfluxUtils.toAddress(ecKeypair) + "\"")
 				.append(LINE_SEP).append(LINE_SEP);
@@ -680,24 +685,24 @@ public class ConsortiumServicempl implements ConsortiumService {
 	
 	private CustomizedConfigBo buildCustomizedConfig(String consortiumId, List<NodePo> nodes) {
 		String jsonRpcPortStepFactorDb = nodeCustomizedConfigDas.findPropertyValueByName(consortiumId, null,
-				PROPERTY_JSON_RPC_PORT_STEP_FACTOR);
+				PROPERTY_JSONRPC_PORT_STEP_FACTOR);
 		int stepFactor = jsonRpcPortStepFactorDb != null ? Integer.parseInt(jsonRpcPortStepFactorDb) : 0;
 		
 		List<NodeCustomizedConfigPo> configList = Lists.newArrayList();
 		for(NodePo node:nodes){
 			int jsonRpcHttpPort = TEST_SWITCH
-					? DEFAULT_JSON_RPC_PORT + (stepFactor++) * TEST_JSON_RPC_PORT_STEP
-					: DEFAULT_JSON_RPC_PORT;
+					? DEFAULT_JSONRPC_PORT + (stepFactor++) * TEST_JSONRPC_PORT_STEP
+					: DEFAULT_JSONRPC_PORT;
 			int jsonRpcLocHttpPort = TEST_SWITCH
-					? jsonRpcHttpPort + TEST_JSON_RPC_LOCAL_PORT_INTERVAL
-					: DEFAULT_JSON_RPC_LOCAL_PORT;
-			configList.add(buildService.buildNodeConfig(node, PROPERTY_JSON_RPC_PORT, jsonRpcHttpPort + ""));
-			configList.add(buildService.buildNodeConfig(node, PROPERTY_JSON_RPC_LOC_PORT, jsonRpcLocHttpPort + ""));
+					? jsonRpcHttpPort + TEST_RPC_PORT_INTERVAL
+					: DEFAULT_JSONRPC_LOCAL_PORT;
+			configList.add(buildService.buildNodeConfig(node, PROPERTY_JSONRPC_PORT, jsonRpcHttpPort + ""));
+			configList.add(buildService.buildNodeConfig(node, PROPERTY_JSONRPC_LOC_PORT, jsonRpcLocHttpPort + ""));
 		}
 		
 		NodeCustomizedConfigPo jsonRpcStepFactorConfig = buildService.buildNodeConfig(
 				NodePo.builder().id(IntTypeEnum.FALSE.getValue() + "").consortiumId(consortiumId).build(),
-				PROPERTY_JSON_RPC_PORT_STEP_FACTOR, stepFactor + "");
+				PROPERTY_JSONRPC_PORT_STEP_FACTOR, stepFactor + "");
 		List<NodeCustomizedConfigPo> stepFactorConfigList = Lists.newArrayList(jsonRpcStepFactorConfig);
 		
 		CustomizedConfigBo logMonitorConfig = buildCustomizedConfigLogMonitor(consortiumId, nodes);

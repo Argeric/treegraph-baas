@@ -53,9 +53,7 @@ public class ConsortiumEnum {
         
         TO_DEPLOY(4, "等待部署"),
         
-        DOWNLOADED_SCRIPTS(5, "已下载脚本"),
-        
-        LAUNCHED(6, "已启动"),// blockHeight > 0
+        DOWNLOADED_SCRIPTS(5, "已下载脚本")
 
         ;
 

@@ -339,14 +339,15 @@ public class ConsortiumServicempl implements ConsortiumService {
 				roleBo != null ? roleBo.getRolePermissionList() : null, users, userRoles, userOrgs, cons);
 	}
 
-	public boolean createBlockchain(CreateBlockchainRequest req) {
+	public String createBlockchain(CreateBlockchainRequest req) {
 		List<BlockChainPo> blockchains = blockchainDas.findByConsId(req.getConsId());
 		Assert.isTrue(CollectionUtils.isEmpty(blockchains), "联盟["+req.getConsId()+"]下已创建区块链");
 		
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
+		String blockchainId = UUID.randomUUID().toString();
 		BlockChainPo blockchain = BlockChainPo.builder()
-				.id(UUID.randomUUID().toString())
+				.id(blockchainId)
 				.blockchainName(req.getName())
 				.consortiumId(req.getConsId())
 				.alarmEmail(req.getAlertEmail())
@@ -363,8 +364,9 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.build();
 		
 		ConsortiumPo cons = buildService.buildToUpdateCons(req.getConsId(), EstablishStep.TO_ADD_NODE);
+		blockchainDas.createBlockchain(blockchain, cons);
 		
-		return blockchainDas.createBlockchain(blockchain, cons);
+		return blockchainId;
 	}
 
 	/**

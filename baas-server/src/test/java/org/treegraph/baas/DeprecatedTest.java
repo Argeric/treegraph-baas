@@ -55,7 +55,7 @@ import lombok.extern.slf4j.Slf4j;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TreeGraphBaasApp.class)
 @Slf4j
-public class AllTests {
+public class DeprecatedTest {
 	
 	@Autowired
 	private WebApplicationContext context;

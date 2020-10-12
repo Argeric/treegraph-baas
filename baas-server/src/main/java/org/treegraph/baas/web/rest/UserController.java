@@ -97,10 +97,10 @@ public class UserController {
 	
 	@PostMapping("/del")
 	@ApiOperation("删除用户")
-	public BaasResult<Void> deleteUser(@RequestBody DeleteUserRequest deleteUserRequest) {
+	public BaasResult<Boolean> deleteUser(@RequestBody DeleteUserRequest deleteUserRequest) {
 		checkDelUser(deleteUserRequest);
-		userService.deleteUser(deleteUserRequest);
-		return BaasResult.success();
+		boolean succFlag = userService.deleteUser(deleteUserRequest);
+		return BaasResult.success(succFlag);
 	}
 	
 	@PostMapping("/unfrozen")

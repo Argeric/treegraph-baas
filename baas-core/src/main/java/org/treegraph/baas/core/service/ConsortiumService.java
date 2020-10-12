@@ -35,7 +35,7 @@ public interface ConsortiumService {
 
 	boolean createConsAdmin(CreateConsAdminRequest createConsAdminRequest);
 
-	boolean createBlockchain(CreateBlockchainRequest createBlockchainRequest);
+	String createBlockchain(CreateBlockchainRequest createBlockchainRequest);
 
 	boolean addNodes(AddNodesRequest addNodesRequest) throws Exception;
 

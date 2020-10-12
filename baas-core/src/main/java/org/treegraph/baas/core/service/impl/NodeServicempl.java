@@ -150,13 +150,13 @@ public class NodeServicempl implements NodeService {
 		// before download deploy scripts
 		boolean deleteNodeResult = Boolean.FALSE;
 		int establishStep = consortiumDas.findById(consId).get().getEstablishStep();
-		if(establishStep < EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
+		if (req.getForce() || establishStep < EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
 			ConsortiumPo cons = buildService.buildToUpdateCons(consId, EstablishStep.TO_DEPLOY);
 			deleteNodeResult = nodeDas.deleteNodes(node, cons);
 		}
 		
 		// after download deploy scripts, need check chain is launched already
-		if(establishStep == EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
+		if(!req.getForce() && establishStep == EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
 			List<NodePo> existNodes = nodeDas.findByConsIdAndChainId(consId, blockchainId);
 			List<NodePo> toRemoveNodes = Lists.newArrayList(node);
 			

@@ -1,5 +1,6 @@
 package org.treegraph.baas.api.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -8,6 +9,7 @@ import lombok.Data;
  * @version 1.0
  */
 @Data
+@Builder
 public class ConsAdminInfo {
 	
 	private String userId;

@@ -14,4 +14,7 @@ public class DeleteNodeRequest {
 	private String port;
 	
 	private String org;
+	
+	@Builder.Default
+	private Boolean force = false;
 }

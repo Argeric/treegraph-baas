@@ -92,26 +92,26 @@ public class ConsortiumController {
 	
 	@PostMapping("/admin/create")
 	@ApiOperation("创建联盟管理员")
-	public BaasResult<Void> createConsAdmin(@RequestBody CreateConsAdminRequest createConsAdminRequest) {
+	public BaasResult<Boolean> createConsAdmin(@RequestBody CreateConsAdminRequest createConsAdminRequest) {
 		checkCreateConsAndAdmin();
-		consortiumService.createConsAdmin(createConsAdminRequest);
-		return BaasResult.success();
+		boolean succFlag = consortiumService.createConsAdmin(createConsAdminRequest);
+		return BaasResult.success(succFlag);
 	}
 	
 	@PostMapping("/blockchain/create")
 	@ApiOperation("创建区块链")
-	public BaasResult<Void> createBlockchain(@RequestBody CreateBlockchainRequest createBlockchainRequest) {
+	public BaasResult<String> createBlockchain(@RequestBody CreateBlockchainRequest createBlockchainRequest) {
 		checkCreateBlockchainAndNode(createBlockchainRequest.getConsId());
-		consortiumService.createBlockchain(createBlockchainRequest);
-		return BaasResult.success();
+		String blockchainId = consortiumService.createBlockchain(createBlockchainRequest);
+		return BaasResult.success(blockchainId);
 	}
 	
 	@PostMapping("/node/create")
 	@ApiOperation("添加节点")
-	public BaasResult<Void> addNodes(@RequestBody AddNodesRequest addNodesRequest) throws Exception {
+	public BaasResult<Boolean> addNodes(@RequestBody AddNodesRequest addNodesRequest) throws Exception {
 		checkCreateBlockchainAndNode(addNodesRequest.getConsId());
-		consortiumService.addNodes(addNodesRequest);
-		return BaasResult.success();
+		boolean succFlag = consortiumService.addNodes(addNodesRequest);
+		return BaasResult.success(succFlag);
 	}
 	
 	@LogSkip

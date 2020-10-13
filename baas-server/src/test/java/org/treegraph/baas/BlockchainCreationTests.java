@@ -141,7 +141,7 @@ public class BlockchainCreationTests {
 	// prepare
 	//=====================================================================================================================
 	@Before
-	private void setup() {
+	public void setup() {
 		if(!initialized) {
 			mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		}
@@ -151,7 +151,7 @@ public class BlockchainCreationTests {
 	// constract
 	//=====================================================================================================================
 	@Test
-	private void testLogin() throws Exception {
+	public void testLogin() throws Exception {
 		LoginRequest loginRequest = LoginRequest.builder()
 				.account(account)
 				.password(password).build();
@@ -169,7 +169,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
-	private void testCreateConsortium() throws Exception {
+	public void testCreateConsortium() throws Exception {
 		CreateConsRequest createConsRequest = CreateConsRequest.builder()
 				.name(name)
 				.remark(remark)
@@ -191,7 +191,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
-	private void testCreateConsortiumAdmin() throws Exception {
+	public void testCreateConsortiumAdmin() throws Exception {
 		ConsAdminInfo consAdminInfo = ConsAdminInfo.builder()
 				.account(adminAccount)
 				.name(adminName)
@@ -217,7 +217,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
-	private void testCreateBlockchain() throws Exception {
+	public void testCreateBlockchain() throws Exception {
 		CreateBlockchainRequest createBlockchainRequest = CreateBlockchainRequest.builder()
 				.consId(consId)
 				.name(blockchainName)
@@ -237,7 +237,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
-	private void testAddNodesBeforeLanchBlockchain() throws Exception {
+	public void testAddNodesBeforeLanchBlockchain() throws Exception {
 		NodeInfo node1 = NodeInfo.builder()
 				.ip(nodeIp).port(nodePort_1).org(nodeOrg).build();
 		NodeInfo node2 = NodeInfo.builder()
@@ -266,7 +266,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
-	private void testDownloadScript() throws Exception {
+	public void testDownloadScript() throws Exception {
 		DownloadDeployScriptRequest downloadDeployScriptRequest = DownloadDeployScriptRequest.builder()
 				.consId(consId)
 				.build();
@@ -290,7 +290,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
-	private void testLanchBlockchain() throws IOException, InterruptedException {
+	public void testLanchBlockchain() throws IOException, InterruptedException {
         File[] folders = new File(dirCreateBlockchain).listFiles();
         for (File folder : folders){
         	if(folder.isFile()) continue;
@@ -308,7 +308,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
-	private void testRechargeGenesis() throws Exception {
+	public void testRechargeGenesis() throws Exception {
 		ListNodeRequest listNodeRequest = ListNodeRequest.builder()
 				.consId(consId).build();
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/list")
@@ -354,7 +354,7 @@ public class BlockchainCreationTests {
 	// deconstract
 	//=====================================================================================================================
 	@Test
-	private void testStopBlockchain() {
+	public void testStopBlockchain() {
 		for(Process process:processes) {
 			if(process.isAlive()) {
 				process.destroyForcibly();
@@ -363,12 +363,12 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
-	private void testRemoveScript() throws IOException {
+	public void testRemoveScript() throws IOException {
 		FileUtil.cleanDir(dirCreateBlockchain);
 	}
 	
 	@Test
-	private void testRemoveNode() throws Exception {
+	public void testRemoveNode() throws Exception {
 		for(String nodeId:nodeIds) {
 			DeleteNodeRequest deleteNodeRequest = DeleteNodeRequest.builder()
 					.id(nodeId).force(true).build();
@@ -389,7 +389,7 @@ public class BlockchainCreationTests {
 		log.info("[step--->testRemoveNode]succBlockchainFlag:{}, remove node completed!", succBlockchainFlag);
 	}
 	
-	private boolean removeBlockchain() {
+	public boolean removeBlockchain() {
 		BlockChainPo blockChainPo = BlockChainPo.builder()
 				.id(blockchainId)
 				.deleteFlag(IntTypeEnum.TRUE.getValue())
@@ -400,7 +400,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
-	private void testRemoveConsortiumAdmin() throws Exception {
+	public void testRemoveConsortiumAdmin() throws Exception {
 		UserInfoPo admin = userInfoDas.findByAccount(adminAccount)
 				.orElseThrow(() -> new RuntimeException("user.not.found"));
 		String userId = admin.getId();
@@ -421,7 +421,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
-	private void testRemoveConsortium() throws Exception {
+	public void testRemoveConsortium() throws Exception {
 		DeleteConsRequest deleteConsRequest = DeleteConsRequest.builder().id(consId).build();
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/del")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)

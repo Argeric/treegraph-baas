@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.core.component.BizTimer;
 import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
@@ -22,7 +21,6 @@ import org.treegraph.baas.core.das.bo.NodeKeypairInfoBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
-import org.treegraph.baas.core.enums.BlockchainEnum;
 import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.exception.AlertException;
@@ -43,8 +41,8 @@ import conflux.web3j.grpc.GrpcWeb3j;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Validated
-@Service
+@Service(value = "rpcService")
+//@Service(value = "gRpcService")
 @AllArgsConstructor
 @Slf4j
 public class GRpcServiceImpl implements BlockchainRpcService{
@@ -165,7 +163,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
     	 */
     	try {
 			BizTimer.DELAY_TIMER.newTimeout(
-					new CheckMembershipChangeTimerTask(membershipChangeId, BlockchainEnum.RpcType.GRPC), 
+					new CheckMembershipChangeTimerTask(membershipChangeId), 
 					60, TimeUnit.SECONDS);
     		status = MembershipEnum.Status.LAUNCH_CHECK_THREAD_SUCCESS;
     	} catch(Exception e) {

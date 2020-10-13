@@ -32,6 +32,7 @@ import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
 import org.treegraph.baas.core.enums.NodeEnum.Status;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
+import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.service.NodeService;
 import org.treegraph.baas.core.service.bo.MembershipChangeBo;
 import org.treegraph.baas.core.util.DateTimeUtils;
@@ -56,7 +57,7 @@ public class NodeServicempl implements NodeService {
     
     private BuildService buildService;
     
-    private JsonRpcServiceImpl jsonRpcService;
+    private BlockchainRpcService rpcService;
  
 	public ListNodeResponse listNodes(ListNodeRequest req) {
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
@@ -169,7 +170,7 @@ public class NodeServicempl implements NodeService {
 			nodeDas.addNodesMembershipChange(toRemoveNodeIds, MembershipStatus.REMOVE_START,
 					changeBo.getMembershipChange(), changeBo.getNodeMemberships());
 			
-			MembershipEnum.Status membershipChangeStatus = jsonRpcService.sendMembershipChangeTransactionPlus(
+			MembershipEnum.Status membershipChangeStatus = rpcService.sendMembershipChangeTransactionPlus(
 					changeBo.getMembershipChange().getId(), changeBo.getCommitteeNodeKeypairs(),
 					changeBo.getValidatorNodeKeypairs());
 			MembershipStatus nodeMembershipStatus = membershipChangeStatus.isFail() ? MembershipStatus.REMOVE_FAILURE

@@ -112,6 +112,7 @@ import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.exception.AlertException;
+import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.service.ConsortiumService;
 import org.treegraph.baas.core.service.bo.CustomizedConfigBo;
 import org.treegraph.baas.core.service.bo.MembershipChangeBo;
@@ -163,7 +164,7 @@ public class ConsortiumServicempl implements ConsortiumService {
     
     private VaultKeypairBuildService vaultKeypairBuildService;
     
-    private JsonRpcServiceImpl jsonRpcService;
+    private BlockchainRpcService rpcService;
     
 	public ListConsResponse listCons(ListRequest req) {
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
@@ -423,7 +424,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			nodeDas.addNodeKeypairs(changeBo.getToInsertDbNodeKeypairs(), config.getStepFactorConfigList(),
 					config.getConfigList(), changeBo.getMembershipChange(), changeBo.getNodeMemberships());
 			
-			MembershipEnum.Status membershipChangeStatus = jsonRpcService.sendMembershipChangeTransactionPlus(
+			MembershipEnum.Status membershipChangeStatus = rpcService.sendMembershipChangeTransactionPlus(
 					changeBo.getMembershipChange().getId(), changeBo.getCommitteeNodeKeypairs(),
 					changeBo.getValidatorNodeKeypairs());
 			List<String> toAddNodeIds = toAddNodes.stream().map(NodePo::getId).collect(Collectors.toList());
@@ -779,7 +780,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		List<String> membershipNodeIds = existNodes.stream().filter(item -> buildService.isMembershipNode(item))
 				.map(NodePo::getId).collect(Collectors.toList());
 		String certStr = consKeypair.getCertStr();
-		boolean isSuccess = jsonRpcService.updateCert(consId, certStr, membershipNodeIds);
+		boolean isSuccess = rpcService.updateCert(consId, certStr, membershipNodeIds);
 		
 		// response failure
 		CertificateDeferPo deferUpdate = buildService.buildCertificateDeferUpdate(defer.getId());

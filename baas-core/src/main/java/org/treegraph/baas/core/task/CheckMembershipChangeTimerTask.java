@@ -10,12 +10,9 @@ import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.domain.MembershipChangePo;
 import org.treegraph.baas.core.domain.MembershipPo;
 import org.treegraph.baas.core.domain.NodePo;
-import org.treegraph.baas.core.enums.BlockchainEnum;
 import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
 import org.treegraph.baas.core.service.BlockchainRpcService;
-import org.treegraph.baas.core.service.impl.GRpcServiceImpl;
-import org.treegraph.baas.core.service.impl.JsonRpcServiceImpl;
 import org.treegraph.baas.core.util.SpringContextUtils;
 
 import com.google.common.collect.Lists;
@@ -27,11 +24,8 @@ public class CheckMembershipChangeTimerTask implements TimerTask{
 	
 	private Long membershipChangeId;
 	
-	private BlockchainEnum.RpcType rpcType;
-    
-    public CheckMembershipChangeTimerTask(Long membershipChangeId, BlockchainEnum.RpcType rpcType) {
+    public CheckMembershipChangeTimerTask(Long membershipChangeId) {
     	this.membershipChangeId = membershipChangeId;
-    	this.rpcType = rpcType;
     }
     
 	@Override
@@ -40,11 +34,9 @@ public class CheckMembershipChangeTimerTask implements TimerTask{
 		 * get service bean
 		 */
 		MembershipChangeDas membershipChangeDas = SpringContextUtils.getBean(MembershipChangeDas.class);
-		NodeDas nodeDas = SpringContextUtils.getBean(NodeDas.class);
-		BlockchainRpcService rpcService = (rpcType == BlockchainEnum.RpcType.JSONRPC)
-				? SpringContextUtils.getBean(JsonRpcServiceImpl.class)
-				: SpringContextUtils.getBean(GRpcServiceImpl.class);
 		MembershipDas membershipDas = SpringContextUtils.getBean(MembershipDas.class);
+		NodeDas nodeDas = SpringContextUtils.getBean(NodeDas.class);
+		BlockchainRpcService rpcService = SpringContextUtils.getBean(BlockchainRpcService.class);
 		
 		/**
 		 * get pre bftEpochNumber and committee nodes

@@ -33,4 +33,6 @@ public class NodeInfo {
 	private Integer status;
 	
 	private String logMonitorUri;
+	
+	private String sysMonitorUri;
 }

@@ -32,6 +32,8 @@ public class ConfluxConstant {
     
     public static final int TEST_JSONRPC_PORT_STEP = 1;
     
+    public static final int TEST_MONITOR_PORT_INTERVAL = 10000;
+    
     public static final int TEST_LOG_MONITOR_WEB_PORT_STEP = 1;
     
     public static final int TEST_LOG_MONITOR_CONTAINER_NETWORK_STEP = 1;

@@ -1,5 +1,7 @@
 package org.treegraph.baas;
 
+import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
+
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -50,6 +52,7 @@ import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.service.BlockchainRpcService;
+import org.treegraph.baas.core.service.impl.VaultKeypairBuildService;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.FileUtils;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
@@ -77,6 +80,8 @@ public class BlockchainCreationTests {
 	
 	private static String blockchainId;
 	
+	private static List<String> nodeIds;
+	
 	@Autowired
 	private WebApplicationContext context;
 	
@@ -88,6 +93,9 @@ public class BlockchainCreationTests {
 	
 	@Autowired
     private BlockchainRpcService rpcService;
+	
+	@Autowired
+	private VaultKeypairBuildService vaultKeypairBuildService;
 	
 	//=====================================================================================================================
 	// test paras
@@ -300,8 +308,28 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
-	private void testRechargeGenesis() {
-		List<NodeKeypairBo> nodeKeypairs = Lists.newArrayList();
+	private void testRechargeGenesis() throws Exception {
+		ListNodeRequest listNodeRequest = ListNodeRequest.builder()
+				.consId(consId).build();
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/list")
+				.contentType(MediaType.APPLICATION_JSON_UTF8)
+				.header("X-Token", token)
+				.content(JSON.toJSONString(listNodeRequest)))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
+		BaasResult<ListNodeResponse> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
+				new TypeReference<BaasResult<ListNodeResponse>>() {});
+		nodeIds = baasResult.getData().getList().stream().map(item -> item.getId())
+				.collect(Collectors.toList());
+		log.info("[step--->testRechargeGenesis]list nodes--->{}", JSON.toJSONString(nodeIds));
+		Assert.assertTrue("[step--->testRechargeGenesis]node not found", CollectionUtils.isNotEmpty(nodeIds));
+		
+		List<NodeKeypairBo> nodeKeypairs = nodeIds.stream().map(item -> vaultKeypairBuildService.getNodeKeypair(consId,
+				ALGO_NODE, NodePo.builder().consortiumId(consId).id(item).build(), null)).collect(Collectors.toList());
+		log.info("[step--->testRechargeGenesis]node keypairs--->{}", JSON.toJSONString(nodeKeypairs));
+		Assert.assertTrue("[step--->testRechargeGenesis]node keypair not found", CollectionUtils.isNotEmpty(nodeKeypairs));
+		
         BigInteger currentNonce = BigInteger.ZERO;
         for(NodeKeypairBo nodeKeypair : nodeKeypairs) {
 			KeypairPo keypair = nodeKeypair.getKeypair();
@@ -317,7 +345,8 @@ public class BlockchainCreationTests {
 			String transactionResult = rpcService.sendRawTransaction(node.getConsortiumId(), node.getId(),
 					transactionSign);
 			currentNonce = currentNonce.add(BigInteger.ONE);
-			log.info("[step--->testRechargeGenesis]nonce--->{}, result--->{}", currentNonce, transactionResult);
+			log.info("[step--->testRechargeGenesis]nonce--->{}, transactionResult--->{}", currentNonce, transactionResult);
+			Assert.assertTrue("[step--->testRechargeGenesis]null transactionResult", transactionResult != null);
         }
     }
 	
@@ -340,22 +369,6 @@ public class BlockchainCreationTests {
 	
 	@Test
 	private void testRemoveNode() throws Exception {
-		ListNodeRequest listNodeRequest = ListNodeRequest.builder()
-				.consId(consId).build();
-		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/list")
-				.contentType(MediaType.APPLICATION_JSON_UTF8)
-				.header("X-Token", token)
-				.content(JSON.toJSONString(listNodeRequest)))
-				.andExpect(MockMvcResultMatchers.status().isOk())
-				.andDo(MockMvcResultHandlers.print())
-				.andReturn();
-		BaasResult<ListNodeResponse> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<BaasResult<ListNodeResponse>>() {});
-		List<String> nodeIds = baasResult.getData().getList().stream().map(item -> item.getId())
-				.collect(Collectors.toList());
-		log.info("[step--->testRemoveNode]list nodes--->{}", JSON.toJSONString(nodeIds));
-		Assert.assertTrue("[step--->testRemoveNode]", CollectionUtils.isNotEmpty(nodeIds));
-		
 		for(String nodeId:nodeIds) {
 			DeleteNodeRequest deleteNodeRequest = DeleteNodeRequest.builder()
 					.id(nodeId).force(true).build();

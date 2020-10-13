@@ -163,7 +163,7 @@ public class ConsortiumServicempl implements ConsortiumService {
     
     private VaultKeypairBuildService vaultKeypairBuildService;
     
-    private JsonRpcService jsonRpcService;
+    private JsonRpcServiceImpl jsonRpcService;
     
 	public ListConsResponse listCons(ListRequest req) {
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());

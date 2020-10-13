@@ -47,7 +47,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.google.common.collect.Maps;
 
-import conflux.web3j.Cfx;
+import conflux.web3j.jsonrpc.Cfx;
 import conflux.web3j.types.RawTransaction;
 import jodd.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;

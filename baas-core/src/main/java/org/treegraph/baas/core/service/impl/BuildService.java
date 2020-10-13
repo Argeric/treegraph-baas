@@ -71,7 +71,7 @@ public class BuildService {
     
     private VaultKeypairBuildService vaultKeypairBuildService;
     
-    private JsonRpcService jsonRpcService;
+    private JsonRpcServiceImpl jsonRpcService;
 
 	public RoleInfoBo buildRole(int roleType, String roleName, String consId, List<String> reqPermissions) {
    		LocalDateTime now = LocalDateTime.now();

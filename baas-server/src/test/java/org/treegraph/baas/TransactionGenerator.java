@@ -15,8 +15,8 @@ import org.web3j.crypto.ECKeyPair;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 
-import conflux.web3j.Cfx;
-import conflux.web3j.Request;
+import conflux.web3j.jsonrpc.Cfx;
+import conflux.web3j.jsonrpc.Request;
 import conflux.web3j.request.Epoch;
 import conflux.web3j.response.BigIntResponse;
 import conflux.web3j.response.StringResponse;

@@ -104,5 +104,30 @@ public class BlockchainEnum {
             return null;
         }
     }
+    
+    /**
+     * rpc 类型
+     */
+    @Getter
+    @AllArgsConstructor
+    public enum RpcType {
 
+        JSONRPC(0, "jsonrpc"),
+
+        GRPC(1, "grpc"),
+        ;
+
+        private Integer code;
+
+        private String desc;
+
+        public static Status getByCode(int code) {
+            for (Status s : Status.values()) {
+                if (s.code.equals(code)) {
+                    return s;
+                }
+            }
+            return null;
+        }
+    }
 }

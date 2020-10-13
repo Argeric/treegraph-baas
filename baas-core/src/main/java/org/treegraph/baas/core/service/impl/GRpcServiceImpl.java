@@ -1,9 +1,5 @@
 package org.treegraph.baas.core.service.impl;
 
-import static org.treegraph.baas.core.constant.ConfluxConstant.RPC_ADD_DELETE_NODE;
-import static org.treegraph.baas.core.constant.ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM;
-import static org.treegraph.baas.core.constant.ConfluxConstant.RPC_GET_BFT_EPOCH_NUMBER;
-import static org.treegraph.baas.core.constant.ConfluxConstant.RPC_UPDATE_CERT;
 import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
@@ -26,11 +22,13 @@ import org.treegraph.baas.core.das.bo.NodeKeypairInfoBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
+import org.treegraph.baas.core.enums.BlockchainEnum;
 import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
+import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.task.CheckMembershipChangeTimerTask;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.IdWorker;
@@ -41,10 +39,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import conflux.web3j.Cfx;
-import conflux.web3j.Request;
-import conflux.web3j.response.BigIntResponse;
-import conflux.web3j.response.StringResponse;
+import conflux.web3j.grpc.GrpcWeb3j;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class JsonRpcService {
+public class GRpcServiceImpl implements BlockchainRpcService{
 	
     private KeypairDas keypairDas;
 	
@@ -63,8 +58,7 @@ public class JsonRpcService {
     	/**
     	 * 1. select a proposer in committee
     	 */
-    	String uri = null;
-    	Cfx cfx = null;
+    	GrpcWeb3j cfx = null;
     	NodeKeypairBo proposerNodeKeypair = null;
     	try {
 			proposerNodeKeypair = committeeNodeKeypairs.stream()
@@ -74,8 +68,7 @@ public class JsonRpcService {
 			NodePo proposerNode = proposerNodeKeypair.getNode();
 			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(proposerNode.getConsortiumId(),
 					proposerNode.getId());
-			uri = ConfluxUtils.toUri(heartbeat.getIp(), heartbeat.getPort());
-			cfx = Cfx.create(uri, 1, 1, TimeUnit.SECONDS);
+			cfx = new GrpcWeb3j(heartbeat.getIp(), heartbeat.getPort(), "", "", "");
 			status = MembershipEnum.Status.SELECT_PROPOSER_SUCCESS;
     	} catch(Exception e) {
     		log.error("[seq={}][membership change]select proposer error:", seq, e);
@@ -92,7 +85,7 @@ public class JsonRpcService {
 		 * output: 
 		 * ---string raw_json
 		 */
-    	Request<String, StringResponse> applyRequest = null;
+    	//Request<String, StringResponse> applyRequest = null;
     	String applyResponse = null;
     	try {
 			List<String> validatorPublicKeys = validatorNodeKeypairs.stream().map(item -> {
@@ -104,17 +97,14 @@ public class JsonRpcService {
 					proposerNodeKeypair.getKeypair().getPublicKey(), proposerNodeKeypair.getKeypair().getPrivateKey(),
 					proposerNodeKeypair.getKeypair().getAlgorithm());
 			String proposerPublicKey = "0x"+StringUtils.leftPad(proposerEcKeypair.getPublicKey().toString(16), 128, '0');
-			applyRequest = cfx.getCustomizedRequest(StringResponse.class,
-					RPC_ADD_DELETE_NODE, validatorPublicKeys, proposerPublicKey);
-			applyResponse = applyRequest.sendAndGet();
-			Assert.isTrue(applyResponse != null, RPC_ADD_DELETE_NODE + " error");
+			applyResponse = cfx.getMembershipChangeRawTransaction(validatorPublicKeys, proposerPublicKey);
+			Assert.isTrue(applyResponse != null, "membership change error");
 			status = MembershipEnum.Status.REQUEST_MEMBERSHIP_CHANGE_SUCCESS;
     	} catch(Exception e) {
     		log.error("[seq={}][membership change]request change error:", seq, e);
     		return MembershipEnum.Status.REQUEST_MEMBERSHIP_CHANGE_FAILURE;
     	} finally {
-			log.info("[seq={}][membership change]uri--->{}, txRequest--->{}, txResponse--->{}", seq, uri,
-					JSON.toJSONString(applyRequest), applyResponse);
+			log.info("[seq={}][membership change]txResponse--->{}", seq, applyResponse);
     	}
 		
 		/**
@@ -151,7 +141,6 @@ public class JsonRpcService {
 		 * output:
 		 * ---string okay/fail
 		 */
-    	Request<String, StringResponse> confirmRequest = null;
     	String confirmResponse = null;
     	try {
 			List<String> committeePublicKeys = Lists.newArrayList();
@@ -162,24 +151,22 @@ public class JsonRpcService {
 				committeePublicKeys.add("0x"+ StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0'));
 				ringSignatures.add(item.getValue().substring(2));
 			});
-			confirmRequest = cfx.getCustomizedRequest(StringResponse.class,
-					RPC_ADD_DELETE_NODE_CONFIRM, applyResponse, committeePublicKeys, ringSignatures);
-			confirmResponse = confirmRequest.sendAndGet();
+			cfx.constructAndSendNewConsortiumMemberTrans(applyResponse, committeePublicKeys, ringSignatures);
 			status = MembershipEnum.Status.CONFIRM_MEMBERSHIP_CHANGE_SUCCESS;
     	} catch(Exception e) {
     		log.error("[seq={}][membership change]confirm change error:", seq, e);
     		return MembershipEnum.Status.CONFIRM_MEMBERSHIP_CHANGE_FAILURE;
     	} finally {
-			log.info("[seq={}][membership change]uri--->{}, txRequest--->{}, txResponse--->{}", seq, uri,
-					JSON.toJSONString(confirmRequest), confirmResponse);
+			log.info("[seq={}][membership change]txResponse--->{}", seq, confirmResponse);
     	}
     	
     	/**
     	 * 5. delay query BFT epoch number
     	 */
     	try {
-			BizTimer.DELAY_TIMER.newTimeout(new CheckMembershipChangeTimerTask(membershipChangeId), 60,
-					TimeUnit.SECONDS);
+			BizTimer.DELAY_TIMER.newTimeout(
+					new CheckMembershipChangeTimerTask(membershipChangeId, BlockchainEnum.RpcType.GRPC), 
+					60, TimeUnit.SECONDS);
     		status = MembershipEnum.Status.LAUNCH_CHECK_THREAD_SUCCESS;
     	} catch(Exception e) {
     		log.error("[seq={}][membership change]async check error:", seq, e);
@@ -192,29 +179,22 @@ public class JsonRpcService {
 	}
     
 	public BigInteger getBftEpochNumber(String consId, String nodeId) {
-		String uri = null;
-		Request<BigInteger, BigIntResponse> getBftEpochNumberRequest = null;
 		BigInteger getBftEpochNumberResponse = null;
 		try {
 			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, nodeId);
-			uri = ConfluxUtils.toUri(heartbeat.getIp(), heartbeat.getPort());
-			Cfx cfx = Cfx.create(uri, 1, 1, TimeUnit.SECONDS);
-			getBftEpochNumberRequest = cfx.getCustomizedRequest(BigIntResponse.class, RPC_GET_BFT_EPOCH_NUMBER);
-			getBftEpochNumberResponse = getBftEpochNumberRequest.sendAndGet();
+			GrpcWeb3j cfx = new GrpcWeb3j(heartbeat.getIp(), heartbeat.getPort(), "", "", "");
+			long membershipId = cfx.getBftMembershipId();
+			getBftEpochNumberResponse = new BigInteger(Long.toString(membershipId));
 		} catch(Exception e) {
 			log.error("[get bftEpochNumber]error:", e);
 			return BigInteger.valueOf(-1L);
 		} finally {
-			log.info("[get bftEpochNumber]uri--->{}, txRequest--->{}, txResponse--->{}", uri,
-					JSON.toJSONString(getBftEpochNumberRequest), getBftEpochNumberResponse);
+			log.info("[get bftEpochNumber]txResponse--->{}", getBftEpochNumberResponse);
 		}
 		return getBftEpochNumberResponse;
 	}
 	
 	public boolean updateCert(String consId, String consCertPem, List<String> membershipNodeIds) {
-		String uri = null;
-		Request<String, StringResponse> req = null;
-		String resp = null;
 		try {
 			String proposerNodeId = membershipNodeIds.stream()
 					.filter(item -> HeartbeatLinstener.getInstance().getNode(consId, item)
@@ -226,16 +206,13 @@ public class JsonRpcService {
 			String grpcCertPem = proposerKeypair.getCertStr();
 			
 			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, proposerNodeId);
-			uri = ConfluxUtils.toUri(heartbeat.getIp(), heartbeat.getPort());
-			Cfx cfx = Cfx.create(uri, 1, 1, TimeUnit.SECONDS);
-			req = cfx.getCustomizedRequest(StringResponse.class, RPC_UPDATE_CERT, consCertPem, grpcKeyPem, grpcCertPem);
-			resp = req.sendAndGet();
+			GrpcWeb3j cfx = new GrpcWeb3j(heartbeat.getIp(), heartbeat.getPort(), "", "", "");
+			cfx.updateConsortiumAndGrpcCredential(consCertPem, grpcKeyPem, grpcCertPem);
 		} catch(Exception e) {
 			log.error("[update credential]error:", e);
 			return Boolean.FALSE;
 		} finally {
-			log.info("[update credential]uri--->{}, txRequest--->{}, txResponse--->{}", uri,
-					JSON.toJSONString(req), resp);
+			log.info("[update credential]txResponse--->{}");
 		}
 		return Boolean.TRUE;
 	}

@@ -56,7 +56,7 @@ public class NodeServicempl implements NodeService {
     
     private BuildService buildService;
     
-    private JsonRpcService jsonRpcService;
+    private JsonRpcServiceImpl jsonRpcService;
  
 	public ListNodeResponse listNodes(ListNodeRequest req) {
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());

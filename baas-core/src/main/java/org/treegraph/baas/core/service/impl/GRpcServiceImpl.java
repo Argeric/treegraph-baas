@@ -1,5 +1,10 @@
 package org.treegraph.baas.core.service.impl;
 
+import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_GRPC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_LOC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_RPC_PORT_INTERVAL;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_SWITCH;
+import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
 import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
@@ -16,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.treegraph.baas.core.component.BizTimer;
 import org.treegraph.baas.core.das.KeypairDas;
+import org.treegraph.baas.core.das.NodeCustomizedConfigDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.das.bo.NodeKeypairInfoBo;
 import org.treegraph.baas.core.domain.KeypairPo;
@@ -27,6 +33,7 @@ import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
 import org.treegraph.baas.core.service.BlockchainRpcService;
+import org.treegraph.baas.core.service.bo.GRpcParaBo;
 import org.treegraph.baas.core.task.CheckMembershipChangeTimerTask;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.IdWorker;
@@ -48,6 +55,10 @@ import lombok.extern.slf4j.Slf4j;
 public class GRpcServiceImpl implements BlockchainRpcService{
 	
     private KeypairDas keypairDas;
+    
+    private NodeCustomizedConfigDas nodeCustomizedConfigDas;
+    
+    private VaultKeypairBuildService vaultKeypairBuildService;
 	
 	public MembershipEnum.Status sendMembershipChangeTransactionPlus(long membershipChangeId,
 			List<NodeKeypairBo> committeeNodeKeypairs, List<NodeKeypairBo> validatorNodeKeypairs) throws IOException {
@@ -64,9 +75,9 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 							.getNode(item.getNode().getConsortiumId(), item.getNode().getId()).getStatus())
 					.findFirst().orElseThrow(() -> new AlertException("alive.proposer.node.not.found"));
 			NodePo proposerNode = proposerNodeKeypair.getNode();
-			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(proposerNode.getConsortiumId(),
-					proposerNode.getId());
-			cfx = new GrpcWeb3j(heartbeat.getIp(), heartbeat.getPort(), "", "", "");
+			GRpcParaBo rpcPara = getGRpcParas(proposerNode.getConsortiumId(), proposerNode.getId());
+			cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
+					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
 			status = MembershipEnum.Status.SELECT_PROPOSER_SUCCESS;
     	} catch(Exception e) {
     		log.error("[seq={}][membership change]select proposer error:", seq, e);
@@ -179,8 +190,9 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 	public BigInteger getBftEpochNumber(String consId, String nodeId) {
 		BigInteger getBftEpochNumberResponse = null;
 		try {
-			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, nodeId);
-			GrpcWeb3j cfx = new GrpcWeb3j(heartbeat.getIp(), heartbeat.getPort(), "", "", "");
+			GRpcParaBo rpcPara = getGRpcParas(consId, nodeId);
+			GrpcWeb3j cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
+					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
 			long membershipId = cfx.getBftMembershipId();
 			getBftEpochNumberResponse = new BigInteger(Long.toString(membershipId));
 		} catch(Exception e) {
@@ -203,8 +215,9 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 			String grpcKeyPem = privateKeyToPem(privateKeyFromBase64(ALGO_NODE, proposerKeypair.getPrivateKey()));
 			String grpcCertPem = proposerKeypair.getCertStr();
 			
-			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, proposerNodeId);
-			GrpcWeb3j cfx = new GrpcWeb3j(heartbeat.getIp(), heartbeat.getPort(), "", "", "");
+			GRpcParaBo rpcPara = getGRpcParas(consId, proposerNodeId);
+			GrpcWeb3j cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
+					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
 			cfx.updateConsortiumAndGrpcCredential(consCertPem, grpcKeyPem, grpcCertPem);
 		} catch(Exception e) {
 			log.error("[update credential]error:", e);
@@ -213,5 +226,44 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 			log.info("[update credential]txResponse--->{}");
 		}
 		return Boolean.TRUE;
+	}
+	
+	public String sendRawTransaction(String consId, String nodeId, String hexEncoded) {
+		String txResult = null;
+		try {
+			GRpcParaBo rpcPara = getGRpcParas(consId, nodeId);
+			GrpcWeb3j cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
+					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
+			txResult = cfx.sendRawTransaction(hexEncoded);
+		} catch(Exception e) {
+			log.error("[get sendRawTransaction]error:", e);
+			return txResult;
+		} finally {
+			log.info("[get sendRawTransaction]txResponse--->{}", txResult);
+		}
+		return txResult;
+	}
+	
+	private GRpcParaBo getGRpcParas(String consId, String nodeId) throws Exception {
+		Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, nodeId);
+		String ip = heartbeat.getIp();
+		
+		String jsonRpcLocalHttpPortStr = nodeCustomizedConfigDas.findPropertyValueByName(consId, nodeId,
+				PROPERTY_JSONRPC_LOC_PORT);
+		int jsonRpcLocalHttpPort = Integer.parseInt(jsonRpcLocalHttpPortStr);
+		int gRpcPort = TEST_SWITCH ? jsonRpcLocalHttpPort + TEST_RPC_PORT_INTERVAL : DEFAULT_GRPC_PORT;
+		
+		NodeKeypairBo nodeKeypair = vaultKeypairBuildService.getNodeKeypair(consId, ALGO_NODE,
+				NodePo.builder().id(nodeId).build(), null);
+		String serverCertFile = nodeKeypair.getKeypair().getCertStr();
+
+		KeypairPo consKeyPair = vaultKeypairBuildService.getConsortiumKeyPair(consId, ALGO_CONS, null);
+		NodeKeypairBo userKeypair = vaultKeypairBuildService.geneNodeKeypair(consId, ALGO_NODE,
+				NodePo.builder().id(nodeId).build(), consKeyPair);
+		String rpcCertChainFile = userKeypair.getKeypair().getCertStr();
+		String rpcKeyFile = privateKeyToPem(privateKeyFromBase64(ALGO_NODE, userKeypair.getKeypair().getPrivateKey()));
+		
+		return GRpcParaBo.builder().ip(ip).gRpcPort(gRpcPort).serverCertFile(serverCertFile)
+				.rpcCertChainFile(rpcCertChainFile).rpcKeyFile(rpcKeyFile).build();
 	}
 }

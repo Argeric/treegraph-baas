@@ -2,6 +2,7 @@ package org.treegraph.baas;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -43,13 +44,21 @@ import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.BlockchainDas;
 import org.treegraph.baas.core.das.UserInfoDas;
+import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.BlockChainPo;
+import org.treegraph.baas.core.domain.KeypairPo;
+import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
+import org.treegraph.baas.core.service.BlockchainRpcService;
+import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.FileUtils;
+import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
+import org.web3j.crypto.ECKeyPair;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 
+import conflux.web3j.types.RawTransaction;
 import jodd.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
@@ -76,6 +85,9 @@ public class BlockchainCreationTests {
 	
 	@Autowired
     private UserInfoDas userInfoDas;
+	
+	@Autowired
+    private BlockchainRpcService rpcService;
 	
 	//=====================================================================================================================
 	// test paras
@@ -112,6 +124,10 @@ public class BlockchainCreationTests {
 	// deploy blockchain
 	private static final List<Process> processes = Lists.newArrayList();
 	private static final String blockchainBinaryPath  = "/opt/software/tree-graph/target/release/conflux_production";
+	// recharge genesis
+	private static final String genesisPrivateKey = "46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f";
+	private static final String gasFee = "21000";
+	private static final String rechargeTokenPerNode = "100000000000000000000000";//genesis total token 5 * 10 ** 36
 	
 	//=====================================================================================================================
 	// prepare
@@ -282,6 +298,28 @@ public class BlockchainCreationTests {
         TimeUnit.SECONDS.sleep(10);
         log.info("[step--->testLanchBlockchain]start blockchain completed!");
 	}
+	
+	@Test
+	private void testRechargeGenesis() {
+		List<NodeKeypairBo> nodeKeypairs = Lists.newArrayList();
+        BigInteger currentNonce = BigInteger.ZERO;
+        for(NodeKeypairBo nodeKeypair : nodeKeypairs) {
+			KeypairPo keypair = nodeKeypair.getKeypair();
+			String address = "0x" + ConfluxUtils.toAddress(KeyUtil.loadECKeyPairFromBase64(keypair.getPublicKey(),
+					keypair.getPrivateKey(), keypair.getAlgorithm()));
+			RawTransaction transaction = RawTransaction.create(currentNonce, new BigInteger(gasFee), address,
+					new BigInteger(rechargeTokenPerNode), null, BigInteger.ZERO, null);
+			ECKeyPair genesisKeyPair = ECKeyPair
+					.create(new BigInteger(genesisPrivateKey, 16));
+			String transactionSign = transaction.sign(genesisKeyPair);
+			
+			NodePo node = nodeKeypair.getNode();
+			String transactionResult = rpcService.sendRawTransaction(node.getConsortiumId(), node.getId(),
+					transactionSign);
+			currentNonce = currentNonce.add(BigInteger.ONE);
+			log.info("[step--->testRechargeGenesis]nonce--->{}, result--->{}", currentNonce, transactionResult);
+        }
+    }
 	
 	//=====================================================================================================================
 	// deconstract

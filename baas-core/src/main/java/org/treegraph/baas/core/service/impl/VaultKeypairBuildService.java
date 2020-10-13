@@ -169,6 +169,10 @@ public class VaultKeypairBuildService {
 			}
 		}
 		
+		return geneNodeKeypair(consortiumId, algo, node, consortiumKeypair);
+	}
+
+	public NodeKeypairBo geneNodeKeypair(String consortiumId, String algo, NodePo node, KeypairPo consortiumKeypair) {
 		KeyPair nodeKeyPair = null;
 		String nodePublicKey = null;
 		String nodePrivateKey = null;

@@ -240,4 +240,24 @@ public class JsonRpcServiceImpl implements BlockchainRpcService{
 		}
 		return Boolean.TRUE;
 	}
+	
+	public String sendRawTransaction(String consId, String nodeId, String hexEncoded) {
+		String uri = null;
+		Request<String, StringResponse> sendRawTransactionRequest = null;
+		String txResult = null;
+		try {
+			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, nodeId);
+			uri = ConfluxUtils.toUri(heartbeat.getIp(), heartbeat.getPort());
+			Cfx cfx = Cfx.create(uri);
+			sendRawTransactionRequest = cfx.sendRawTransaction(hexEncoded);
+            txResult = sendRawTransactionRequest.sendAndGet();
+		} catch(Exception e) {
+			log.error("[get sendRawTransaction]error:", e);
+			return txResult;
+		} finally {
+			log.info("[get sendRawTransaction]uri--->{}, txRequest--->{}, txResponse--->{}", uri,
+					JSON.toJSONString(sendRawTransactionRequest), txResult);
+		}
+		return txResult;
+	}
 }

@@ -15,4 +15,6 @@ public interface BlockchainRpcService {
 	BigInteger getBftEpochNumber(String consId, String nodeId);
 
 	boolean updateCert(String consId, String consCertPem, List<String> membershipNodeIds);
+	
+	String sendRawTransaction(String consId, String nodeId, String hexEncoded);
 }

@@ -55,6 +55,7 @@ import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.service.impl.VaultKeypairBuildService;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.FileUtils;
+import org.treegraph.baas.core.util.Order;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
 
@@ -151,6 +152,7 @@ public class BlockchainCreationTests {
 	// constract
 	//=====================================================================================================================
 	@Test
+	@Order(1)
 	public void testLogin() throws Exception {
 		LoginRequest loginRequest = LoginRequest.builder()
 				.account(account)
@@ -169,6 +171,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
+	@Order(2)
 	public void testCreateConsortium() throws Exception {
 		CreateConsRequest createConsRequest = CreateConsRequest.builder()
 				.name(name)
@@ -191,6 +194,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
+	@Order(3)
 	public void testCreateConsortiumAdmin() throws Exception {
 		ConsAdminInfo consAdminInfo = ConsAdminInfo.builder()
 				.account(adminAccount)
@@ -217,6 +221,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
+	@Order(4)
 	public void testCreateBlockchain() throws Exception {
 		CreateBlockchainRequest createBlockchainRequest = CreateBlockchainRequest.builder()
 				.consId(consId)
@@ -237,6 +242,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
+	@Order(5)
 	public void testAddNodesBeforeLanchBlockchain() throws Exception {
 		NodeInfo node1 = NodeInfo.builder()
 				.ip(nodeIp).port(nodePort_1).org(nodeOrg).build();
@@ -266,6 +272,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
+	@Order(6)
 	public void testDownloadScript() throws Exception {
 		DownloadDeployScriptRequest downloadDeployScriptRequest = DownloadDeployScriptRequest.builder()
 				.consId(consId)
@@ -290,6 +297,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
+	@Order(7)
 	public void testLanchBlockchain() throws IOException, InterruptedException {
         File[] folders = new File(dirCreateBlockchain).listFiles();
         for (File folder : folders){
@@ -308,6 +316,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
+	@Order(8)
 	public void testRechargeGenesis() throws Exception {
 		ListNodeRequest listNodeRequest = ListNodeRequest.builder()
 				.consId(consId).build();
@@ -354,6 +363,7 @@ public class BlockchainCreationTests {
 	// deconstract
 	//=====================================================================================================================
 	@Test
+	@Order(9)
 	public void testStopBlockchain() {
 		for(Process process:processes) {
 			if(process.isAlive()) {
@@ -363,11 +373,13 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
+	@Order(10)
 	public void testRemoveScript() throws IOException {
 		FileUtil.cleanDir(dirCreateBlockchain);
 	}
 	
 	@Test
+	@Order(11)
 	public void testRemoveNode() throws Exception {
 		for(String nodeId:nodeIds) {
 			DeleteNodeRequest deleteNodeRequest = DeleteNodeRequest.builder()
@@ -400,6 +412,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
+	@Order(12)
 	public void testRemoveConsortiumAdmin() throws Exception {
 		UserInfoPo admin = userInfoDas.findByAccount(adminAccount)
 				.orElseThrow(() -> new RuntimeException("user.not.found"));
@@ -421,6 +434,7 @@ public class BlockchainCreationTests {
 	}
 	
 	@Test
+	@Order(13)
 	public void testRemoveConsortium() throws Exception {
 		DeleteConsRequest deleteConsRequest = DeleteConsRequest.builder().id(consId).build();
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/del")

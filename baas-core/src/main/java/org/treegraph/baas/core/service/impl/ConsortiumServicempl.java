@@ -574,7 +574,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		customizedScriptContent.append(PROPERTY_JSONRPC_LOC_PORT + " = " + jsonRpcLocalHttpPort)
 				.append(LINE_SEP).append(LINE_SEP);
 		customizedScriptContent.append(PROPERTY_GRPC_PORT + "=" + ( TEST_SWITCH
-				? jsonRpcLocalHttpPort + TEST_RPC_PORT_INTERVAL : DEFAULT_GRPC_PORT))
+				? (Integer.parseInt(jsonRpcLocalHttpPort) + TEST_RPC_PORT_INTERVAL) : DEFAULT_GRPC_PORT))
 				.append(LINE_SEP).append(LINE_SEP);
 		customizedScriptContent.append("mining_author = \"" + ConfluxUtils.toAddress(ecKeypair) + "\"")
 				.append(LINE_SEP).append(LINE_SEP);

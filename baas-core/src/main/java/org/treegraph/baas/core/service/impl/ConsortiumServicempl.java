@@ -618,7 +618,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 				"sys_monitor/.env",//from string with placeholder
 				"sys_monitor/grafana/dashboard/home.json",
 				"sys_monitor/grafana/datasource/home.ymal",//from string with placeholder
-				"sys_monitor/grafana/data/",
+				"sys_monitor/grafana/data/readme.md",
 				"sys_monitor/prometheus/prometheus.yml"//from string with placeholder
 				);
 		files.stream().forEach(item -> {

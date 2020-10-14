@@ -4,15 +4,24 @@ import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_GRPC_PORT
 import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_LOC_PORT;
 import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_RPC_PORT_INTERVAL;
 import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_SWITCH;
+import static org.treegraph.baas.core.constant.GRpcConstant.NODE_CERT_Path;
+import static org.treegraph.baas.core.constant.GRpcConstant.RPC_CERT_CHAIN_FILE;
+import static org.treegraph.baas.core.constant.GRpcConstant.RPC_KEY_FILE;
+import static org.treegraph.baas.core.constant.GRpcConstant.SERVER_CERT_FILE;
+import static org.treegraph.baas.core.constant.GRpcConstant.SERVER_KEY_FILE;
 import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
 import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.text.MessageFormat;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -45,6 +54,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import conflux.web3j.grpc.GrpcWeb3j;
+import jodd.io.FileUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -245,25 +255,54 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 	}
 	
 	private GRpcParaBo getGRpcParas(String consId, String nodeId) throws Exception {
+		// get ip and gRpcPort
 		Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, nodeId);
 		String ip = heartbeat.getIp();
-		
 		String jsonRpcLocalHttpPortStr = nodeCustomizedConfigDas.findPropertyValueByName(consId, nodeId,
 				PROPERTY_JSONRPC_LOC_PORT);
 		int jsonRpcLocalHttpPort = Integer.parseInt(jsonRpcLocalHttpPortStr);
 		int gRpcPort = TEST_SWITCH ? jsonRpcLocalHttpPort + TEST_RPC_PORT_INTERVAL : DEFAULT_GRPC_PORT;
 		
+		// server cert 
 		NodeKeypairBo nodeKeypair = vaultKeypairBuildService.getNodeKeypair(consId, ALGO_NODE,
 				NodePo.builder().id(nodeId).build(), null);
 		String serverCertFile = nodeKeypair.getKeypair().getCertStr();
+		String serverKeyFile = privateKeyToPem(
+				privateKeyFromBase64(ALGO_NODE, nodeKeypair.getKeypair().getPrivateKey()));
 
+		// rpc cert
 		KeypairPo consKeyPair = vaultKeypairBuildService.getConsortiumKeyPair(consId, ALGO_CONS, null);
 		NodeKeypairBo userKeypair = vaultKeypairBuildService.geneNodeKeypair(consId, ALGO_NODE,
 				NodePo.builder().id(nodeId).build(), consKeyPair);
 		String rpcCertChainFile = userKeypair.getKeypair().getCertStr();
-		String rpcKeyFile = privateKeyToPem(privateKeyFromBase64(ALGO_NODE, userKeypair.getKeypair().getPrivateKey()));
+		String rpcKeyFile = privateKeyToPem(
+				privateKeyFromBase64(ALGO_NODE, userKeypair.getKeypair().getPrivateKey()));
 		
-		return GRpcParaBo.builder().ip(ip).gRpcPort(gRpcPort).serverCertFile(serverCertFile)
-				.rpcCertChainFile(rpcCertChainFile).rpcKeyFile(rpcKeyFile).build();
+		// write to host
+		String nodeCertPath = MessageFormat.format(NODE_CERT_Path, consId, nodeId);
+		Map<String, String> certPathContentMap = Maps.newHashMap();
+		certPathContentMap.put(SERVER_CERT_FILE, serverCertFile);
+		certPathContentMap.put(SERVER_KEY_FILE, serverKeyFile);
+		certPathContentMap.put(RPC_CERT_CHAIN_FILE, rpcCertChainFile);
+		certPathContentMap.put(RPC_KEY_FILE, rpcKeyFile);
+		Iterator<Entry<String, String>> iter = certPathContentMap.entrySet().iterator();
+		while(iter.hasNext()) {
+			Entry<String, String> enty = iter.next();
+			String file = enty.getKey();
+			String content = enty.getValue();
+			if(!FileUtil.isExistingFolder(new File(nodeCertPath))) {
+				FileUtil.mkdirs(nodeCertPath);
+			}
+			if(!FileUtil.isExistingFolder(new File(nodeCertPath + file))) {
+				FileUtil.writeBytes(nodeCertPath + file, content.getBytes("UTF-8"));
+			}
+		}
+		
+		return GRpcParaBo.builder()
+				.ip(ip)
+				.gRpcPort(gRpcPort)
+				.serverCertFile(MessageFormat.format(SERVER_CERT_FILE, consId, nodeId))
+				.rpcCertChainFile(MessageFormat.format(RPC_CERT_CHAIN_FILE, consId, nodeId))
+				.rpcKeyFile(MessageFormat.format(RPC_KEY_FILE, consId, nodeId)).build();
 	}
 }

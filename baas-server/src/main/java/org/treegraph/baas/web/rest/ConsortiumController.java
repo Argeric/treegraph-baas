@@ -85,9 +85,9 @@ public class ConsortiumController {
 	
 	@PostMapping("/del")
 	@ApiOperation("删除联盟")
-	public BaasResult<Void> deleteCons(@RequestBody DeleteConsRequest deleteConsRequest) {
-		consortiumService.deleteCons(deleteConsRequest);
-		return BaasResult.success();
+	public BaasResult<Boolean> deleteCons(@RequestBody DeleteConsRequest deleteConsRequest) {
+		boolean succFlag = consortiumService.deleteCons(deleteConsRequest);
+		return BaasResult.success(succFlag);
 	}
 	
 	@PostMapping("/admin/create")

@@ -156,7 +156,7 @@ public class BlockchainCreationTests {
 	@Test
 	@Order(1)
 	public void testLogin() throws Exception {
-		log.info("[step--->testLogin]=====================================================================================================================");
+		log.info("[\nstep--->testLogin]=====================================================================================================================");
 		LoginRequest loginRequest = LoginRequest.builder()
 				.account(account)
 				.password(password).build();
@@ -176,7 +176,7 @@ public class BlockchainCreationTests {
 	@Test
 	@Order(2)
 	public void testCreateConsortium() throws Exception {
-		log.info("[step--->testCreateConsortium]=====================================================================================================================");
+		log.info("[\nstep--->testCreateConsortium]=====================================================================================================================");
 		String consName = name + System.currentTimeMillis();
 		CreateConsRequest createConsRequest = CreateConsRequest.builder()
 				.name(consName)
@@ -201,7 +201,7 @@ public class BlockchainCreationTests {
 	@Test
 	@Order(3)
 	public void testCreateConsortiumAdmin() throws Exception {
-		log.info("[step--->testCreateConsortiumAdmin]=====================================================================================================================");
+		log.info("[\nstep--->testCreateConsortiumAdmin]=====================================================================================================================");
 		consAdminAccount = adminAccount + System.currentTimeMillis();
 		ConsAdminInfo consAdminInfo = ConsAdminInfo.builder()
 				.account(consAdminAccount)
@@ -230,7 +230,7 @@ public class BlockchainCreationTests {
 	@Test
 	@Order(4)
 	public void testCreateBlockchain() throws Exception {
-		log.info("[step--->testCreateBlockchain]=====================================================================================================================");
+		log.info("[\nstep--->testCreateBlockchain]=====================================================================================================================");
 		CreateBlockchainRequest createBlockchainRequest = CreateBlockchainRequest.builder()
 				.consId(consId)
 				.name(blockchainName)
@@ -252,7 +252,7 @@ public class BlockchainCreationTests {
 	@Test
 	@Order(5)
 	public void testAddNodesBeforeLanchBlockchain() throws Exception {
-		log.info("[step--->testAddNodesBeforeLanchBlockchain]=====================================================================================================================");
+		log.info("[\nstep--->testAddNodesBeforeLanchBlockchain]=====================================================================================================================");
 		NodeInfo node1 = NodeInfo.builder()
 				.ip(nodeIp).port(nodePort_1).org(nodeOrg).build();
 		NodeInfo node2 = NodeInfo.builder()
@@ -283,7 +283,7 @@ public class BlockchainCreationTests {
 	@Test
 	@Order(6)
 	public void testDownloadScript() throws Exception {
-		log.info("[step--->testDownloadScript]=====================================================================================================================");
+		log.info("[\nstep--->testDownloadScript]=====================================================================================================================");
 		DownloadDeployScriptRequest downloadDeployScriptRequest = DownloadDeployScriptRequest.builder()
 				.consId(consId)
 				.build();
@@ -309,7 +309,7 @@ public class BlockchainCreationTests {
 	@Test
 	@Order(7)
 	public void testLanchBlockchain() throws IOException, InterruptedException {
-		log.info("[step--->testLanchBlockchain]=====================================================================================================================");
+		log.info("[\nstep--->testLanchBlockchain]=====================================================================================================================");
         File[] folders = new File(dirCreateBlockchain).listFiles();
         for (File folder : folders){
         	if(folder.isFile()) continue;
@@ -329,7 +329,7 @@ public class BlockchainCreationTests {
 	@Test
 	@Order(8)
 	public void testRechargeGenesis() throws Exception {
-		log.info("[step--->testRechargeGenesis]=====================================================================================================================");
+		log.info("[\nstep--->testRechargeGenesis]=====================================================================================================================");
 		ListNodeRequest listNodeRequest = ListNodeRequest.builder()
 				.consId(consId).build();
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/list")
@@ -377,7 +377,7 @@ public class BlockchainCreationTests {
 	@Test
 	@Order(9)
 	public void testStopBlockchain() {
-		log.info("[step--->testStopBlockchain]=====================================================================================================================");
+		log.info("[\nstep--->testStopBlockchain]=====================================================================================================================");
 		for(Process process:processes) {
 			if(process.isAlive()) {
 				process.destroyForcibly();
@@ -388,14 +388,14 @@ public class BlockchainCreationTests {
 	@Test
 	@Order(10)
 	public void testRemoveScript() throws IOException {
-		log.info("[step--->testRemoveScript]=====================================================================================================================");
+		log.info("[\nstep--->testRemoveScript]=====================================================================================================================");
 		FileUtil.cleanDir(dirCreateBlockchain);
 	}
 	
 	@Test
 	@Order(11)
 	public void testRemoveNode() throws Exception {
-		log.info("[step--->testRemoveNode]=====================================================================================================================");
+		log.info("[\nstep--->testRemoveNode]=====================================================================================================================");
 		for(String nodeId:nodeIds) {
 			DeleteNodeRequest deleteNodeRequest = DeleteNodeRequest.builder()
 					.id(nodeId).force(true).build();
@@ -417,7 +417,7 @@ public class BlockchainCreationTests {
 	}
 	
 	public boolean removeBlockchain() {
-		log.info("[step--->removeBlockchain]=====================================================================================================================");
+		log.info("[\nstep--->removeBlockchain]=====================================================================================================================");
 		BlockChainPo blockChainPo = BlockChainPo.builder()
 				.id(blockchainId)
 				.deleteFlag(IntTypeEnum.TRUE.getValue())
@@ -430,7 +430,7 @@ public class BlockchainCreationTests {
 	@Test
 	@Order(12)
 	public void testRemoveConsortiumAdmin() throws Exception {
-		log.info("[step--->testRemoveConsortiumAdmin]=====================================================================================================================");
+		log.info("[\nstep--->testRemoveConsortiumAdmin]=====================================================================================================================");
 		UserInfoPo admin = userInfoDas.findByAccount(consAdminAccount)
 				.orElseThrow(() -> new RuntimeException("user.not.found"));
 		String userId = admin.getId();
@@ -453,7 +453,7 @@ public class BlockchainCreationTests {
 	@Test
 	@Order(13)
 	public void testRemoveConsortium() throws Exception {
-		log.info("[step--->testRemoveConsortium]=====================================================================================================================");
+		log.info("[\nstep--->testRemoveConsortium]=====================================================================================================================");
 		DeleteConsRequest deleteConsRequest = DeleteConsRequest.builder().id(consId).build();
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/del")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)

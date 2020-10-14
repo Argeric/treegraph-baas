@@ -79,6 +79,8 @@ public class BlockchainCreationTests {
 	
 	private static String consId;
 	
+	private static String consAdminAccount;
+	
 	private static String blockchainId;
 	
 	private static List<String> nodeIds;
@@ -200,8 +202,9 @@ public class BlockchainCreationTests {
 	@Order(3)
 	public void testCreateConsortiumAdmin() throws Exception {
 		log.info("[step--->testCreateConsortiumAdmin]=====================================================================================================================");
+		consAdminAccount = adminAccount + System.currentTimeMillis();
 		ConsAdminInfo consAdminInfo = ConsAdminInfo.builder()
-				.account(adminAccount)
+				.account(consAdminAccount)
 				.name(adminName)
 				.email(adminEmail)
 				.phone(adminPhone)
@@ -428,7 +431,7 @@ public class BlockchainCreationTests {
 	@Order(12)
 	public void testRemoveConsortiumAdmin() throws Exception {
 		log.info("[step--->testRemoveConsortiumAdmin]=====================================================================================================================");
-		UserInfoPo admin = userInfoDas.findByAccount(adminAccount)
+		UserInfoPo admin = userInfoDas.findByAccount(consAdminAccount)
 				.orElseThrow(() -> new RuntimeException("user.not.found"));
 		String userId = admin.getId();
 		DeleteUserRequest deleteUserRequest = DeleteUserRequest.builder()

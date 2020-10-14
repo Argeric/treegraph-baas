@@ -19,7 +19,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -66,7 +65,8 @@ import conflux.web3j.types.RawTransaction;
 import jodd.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 
-@RunWith(SpringRunner.class)
+//@RunWith(SpringRunner.class)
+@RunWith(OrderedRunner.class)
 @SpringBootTest(classes = TreeGraphBaasApp.class)
 @Slf4j
 public class BlockchainCreationTests {

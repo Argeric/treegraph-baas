@@ -175,8 +175,9 @@ public class BlockchainCreationTests {
 	@Order(2)
 	public void testCreateConsortium() throws Exception {
 		log.info("[step--->testCreateConsortium]=====================================================================================================================");
+		String consName = name + System.currentTimeMillis();
 		CreateConsRequest createConsRequest = CreateConsRequest.builder()
-				.name(name)
+				.name(consName)
 				.remark(remark)
 				.contact(contact)
 				.email(email)

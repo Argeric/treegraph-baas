@@ -322,7 +322,7 @@ public class BlockchainCreationTests {
 			TimeUnit.SECONDS.sleep(5);
 			log.info("[step--->testLanchBlockchain]start node--->{}", folder.getName());
         }
-        TimeUnit.SECONDS.sleep(10);
+        TimeUnit.SECONDS.sleep(60);
         log.info("[step--->testLanchBlockchain]start blockchain completed!");
 	}
 	
@@ -376,7 +376,8 @@ public class BlockchainCreationTests {
 	//=====================================================================================================================
 	@Test
 	@Order(9)
-	public void testStopBlockchain() {
+	public void testStopBlockchain() throws InterruptedException {
+		TimeUnit.HOURS.sleep(24);
 		log.info("[\nstep--->testStopBlockchain]=====================================================================================================================");
 		for(Process process:processes) {
 			if(process.isAlive()) {

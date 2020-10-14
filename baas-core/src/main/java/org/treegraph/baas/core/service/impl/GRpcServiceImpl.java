@@ -272,7 +272,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 
 		// rpc cert
 		KeypairPo consKeyPair = vaultKeypairBuildService.getConsortiumKeyPair(consId, ALGO_CONS, null);
-		NodeKeypairBo userKeypair = vaultKeypairBuildService.geneNodeKeypair(consId, ALGO_NODE,
+		NodeKeypairBo userKeypair = vaultKeypairBuildService.geneNodeKeypair(consId, ALGO_CONS,
 				NodePo.builder().id(nodeId).build(), consKeyPair);
 		String rpcCertChainFile = userKeypair.getKeypair().getCertStr();
 		String rpcKeyFile = privateKeyToPem(

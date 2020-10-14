@@ -436,6 +436,7 @@ public class BlockchainCreationTests {
 		String userId = admin.getId();
 		DeleteUserRequest deleteUserRequest = DeleteUserRequest.builder()
 				.id(userId).build();
+		log.info("[\nstep--->testRemoveConsortiumAdmin]deleteUserRequest:{}", JSON.toJSONString(deleteUserRequest));
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/user/del")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header("X-Token", token)

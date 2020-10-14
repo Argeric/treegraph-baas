@@ -48,8 +48,8 @@ import conflux.web3j.response.StringResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-//@Service(value = "rpcService")
-@Service(value = "jsonRpcService")
+@Service(value = "rpcService")
+//@Service(value = "jsonRpcService")
 @AllArgsConstructor
 @Slf4j
 public class JsonRpcServiceImpl implements BlockchainRpcService{

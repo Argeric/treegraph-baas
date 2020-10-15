@@ -208,13 +208,11 @@
             <artifactId>UserAgentUtils</artifactId>
             <version>1.20</version>
         </dependency>
-        <!-- 
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>3.8.1</version>
-        </dependency> 
-        -->               		
+            <version>4.3.1</version>
+        </dependency>                		
 	    <dependency>
 	      <groupId>org.aspectj</groupId>
 	      <artifactId>aspectjrt</artifactId>
@@ -273,12 +271,6 @@
 			<groupId>org.conflux-chain</groupId>
 		    <artifactId>conflux-web3j</artifactId>
 		    <version>1.0.0-SNAPSHOT</version>
-		    <exclusions>
-		    	<exclusion>
-		    		<groupId>org.jetbrains.kotlin</groupId>
-		    		<artifactId>kotlin-stdlib</artifactId>
-		    	</exclusion>
-		    </exclusions>
 		</dependency>
   </dependencies>
 </project>

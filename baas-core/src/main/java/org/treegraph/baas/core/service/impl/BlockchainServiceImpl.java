@@ -170,7 +170,7 @@ public class BlockchainServiceImpl implements BlockchainService {
 				.nodes(nodeInfos)
 				.consId(chain.getConsortiumId())
 				.consName(cons.getName())
-				.consAvatar(new String(cons.getAvatar()))
+				.consAvatar(cons.getAvatar() != null ? new String(cons.getAvatar()) : null)
 				.consContact(cons.getContactName())
 				.consEmail(cons.getContactEmail())
 				.consPhone(cons.getContactPhone())

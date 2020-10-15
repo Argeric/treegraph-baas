@@ -617,7 +617,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 				"sys_monitor/docker-compose.yml",
 				"sys_monitor/.env",//from string with placeholder
 				"sys_monitor/grafana/dashboard/home.json",
-				"sys_monitor/grafana/datasource/home.ymal",//from string with placeholder
+				"sys_monitor/grafana/datasource/home.yaml",//from string with placeholder
 				"sys_monitor/grafana/data/readme.md",
 				"sys_monitor/prometheus/prometheus.yml"//from string with placeholder
 				);
@@ -631,7 +631,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			String network = (Integer.parseInt(highestNetSeg) + 1) + DOT + leftNetSeg;
 			if(item.endsWith(".env")) {
 				content = MessageFormat.format(MonitorConstant.SYS_MONITOR_ENV_FILE, webPort, webPort, network);
-			} else if(item.endsWith("home.ymal")) {
+			} else if(item.endsWith("home.yaml")) {
 				content = MessageFormat.format(MonitorConstant.SYS_MONITOR_GRAFANA_DATASOURCE_FILE, webPort);
 			} else if(item.endsWith("prometheus.yml")) {
 				content = MessageFormat.format(MonitorConstant.SYS_MONITOR_PROMETHEUS_CONFIG_FILE, webPort);

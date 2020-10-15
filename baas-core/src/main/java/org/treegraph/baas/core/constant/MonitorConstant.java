@@ -27,7 +27,7 @@ public class MonitorConstant {
 			+ "scrape_configs:\n"
 			+ "  - job_name: linux\n"
 			+ "    static_configs:\n"
-			+ "      - targets: ['baas_monitor_exporter{0}:9100']\n"
+			+ "      - targets: [\"baas_monitor_exporter{0}:9100\"]\n"
 			+ "        labels:\n" 
 			+ "          instance: localhost";		
 	public static final String SYS_MONITOR_GRAFANA_DATASOURCE_FILE = 
@@ -39,7 +39,7 @@ public class MonitorConstant {
 			+ "    access: 'proxy'\n"
 			+ "    orgId: 1\n"
 			+ "    uid: 'my_unique_uid'\n"
-			+ "    url: 'baas_monitor_prometheus{0}:9090'\n"
+			+ "    url: \"baas_monitor_prometheus{0}:9090\"\n"
 			+ "    password:\n"
 			+ "    user:\n"
 			+ "    database:\n"

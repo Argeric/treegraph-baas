@@ -1,16 +1,10 @@
 package org.treegraph.baas.core.util;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.springframework.util.Assert;
 
 import com.alibaba.fastjson.JSONObject;
 
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.FormBody;
-import okhttp3.FormBody.Builder;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 /**
  * 通过ip获取真实地址

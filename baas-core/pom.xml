@@ -211,7 +211,7 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>4.3.1</version>
+            <version>3.8.1</version>
         </dependency>                		
 	    <dependency>
 	      <groupId>org.aspectj</groupId>
@@ -271,12 +271,6 @@
 			<groupId>org.conflux-chain</groupId>
 		    <artifactId>conflux-web3j</artifactId>
 		    <version>1.0.0-SNAPSHOT</version>
-		    <exclusions>
-		    	<exclusion>
-		    		<groupId>com.squareup.okhttp3</groupId>
-		    		<artifactId>okhttp</artifactId>
-		    	</exclusion>
-		    </exclusions>
 		</dependency>
   </dependencies>
 </project>

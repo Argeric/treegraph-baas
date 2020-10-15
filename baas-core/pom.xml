@@ -261,11 +261,23 @@
 		    <artifactId>commons-beanutils</artifactId>
 		    <version>1.9.4</version>
 		</dependency>
+
+		<dependency>
+		    <groupId>org.jetbrains.kotlin</groupId>
+		    <artifactId>kotlin-stdlib</artifactId>
+		    <version>1.7.1</version>
+		</dependency>
                      						            						 		
 		<dependency>
 			<groupId>org.conflux-chain</groupId>
 		    <artifactId>conflux-web3j</artifactId>
 		    <version>1.0.0-SNAPSHOT</version>
+		    <exclusions>
+		    	<exclusion>
+		    		<groupId>org.jetbrains.kotlin</groupId>
+		    		<artifactId>kotlin-stdlib</artifactId>
+		    	</exclusion>
+		    </exclusions>
 		</dependency>
   </dependencies>
 </project>

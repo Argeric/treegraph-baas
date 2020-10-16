@@ -1,5 +1,6 @@
 package org.treegraph.baas.core.das.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.common.enums.IntTypeEnum;
+import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.das.MembershipChangeDas;
 import org.treegraph.baas.core.das.NodeCustomizedConfigDas;
@@ -279,7 +281,14 @@ public class NodeDasImpl implements NodeDas {
 	
 	public boolean deleteNodes(NodePo node, ConsortiumPo cons) {
 		boolean succFlag =  Boolean.TRUE;
-		succFlag = succFlag && nodePoMapper.deleteByPrimaryKey(node.getId()) > 0;
+		NodePo updateNode = NodePo.builder()
+				.id(node.getId())
+				.deleteFlag(IntTypeEnum.TRUE.getValue())
+				.updateTime(LocalDateTime.now())
+				.updateBy(WebHelper.getUserId())
+				.build();
+		succFlag = succFlag && nodePoMapper.updateByPrimaryKeySelective(updateNode) > 0;
+		//succFlag = succFlag && nodePoMapper.deleteByPrimaryKey(node.getId()) > 0;
 		if(cons != null) {
 			succFlag = succFlag && consortiumPoMapper.updateByPrimaryKeySelective(cons) > 0;
 		}
@@ -295,7 +304,7 @@ public class NodeDasImpl implements NodeDas {
 	private void addHeartbeatListener(List<NodePo> nodes, List<NodeCustomizedConfigPo> customizedConfigList) {
 		HeartbeatLinstener heartbeatListener = HeartbeatLinstener.getInstance();
 		Map<String, Integer> rpcHttpPortMap = customizedConfigList.stream()
-				.filter(item -> item.getPropertyName().equalsIgnoreCase(ConfluxConstant.PROPERTY_JSON_RPC_PORT))
+				.filter(item -> item.getPropertyName().equalsIgnoreCase(ConfluxConstant.PROPERTY_JSONRPC_PORT))
 				.collect(Collectors.toMap(NodeCustomizedConfigPo::getNodeId, item -> Integer.parseInt(item.getPropertyValue())));
 		nodes.stream().forEach(node -> {
 			if(!heartbeatListener.isNodeValid(node.getConsortiumId(), node.getId())){

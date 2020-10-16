@@ -104,5 +104,4 @@ public class BlockchainEnum {
             return null;
         }
     }
-
 }

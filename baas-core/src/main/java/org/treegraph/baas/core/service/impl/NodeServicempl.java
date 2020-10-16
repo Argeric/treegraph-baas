@@ -32,6 +32,7 @@ import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
 import org.treegraph.baas.core.enums.NodeEnum.Status;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
+import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.service.NodeService;
 import org.treegraph.baas.core.service.bo.MembershipChangeBo;
 import org.treegraph.baas.core.util.DateTimeUtils;
@@ -56,7 +57,7 @@ public class NodeServicempl implements NodeService {
     
     private BuildService buildService;
     
-    private JsonRpcService jsonRpcService;
+    private BlockchainRpcService rpcService;
  
 	public ListNodeResponse listNodes(ListNodeRequest req) {
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
@@ -106,8 +107,10 @@ public class NodeServicempl implements NodeService {
 		BlockChainPo blockchain = blockchainDas.findById(node.getBlockchainId())
 				.orElseThrow(() -> new AlertException("blockchain.not.found"));
 		Status nodeStatus = HeartbeatLinstener.getInstance().getNodeStatus(node.getConsortiumId(), node.getId());
-		String logMonitorPort = nodeCustomizedConfigDas.findPropertyValueByName(node.getConsortiumId(), node.getId(),
+		String logMonitorPortStr = nodeCustomizedConfigDas.findPropertyValueByName(node.getConsortiumId(), node.getId(),
 				ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT);
+		int logMonitorPort = Integer.parseInt(logMonitorPortStr);
+		int sysMonitorPort = logMonitorPort + ConfluxConstant.TEST_MONITOR_PORT_INTERVAL;
 		return NodeInfo.builder()
 				.consId(node.getConsortiumId())
 				.consName(consortium.getName())
@@ -117,7 +120,8 @@ public class NodeServicempl implements NodeService {
 				.port(node.getNodePort()+"")
 				.org(node.getOrganizationName())
 				.status(nodeStatus.getCode())
-				.logMonitorUri(toUri(node.getNodeIp(), Integer.parseInt(logMonitorPort)))
+				.logMonitorUri(toUri(node.getNodeIp(), logMonitorPort))
+				.sysMonitorUri(toUri(node.getNodeIp(), sysMonitorPort))
 				.build();
 	}
 
@@ -150,13 +154,13 @@ public class NodeServicempl implements NodeService {
 		// before download deploy scripts
 		boolean deleteNodeResult = Boolean.FALSE;
 		int establishStep = consortiumDas.findById(consId).get().getEstablishStep();
-		if(establishStep < EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
+		if (req.getForce() || establishStep < EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
 			ConsortiumPo cons = buildService.buildToUpdateCons(consId, EstablishStep.TO_DEPLOY);
 			deleteNodeResult = nodeDas.deleteNodes(node, cons);
 		}
 		
 		// after download deploy scripts, need check chain is launched already
-		if(establishStep == EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
+		if(!req.getForce() && establishStep == EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
 			List<NodePo> existNodes = nodeDas.findByConsIdAndChainId(consId, blockchainId);
 			List<NodePo> toRemoveNodes = Lists.newArrayList(node);
 			
@@ -166,7 +170,7 @@ public class NodeServicempl implements NodeService {
 			nodeDas.addNodesMembershipChange(toRemoveNodeIds, MembershipStatus.REMOVE_START,
 					changeBo.getMembershipChange(), changeBo.getNodeMemberships());
 			
-			MembershipEnum.Status membershipChangeStatus = jsonRpcService.sendMembershipChangeTransactionPlus(
+			MembershipEnum.Status membershipChangeStatus = rpcService.sendMembershipChangeTransactionPlus(
 					changeBo.getMembershipChange().getId(), changeBo.getCommitteeNodeKeypairs(),
 					changeBo.getValidatorNodeKeypairs());
 			MembershipStatus nodeMembershipStatus = membershipChangeStatus.isFail() ? MembershipStatus.REMOVE_FAILURE

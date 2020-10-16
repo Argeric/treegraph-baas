@@ -1,0 +1,53 @@
+version: '3'
+services:
+
+  exporter:
+    restart: always
+    image: prom/node-exporter:latest
+    container_name: baas_monitor_exporter${HOST_MONITOR_PORT}
+    expose:
+      - 9100
+    networks:
+      - baas_monitor_net
+  
+  prometheus:
+    restart: always      
+    image: prom/prometheus:latest
+    container_name: baas_monitor_prometheus${HOST_MONITOR_PORT}
+    expose:
+      - 9090
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - baas_monitor_net
+    depends_on:
+      - exporter
+    links:
+      - exporter
+
+  grafana:
+    restart: always      
+    image: grafana/grafana:latest
+    container_name: baas_monitor_grafana${HOST_MONITOR_PORT}
+    environment:
+      - GF_AUTH_PROXY_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+    ports:
+      - ${HOST_MONITOR_PORT}:3000
+    volumes:
+      - ./grafana/data:/var/lib/grafana
+      - ./grafana/dashboard/home.json:/usr/share/grafana/public/dashboards/home.json
+      - ./grafana/datasource/home.yaml:/etc/grafana/provisioning/datasources/home.yaml
+    networks:
+      - baas_monitor_net
+    depends_on:
+      - prometheus
+    links:
+      - prometheus
+
+networks:
+  baas_monitor_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${CONTAINER_NETWORK}

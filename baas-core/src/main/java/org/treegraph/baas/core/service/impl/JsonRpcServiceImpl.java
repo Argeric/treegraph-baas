@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.core.component.BizTimer;
 import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
@@ -31,6 +30,7 @@ import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
+import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.task.CheckMembershipChangeTimerTask;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.IdWorker;
@@ -41,18 +41,18 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import conflux.web3j.Cfx;
-import conflux.web3j.Request;
+import conflux.web3j.jsonrpc.Cfx;
+import conflux.web3j.jsonrpc.Request;
 import conflux.web3j.response.BigIntResponse;
 import conflux.web3j.response.StringResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Validated
-@Service
+@Service(value = "rpcService")
+//@Service(value = "jsonRpcService")
 @AllArgsConstructor
 @Slf4j
-public class JsonRpcService {
+public class JsonRpcServiceImpl implements BlockchainRpcService{
 	
     private KeypairDas keypairDas;
 	
@@ -178,8 +178,9 @@ public class JsonRpcService {
     	 * 5. delay query BFT epoch number
     	 */
     	try {
-			BizTimer.DELAY_TIMER.newTimeout(new CheckMembershipChangeTimerTask(membershipChangeId), 60,
-					TimeUnit.SECONDS);
+			BizTimer.DELAY_TIMER.newTimeout(
+					new CheckMembershipChangeTimerTask(membershipChangeId), 
+					60, TimeUnit.SECONDS);
     		status = MembershipEnum.Status.LAUNCH_CHECK_THREAD_SUCCESS;
     	} catch(Exception e) {
     		log.error("[seq={}][membership change]async check error:", seq, e);
@@ -238,5 +239,25 @@ public class JsonRpcService {
 					JSON.toJSONString(req), resp);
 		}
 		return Boolean.TRUE;
+	}
+	
+	public String sendRawTransaction(String consId, String nodeId, String hexEncoded) {
+		String uri = null;
+		Request<String, StringResponse> sendRawTransactionRequest = null;
+		String txResult = null;
+		try {
+			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, nodeId);
+			uri = ConfluxUtils.toUri(heartbeat.getIp(), heartbeat.getPort());
+			Cfx cfx = Cfx.create(uri);
+			sendRawTransactionRequest = cfx.sendRawTransaction(hexEncoded);
+            txResult = sendRawTransactionRequest.sendAndGet();
+		} catch(Exception e) {
+			log.error("[get sendRawTransaction]error:", e);
+			return txResult;
+		} finally {
+			log.info("[get sendRawTransaction]uri--->{}, txRequest--->{}, txResponse--->{}", uri,
+					JSON.toJSONString(sendRawTransactionRequest), txResult);
+		}
+		return txResult;
 	}
 }

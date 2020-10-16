@@ -3,28 +3,35 @@ package org.treegraph.baas.core.service.impl;
 import static org.treegraph.baas.core.constant.CharacterConstant.AT;
 import static org.treegraph.baas.core.constant.CharacterConstant.COLON;
 import static org.treegraph.baas.core.constant.CharacterConstant.COMMA;
-import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSON_RPC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSON_RPC_LOCAL_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSON_RPC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSON_RPC_PORT_STEP_FACTOR;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSON_RPC_LOC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT_STEP_FACTOR;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_CONTAINER_NETWORK_STEP_FACTOR;
+import static org.treegraph.baas.core.constant.CharacterConstant.DOT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_GRPC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSONRPC_LOCAL_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSONRPC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_GRPC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_LOC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_PORT_STEP_FACTOR;
 import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_CONTAINER_NETWORK;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_LOG_MONITOR_WEB_PORT_STEP;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_JSON_RPC_PORT_STEP;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_CONTAINER_NETWORK_STEP_FACTOR;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT_STEP_FACTOR;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_JSONRPC_PORT_STEP;
 import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_LOG_MONITOR_CONTAINER_NETWORK_STEP;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_JSON_RPC_LOCAL_PORT_INTERVAL;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_LOG_MONITOR_WEB_PORT_STEP;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_MONITOR_PORT_INTERVAL;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_RPC_PORT_INTERVAL;
 import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_SWITCH;
-import static org.treegraph.baas.core.constant.MonitorConstant.DEFAULT_HOST_WEB_PORT;
 import static org.treegraph.baas.core.constant.MonitorConstant.DEFAULT_CONTAINER_NETWORK;
+import static org.treegraph.baas.core.constant.MonitorConstant.DEFAULT_HOST_WEB_PORT;
 import static org.treegraph.baas.core.constant.SplitterConstant.FILE_SEP;
 import static org.treegraph.baas.core.constant.SplitterConstant.LINE_SEP;
 import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
 import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
 import static org.treegraph.baas.core.util.ConfluxUtils.toIpAtPort;
 import static org.treegraph.baas.core.util.DateTimeUtils.FORMAT_yyyyMMddHHmmss;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFromBase64;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 
 import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
@@ -105,6 +112,7 @@ import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.exception.AlertException;
+import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.service.ConsortiumService;
 import org.treegraph.baas.core.service.bo.CustomizedConfigBo;
 import org.treegraph.baas.core.service.bo.MembershipChangeBo;
@@ -120,10 +128,6 @@ import org.treegraph.baas.core.util.crypto.x509.EncryptUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.treegraph.baas.core.util.crypto.x509.SignUtil;
 import org.web3j.crypto.ECKeyPair;
-
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFromBase64;
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -160,7 +164,7 @@ public class ConsortiumServicempl implements ConsortiumService {
     
     private VaultKeypairBuildService vaultKeypairBuildService;
     
-    private JsonRpcService jsonRpcService;
+    private BlockchainRpcService rpcService;
     
 	public ListConsResponse listCons(ListRequest req) {
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
@@ -337,14 +341,15 @@ public class ConsortiumServicempl implements ConsortiumService {
 				roleBo != null ? roleBo.getRolePermissionList() : null, users, userRoles, userOrgs, cons);
 	}
 
-	public boolean createBlockchain(CreateBlockchainRequest req) {
+	public String createBlockchain(CreateBlockchainRequest req) {
 		List<BlockChainPo> blockchains = blockchainDas.findByConsId(req.getConsId());
 		Assert.isTrue(CollectionUtils.isEmpty(blockchains), "联盟["+req.getConsId()+"]下已创建区块链");
 		
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
+		String blockchainId = UUID.randomUUID().toString();
 		BlockChainPo blockchain = BlockChainPo.builder()
-				.id(UUID.randomUUID().toString())
+				.id(blockchainId)
 				.blockchainName(req.getName())
 				.consortiumId(req.getConsId())
 				.alarmEmail(req.getAlertEmail())
@@ -361,8 +366,9 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.build();
 		
 		ConsortiumPo cons = buildService.buildToUpdateCons(req.getConsId(), EstablishStep.TO_ADD_NODE);
+		blockchainDas.createBlockchain(blockchain, cons);
 		
-		return blockchainDas.createBlockchain(blockchain, cons);
+		return blockchainId;
 	}
 
 	/**
@@ -418,7 +424,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			nodeDas.addNodeKeypairs(changeBo.getToInsertDbNodeKeypairs(), config.getStepFactorConfigList(),
 					config.getConfigList(), changeBo.getMembershipChange(), changeBo.getNodeMemberships());
 			
-			MembershipEnum.Status membershipChangeStatus = jsonRpcService.sendMembershipChangeTransactionPlus(
+			MembershipEnum.Status membershipChangeStatus = rpcService.sendMembershipChangeTransactionPlus(
 					changeBo.getMembershipChange().getId(), changeBo.getCommitteeNodeKeypairs(),
 					changeBo.getValidatorNodeKeypairs());
 			List<String> toAddNodeIds = toAddNodes.stream().map(NodePo::getId).collect(Collectors.toList());
@@ -540,13 +546,15 @@ public class ConsortiumServicempl implements ConsortiumService {
 			append(scriptContent, "grpc_server_key = \"\"\"" + nodePrivateKeyPem + "\"\"\"");
 			Map<String, String> configs = configMap.get(node.getId());
 			StringBuffer customizedScriptContent = buildCustomizedDeployScript(node.getId(), ecKeypair, configs);
-			Map<String, String> logMonitorScritps = buildLogMonitorScript(node.getId(), configs);
+			Map<String, String> logMonitorScripts = buildLogMonitorScript(node.getId(), configs);
+			Map<String, String> sysMonitorScripts = buildSysMonitorScript(node.getId(), configs);
 			
 			// build script map
 			Map<String, String> scripts = Maps.newHashMap();
 			scripts.put("config.toml", scriptContent.toString());
 			scripts.put("customized_config.toml", customizedScriptContent.toString());
-			scripts.putAll(logMonitorScritps);
+			scripts.putAll(logMonitorScripts);
+			scripts.putAll(sysMonitorScripts);
 			nodeScriptContentMap.put(node.getNodeIp() + AT + node.getNodePort(), scripts);
 		}
 		
@@ -559,11 +567,14 @@ public class ConsortiumServicempl implements ConsortiumService {
 	private StringBuffer buildCustomizedDeployScript(String nodeId, ECKeyPair ecKeypair, Map<String, String> configs) {
 		// node customized script content
 		StringBuffer customizedScriptContent = new StringBuffer();
-		String jsonRpcHttpPort = configs.get(PROPERTY_JSON_RPC_PORT);
-		String jsonRpcLocalHttpPort = configs.get(PROPERTY_JSON_RPC_LOC_PORT);
-		customizedScriptContent.append(PROPERTY_JSON_RPC_PORT + " = " + jsonRpcHttpPort)
+		String jsonRpcHttpPort = configs.get(PROPERTY_JSONRPC_PORT);
+		String jsonRpcLocalHttpPort = configs.get(PROPERTY_JSONRPC_LOC_PORT);
+		customizedScriptContent.append(PROPERTY_JSONRPC_PORT + " = " + jsonRpcHttpPort)
 				.append(LINE_SEP).append(LINE_SEP);
-		customizedScriptContent.append(PROPERTY_JSON_RPC_LOC_PORT + " = " + jsonRpcLocalHttpPort)
+		customizedScriptContent.append(PROPERTY_JSONRPC_LOC_PORT + " = " + jsonRpcLocalHttpPort)
+				.append(LINE_SEP).append(LINE_SEP);
+		customizedScriptContent.append(PROPERTY_GRPC_PORT + "=" + ( TEST_SWITCH
+				? (Integer.parseInt(jsonRpcLocalHttpPort) + TEST_RPC_PORT_INTERVAL) : DEFAULT_GRPC_PORT))
 				.append(LINE_SEP).append(LINE_SEP);
 		customizedScriptContent.append("mining_author = \"" + ConfluxUtils.toAddress(ecKeypair) + "\"")
 				.append(LINE_SEP).append(LINE_SEP);
@@ -576,24 +587,62 @@ public class ConsortiumServicempl implements ConsortiumService {
 
 	private Map<String, String> buildLogMonitorScript(String nodeId, Map<String, String> configs) {
 		Map<String, String> scripts = Maps.newHashMap();
-		List<String> files = Lists.newArrayList("docker-compose.yml", "start_log_monitor.sh", 
-				"stop_log_monitor.sh", ".env");
+		List<String> files = Lists.newArrayList(
+				"log_monitor/start_log_monitor.sh", 
+				"log_monitor/stop_log_monitor.sh", 
+				"log_monitor/docker-compose.yml", 
+				"log_monitor/.env"//from string with placeholder
+				);
 		files.stream().forEach(item -> {
 			String content = null;
-			if(".env".equals(item)) {
+			if(item.endsWith(".env")) {
 				String webPort = configs.get(PROPERTY_LOG_MONITOR_WEB_PORT);
 				String network = configs.get(PROPERTY_LOG_MONITOR_CONTAINER_NETWORK);
 				content = MessageFormat.format(MonitorConstant.LOG_MONITOR_ENV_FILE, webPort,
 						MonitorConstant.DEFAULT_HOST_LOG_PATH, webPort, network);
 			} else {
-				content = FileUtils.readFile(new ClassPathResource("scripts/logmonitor/" + item));
+				content = FileUtils.readFile(new ClassPathResource("scripts/" + item));
 				
 			}
-			scripts.put("log_monitor" + FILE_SEP + item, content);
+			scripts.put(item, content);
 		});
 		return scripts;
 	}
-
+	
+	private Map<String, String> buildSysMonitorScript(String nodeId, Map<String, String> configs){
+		Map<String, String> scripts = Maps.newHashMap();
+		List<String> files = Lists.newArrayList(
+				"sys_monitor/start_sys_monitor.sh",
+				"sys_monitor/stop_sys_monitor.sh",
+				"sys_monitor/docker-compose.yml",
+				"sys_monitor/.env",//from string with placeholder
+				"sys_monitor/grafana/dashboard/home.json",
+				"sys_monitor/grafana/datasource/home.yaml",//from string with placeholder
+				"sys_monitor/grafana/data/readme.md",
+				"sys_monitor/prometheus/prometheus.yml"//from string with placeholder
+				);
+		files.stream().forEach(item -> {
+			String content = null;
+			String logMonitorWebPort = configs.get(PROPERTY_LOG_MONITOR_WEB_PORT);
+			String logMonitorNetwork = configs.get(PROPERTY_LOG_MONITOR_CONTAINER_NETWORK);
+			String webPort = (Integer.parseInt(logMonitorWebPort) + TEST_MONITOR_PORT_INTERVAL) + "";
+			String highestNetSeg = StringUtils.substringBefore(logMonitorNetwork, DOT);
+			String leftNetSeg = StringUtils.substringAfter(logMonitorNetwork, DOT);
+			String network = (Integer.parseInt(highestNetSeg) + 1) + DOT + leftNetSeg;
+			if(item.endsWith(".env")) {
+				content = MessageFormat.format(MonitorConstant.SYS_MONITOR_ENV_FILE, webPort, webPort, network);
+			} else if(item.endsWith("home.yaml")) {
+				content = MessageFormat.format(MonitorConstant.SYS_MONITOR_GRAFANA_DATASOURCE_FILE, webPort);
+			} else if(item.endsWith("prometheus.yml")) {
+				content = MessageFormat.format(MonitorConstant.SYS_MONITOR_PROMETHEUS_CONFIG_FILE, webPort);
+			} else {
+				content = FileUtils.readFile(new ClassPathResource("scripts/" + item));
+			}
+			scripts.put(item, content);
+		});
+		return scripts;
+	}
+	
 	private void append(StringBuffer strBuf, String str) {
 		strBuf.append(str).append(LINE_SEP).append(LINE_SEP);
 	}
@@ -640,24 +689,24 @@ public class ConsortiumServicempl implements ConsortiumService {
 	
 	private CustomizedConfigBo buildCustomizedConfig(String consortiumId, List<NodePo> nodes) {
 		String jsonRpcPortStepFactorDb = nodeCustomizedConfigDas.findPropertyValueByName(consortiumId, null,
-				PROPERTY_JSON_RPC_PORT_STEP_FACTOR);
+				PROPERTY_JSONRPC_PORT_STEP_FACTOR);
 		int stepFactor = jsonRpcPortStepFactorDb != null ? Integer.parseInt(jsonRpcPortStepFactorDb) : 0;
 		
 		List<NodeCustomizedConfigPo> configList = Lists.newArrayList();
 		for(NodePo node:nodes){
 			int jsonRpcHttpPort = TEST_SWITCH
-					? DEFAULT_JSON_RPC_PORT + (stepFactor++) * TEST_JSON_RPC_PORT_STEP
-					: DEFAULT_JSON_RPC_PORT;
+					? DEFAULT_JSONRPC_PORT + (stepFactor++) * TEST_JSONRPC_PORT_STEP
+					: DEFAULT_JSONRPC_PORT;
 			int jsonRpcLocHttpPort = TEST_SWITCH
-					? jsonRpcHttpPort + TEST_JSON_RPC_LOCAL_PORT_INTERVAL
-					: DEFAULT_JSON_RPC_LOCAL_PORT;
-			configList.add(buildService.buildNodeConfig(node, PROPERTY_JSON_RPC_PORT, jsonRpcHttpPort + ""));
-			configList.add(buildService.buildNodeConfig(node, PROPERTY_JSON_RPC_LOC_PORT, jsonRpcLocHttpPort + ""));
+					? jsonRpcHttpPort + TEST_RPC_PORT_INTERVAL
+					: DEFAULT_JSONRPC_LOCAL_PORT;
+			configList.add(buildService.buildNodeConfig(node, PROPERTY_JSONRPC_PORT, jsonRpcHttpPort + ""));
+			configList.add(buildService.buildNodeConfig(node, PROPERTY_JSONRPC_LOC_PORT, jsonRpcLocHttpPort + ""));
 		}
 		
 		NodeCustomizedConfigPo jsonRpcStepFactorConfig = buildService.buildNodeConfig(
 				NodePo.builder().id(IntTypeEnum.FALSE.getValue() + "").consortiumId(consortiumId).build(),
-				PROPERTY_JSON_RPC_PORT_STEP_FACTOR, stepFactor + "");
+				PROPERTY_JSONRPC_PORT_STEP_FACTOR, stepFactor + "");
 		List<NodeCustomizedConfigPo> stepFactorConfigList = Lists.newArrayList(jsonRpcStepFactorConfig);
 		
 		CustomizedConfigBo logMonitorConfig = buildCustomizedConfigLogMonitor(consortiumId, nodes);
@@ -731,7 +780,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		List<String> membershipNodeIds = existNodes.stream().filter(item -> buildService.isMembershipNode(item))
 				.map(NodePo::getId).collect(Collectors.toList());
 		String certStr = consKeypair.getCertStr();
-		boolean isSuccess = jsonRpcService.updateCert(consId, certStr, membershipNodeIds);
+		boolean isSuccess = rpcService.updateCert(consId, certStr, membershipNodeIds);
 		
 		// response failure
 		CertificateDeferPo deferUpdate = buildService.buildCertificateDeferUpdate(defer.getId());

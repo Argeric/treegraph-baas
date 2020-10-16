@@ -60,9 +60,9 @@ public class NodeController {
 	}
 	
 	@PostMapping("/del")
-	@ApiOperation("修改节点")
-	public BaasResult<Void> modifyNode(@RequestBody DeleteNodeRequest delNodeRequest) throws Exception {
-		nodeService.deleteNode(delNodeRequest);
-		return BaasResult.success();
+	@ApiOperation("删除节点")
+	public BaasResult<Boolean> modifyNode(@RequestBody DeleteNodeRequest delNodeRequest) throws Exception {
+		boolean succFlag = nodeService.deleteNode(delNodeRequest);
+		return BaasResult.success(succFlag);
 	}
 }

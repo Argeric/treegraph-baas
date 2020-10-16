@@ -41,9 +41,10 @@ import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
+import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
-import org.treegraph.baas.core.enums.UserEnum;
+import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.service.bo.MembershipChangeBo;
 import org.treegraph.baas.core.service.bo.OrgBo;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
@@ -71,7 +72,7 @@ public class BuildService {
     
     private VaultKeypairBuildService vaultKeypairBuildService;
     
-    private JsonRpcService jsonRpcService;
+    private BlockchainRpcService rpcService;
 
 	public RoleInfoBo buildRole(int roleType, String roleName, String consId, List<String> reqPermissions) {
    		LocalDateTime now = LocalDateTime.now();
@@ -284,7 +285,7 @@ public class BuildService {
 						.getNode(item.getNode().getConsortiumId(), item.getNode().getId()).getStatus())
 				.findFirst().orElseThrow(() -> new AlertException("alive.proposer.node.not.found"));
 		NodePo proposerNode = proposerNodeKeypair.getNode();
-		BigInteger preBftEpochNumber = jsonRpcService.getBftEpochNumber(proposerNode.getConsortiumId(), proposerNode.getId());
+		BigInteger preBftEpochNumber = rpcService.getBftEpochNumber(proposerNode.getConsortiumId(), proposerNode.getId());
 		List<String> committeeNodeIds = committeeNodeKeypairs.stream().map(item -> item.getNode().getId())
 				.collect(Collectors.toList());
 		MembershipChangePo membershipChange = this.buildMembershipChangePo(consId, blockchainId,

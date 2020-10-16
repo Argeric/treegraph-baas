@@ -52,7 +52,9 @@ public class HeartbeatHandlerImpl implements HeartbeatHandler {
 		Collection<Heartbeat> lastHeartbeats = nodes.values();
 		List<CompletableFuture<Heartbeat>> futureList = lastHeartbeats.stream().map(item -> CompletableFuture
 				.supplyAsync(() -> heartbeatClient.send(item), BizThreadPools.HEARTBEAT)
-				.exceptionally(e -> null)
+				.exceptionally(e -> {
+					log.error("heartbeat--->{}, error:", JSONObject.toJSONString(item, true), e);
+					return item;})
 		).collect(Collectors.toList());
 		List<Heartbeat> heartbeats = futureList.stream().map(CompletableFuture::join).collect(Collectors.toList());
 		log.debug("heartbeat--->{}", JSONObject.toJSONString(heartbeats, true));

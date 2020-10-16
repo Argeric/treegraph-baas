@@ -2,9 +2,11 @@ package org.treegraph.baas.api.dto.request;
 
 import com.alibaba.fastjson.annotation.JSONField;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class CreateConsRequest {
 
 	private String name;

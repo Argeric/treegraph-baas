@@ -44,7 +44,7 @@ public class ApplicationStartup implements ApplicationListener<ContextRefreshedE
 		NodeCustomizedConfigDas customizedConfigDas = ac.getBean(NodeCustomizedConfigDas.class);
 		List<NodeCustomizedConfigPo> customizedConfigList = customizedConfigDas.findAll(null, nodeIds);	
 		Map<String, Integer> rpcHttpPortMap = customizedConfigList.stream()
-				.filter(item -> item.getPropertyName().equalsIgnoreCase(ConfluxConstant.PROPERTY_JSON_RPC_PORT))
+				.filter(item -> item.getPropertyName().equalsIgnoreCase(ConfluxConstant.PROPERTY_JSONRPC_PORT))
 				.collect(Collectors.toMap(NodeCustomizedConfigPo::getNodeId, item -> Integer.parseInt(item.getPropertyValue())));
 		
 		// register nodes

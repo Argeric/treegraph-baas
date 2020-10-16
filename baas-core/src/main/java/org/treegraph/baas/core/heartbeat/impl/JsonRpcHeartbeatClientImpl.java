@@ -12,8 +12,8 @@ import org.treegraph.baas.core.util.ConfluxUtils;
 
 import com.alibaba.fastjson.JSON;
 
-import conflux.web3j.Cfx;
-import conflux.web3j.Request;
+import conflux.web3j.jsonrpc.Cfx;
+import conflux.web3j.jsonrpc.Request;
 import conflux.web3j.response.Status;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

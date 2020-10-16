@@ -281,5 +281,12 @@
                 <package.env>container</package.env>
             </properties>
         </profile>
+        
+        <profile>
+            <id>container-image</id>
+            <properties>
+                <package.env>container-image</package.env>
+            </properties>
+        </profile>        
     </profiles>
 </project>

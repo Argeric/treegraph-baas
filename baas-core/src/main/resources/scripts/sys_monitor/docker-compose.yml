@@ -32,6 +32,7 @@ services:
     environment:
       - GF_AUTH_PROXY_ENABLED=true
       - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_SECURITY_ALLOW_EMBEDDING=true
     ports:
       - ${HOST_MONITOR_PORT}:3000
     volumes:

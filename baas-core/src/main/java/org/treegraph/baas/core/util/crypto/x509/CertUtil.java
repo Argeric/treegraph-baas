@@ -32,8 +32,8 @@ import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Certificate;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.ExtensionsGenerator;
-import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.asn1.x509.GeneralNames;
+//import org.bouncycastle.asn1.x509.GeneralName;
+//import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.asn1.x509.TBSCertificate;
@@ -109,8 +109,8 @@ public class CertUtil {
 				extUtils.createAuthorityKeyIdentifier(issuer)); // 授权密钥标识
 		extensionsGenerator.addExtension(Extension.subjectKeyIdentifier, false,
 				extUtils.createSubjectKeyIdentifier(csr.getSubjectPublicKeyInfo())); // 使用者密钥标识
-		extensionsGenerator.addExtension(Extension.subjectAlternativeName, true,
-                new GeneralNames(new GeneralName(GeneralName.iPAddress, "101.200.183.108")));
+		//extensionsGenerator.addExtension(Extension.subjectAlternativeName, true,
+        //        new GeneralNames(new GeneralName(GeneralName.iPAddress, "101.200.183.108")));
 		V3TBSCertificateGenerator tbsGen = new V3TBSCertificateGenerator();
 		tbsGen.setSerialNumber(new ASN1Integer(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE));
 		tbsGen.setIssuer(issuer.getSubject());

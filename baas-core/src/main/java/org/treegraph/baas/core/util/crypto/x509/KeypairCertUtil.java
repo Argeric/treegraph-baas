@@ -1,5 +1,7 @@
 package org.treegraph.baas.core.util.crypto.x509;
 
+import static org.treegraph.baas.core.enums.CryptoEnum.Algo.ECC;
+
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
@@ -21,7 +23,6 @@ import org.treegraph.baas.core.enums.CryptoEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.bo.KeypairCertBo;
 import org.treegraph.baas.core.util.DateUtils;
-import static org.treegraph.baas.core.enums.CryptoEnum.Algo.ECC;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Splitter;
@@ -37,8 +38,8 @@ public class KeypairCertUtil {
 	
     private VaultOperations vaultOperations;
     
-	public KeypairCertBo buildKeypairCert(String algo, KeypairPo parentKeypair, String subject,
-			Date latestCertExpireDate) {
+	public KeypairCertBo buildKeypairCert(String algo, String subject, Date latestCertExpireDate,
+			String parentKeypairAlgo, KeypairPo parentKeypair) {
 		KeyPair keyPair = null;
 		String publicKey = null;
 		String privateKey = null;
@@ -59,7 +60,7 @@ public class KeypairCertUtil {
 				csrStr = CertUtil.csrToPem(csr);
 				if (algo.equals(ECC.getCode())
 						|| X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.BC) {
-					certStr = signCertificateRequestByBC(algo, parentKeypair, csr, true);
+					certStr = signCertificateRequestByBC(parentKeypairAlgo, parentKeypair, csr, true);
 				} else if(X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.VAULT) {
 					certStr = signCertificateRequestByVault(csr, latestCertExpireDate);
 				} else {

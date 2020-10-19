@@ -35,6 +35,7 @@ import org.treegraph.baas.core.service.bo.KeypairCertBo;
 import org.treegraph.baas.core.util.crypto.x509.CertUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeypairCertUtil;
+import static  org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
 import static org.treegraph.baas.core.constant.X509CertConstant.SUBJECT_NODE_CERT;
 import static org.treegraph.baas.core.constant.X509CertConstant.SUBJECT_CONS_CERT;
 
@@ -105,8 +106,8 @@ public class VaultKeypairBuildService {
 	
 	public KeypairPo geneNewConsKeyPair(String consortiumId, String algo, KeypairPo rootKeypair,
 			Date lastCertExpireDate) {
-		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(algo, rootKeypair, SUBJECT_CONS_CERT,
-				lastCertExpireDate);
+		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(algo, SUBJECT_CONS_CERT, lastCertExpireDate,
+				ALGO_CONS, rootKeypair);
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		return KeypairPo.builder()
@@ -141,7 +142,8 @@ public class VaultKeypairBuildService {
 	}
 	
 	public NodeKeypairBo geneNewNodeKeypair(String consortiumId, String algo, KeypairPo consKeypair, NodePo node) {
-		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(algo, consKeypair, SUBJECT_NODE_CERT, null);
+		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(algo, SUBJECT_NODE_CERT, null, ALGO_CONS,
+				consKeypair);
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		KeypairPo keypair = KeypairPo.builder()

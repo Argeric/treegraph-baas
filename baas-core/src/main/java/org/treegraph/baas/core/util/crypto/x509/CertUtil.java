@@ -109,7 +109,7 @@ public class CertUtil {
 				extUtils.createAuthorityKeyIdentifier(issuer)); // 授权密钥标识
 		extensionsGenerator.addExtension(Extension.subjectKeyIdentifier, false,
 				extUtils.createSubjectKeyIdentifier(csr.getSubjectPublicKeyInfo())); // 使用者密钥标识
-		extensionsGenerator.addExtension(Extension.subjectAlternativeName, false,
+		extensionsGenerator.addExtension(Extension.subjectAlternativeName, true,
                 new GeneralNames(new GeneralName(GeneralName.iPAddress, "101.200.183.108")));
 		V3TBSCertificateGenerator tbsGen = new V3TBSCertificateGenerator();
 		tbsGen.setSerialNumber(new ASN1Integer(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE));

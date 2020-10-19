@@ -4,7 +4,6 @@ import static org.treegraph.baas.core.enums.CryptoEnum.Algo.ECC;
 
 import java.security.KeyPair;
 import java.security.PrivateKey;
-import java.security.cert.CertificateEncodingException;
 import java.time.Duration;
 import java.util.Calendar;
 import java.util.Date;
@@ -80,18 +79,20 @@ public class KeypairCertUtil {
 				.build();
 	}
     
-	private String signCertificateRequestByBC(String algo, KeypairPo keypair,
-			PKCS10CertificationRequest csr, boolean isEntityCert) throws Exception, CertificateEncodingException {
-		PrivateKey rootPrivateKey = KeyUtil.privateKeyFromBase64(algo, keypair.getPrivateKey());
-		byte[] rootCertBytes = CertUtil.certFromPem(keypair.getCertStr()).getEncoded();
-		Certificate consortiumCert = CertUtil.generateCert(csr, rootPrivateKey, rootCertBytes, CertUtil.getNotBefore(),
-				CertUtil.getNotAfter(X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DYAS), isEntityCert);
-		return CertUtil.certToPem(consortiumCert);
+	private String signCertificateRequestByBC(String parentKeypairAlgo, KeypairPo parentKeypair,
+			PKCS10CertificationRequest csr, boolean isEntityCert) throws Exception {
+		PrivateKey parentPrivateKey = KeyUtil.privateKeyFromBase64(parentKeypairAlgo, parentKeypair.getPrivateKey());
+		byte[] parentCertBytes = CertUtil.certFromPem(parentKeypair.getCertStr()).getEncoded();
+		Certificate cert = CertUtil.generateCert(csr, parentPrivateKey, parentCertBytes,
+				CertUtil.getNotBefore(), CertUtil.getNotAfter(X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DYAS),
+				isEntityCert);
+		return CertUtil.certToPem(cert);
 	}
 
-	private String signCertificateRequestByVault(PKCS10CertificationRequest consortiumCsr, Date lastCertExpireDate) throws Exception {
+	private String signCertificateRequestByVault(PKCS10CertificationRequest csr, Date lastCertExpireDate)
+			throws Exception {
 		int lastCertLeftDays = 0;
-		if(lastCertExpireDate != null) {
+		if (lastCertExpireDate != null) {
 			lastCertLeftDays = DateUtils.betweenDays(Calendar.getInstance().getTime(), lastCertExpireDate);
 			lastCertLeftDays = lastCertLeftDays > 0 ? lastCertLeftDays : 0;
 		}
@@ -100,11 +101,11 @@ public class KeypairCertUtil {
 				.ttl(Duration.ofDays(lastCertLeftDays + X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DYAS))
 				.commonName(X509CertConstant.COMMON_NAME_CONSORTIUM_CERT).build();
 		VaultSignCertificateRequestResponse certificateResponse = vaultOperations
-				.opsForPki(X509CertConstant.VAULT_PKI_PATH).signCertificateRequest(
-						X509CertConstant.VAULT_ROLE_ISSUE_CERTIFICATE, CertUtil.csrToPem(consortiumCsr), request);
-		org.springframework.vault.support.Certificate consortiumCert = certificateResponse.getRequiredData();
-		log.info("signCertificateRequestByVault resp:{}", JSON.toJSONString(consortiumCert));
-		return generatePem(consortiumCert.getCertificate());
+				.opsForPki(X509CertConstant.VAULT_PKI_PATH)
+				.signCertificateRequest(X509CertConstant.VAULT_ROLE_ISSUE_CERTIFICATE, CertUtil.csrToPem(csr), request);
+		org.springframework.vault.support.Certificate cert = certificateResponse.getRequiredData();
+		log.info("signCertificateRequestByVault resp:{}", JSON.toJSONString(cert));
+		return generatePem(cert.getCertificate());
 	}
     
 	private String generatePem(String base64Str) {  

@@ -276,7 +276,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 				NodePo.builder().id(nodeId).build(), consKeyPair);
 		String rpcCertChainFile = userKeypair.getKeypair().getCertStr();
 		String rpcKeyFile = privateKeyToPem(
-				privateKeyFromBase64(ALGO_NODE, userKeypair.getKeypair().getPrivateKey()));
+				privateKeyFromBase64(ALGO_CONS, userKeypair.getKeypair().getPrivateKey()));
 		
 		// write to host
 		String nodeCertPath = MessageFormat.format(NODE_CERT_Path, consId, nodeId);

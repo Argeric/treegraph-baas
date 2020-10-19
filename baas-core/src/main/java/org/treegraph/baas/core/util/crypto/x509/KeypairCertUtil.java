@@ -21,6 +21,7 @@ import org.treegraph.baas.core.enums.CryptoEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.bo.KeypairCertBo;
 import org.treegraph.baas.core.util.DateUtils;
+import static org.treegraph.baas.core.enums.CryptoEnum.Algo.ECC;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Splitter;
@@ -56,7 +57,8 @@ public class KeypairCertUtil {
 				PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(subject), keyPair.getPublic(),
 						keyPair.getPrivate());
 				csrStr = CertUtil.csrToPem(csr);
-				if(X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.BC) {
+				if (algo.equals(ECC.getCode())
+						|| X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.BC) {
 					certStr = signCertificateRequestByBC(algo, parentKeypair, csr, true);
 				} else if(X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.VAULT) {
 					certStr = signCertificateRequestByVault(csr, latestCertExpireDate);

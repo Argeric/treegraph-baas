@@ -1,14 +1,7 @@
 package org.treegraph.baas.core.service.impl;
 
-import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.cert.CertificateEncodingException;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,16 +13,13 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.Certificate;
-import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.vault.core.VaultOperations;
 import org.springframework.vault.core.VaultSysOperations;
-import org.springframework.vault.support.VaultCertificateRequest;
 import org.springframework.vault.support.VaultMount;
 import org.springframework.vault.support.VaultResponse;
-import org.springframework.vault.support.VaultSignCertificateRequestResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.constant.ConsortiumConstant;
@@ -41,13 +31,14 @@ import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.CryptoEnum;
-import org.treegraph.baas.core.exception.AlertException;
-import org.treegraph.baas.core.util.DateUtils;
+import org.treegraph.baas.core.service.bo.KeypairCertBo;
 import org.treegraph.baas.core.util.crypto.x509.CertUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
+import org.treegraph.baas.core.util.crypto.x509.KeypairCertUtil;
+import static org.treegraph.baas.core.constant.X509CertConstant.SUBJECT_NODE_CERT;
+import static org.treegraph.baas.core.constant.X509CertConstant.SUBJECT_CONS_CERT;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.base.Splitter;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,19 +55,12 @@ public class VaultKeypairBuildService {
     
     private VaultOperations vaultOperations;
     
+    private KeypairCertUtil keypairCertUtil;
+    
 	public KeypairPo getRootKeypair(String algo) throws Exception{
 		List<KeypairPo> rootKeypairs = keypairDas.findAll(ConsortiumConstant.DEFAULT_CONSORTIUM_ID,
 				CryptoEnum.KeyType.CONSORTIUM.getCode(), algo);
 		if(CollectionUtils.isNotEmpty(rootKeypairs)){
-			/**
-			 * test start
-			 */
-//			KeypairPo kp = rootKeypairs.get(0);
-//			PrivateKey pk = KeyUtil.privateKeyFromBase64(algo, kp.getPrivateKey());
-//			writeRootCaToVault(kp.getCertStr(), KeyUtil.privateKeyToPem(pk));
-			/**
-			 * test end
-			 */
 			return rootKeypairs.get(0);
 		}
 		
@@ -109,44 +93,28 @@ public class VaultKeypairBuildService {
 				.build();
 	}
 	
-	public KeypairPo getConsortiumKeyPair(String consortiumId, String algo, KeypairPo rootKeypair)
-			throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, Exception {
+	public KeypairPo getConsortiumKeyPair(String consortiumId, String algo, KeypairPo rootKeypair) {
 		List<KeypairPo> consortiumKeypairs = keypairDas.findAll(consortiumId,
 				CryptoEnum.KeyType.CONSORTIUM.getCode(), algo);
 		if(CollectionUtils.isNotEmpty(consortiumKeypairs)){
 			return consortiumKeypairs.get(0);
 		}
 		
-		return geneConsKeyPair(consortiumId, algo, rootKeypair, null);
+		return geneNewConsKeyPair(consortiumId, algo, rootKeypair, null);
 	}
 	
-	public KeypairPo geneConsKeyPair(String consortiumId, String algo, KeypairPo rootKeypair, Date lastCertExpireDate)
-			throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, Exception {
-		KeyPair consortiumKeyPair = KeyUtil.generateKeyPair(algo);
-		PKCS10CertificationRequest consortiumCsr = CertUtil.generateCSR(
-				new X500Name(X509CertConstant.SUBJECT_CONSORTIUM_CERT), consortiumKeyPair.getPublic(),
-				consortiumKeyPair.getPrivate());
-		String consortiumPublicKey = KeyUtil.publicKeyToBase64(consortiumKeyPair.getPublic());
-		String consortiumPrivateKey = KeyUtil.privateKeyToBase64(consortiumKeyPair.getPrivate());
-		String consortiumCsrStr = CertUtil.csrToPem(consortiumCsr);
-		
-		String consortiumCertStr = null;
-		if(X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.BC) {
-			consortiumCertStr = signCertificateRequestByBC(algo, rootKeypair, consortiumCsr, true);
-		} else if(X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.VAULT) {
-			consortiumCertStr = signCertificateRequestByVault(consortiumCsr, lastCertExpireDate);
-		} else {
-			throw new RuntimeException("not support sign certificate request");
-		}
-		
+	public KeypairPo geneNewConsKeyPair(String consortiumId, String algo, KeypairPo rootKeypair,
+			Date lastCertExpireDate) {
+		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(algo, rootKeypair, SUBJECT_CONS_CERT,
+				lastCertExpireDate);
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		return KeypairPo.builder()
-				.publicKey(consortiumPublicKey)
-				.privateKey(consortiumPrivateKey)
-				.csrStr(consortiumCsrStr)
-				.certStr(consortiumCertStr)
-				.algorithm(algo)
+				.publicKey(keypairCert.getPublicKey())
+				.privateKey(keypairCert.getPrivateKey())
+				.csrStr(keypairCert.getCsrStr())
+				.certStr(keypairCert.getCertStr())
+				.algorithm(keypairCert.getAlgorithm())
 				.consortiumId(consortiumId)
 				.keyType(CryptoEnum.KeyType.CONSORTIUM.getCode())
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
@@ -156,8 +124,8 @@ public class VaultKeypairBuildService {
 				.updateBy(operUser)
 				.build();
 	}
-
-	public NodeKeypairBo getNodeKeypair(String consortiumId, String algo, NodePo node, KeypairPo consortiumKeypair) {
+	
+	public NodeKeypairBo getNodeKeypair(String consortiumId, String algo, KeypairPo consKeypair, NodePo node) {
 		List<NodeKeyPo> nodeKeys = nodeKeyDas.findAll(consortiumId, node.getId());
 		if(CollectionUtils.isNotEmpty(nodeKeys)) {
 			List<Long> keypairIds = nodeKeys.stream().map(item -> item.getKeypairId()).collect(Collectors.toList());
@@ -169,44 +137,19 @@ public class VaultKeypairBuildService {
 			}
 		}
 		
-		return geneNodeKeypair(consortiumId, algo, node, consortiumKeypair);
+		return geneNewNodeKeypair(consortiumId, algo, consKeypair, node);
 	}
-
-	public NodeKeypairBo geneNodeKeypair(String consortiumId, String algo, NodePo node, KeypairPo consortiumKeypair) {
-		KeyPair nodeKeyPair = null;
-		String nodePublicKey = null;
-		String nodePrivateKey = null;
-		try {
-			nodeKeyPair = KeyUtil.generateKeyPair(algo);
-			nodePublicKey = KeyUtil.publicKeyToBase64(nodeKeyPair.getPublic());
-			nodePrivateKey = KeyUtil.privateKeyToBase64(nodeKeyPair.getPrivate());
-		} catch(Exception e) {
-			throw new AlertException("get node keypair error!");
-		}
-		
-		// get node certificate, add on 08/13/2020
-		String nodeCsrStr = null;
-		String nodeCertStr = null;
-		if(consortiumKeypair != null) {
-			try {
-				PKCS10CertificationRequest nodeCsr = CertUtil.generateCSR(
-						new X500Name(X509CertConstant.SUBJECT_NODE_CERT), nodeKeyPair.getPublic(),
-						nodeKeyPair.getPrivate());
-				nodeCsrStr = CertUtil.csrToPem(nodeCsr);
-				nodeCertStr = signCertificateRequestByBC(X509CertConstant.ALGO_CONS, consortiumKeypair, nodeCsr, false);
-			} catch(Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-		
+	
+	public NodeKeypairBo geneNewNodeKeypair(String consortiumId, String algo, KeypairPo consKeypair, NodePo node) {
+		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(algo, consKeypair, SUBJECT_NODE_CERT, null);
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		KeypairPo keypair = KeypairPo.builder()
-				.publicKey(nodePublicKey)
-				.privateKey(nodePrivateKey)
-				.csrStr(nodeCsrStr)
-				.certStr(nodeCertStr)
-				.algorithm(algo)
+				.publicKey(keypairCert.getPublicKey())
+				.privateKey(keypairCert.getPrivateKey())
+				.csrStr(keypairCert.getCsrStr())
+				.certStr(keypairCert.getCertStr())
+				.algorithm(keypairCert.getAlgorithm())
 				.consortiumId(consortiumId)
 				.keyType(CryptoEnum.KeyType.NODE.getCode())
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
@@ -228,7 +171,7 @@ public class VaultKeypairBuildService {
 		
 		return NodeKeypairBo.builder().keypair(keypair).nodeKey(nodeKey).node(node).build();
 	}
-	
+
 	private void vaultMount() {
 		VaultSysOperations adminOperations = vaultOperations.opsForSys();
 		if (adminOperations.getMounts().containsKey(X509CertConstant.VAULT_PKI_PATH + "/")) {
@@ -262,45 +205,4 @@ public class VaultKeypairBuildService {
 				X509CertConstant.VAULT_PKI_PATH + "/roles/" + X509CertConstant.VAULT_ROLE_ISSUE_CERTIFICATE, role);
 		log.info("writeRoleResponse resp:{}", JSON.toJSONString(writeRoleToVaultResponse));
 	}
-
-	private String signCertificateRequestByBC(String algo, KeypairPo keypair,
-			PKCS10CertificationRequest csr, boolean isEntityCert) throws Exception, CertificateEncodingException {
-		PrivateKey rootPrivateKey = KeyUtil.privateKeyFromBase64(algo, keypair.getPrivateKey());
-		byte[] rootCertBytes = CertUtil.certFromPem(keypair.getCertStr()).getEncoded();
-		Certificate consortiumCert = CertUtil.generateCert(csr, rootPrivateKey, rootCertBytes, CertUtil.getNotBefore(),
-				CertUtil.getNotAfter(X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DYAS), isEntityCert);
-		return CertUtil.certToPem(consortiumCert);
-	}
-
-	private String signCertificateRequestByVault(PKCS10CertificationRequest consortiumCsr, Date lastCertExpireDate) throws Exception {
-		int lastCertLeftDays = 0;
-		if(lastCertExpireDate != null) {
-			lastCertLeftDays = DateUtils.betweenDays(Calendar.getInstance().getTime(), lastCertExpireDate);
-			lastCertLeftDays = lastCertLeftDays > 0 ? lastCertLeftDays : 0;
-		}
-		
-		VaultCertificateRequest request = VaultCertificateRequest.builder()
-				.ttl(Duration.ofDays(lastCertLeftDays + X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DYAS))
-				.commonName(X509CertConstant.COMMON_NAME_CONSORTIUM_CERT).build();
-		VaultSignCertificateRequestResponse certificateResponse = vaultOperations
-				.opsForPki(X509CertConstant.VAULT_PKI_PATH).signCertificateRequest(
-						X509CertConstant.VAULT_ROLE_ISSUE_CERTIFICATE, CertUtil.csrToPem(consortiumCsr), request);
-		org.springframework.vault.support.Certificate consortiumCert = certificateResponse.getRequiredData();
-		log.info("signCertificateRequestByVault resp:{}", JSON.toJSONString(consortiumCert));
-		return generatePem(consortiumCert.getCertificate());
-	}
-	
-	private static String generatePem(String base64Str) {  
-        Iterable<String> lines = Splitter.fixedLength(64).split(base64Str);
-        StringBuffer content = new StringBuffer();  
-        for (String line : lines) {  
-        	content.append(line).append("\n");  
-        }
-        
-        StringBuffer code = new StringBuffer("-----BEGIN CERTIFICATE-----\n");  
-        code.append(content.toString());
-        code.append("-----END CERTIFICATE-----"); 
-        
-        return code.toString();  
-    }   
 }

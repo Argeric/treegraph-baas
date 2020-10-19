@@ -78,7 +78,7 @@ public class KeypairBuildService {
 		
 		KeyPair consortiumKeyPair = KeyUtil.generateKeyPair(algo);
 		PKCS10CertificationRequest consortiumCsr = CertUtil.generateCSR(
-				new X500Name(X509CertConstant.SUBJECT_CONSORTIUM_CERT), consortiumKeyPair.getPublic(),
+				new X500Name(X509CertConstant.SUBJECT_CONS_CERT), consortiumKeyPair.getPublic(),
 				consortiumKeyPair.getPrivate());
 		String consortiumPublicKey = KeyUtil.publicKeyToBase64(consortiumKeyPair.getPublic());
 		String consortiumPrivateKey = KeyUtil.privateKeyToBase64(consortiumKeyPair.getPrivate());

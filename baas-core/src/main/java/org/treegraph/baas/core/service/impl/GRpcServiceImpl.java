@@ -17,7 +17,6 @@ import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.PrivateKey;
 import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
@@ -266,17 +265,15 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		
 		// server cert 
 		KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consId, ALGO_CONS, null);
-		PrivateKey consPrivateKey = KeyUtil.privateKeyFromBase64(ALGO_CONS, consKeypair.getPrivateKey());
 		String serverCertFile = consKeypair.getCertStr();
-		String serverKeyFile = privateKeyToPem(consPrivateKey);
+		String serverKeyFile = privateKeyToPem(privateKeyFromBase64(ALGO_CONS, consKeypair.getPrivateKey()));
 
 		// rpc cert
-		NodeKeypairBo sdkKeypair = vaultKeypairBuildService.geneNodeKeypair(consId, ALGO_CONS,
-				NodePo.builder().id(nodeId).build(), consKeypair);
-		String rpcCertChainFile = sdkKeypair.getKeypair().getCertStr();
-		String rpcKeyFile = privateKeyToPem(
-				privateKeyFromBase64(ALGO_CONS, sdkKeypair.getKeypair().getPrivateKey()));
-		log.info("[get getGRpcParas]sdkKeypair--->{}", JSON.toJSONString(sdkKeypair));
+		NodeKeypairBo sdkKeypairBo = vaultKeypairBuildService.geneNewNodeKeypair(consId, ALGO_CONS,
+				consKeypair, NodePo.builder().id(nodeId).build());
+		KeypairPo sdkKeypair = sdkKeypairBo.getKeypair();
+		String rpcCertChainFile = sdkKeypair.getCertStr();
+		String rpcKeyFile = privateKeyToPem(privateKeyFromBase64(ALGO_CONS, sdkKeypair.getPrivateKey()));
 		
 		// write to host
 		String nodeCertPath = MessageFormat.format(NODE_CERT_Path, consId, nodeId);

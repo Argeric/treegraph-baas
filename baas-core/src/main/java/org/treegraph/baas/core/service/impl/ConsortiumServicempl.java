@@ -497,8 +497,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 		StringBuilder consortiumNodes = new StringBuilder();
 		List<NodeKeypairBo> nodeKeypairBoList = new ArrayList<>();
 		for(NodePo node:nodes){
-			NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypair(consortiumId, ALGO_NODE, node,
-					consKeypair);
+			NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypair(consortiumId, ALGO_NODE, consKeypair,
+					node);
 			nodeKeypairBoList.add(nodeKeypairBo);
 			ECKeyPair ecKeypair = loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
 					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
@@ -770,7 +770,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		// build defer request
 		KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair(ALGO_CONS);
-		KeypairPo consKeypair = vaultKeypairBuildService.geneConsKeyPair(consId, ALGO_CONS, rootKeypair, notAfter);
+		KeypairPo consKeypair = vaultKeypairBuildService.geneNewConsKeyPair(consId, ALGO_CONS, rootKeypair, notAfter);
 		CertificateDeferPo defer = buildService.buildCertificateDefer(consKeypair);
 		certificateDeferDas.createCertificateDefer(defer);
 		

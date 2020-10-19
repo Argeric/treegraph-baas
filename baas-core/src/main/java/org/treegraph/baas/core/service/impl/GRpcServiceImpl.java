@@ -58,8 +58,8 @@ import jodd.io.FileUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-//@Service(value = "rpcService")
-@Service(value = "gRpcService")
+@Service(value = "rpcService")
+//@Service(value = "gRpcService")
 @AllArgsConstructor
 @Slf4j
 public class GRpcServiceImpl implements BlockchainRpcService{

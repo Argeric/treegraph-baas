@@ -264,11 +264,11 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		int gRpcPort = TEST_SWITCH ? jsonRpcLocalHttpPort + TEST_RPC_PORT_INTERVAL : DEFAULT_GRPC_PORT;
 		
 		// server cert 
-		NodeKeypairBo nodeKeypair = vaultKeypairBuildService.getNodeKeypair(consId, ALGO_NODE,
+		NodeKeypairBo nodeKeypair = vaultKeypairBuildService.getNodeKeypair(consId, ALGO_CONS,
 				NodePo.builder().id(nodeId).build(), null);
 		String serverCertFile = nodeKeypair.getKeypair().getCertStr();
 		String serverKeyFile = privateKeyToPem(
-				privateKeyFromBase64(ALGO_NODE, nodeKeypair.getKeypair().getPrivateKey()));
+				privateKeyFromBase64(ALGO_CONS, nodeKeypair.getKeypair().getPrivateKey()));
 
 		// rpc cert
 		KeypairPo consKeyPair = vaultKeypairBuildService.getConsortiumKeyPair(consId, ALGO_CONS, null);

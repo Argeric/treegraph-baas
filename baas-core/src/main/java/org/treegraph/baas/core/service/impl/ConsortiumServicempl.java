@@ -30,7 +30,6 @@ import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
 import static org.treegraph.baas.core.util.ConfluxUtils.toIpAtPort;
 import static org.treegraph.baas.core.util.DateTimeUtils.FORMAT_yyyyMMddHHmmss;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFromBase64;
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 
 import java.io.OutputStream;
@@ -536,14 +535,14 @@ public class ConsortiumServicempl implements ConsortiumService {
 					keypair.getAlgorithm());
 			String ecPub = StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0');
 			String ecPri = StringUtils.leftPad(ecKeypair.getPrivateKey().toString(16), 64, '0');
-			String nodePrivateKeyPem = privateKeyToPem(privateKeyFromBase64(ALGO_NODE, keypair.getPrivateKey()));
+			String consPrivateKeyPem = privateKeyToPem(privateKey);
 			StringBuffer scriptContent = new StringBuffer();
 			append(scriptContent, "consortium_cert = \"\"\"" + consKeypair.getCertStr() + "\"\"\"");
 			append(scriptContent, "consortium_nodes = \"\"\"" + consortiumNodes.toString() + "\"\"\"");
 			append(scriptContent, "consortium_nodes_digest = \"" + consNodesDigest + "\"");
 			append(scriptContent, "consortium_keypair = \"" + ecPub + COMMA + ecPri + "\"");
-			append(scriptContent, "grpc_server_cert = \"\"\"" + keypair.getCertStr() + "\"\"\"");
-			append(scriptContent, "grpc_server_key = \"\"\"" + nodePrivateKeyPem + "\"\"\"");
+			append(scriptContent, "grpc_server_cert = \"\"\"" + consKeypair.getCertStr() + "\"\"\"");
+			append(scriptContent, "grpc_server_key = \"\"\"" + consPrivateKeyPem + "\"\"\"");
 			Map<String, String> configs = configMap.get(node.getId());
 			StringBuffer customizedScriptContent = buildCustomizedDeployScript(node.getId(), ecKeypair, configs);
 			Map<String, String> logMonitorScripts = buildLogMonitorScript(node.getId(), configs);

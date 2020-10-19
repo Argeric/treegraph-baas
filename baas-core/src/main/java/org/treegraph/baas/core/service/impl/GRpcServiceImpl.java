@@ -17,6 +17,7 @@ import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.PrivateKey;
 import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
@@ -264,19 +265,18 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		int gRpcPort = TEST_SWITCH ? jsonRpcLocalHttpPort + TEST_RPC_PORT_INTERVAL : DEFAULT_GRPC_PORT;
 		
 		// server cert 
-		NodeKeypairBo nodeKeypair = vaultKeypairBuildService.getNodeKeypair(consId, ALGO_CONS,
-				NodePo.builder().id(nodeId).build(), null);
-		String serverCertFile = nodeKeypair.getKeypair().getCertStr();
-		String serverKeyFile = privateKeyToPem(
-				privateKeyFromBase64(ALGO_CONS, nodeKeypair.getKeypair().getPrivateKey()));
+		KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consId, ALGO_CONS, null);
+		PrivateKey consPrivateKey = KeyUtil.privateKeyFromBase64(ALGO_CONS, consKeypair.getPrivateKey());
+		String serverCertFile = consKeypair.getCertStr();
+		String serverKeyFile = privateKeyToPem(consPrivateKey);
 
 		// rpc cert
-		KeypairPo consKeyPair = vaultKeypairBuildService.getConsortiumKeyPair(consId, ALGO_CONS, null);
-		NodeKeypairBo userKeypair = vaultKeypairBuildService.geneNodeKeypair(consId, ALGO_CONS,
-				NodePo.builder().id(nodeId).build(), consKeyPair);
-		String rpcCertChainFile = userKeypair.getKeypair().getCertStr();
+		NodeKeypairBo sdkKeypair = vaultKeypairBuildService.geneNodeKeypair(consId, ALGO_CONS,
+				NodePo.builder().id(nodeId).build(), consKeypair);
+		String rpcCertChainFile = sdkKeypair.getKeypair().getCertStr();
 		String rpcKeyFile = privateKeyToPem(
-				privateKeyFromBase64(ALGO_CONS, userKeypair.getKeypair().getPrivateKey()));
+				privateKeyFromBase64(ALGO_CONS, sdkKeypair.getKeypair().getPrivateKey()));
+		log.info("[get getGRpcParas]sdkKeypair--->{}", JSON.toJSONString(sdkKeypair));
 		
 		// write to host
 		String nodeCertPath = MessageFormat.format(NODE_CERT_Path, consId, nodeId);
@@ -285,6 +285,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		certPathContentMap.put(SERVER_KEY_FILE, serverKeyFile);
 		certPathContentMap.put(RPC_CERT_CHAIN_FILE, rpcCertChainFile);
 		certPathContentMap.put(RPC_KEY_FILE, rpcKeyFile);
+		log.info("[get getGRpcParas]certPathContentMap--->{}", JSON.toJSONString(certPathContentMap));
 		Iterator<Entry<String, String>> iter = certPathContentMap.entrySet().iterator();
 		while(iter.hasNext()) {
 			Entry<String, String> enty = iter.next();

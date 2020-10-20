@@ -56,7 +56,7 @@ public class KeypairCertUtil {
 		try {
 			if(parentKeypair != null) {
 				PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(subject), keyPair.getPublic(),
-						keyPair.getPrivate(), Lists.newArrayList(/*"101.200.183.108",*/"0.0.0.0"));
+						keyPair.getPrivate(), Lists.newArrayList("101.200.183.108"));
 				csrStr = CertUtil.csrToPem(csr);
 				if (algo.equals(ECC.getCode())
 						|| X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.BC) {

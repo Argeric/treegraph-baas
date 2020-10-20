@@ -42,6 +42,7 @@ import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
 import org.treegraph.baas.core.service.BlockchainRpcService;
+import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
 import org.treegraph.baas.core.service.bo.GRpcParaBo;
 import org.treegraph.baas.core.task.CheckMembershipChangeTimerTask;
 import org.treegraph.baas.core.util.ConfluxUtils;
@@ -263,25 +264,19 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		int jsonRpcLocalHttpPort = Integer.parseInt(jsonRpcLocalHttpPortStr);
 		int gRpcPort = TEST_SWITCH ? jsonRpcLocalHttpPort + TEST_RPC_PORT_INTERVAL : DEFAULT_GRPC_PORT;
 		
-		// server cert 
+		// server cert and rpc cert
 		KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consId, ALGO_CONS, null);
 		String serverCertFile = consKeypair.getCertStr();
 		String serverKeyFile = privateKeyToPem(privateKeyFromBase64(ALGO_CONS, consKeypair.getPrivateKey()));
-
-		// rpc cert
-		NodeKeypairBo grpcKeypairBo = vaultKeypairBuildService.geneNewNodeKeypair(consId, ALGO_CONS,
-				consKeypair, NodePo.builder().id(nodeId).build());
-		KeypairPo grpcKeypair = grpcKeypairBo.getKeypair();
-		String grpcCertChainFile = grpcKeypair.getCertStr();
-		String grpcKeyFile = privateKeyToPem(privateKeyFromBase64(ALGO_CONS, grpcKeypair.getPrivateKey()));
+		GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.getGrpcKeypair(consId, consKeypair);
 		
 		// write to host
 		String nodeCertPath = MessageFormat.format(NODE_CERT_Path, consId, nodeId);
 		Map<String, String> certPathContentMap = Maps.newHashMap();
 		certPathContentMap.put(SERVER_CERT_FILE, serverCertFile);
 		certPathContentMap.put(SERVER_KEY_FILE, serverKeyFile);
-		certPathContentMap.put(RPC_CERT_CHAIN_FILE, grpcCertChainFile);
-		certPathContentMap.put(RPC_KEY_FILE, grpcKeyFile);
+		certPathContentMap.put(RPC_CERT_CHAIN_FILE, gRpcKeypair.getCert());
+		certPathContentMap.put(RPC_KEY_FILE, gRpcKeypair.getPrivateKey());
 		log.info("[get getGRpcParas]certPathContentMap--->{}", JSON.toJSONString(certPathContentMap));
 		Iterator<Entry<String, String>> iter = certPathContentMap.entrySet().iterator();
 		while(iter.hasNext()) {

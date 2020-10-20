@@ -254,11 +254,11 @@ public class BuildService {
 		
 		// get classified node keypairs
 		List<NodeKeypairBo> existDbNodeKeypairs = existNodes.stream().map(
-				item -> vaultKeypairBuildService.getNodeKeypair(consId, ALGO_NODE, null, item))
+				item -> vaultKeypairBuildService.getNodeKeypairBo(consId, ALGO_NODE, null, item))
 				.collect(Collectors.toList());
 		KeypairPo consKeyPair = vaultKeypairBuildService.getConsortiumKeyPair(consId, ALGO_CONS, null);
 		List<NodeKeypairBo> toAddNodeKeypairs = toAddNodes.stream().map(item -> {
-				NodeKeypairBo nodeKeypair = vaultKeypairBuildService.getNodeKeypair(consId, ALGO_NODE, consKeyPair, item);
+				NodeKeypairBo nodeKeypair = vaultKeypairBuildService.getNodeKeypairBo(consId, ALGO_NODE, consKeyPair, item);
 				nodeKeypair.getNode().setMembershipStatus(MembershipStatus.ADD_START.getCode());
 				return nodeKeypair;
 				}).collect(Collectors.toList());
@@ -267,7 +267,7 @@ public class BuildService {
 				return !finalStateNodeMap.containsKey(uri);
 				}).collect(Collectors.toList());
 		List<NodeKeypairBo> toRemoveNodeKeypairs = toRemoveNodes.stream().map(
-				item -> vaultKeypairBuildService.getNodeKeypair(consId, ALGO_NODE, null, item))
+				item -> vaultKeypairBuildService.getNodeKeypairBo(consId, ALGO_NODE, null, item))
 				.collect(Collectors.toList());
 		
 		// get node keypairs for rpc of add/delete nodes

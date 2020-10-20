@@ -30,8 +30,6 @@ import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
 import static org.treegraph.baas.core.util.ConfluxUtils.toIpAtPort;
 import static org.treegraph.baas.core.util.DateTimeUtils.FORMAT_yyyyMMddHHmmss;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFromBase64;
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 
 import java.io.OutputStream;
 import java.security.InvalidAlgorithmParameterException;
@@ -115,6 +113,7 @@ import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.service.ConsortiumService;
 import org.treegraph.baas.core.service.bo.CustomizedConfigBo;
+import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
 import org.treegraph.baas.core.service.bo.MembershipChangeBo;
 import org.treegraph.baas.core.service.bo.OrgBo;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
@@ -498,7 +497,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		StringBuilder consortiumNodes = new StringBuilder();
 		List<NodeKeypairBo> nodeKeypairBoList = new ArrayList<>();
 		for(NodePo node:nodes){
-			NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypair(consortiumId, ALGO_NODE, consKeypair,
+			NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypairBo(consortiumId, ALGO_NODE, consKeypair,
 					node);
 			nodeKeypairBoList.add(nodeKeypairBo);
 			ECKeyPair ecKeypair = loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
@@ -530,26 +529,21 @@ public class ConsortiumServicempl implements ConsortiumService {
 		// script content
 		Map<String, Map<String, String>> nodeScriptContentMap = new HashMap<>();
 		for (NodeKeypairBo nodeKeypair : nodeKeypairBoList) {
-			NodePo node = nodeKeypair.getNode();
 			KeypairPo keypair = nodeKeypair.getKeypair();
 			ECKeyPair ecKeypair = loadECKeyPairFromBase64(keypair.getPublicKey(), keypair.getPrivateKey(),
 					keypair.getAlgorithm());
 			String ecPub = StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0');
 			String ecPri = StringUtils.leftPad(ecKeypair.getPrivateKey().toString(16), 64, '0');
-			
-			NodeKeypairBo grpcServerKeypairBo = vaultKeypairBuildService.geneNewNodeKeypair(node.getConsortiumId(), ALGO_CONS,
-					consKeypair, NodePo.builder().id(node.getId()).build());
-			KeypairPo grpcServerKeypair = grpcServerKeypairBo.getKeypair();
-			String grpcServerCertFile = grpcServerKeypair.getCertStr();
-			String grpcServerKeyFile = privateKeyToPem(privateKeyFromBase64(ALGO_CONS, grpcServerKeypair.getPrivateKey()));
-			
+			NodePo node = nodeKeypair.getNode();
+			String consId = node.getConsortiumId();
+			GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.getGrpcKeypair(consId, consKeypair);
 			StringBuffer scriptContent = new StringBuffer();
 			append(scriptContent, "consortium_cert = \"\"\"" + consKeypair.getCertStr() + "\"\"\"");
 			append(scriptContent, "consortium_nodes = \"\"\"" + consortiumNodes.toString() + "\"\"\"");
 			append(scriptContent, "consortium_nodes_digest = \"" + consNodesDigest + "\"");
 			append(scriptContent, "consortium_keypair = \"" + ecPub + COMMA + ecPri + "\"");
-			append(scriptContent, "grpc_server_cert = \"\"\"" + grpcServerCertFile + "\"\"\"");
-			append(scriptContent, "grpc_server_key = \"\"\"" + grpcServerKeyFile + "\"\"\"");
+			append(scriptContent, "grpc_server_cert = \"\"\"" + gRpcKeypair.getCert() + "\"\"\"");
+			append(scriptContent, "grpc_server_key = \"\"\"" + gRpcKeypair.getPrivateKey() + "\"\"\"");
 			Map<String, String> configs = configMap.get(node.getId());
 			StringBuffer customizedScriptContent = buildCustomizedDeployScript(node.getId(), ecKeypair, configs);
 			Map<String, String> logMonitorScripts = buildLogMonitorScript(node.getId(), configs);

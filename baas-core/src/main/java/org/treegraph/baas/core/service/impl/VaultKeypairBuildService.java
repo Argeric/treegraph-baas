@@ -1,5 +1,11 @@
 package org.treegraph.baas.core.service.impl;
 
+import static  org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
+import static org.treegraph.baas.core.constant.X509CertConstant.SUBJECT_CONS_CERT;
+import static org.treegraph.baas.core.constant.X509CertConstant.SUBJECT_NODE_CERT;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
+
 import java.security.KeyPair;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -31,13 +37,11 @@ import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.CryptoEnum;
+import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
 import org.treegraph.baas.core.service.bo.KeypairCertBo;
 import org.treegraph.baas.core.util.crypto.x509.CertUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeypairCertUtil;
-import static  org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
-import static org.treegraph.baas.core.constant.X509CertConstant.SUBJECT_NODE_CERT;
-import static org.treegraph.baas.core.constant.X509CertConstant.SUBJECT_CONS_CERT;
 
 import com.alibaba.fastjson.JSON;
 
@@ -126,7 +130,7 @@ public class VaultKeypairBuildService {
 				.build();
 	}
 	
-	public NodeKeypairBo getNodeKeypair(String consortiumId, String algo, KeypairPo consKeypair, NodePo node) {
+	public NodeKeypairBo getNodeKeypairBo(String consortiumId, String algo, KeypairPo consKeypair, NodePo node) {
 		List<NodeKeyPo> nodeKeys = nodeKeyDas.findAll(consortiumId, node.getId());
 		if(CollectionUtils.isNotEmpty(nodeKeys)) {
 			List<Long> keypairIds = nodeKeys.stream().map(item -> item.getKeypairId()).collect(Collectors.toList());
@@ -138,15 +142,28 @@ public class VaultKeypairBuildService {
 			}
 		}
 		
-		return geneNewNodeKeypair(consortiumId, algo, consKeypair, node);
+		KeypairPo keypair = geneNewNodeKeypair(consortiumId, algo, consKeypair);
+		LocalDateTime now = LocalDateTime.now();
+		String operUser = WebHelper.getUserId();
+		NodeKeyPo nodeKey = NodeKeyPo.builder()
+				.nodeId(node.getId())
+				.keypairId(null)
+				.consortiumId(consortiumId)
+				.deleteFlag(IntTypeEnum.FALSE.getValue())
+				.createTime(now)
+				.createBy(operUser)
+				.updateTime(now)
+				.updateBy(operUser)
+				.build();
+		return NodeKeypairBo.builder().keypair(keypair).nodeKey(nodeKey).node(node).build();
 	}
 	
-	public NodeKeypairBo geneNewNodeKeypair(String consortiumId, String algo, KeypairPo consKeypair, NodePo node) {
+	public KeypairPo geneNewNodeKeypair(String consortiumId, String algo, KeypairPo consKeypair) {
 		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(algo, SUBJECT_NODE_CERT, null, ALGO_CONS,
 				consKeypair);
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
-		KeypairPo keypair = KeypairPo.builder()
+		return KeypairPo.builder()
 				.publicKey(keypairCert.getPublicKey())
 				.privateKey(keypairCert.getPrivateKey())
 				.csrStr(keypairCert.getCsrStr())
@@ -160,18 +177,13 @@ public class VaultKeypairBuildService {
 				.updateTime(now)
 				.updateBy(operUser)
 				.build();
-		NodeKeyPo nodeKey = NodeKeyPo.builder()
-				.nodeId(node.getId())
-				.keypairId(null)
-				.consortiumId(consortiumId)
-				.deleteFlag(IntTypeEnum.FALSE.getValue())
-				.createTime(now)
-				.createBy(operUser)
-				.updateTime(now)
-				.updateBy(operUser)
-				.build();
-		
-		return NodeKeypairBo.builder().keypair(keypair).nodeKey(nodeKey).node(node).build();
+	}
+	
+	public GRpcKeypairCertBo getGrpcKeypair(String consId, KeypairPo consKeypair) throws Exception {
+		KeypairPo grpcKeypair = geneNewNodeKeypair(consId, ALGO_CONS, consKeypair);
+		String grpcCert = grpcKeypair.getCertStr();
+		String grpcPriv = privateKeyToPem(privateKeyFromBase64(ALGO_CONS, grpcKeypair.getPrivateKey()));
+		return GRpcKeypairCertBo.builder().consId(consId).cert(grpcCert).privateKey(grpcPriv).build();
 	}
 
 	private void vaultMount() {

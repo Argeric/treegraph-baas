@@ -346,7 +346,7 @@ public class BlockchainCreationTests {
 		log.info("[step--->testRechargeGenesis]list nodes--->{}", JSON.toJSONString(nodeIds));
 		Assert.assertTrue("[step--->testRechargeGenesis]node not found", CollectionUtils.isNotEmpty(nodeIds));
 		
-		List<NodeKeypairBo> nodeKeypairs = nodeIds.stream().map(item -> vaultKeypairBuildService.getNodeKeypair(consId,
+		List<NodeKeypairBo> nodeKeypairs = nodeIds.stream().map(item -> vaultKeypairBuildService.getNodeKeypairBo(consId,
 				ALGO_NODE, null, NodePo.builder().consortiumId(consId).id(item).build())).collect(Collectors.toList());
 		log.info("[step--->testRechargeGenesis]node keypairs--->{}", JSON.toJSONString(nodeKeypairs));
 		Assert.assertTrue("[step--->testRechargeGenesis]node keypair not found", CollectionUtils.isNotEmpty(nodeKeypairs));

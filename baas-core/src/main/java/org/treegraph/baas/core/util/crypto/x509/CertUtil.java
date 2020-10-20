@@ -11,19 +11,19 @@ import java.security.PublicKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.DERBitString;
 import org.bouncycastle.asn1.DERNull;
 import org.bouncycastle.asn1.DERSequence;
-import org.bouncycastle.asn1.DERSet;
 import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
-import org.bouncycastle.asn1.pkcs.CertificationRequest;
-import org.bouncycastle.asn1.pkcs.CertificationRequestInfo;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.sec.SECObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -32,6 +32,8 @@ import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Certificate;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.ExtensionsGenerator;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
 //import org.bouncycastle.asn1.x509.GeneralName;
 //import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyUsage;
@@ -43,7 +45,11 @@ import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.bc.BcX509ExtensionUtils;
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
+import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
 
 public class CertUtil {
 	
@@ -71,29 +77,61 @@ public class CertUtil {
 		TBSCertificate tbs = tbsGen.generateTBSCertificate();
 		return assembleCert(tbs, subjectPublicKeyInfo, keyPair.getPrivate());
 	}
-
-	public static PKCS10CertificationRequest generateCSR(X500Name subject, PublicKey publicKey, PrivateKey privateKey) {
+	
+	public static PKCS10CertificationRequest generateCSR(X500Name subject, PublicKey publicKey, PrivateKey privateKey,
+			List<String> sanList) {
 		try {
-			SubjectPublicKeyInfo subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
-			CertificationRequestInfo info = new CertificationRequestInfo(subject, subjectPublicKeyInfo, new DERSet());
-			byte[] signature;
-			AlgorithmIdentifier signAlgo = getSignAlgo(subjectPublicKeyInfo.getAlgorithm());
-			if (signAlgo.getAlgorithm().equals(GMObjectIdentifiers.sm2sign_with_sm3)) {
-				signature = SignUtil.SM2Sign(info.getEncoded(ASN1Encoding.DER), privateKey);
+	        PKCS10CertificationRequestBuilder builder = new JcaPKCS10CertificationRequestBuilder(subject, publicKey);
+	        if(CollectionUtils.isNotEmpty(sanList)) {
+				List<GeneralName> generalNameList = sanList.stream()
+						.map(item -> new GeneralName(GeneralName.iPAddress, item))
+						.collect(Collectors.toList());
+		        GeneralNames generalNames = new GeneralNames(generalNameList.toArray(new GeneralName[] {}));
+		        ExtensionsGenerator extensionsGenerator = new ExtensionsGenerator();
+		        extensionsGenerator.addExtension(Extension.subjectAlternativeName, false, generalNames);
+		        builder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest, extensionsGenerator.generate());
+	        }
+	        
+	        ContentSigner signGen = null;
+	        SubjectPublicKeyInfo subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
+	        AlgorithmIdentifier signAlgo = getSignAlgo(subjectPublicKeyInfo.getAlgorithm());
+	        if (signAlgo.getAlgorithm().equals(GMObjectIdentifiers.sm2sign_with_sm3)) {
+	        	signGen = new JcaContentSignerBuilder("SM3WITHSM2").build(privateKey);
 			} else if (signAlgo.getAlgorithm().equals(X9ObjectIdentifiers.ecdsa_with_SHA256)) {
-				signature = SignUtil.ECDSASign(info.getEncoded(ASN1Encoding.DER), privateKey);
+				signGen = new JcaContentSignerBuilder("SHA256WITHECDSA").build(privateKey);
 			} else if (signAlgo.getAlgorithm().equals(PKCSObjectIdentifiers.sha256WithRSAEncryption)) {
-				signature = SignUtil.RSASign(info.getEncoded(ASN1Encoding.DER), privateKey);
+				signGen = new JcaContentSignerBuilder("SHA256WITHRSA").build(privateKey);
 			} else {
 				throw new IllegalArgumentException("密钥算法不支持");
 			}
-			return new PKCS10CertificationRequest(
-					new CertificationRequest(info, signAlgo, new DERBitString(signature)));
+	        return builder.build(signGen);
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new IllegalArgumentException("密钥结构错误");
+			throw new RuntimeException("密钥结构错误", e);
 		}
 	}
+
+//	public static PKCS10CertificationRequest generateCSR(X500Name subject, PublicKey publicKey, PrivateKey privateKey) {
+//		try {
+//			SubjectPublicKeyInfo subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
+//			CertificationRequestInfo info = new CertificationRequestInfo(subject, subjectPublicKeyInfo, new DERSet());
+//			byte[] signature;
+//			AlgorithmIdentifier signAlgo = getSignAlgo(subjectPublicKeyInfo.getAlgorithm());
+//			if (signAlgo.getAlgorithm().equals(GMObjectIdentifiers.sm2sign_with_sm3)) {
+//				signature = SignUtil.SM2Sign(info.getEncoded(ASN1Encoding.DER), privateKey);
+//			} else if (signAlgo.getAlgorithm().equals(X9ObjectIdentifiers.ecdsa_with_SHA256)) {
+//				signature = SignUtil.ECDSASign(info.getEncoded(ASN1Encoding.DER), privateKey);
+//			} else if (signAlgo.getAlgorithm().equals(PKCSObjectIdentifiers.sha256WithRSAEncryption)) {
+//				signature = SignUtil.RSASign(info.getEncoded(ASN1Encoding.DER), privateKey);
+//			} else {
+//				throw new IllegalArgumentException("密钥算法不支持");
+//			}
+//			return new PKCS10CertificationRequest(
+//					new CertificationRequest(info, signAlgo, new DERBitString(signature)));
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			throw new IllegalArgumentException("密钥结构错误");
+//		}
+//	}
 
 	public static Certificate generateCert(PKCS10CertificationRequest csr, PrivateKey issuerPrivateKey,
 			byte[] issuerCert, Date notBefore, Date notAfter, boolean isCACert) throws Exception {
@@ -109,8 +147,6 @@ public class CertUtil {
 				extUtils.createAuthorityKeyIdentifier(issuer)); // 授权密钥标识
 		extensionsGenerator.addExtension(Extension.subjectKeyIdentifier, false,
 				extUtils.createSubjectKeyIdentifier(csr.getSubjectPublicKeyInfo())); // 使用者密钥标识
-		//extensionsGenerator.addExtension(Extension.subjectAlternativeName, true,
-        //        new GeneralNames(new GeneralName(GeneralName.iPAddress, "101.200.183.108")));
 		V3TBSCertificateGenerator tbsGen = new V3TBSCertificateGenerator();
 		tbsGen.setSerialNumber(new ASN1Integer(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE));
 		tbsGen.setIssuer(issuer.getSubject());

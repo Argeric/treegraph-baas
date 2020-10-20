@@ -28,7 +28,7 @@ public class SSLUtils {
 	private static void trustAllHttpsCertificates() throws Exception {
 		TrustManager[] allTrustCerts = Lists.newArrayList(new MyTrustManager()).toArray(new TrustManager[] {});
 		SSLContext sc = SSLContext.getInstance("SSL");
-		sc.init(null, allTrustCerts, null);
+		sc.init(null, allTrustCerts, new java.security.SecureRandom());
 		HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 	}
 	

@@ -183,6 +183,7 @@ public class VaultKeypairBuildService {
 		KeypairPo grpcKeypair = geneNewNodeKeypair(consId, ALGO_CONS, consKeypair);
 		String grpcCert = grpcKeypair.getCertStr();
 		String grpcPriv = privateKeyToPem(privateKeyFromBase64(ALGO_CONS, grpcKeypair.getPrivateKey()));
+		log.info("getGrpcKeypair grpcCert:{},grpcPriv:{}", grpcCert, grpcPriv);
 		return GRpcKeypairCertBo.builder().consId(consId).cert(grpcCert).privateKey(grpcPriv).build();
 	}
 

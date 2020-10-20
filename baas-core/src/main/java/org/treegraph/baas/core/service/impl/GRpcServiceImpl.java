@@ -269,19 +269,19 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		String serverKeyFile = privateKeyToPem(privateKeyFromBase64(ALGO_CONS, consKeypair.getPrivateKey()));
 
 		// rpc cert
-		NodeKeypairBo sdkKeypairBo = vaultKeypairBuildService.geneNewNodeKeypair(consId, ALGO_CONS,
+		NodeKeypairBo grpcKeypairBo = vaultKeypairBuildService.geneNewNodeKeypair(consId, ALGO_CONS,
 				consKeypair, NodePo.builder().id(nodeId).build());
-		KeypairPo sdkKeypair = sdkKeypairBo.getKeypair();
-		String rpcCertChainFile = sdkKeypair.getCertStr();
-		String rpcKeyFile = privateKeyToPem(privateKeyFromBase64(ALGO_CONS, sdkKeypair.getPrivateKey()));
+		KeypairPo grpcKeypair = grpcKeypairBo.getKeypair();
+		String grpcCertChainFile = grpcKeypair.getCertStr();
+		String grpcKeyFile = privateKeyToPem(privateKeyFromBase64(ALGO_CONS, grpcKeypair.getPrivateKey()));
 		
 		// write to host
 		String nodeCertPath = MessageFormat.format(NODE_CERT_Path, consId, nodeId);
 		Map<String, String> certPathContentMap = Maps.newHashMap();
 		certPathContentMap.put(SERVER_CERT_FILE, serverCertFile);
 		certPathContentMap.put(SERVER_KEY_FILE, serverKeyFile);
-		certPathContentMap.put(RPC_CERT_CHAIN_FILE, rpcCertChainFile);
-		certPathContentMap.put(RPC_KEY_FILE, rpcKeyFile);
+		certPathContentMap.put(RPC_CERT_CHAIN_FILE, grpcCertChainFile);
+		certPathContentMap.put(RPC_KEY_FILE, grpcKeyFile);
 		log.info("[get getGRpcParas]certPathContentMap--->{}", JSON.toJSONString(certPathContentMap));
 		Iterator<Entry<String, String>> iter = certPathContentMap.entrySet().iterator();
 		while(iter.hasNext()) {

@@ -68,6 +68,9 @@ public class ApplicationStartup implements ApplicationListener<ContextRefreshedE
 			int intevalSec = LocalDateTime.now().getSecond() - item.getUpdateTime().getSecond();
 			int delayTimeSec = intevalSec >= 60 ? 0 : intevalSec;
 			BizTimer.DELAY_TIMER.newTimeout(new CheckMembershipChangeTimerTask(item.getId()), delayTimeSec, TimeUnit.SECONDS);});
+		
+		// init SSL
+		SSLUtils.initSSL();
 		log.info("ApplicationStartup.onApplicationEvent completed!");
 	}
 }

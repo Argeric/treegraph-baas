@@ -291,11 +291,13 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 			}
 		}
 		
-		return GRpcParaBo.builder()
+		GRpcParaBo gRpcParaBo =  GRpcParaBo.builder()
 				.ip(ip)
 				.gRpcPort(gRpcPort)
 				.serverCertFile(MessageFormat.format(nodeCertPath + SERVER_CERT_FILE, consId, nodeId))
 				.rpcCertChainFile(MessageFormat.format(nodeCertPath + RPC_CERT_CHAIN_FILE, consId, nodeId))
 				.rpcKeyFile(MessageFormat.format(nodeCertPath + RPC_KEY_FILE, consId, nodeId)).build();
+		log.info("[get getGRpcParas]gRpcParaBo--->{}", JSON.toJSONString(gRpcParaBo));
+		return gRpcParaBo;
 	}
 }

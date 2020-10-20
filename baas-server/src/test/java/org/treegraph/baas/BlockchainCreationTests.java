@@ -55,6 +55,7 @@ import org.treegraph.baas.core.service.impl.VaultKeypairBuildService;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.FileUtils;
 import org.treegraph.baas.core.util.Order;
+import org.treegraph.baas.core.util.SSLUtils;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
 
@@ -146,6 +147,7 @@ public class BlockchainCreationTests {
 	@Before
 	public void setup() {
 		if(!initialized) {
+			SSLUtils.initSSL();
 			mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		}
 	}

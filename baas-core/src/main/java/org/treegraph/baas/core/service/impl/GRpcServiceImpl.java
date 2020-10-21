@@ -240,11 +240,20 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 	}
 	
 	public String sendRawTransaction(String consId, String nodeId, String hexEncoded) {
-		String txResult = null;
+		GrpcWeb3j cfx = null;
 		try {
 			GRpcParaBo rpcPara = getGRpcParas(consId, nodeId);
-			GrpcWeb3j cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
+			cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
 					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
+		} catch(Exception e) {
+			log.error("[get sendRawTransaction]grpcWeb3j init,error:", e);
+			return null;
+		} finally {
+			log.info("[get sendRawTransaction]cfx--->{}", JSON.toJSONString(cfx));
+		}
+		
+		String txResult = null;
+		try {
 			txResult = cfx.sendRawTransaction(hexEncoded);
 		} catch(Exception e) {
 			log.error("[get sendRawTransaction]error:", e);

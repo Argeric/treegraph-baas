@@ -248,8 +248,6 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		} catch(Exception e) {
 			log.error("[get sendRawTransaction]grpcWeb3j init,error:", e);
 			return null;
-		} finally {
-			log.info("[get sendRawTransaction]cfx--->{}", JSON.toJSONString(cfx));
 		}
 		
 		String txResult = null;

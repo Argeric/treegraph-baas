@@ -11,5 +11,6 @@ public class CharacterConstant {
 	public static final String CLOSE_BRAKET = ")";
 	public static final String UNDERSCORE = "_";
 	public static final String AT = "@";
+	public static final String SLASH = "/";
 
 }

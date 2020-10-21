@@ -25,7 +25,7 @@ public class KeyStoreHelper {
 		KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
 		keystore.load(null, password.toCharArray());
 		for(File file : files) {
-			if(!file.getName().endsWith("server.crt")) {
+			if(!file.getName().endsWith("crt")) {
 				continue;
 			}
 			CertificateFactory factory = CertificateFactory.getInstance("X.509");

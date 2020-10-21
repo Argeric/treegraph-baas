@@ -247,6 +247,8 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 			GRpcParaBo rpcPara = getGRpcParas(consId, nodeId);
 			String certFolder = StringUtils.substringBeforeLast(rpcPara.getServerCertFile(), CharacterConstant.SLASH);
 			KeyStoreHelper.createTrustJKSKeyStore(certFolder, "/root/.keystore", "treegraphbaas");
+			System.setProperty("javax.net.ssl.trustStore", "/root/.keystore");
+			System.setProperty("javax.net.ssl.trustStorePassword", "treegraphbaas");
 			cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
 					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
 		} catch(Exception e) {

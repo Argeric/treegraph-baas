@@ -19,9 +19,11 @@ import org.springframework.vault.support.VaultSignCertificateRequestResponse;
 import org.treegraph.baas.core.constant.X509CertConstant;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.enums.CryptoEnum;
+import org.treegraph.baas.core.enums.CryptoEnum.Algo;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.bo.KeypairCertBo;
 import org.treegraph.baas.core.util.DateUtils;
+import static org.treegraph.baas.core.enums.CryptoEnum.CertificateSignType;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Splitter;
@@ -37,6 +39,53 @@ import lombok.extern.slf4j.Slf4j;
 public class KeypairCertUtil {
 	
     private VaultOperations vaultOperations;
+    
+    public KeypairCertBo buildKeypairCert1(String algo, String subject, Date latestCertExpireDate,
+    		CertificateSignType signType, String parentKeypairAlgo, KeypairPo parentKeypair) {
+		KeyPair keyPair = null;
+		String publicKey = null;
+		String privateKey = null;
+		try {
+			keyPair = KeyUtil.generateKeyPair(algo);
+			publicKey = KeyUtil.publicKeyToBase64(keyPair.getPublic());
+			privateKey = KeyUtil.privateKeyToBase64(keyPair.getPrivate());
+		} catch(Exception e) {
+			throw new AlertException("generate keypair error!");
+		}
+		
+		if(!Algo.RSA.getCode().equals(algo)) {
+			return KeypairCertBo.builder()
+					.algorithm(algo)
+					.publicKey(publicKey)
+					.privateKey(privateKey)
+					.build();
+		}
+		
+		String csrStr = null;
+		String certStr = null;
+		try {
+			PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(subject), keyPair.getPublic(),
+					keyPair.getPrivate(), Lists.newArrayList("101.200.183.108"));
+			if (signType == CryptoEnum.CertificateSignType.BC) {
+				certStr = signCertificateRequestByBC(parentKeypairAlgo, parentKeypair, csr, true);
+			} else if(signType == CryptoEnum.CertificateSignType.VAULT) {
+				certStr = signCertificateRequestByVault(csr, latestCertExpireDate);
+			} else {
+				throw new AlertException("certificate sign request not supported!");
+			}
+			csrStr = CertUtil.csrToPem(csr);
+		} catch(Exception e) {
+			throw new AlertException(e);
+		}
+		
+		return KeypairCertBo.builder()
+				.algorithm(algo)
+				.publicKey(publicKey)
+				.privateKey(privateKey)
+				.csrStr(csrStr)
+				.certStr(certStr)
+				.build();
+	}
     
 	public KeypairCertBo buildKeypairCert(String algo, String subject, Date latestCertExpireDate,
 			boolean isGRpcCert, String parentKeypairAlgo, KeypairPo parentKeypair) {
@@ -61,9 +110,9 @@ public class KeypairCertUtil {
 				csrStr = CertUtil.csrToPem(csr);
 				if (algo.equals(ECC.getCode())
 						|| isGRpcCert
-						|| X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.BC) {
+						|| X509CertConstant.CERTIFICATE_SIGN_TYPE == CryptoEnum.CertificateSignType.BC) {
 					certStr = signCertificateRequestByBC(parentKeypairAlgo, parentKeypair, csr, true);
-				} else if(X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.VAULT) {
+				} else if(X509CertConstant.CERTIFICATE_SIGN_TYPE == CryptoEnum.CertificateSignType.VAULT) {
 					certStr = signCertificateRequestByVault(csr, latestCertExpireDate);
 				} else {
 					throw new AlertException("certificate sign request not supported!");

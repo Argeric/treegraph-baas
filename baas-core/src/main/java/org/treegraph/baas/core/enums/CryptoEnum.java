@@ -93,7 +93,7 @@ public class CryptoEnum {
 	 */
 	@Getter
 	@AllArgsConstructor
-	public enum SignCertificateType {
+	public enum CertificateSignType {
 
 		BC(1, "bounce castle"),
 

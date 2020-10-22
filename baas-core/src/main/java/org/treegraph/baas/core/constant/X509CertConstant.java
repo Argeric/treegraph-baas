@@ -1,7 +1,7 @@
 package org.treegraph.baas.core.constant;
 
 import org.treegraph.baas.core.enums.CryptoEnum;
-import org.treegraph.baas.core.enums.CryptoEnum.SignCertificateType;
+import org.treegraph.baas.core.enums.CryptoEnum.CertificateSignType;
 
 public class X509CertConstant {
 	public static final String ALGO_CONS = CryptoEnum.Algo.RSA.getCode();
@@ -13,7 +13,7 @@ public class X509CertConstant {
 	
 	public static final String COMMON_NAME_CONSORTIUM_CERT= "baas.conflux-chain.org";
 	
-	public static final SignCertificateType SIGN_CERTIFICATE_TYPE = CryptoEnum.SignCertificateType.VAULT;
+	public static final CertificateSignType CERTIFICATE_SIGN_TYPE = CryptoEnum.CertificateSignType.VAULT;
 	public static final int EXPIRE_CONSORTIUM_CERT_IN_DYAS = 365;
 	public static final String VAULT_ROLE_ISSUE_CERTIFICATE = "baasroot";
 	public static final String VAULT_PKI_PATH = "pki_baas_" + ALGO_CONS;

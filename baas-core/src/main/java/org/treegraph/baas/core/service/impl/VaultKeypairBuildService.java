@@ -76,7 +76,7 @@ public class VaultKeypairBuildService {
 		String rootPrivateKey = KeyUtil.privateKeyToBase64(rootKeyPair.getPrivate());
 		String rootCa = CertUtil.certToPem(rootCA);
 		
-		if(X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.VAULT) {
+		if(X509CertConstant.CERTIFICATE_SIGN_TYPE == CryptoEnum.CertificateSignType.VAULT) {
 			writeRootCaToVault(rootCa, KeyUtil.privateKeyToPem(rootKeyPair.getPrivate()));
 		}
 		

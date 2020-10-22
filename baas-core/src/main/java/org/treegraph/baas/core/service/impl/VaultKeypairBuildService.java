@@ -1,8 +1,11 @@
 package org.treegraph.baas.core.service.impl;
 
-import static  org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
+import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_ROOT;
+import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
+import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
+import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_RPC;
 import static org.treegraph.baas.core.constant.X509CertConstant.SUBJECT_CONS_CERT;
-import static org.treegraph.baas.core.constant.X509CertConstant.SUBJECT_NODE_CERT;
+import static org.treegraph.baas.core.constant.X509CertConstant.SUBJECT_RPC_CERT;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 
@@ -62,21 +65,21 @@ public class VaultKeypairBuildService {
     
     private KeypairCertUtil keypairCertUtil;
     
-	public KeypairPo getRootKeypair(String algo) throws Exception{
+	public KeypairPo getRootKeypair() throws Exception{
 		List<KeypairPo> rootKeypairs = keypairDas.findAll(ConsortiumConstant.DEFAULT_CONSORTIUM_ID,
-				CryptoEnum.KeyType.CONSORTIUM.getCode(), algo);
+				CryptoEnum.KeyType.CONSORTIUM.getCode(), ALGO_ROOT);
 		if(CollectionUtils.isNotEmpty(rootKeypairs)){
 			return rootKeypairs.get(0);
 		}
 		
-		KeyPair rootKeyPair = KeyUtil.generateKeyPair(algo);
+		KeyPair rootKeyPair = KeyUtil.generateKeyPair(ALGO_ROOT);
 		Certificate rootCA = CertUtil.generateRootCA(new X500Name(X509CertConstant.SUBJECT_ROOT_CA), rootKeyPair,
 				CertUtil.getNotBefore(), CertUtil.getNotAfter(365 * 10));
 		String rootPublicKey = KeyUtil.publicKeyToBase64(rootKeyPair.getPublic());
 		String rootPrivateKey = KeyUtil.privateKeyToBase64(rootKeyPair.getPrivate());
 		String rootCa = CertUtil.certToPem(rootCA);
 		
-		if(X509CertConstant.CERTIFICATE_SIGN_TYPE == CryptoEnum.CertificateSignType.VAULT) {
+		if(X509CertConstant.DEFAULT_CERT_SIGN_TYPE == CryptoEnum.CertificateSignType.VAULT) {
 			writeRootCaToVault(rootCa, KeyUtil.privateKeyToPem(rootKeyPair.getPrivate()));
 		}
 		
@@ -87,7 +90,7 @@ public class VaultKeypairBuildService {
 				.privateKey(rootPrivateKey)
 				.csrStr(null)
 				.certStr(rootCa)
-				.algorithm(algo)
+				.algorithm(ALGO_ROOT)
 				.consortiumId(ConsortiumConstant.DEFAULT_CONSORTIUM_ID)
 				.keyType(CryptoEnum.KeyType.CONSORTIUM.getCode())
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
@@ -98,20 +101,20 @@ public class VaultKeypairBuildService {
 				.build();
 	}
 	
-	public KeypairPo getConsortiumKeyPair(String consortiumId, String algo, KeypairPo rootKeypair) {
+	public KeypairPo getConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair) {
 		List<KeypairPo> consortiumKeypairs = keypairDas.findAll(consortiumId,
-				CryptoEnum.KeyType.CONSORTIUM.getCode(), algo);
+				CryptoEnum.KeyType.CONSORTIUM.getCode(), ALGO_CONS);
 		if(CollectionUtils.isNotEmpty(consortiumKeypairs)){
 			return consortiumKeypairs.get(0);
 		}
 		
-		return geneNewConsKeyPair(consortiumId, algo, rootKeypair, null);
+		return getNewConsortiumKeyPair(consortiumId, rootKeypair, null);
 	}
 	
-	public KeypairPo geneNewConsKeyPair(String consortiumId, String algo, KeypairPo rootKeypair,
+	public KeypairPo getNewConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair,
 			Date lastCertExpireDate) {
-		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(algo, SUBJECT_CONS_CERT, lastCertExpireDate,
-				false, ALGO_CONS, rootKeypair);
+		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(ALGO_CONS, SUBJECT_CONS_CERT, lastCertExpireDate,
+				ALGO_CONS, rootKeypair);
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		return KeypairPo.builder()
@@ -130,21 +133,34 @@ public class VaultKeypairBuildService {
 				.build();
 	}
 	
-	public NodeKeypairBo getNodeKeypairBo(String consortiumId, String algo, KeypairPo consKeypair, NodePo node) {
+	public NodeKeypairBo getNodeKeypairBo(String consortiumId, NodePo node) {
 		List<NodeKeyPo> nodeKeys = nodeKeyDas.findAll(consortiumId, node.getId());
 		if(CollectionUtils.isNotEmpty(nodeKeys)) {
 			List<Long> keypairIds = nodeKeys.stream().map(item -> item.getKeypairId()).collect(Collectors.toList());
 			List<KeypairPo> nodeKeypairs = keypairDas.findByIds(keypairIds);
 			Optional<KeypairPo> keypairOp = nodeKeypairs.stream()
-					.filter(item -> item.getAlgorithm().equalsIgnoreCase(algo)).findFirst();
+					.filter(item -> item.getAlgorithm().equalsIgnoreCase(ALGO_NODE)).findFirst();
 			if(keypairOp.isPresent()){
 				return NodeKeypairBo.builder().keypair(keypairOp.get()).node(node).build();
 			}
 		}
 		
-		KeypairPo keypair = geneNewNodeKeypair(consortiumId, algo, false, consKeypair);
+		KeypairCertBo keypairCert = keypairCertUtil.buildKeypair(ALGO_NODE);
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
+		KeypairPo keypair = KeypairPo.builder()
+				.publicKey(keypairCert.getPublicKey())
+				.privateKey(keypairCert.getPrivateKey())
+				.algorithm(keypairCert.getAlgorithm())
+				.consortiumId(consortiumId)
+				.keyType(CryptoEnum.KeyType.NODE.getCode())
+				.deleteFlag(IntTypeEnum.FALSE.getValue())
+				.createTime(now)
+				.createBy(operUser)
+				.updateTime(now)
+				.updateBy(operUser)
+				.build();
+		
 		NodeKeyPo nodeKey = NodeKeyPo.builder()
 				.nodeId(node.getId())
 				.keypairId(null)
@@ -158,35 +174,13 @@ public class VaultKeypairBuildService {
 		return NodeKeypairBo.builder().keypair(keypair).nodeKey(nodeKey).node(node).build();
 	}
 	
-	public KeypairPo geneNewNodeKeypair(String consortiumId, String algo, boolean isGRpcCert, KeypairPo consKeypair) {
-		log.info("buildKeypairCert---->222");
-		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(algo, SUBJECT_NODE_CERT, null, isGRpcCert,
-				ALGO_CONS, consKeypair);
-		LocalDateTime now = LocalDateTime.now();
-		String operUser = WebHelper.getUserId();
-		return KeypairPo.builder()
-				.publicKey(keypairCert.getPublicKey())
-				.privateKey(keypairCert.getPrivateKey())
-				.csrStr(keypairCert.getCsrStr())
-				.certStr(keypairCert.getCertStr())
-				.algorithm(keypairCert.getAlgorithm())
-				.consortiumId(consortiumId)
-				.keyType(CryptoEnum.KeyType.NODE.getCode())
-				.deleteFlag(IntTypeEnum.FALSE.getValue())
-				.createTime(now)
-				.createBy(operUser)
-				.updateTime(now)
-				.updateBy(operUser)
-				.build();
-	}
-	
-	public GRpcKeypairCertBo getGrpcKeypair(String consId, KeypairPo consKeypair) throws Exception {
-		log.info("buildKeypairCert---->111");
-		KeypairPo grpcKeypair = geneNewNodeKeypair(consId, ALGO_CONS, true, consKeypair);
-		String grpcCert = grpcKeypair.getCertStr();
-		String grpcPriv = privateKeyToPem(privateKeyFromBase64(ALGO_CONS, grpcKeypair.getPrivateKey()));
-		log.info("getGrpcKeypair grpcCert:{},grpcPriv:{}", grpcCert, grpcPriv);
-		return GRpcKeypairCertBo.builder().consId(consId).cert(grpcCert).privateKey(grpcPriv).build();
+	public GRpcKeypairCertBo getRpcKeypair(String consortiumId, KeypairPo consKeypair) throws Exception {
+		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(ALGO_RPC, SUBJECT_RPC_CERT, new Date(), 
+				 ALGO_CONS, consKeypair);
+		String rpcCert = keypairCert.getCertStr();
+		String rpcPriv = privateKeyToPem(privateKeyFromBase64(ALGO_RPC, keypairCert.getPrivateKey()));
+		log.info("getGrpcKeypair grpcCert:{},grpcPriv:{}", rpcCert, rpcPriv);
+		return GRpcKeypairCertBo.builder().consId(consortiumId).cert(rpcCert).privateKey(rpcPriv).build();
 	}
 
 	private void vaultMount() {

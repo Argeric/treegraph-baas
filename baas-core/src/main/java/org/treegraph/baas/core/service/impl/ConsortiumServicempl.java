@@ -489,15 +489,15 @@ public class ConsortiumServicempl implements ConsortiumService {
 	private Map<String, Map<String, String>> buildDeployScript(String consortiumId, List<NodePo> nodes)
 			throws Exception, NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
 		// certificate info
-		KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair(ALGO_CONS);
-		KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consortiumId, ALGO_CONS, rootKeypair);
+		KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair();
+		KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consortiumId, rootKeypair);
 		PrivateKey privateKey = KeyUtil.privateKeyFromBase64(ALGO_CONS, consKeypair.getPrivateKey());
 		
 		// nodes info
 		StringBuilder consortiumNodes = new StringBuilder();
 		List<NodeKeypairBo> nodeKeypairBoList = new ArrayList<>();
 		for(NodePo node:nodes){
-			NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypairBo(consortiumId, ALGO_NODE, consKeypair,
+			NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypairBo(consortiumId,
 					node);
 			nodeKeypairBoList.add(nodeKeypairBo);
 			ECKeyPair ecKeypair = loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
@@ -536,7 +536,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			String ecPri = StringUtils.leftPad(ecKeypair.getPrivateKey().toString(16), 64, '0');
 			NodePo node = nodeKeypair.getNode();
 			String consId = node.getConsortiumId();
-			GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.getGrpcKeypair(consId, consKeypair);
+			GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.getRpcKeypair(consId, consKeypair);
 			StringBuffer scriptContent = new StringBuffer();
 			append(scriptContent, "consortium_cert = \"\"\"" + consKeypair.getCertStr() + "\"\"\"");
 			append(scriptContent, "consortium_nodes = \"\"\"" + consortiumNodes.toString() + "\"\"\"");
@@ -770,8 +770,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 		}
 		
 		// build defer request
-		KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair(ALGO_CONS);
-		KeypairPo consKeypair = vaultKeypairBuildService.geneNewConsKeyPair(consId, ALGO_CONS, rootKeypair, notAfter);
+		KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair();
+		KeypairPo consKeypair = vaultKeypairBuildService.getNewConsortiumKeyPair(consId, rootKeypair, notAfter);
 		CertificateDeferPo defer = buildService.buildCertificateDefer(consKeypair);
 		certificateDeferDas.createCertificateDefer(defer);
 		

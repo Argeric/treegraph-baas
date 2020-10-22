@@ -29,7 +29,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.treegraph.baas.core.component.BizTimer;
-import org.treegraph.baas.core.constant.CharacterConstant;
 import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.das.NodeCustomizedConfigDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
@@ -48,7 +47,6 @@ import org.treegraph.baas.core.service.bo.GRpcParaBo;
 import org.treegraph.baas.core.task.CheckMembershipChangeTimerTask;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.IdWorker;
-import org.treegraph.baas.core.util.KeyStoreHelper;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
 
@@ -245,10 +243,6 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		GrpcWeb3j cfx = null;
 		try {
 			GRpcParaBo rpcPara = getGRpcParas(consId, nodeId);
-			String certFolder = StringUtils.substringBeforeLast(rpcPara.getServerCertFile(), CharacterConstant.SLASH);
-			KeyStoreHelper.createTrustJKSKeyStore(certFolder, "/root/.keystore", "treegraphbaas");
-			System.setProperty("javax.net.ssl.trustStore", "/root/.keystore");
-			System.setProperty("javax.net.ssl.trustStorePassword", "treegraphbaas");
 			cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
 					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
 		} catch(Exception e) {
@@ -278,10 +272,10 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		int gRpcPort = TEST_SWITCH ? jsonRpcLocalHttpPort + TEST_RPC_PORT_INTERVAL : DEFAULT_GRPC_PORT;
 		
 		// server cert and rpc cert
-		KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consId, ALGO_CONS, null);
+		KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consId, null);
 		String serverCertFile = consKeypair.getCertStr();
 		String serverKeyFile = privateKeyToPem(privateKeyFromBase64(ALGO_CONS, consKeypair.getPrivateKey()));
-		GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.getGrpcKeypair(consId, consKeypair);
+		GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.getRpcKeypair(consId, consKeypair);
 		
 		// write to host
 		String nodeCertPath = MessageFormat.format(NODE_CERT_Path, consId, nodeId);

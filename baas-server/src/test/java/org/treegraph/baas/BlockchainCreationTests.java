@@ -1,7 +1,5 @@
 package org.treegraph.baas;
 
-import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
-
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -349,7 +347,7 @@ public class BlockchainCreationTests {
 		Assert.assertTrue("[step--->testRechargeGenesis]node not found", CollectionUtils.isNotEmpty(nodeIds));
 		
 		List<NodeKeypairBo> nodeKeypairs = nodeIds.stream().map(item -> vaultKeypairBuildService.getNodeKeypairBo(consId,
-				ALGO_NODE, null, NodePo.builder().consortiumId(consId).id(item).build())).collect(Collectors.toList());
+				NodePo.builder().consortiumId(consId).id(item).build())).collect(Collectors.toList());
 		log.info("[step--->testRechargeGenesis]node keypairs--->{}", JSON.toJSONString(nodeKeypairs));
 		Assert.assertTrue("[step--->testRechargeGenesis]node keypair not found", CollectionUtils.isNotEmpty(nodeKeypairs));
 		

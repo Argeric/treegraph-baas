@@ -1,7 +1,5 @@
 package org.treegraph.baas.core.util.crypto.x509;
 
-import static org.treegraph.baas.core.enums.CryptoEnum.Algo.ECC;
-
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.time.Duration;
@@ -23,7 +21,6 @@ import org.treegraph.baas.core.enums.CryptoEnum.Algo;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.bo.KeypairCertBo;
 import org.treegraph.baas.core.util.DateUtils;
-import static org.treegraph.baas.core.enums.CryptoEnum.CertificateSignType;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Splitter;
@@ -40,8 +37,26 @@ public class KeypairCertUtil {
 	
     private VaultOperations vaultOperations;
     
-    public KeypairCertBo buildKeypairCert1(String algo, String subject, Date latestCertExpireDate,
-    		CertificateSignType signType, String parentKeypairAlgo, KeypairPo parentKeypair) {
+    public KeypairCertBo buildKeypair(String algo) {
+		String publicKey = null;
+		String privateKey = null;
+		try {
+			KeyPair keyPair = KeyUtil.generateKeyPair(algo);
+			publicKey = KeyUtil.publicKeyToBase64(keyPair.getPublic());
+			privateKey = KeyUtil.privateKeyToBase64(keyPair.getPrivate());
+		} catch(Exception e) {
+			throw new AlertException("generate keypair error!");
+		}
+		
+		return KeypairCertBo.builder()
+				.algorithm(algo)
+				.publicKey(publicKey)
+				.privateKey(privateKey)
+				.build();
+	}
+    
+    public KeypairCertBo buildKeypairCert(String algo, String subject, Date latestCertExpireDate,
+    		String parentKeypairAlgo, KeypairPo parentKeypair) {
 		KeyPair keyPair = null;
 		String publicKey = null;
 		String privateKey = null;
@@ -66,9 +81,9 @@ public class KeypairCertUtil {
 		try {
 			PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(subject), keyPair.getPublic(),
 					keyPair.getPrivate(), Lists.newArrayList("101.200.183.108"));
-			if (signType == CryptoEnum.CertificateSignType.BC) {
+			if (X509CertConstant.DEFAULT_CERT_SIGN_TYPE == CryptoEnum.CertificateSignType.BC) {
 				certStr = signCertificateRequestByBC(parentKeypairAlgo, parentKeypair, csr, true);
-			} else if(signType == CryptoEnum.CertificateSignType.VAULT) {
+			} else if(X509CertConstant.DEFAULT_CERT_SIGN_TYPE == CryptoEnum.CertificateSignType.VAULT) {
 				certStr = signCertificateRequestByVault(csr, latestCertExpireDate);
 			} else {
 				throw new AlertException("certificate sign request not supported!");
@@ -87,53 +102,8 @@ public class KeypairCertUtil {
 				.build();
 	}
     
-	public KeypairCertBo buildKeypairCert(String algo, String subject, Date latestCertExpireDate,
-			boolean isGRpcCert, String parentKeypairAlgo, KeypairPo parentKeypair) {
-		KeyPair keyPair = null;
-		String publicKey = null;
-		String privateKey = null;
-		try {
-			keyPair = KeyUtil.generateKeyPair(algo);
-			publicKey = KeyUtil.publicKeyToBase64(keyPair.getPublic());
-			privateKey = KeyUtil.privateKeyToBase64(keyPair.getPrivate());
-		} catch(Exception e) {
-			throw new AlertException("generate keypair error!");
-		}
-		
-		String csrStr = null;
-		String certStr = null;
-		try {
-			if(parentKeypair != null) {
-				log.info("buildKeypairCert---->333, isGRpcCert:{}", isGRpcCert);
-				PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(subject), keyPair.getPublic(),
-						keyPair.getPrivate(), Lists.newArrayList("101.200.183.108"));
-				csrStr = CertUtil.csrToPem(csr);
-				if (algo.equals(ECC.getCode())
-						|| isGRpcCert
-						|| X509CertConstant.CERTIFICATE_SIGN_TYPE == CryptoEnum.CertificateSignType.BC) {
-					certStr = signCertificateRequestByBC(parentKeypairAlgo, parentKeypair, csr, true);
-				} else if(X509CertConstant.CERTIFICATE_SIGN_TYPE == CryptoEnum.CertificateSignType.VAULT) {
-					certStr = signCertificateRequestByVault(csr, latestCertExpireDate);
-				} else {
-					throw new AlertException("certificate sign request not supported!");
-				}
-			}
-		} catch(Exception e) {
-			throw new AlertException(e);
-		}
-		
-		return KeypairCertBo.builder()
-				.algorithm(algo)
-				.publicKey(publicKey)
-				.privateKey(privateKey)
-				.csrStr(csrStr)
-				.certStr(certStr)
-				.build();
-	}
-    
 	private String signCertificateRequestByBC(String parentKeypairAlgo, KeypairPo parentKeypair,
 			PKCS10CertificationRequest csr, boolean isEntityCert) throws Exception {
-		log.info("buildKeypairCert---->444, parentKeypairAlgo:{}", parentKeypairAlgo);
 		PrivateKey parentPrivateKey = KeyUtil.privateKeyFromBase64(parentKeypairAlgo, parentKeypair.getPrivateKey());
 		byte[] parentCertBytes = CertUtil.certFromPem(parentKeypair.getCertStr()).getEncoded();
 		Certificate cert = CertUtil.generateCert(csr, parentPrivateKey, parentCertBytes,
@@ -144,7 +114,6 @@ public class KeypairCertUtil {
 
 	private String signCertificateRequestByVault(PKCS10CertificationRequest csr, Date lastCertExpireDate)
 			throws Exception {
-		log.info("buildKeypairCert---->555");
 		int lastCertLeftDays = 0;
 		if (lastCertExpireDate != null) {
 			lastCertLeftDays = DateUtils.betweenDays(Calendar.getInstance().getTime(), lastCertExpireDate);
@@ -172,7 +141,6 @@ public class KeypairCertUtil {
         StringBuffer code = new StringBuffer("-----BEGIN CERTIFICATE-----\n");  
         code.append(content.toString());
         code.append("-----END CERTIFICATE-----"); 
-        
         return code.toString();  
     }
 }

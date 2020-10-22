@@ -57,7 +57,7 @@ public class KeypairCertUtil {
 			if(parentKeypair != null) {
 				log.info("buildKeypairCert---->333, isGRpcCert:{}", isGRpcCert);
 				PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(subject), keyPair.getPublic(),
-						keyPair.getPrivate(), Lists.newArrayList());
+						keyPair.getPrivate(), Lists.newArrayList("101.200.183.108"));
 				csrStr = CertUtil.csrToPem(csr);
 				if (algo.equals(ECC.getCode())
 						|| isGRpcCert
@@ -84,6 +84,7 @@ public class KeypairCertUtil {
     
 	private String signCertificateRequestByBC(String parentKeypairAlgo, KeypairPo parentKeypair,
 			PKCS10CertificationRequest csr, boolean isEntityCert) throws Exception {
+		log.info("buildKeypairCert---->444, parentKeypairAlgo:{}", parentKeypairAlgo);
 		PrivateKey parentPrivateKey = KeyUtil.privateKeyFromBase64(parentKeypairAlgo, parentKeypair.getPrivateKey());
 		byte[] parentCertBytes = CertUtil.certFromPem(parentKeypair.getCertStr()).getEncoded();
 		Certificate cert = CertUtil.generateCert(csr, parentPrivateKey, parentCertBytes,
@@ -94,6 +95,7 @@ public class KeypairCertUtil {
 
 	private String signCertificateRequestByVault(PKCS10CertificationRequest csr, Date lastCertExpireDate)
 			throws Exception {
+		log.info("buildKeypairCert---->555");
 		int lastCertLeftDays = 0;
 		if (lastCertExpireDate != null) {
 			lastCertLeftDays = DateUtils.betweenDays(Calendar.getInstance().getTime(), lastCertExpireDate);

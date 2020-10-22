@@ -8,8 +8,8 @@ public class X509CertConstant {
 	public static final String ALGO_NODE = CryptoEnum.Algo.ECC.getCode();
 
 	public static final String SUBJECT_ROOT_CA = "CN=rootCA,OU=it-dept,O=conflux-chain,L=SH,ST=SH,C=CN";
-	public static final String SUBJECT_CONS_CERT = "CN=localhost,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN";
-	public static final String SUBJECT_NODE_CERT = "CN=localhost,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN";
+	public static final String SUBJECT_CONS_CERT = "CN=baas.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN";
+	public static final String SUBJECT_NODE_CERT = "CN=node.baas.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN";
 	
 	public static final String COMMON_NAME_CONSORTIUM_CERT= "baas.conflux-chain.org";
 	

@@ -39,7 +39,7 @@ public class KeypairCertUtil {
     private VaultOperations vaultOperations;
     
 	public KeypairCertBo buildKeypairCert(String algo, String subject, Date latestCertExpireDate,
-			String parentKeypairAlgo, KeypairPo parentKeypair) {
+			boolean isGRpcCert, String parentKeypairAlgo, KeypairPo parentKeypair) {
 		KeyPair keyPair = null;
 		String publicKey = null;
 		String privateKey = null;
@@ -59,6 +59,7 @@ public class KeypairCertUtil {
 						keyPair.getPrivate(), Lists.newArrayList("101.200.183.108","127.0.0.1"));
 				csrStr = CertUtil.csrToPem(csr);
 				if (algo.equals(ECC.getCode())
+						|| isGRpcCert
 						|| X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.BC) {
 					certStr = signCertificateRequestByBC(parentKeypairAlgo, parentKeypair, csr, true);
 				} else if(X509CertConstant.SIGN_CERTIFICATE_TYPE == CryptoEnum.SignCertificateType.VAULT) {

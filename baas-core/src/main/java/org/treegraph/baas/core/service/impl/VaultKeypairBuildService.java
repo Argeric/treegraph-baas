@@ -111,7 +111,7 @@ public class VaultKeypairBuildService {
 	public KeypairPo geneNewConsKeyPair(String consortiumId, String algo, KeypairPo rootKeypair,
 			Date lastCertExpireDate) {
 		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(algo, SUBJECT_CONS_CERT, lastCertExpireDate,
-				ALGO_CONS, rootKeypair);
+				false, ALGO_CONS, rootKeypair);
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		return KeypairPo.builder()
@@ -142,7 +142,7 @@ public class VaultKeypairBuildService {
 			}
 		}
 		
-		KeypairPo keypair = geneNewNodeKeypair(consortiumId, algo, consKeypair);
+		KeypairPo keypair = geneNewNodeKeypair(consortiumId, algo, false, consKeypair);
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		NodeKeyPo nodeKey = NodeKeyPo.builder()
@@ -158,9 +158,9 @@ public class VaultKeypairBuildService {
 		return NodeKeypairBo.builder().keypair(keypair).nodeKey(nodeKey).node(node).build();
 	}
 	
-	public KeypairPo geneNewNodeKeypair(String consortiumId, String algo, KeypairPo consKeypair) {
-		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(algo, SUBJECT_NODE_CERT, null, ALGO_CONS,
-				consKeypair);
+	public KeypairPo geneNewNodeKeypair(String consortiumId, String algo, boolean isGRpcCert, KeypairPo consKeypair) {
+		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(algo, SUBJECT_NODE_CERT, null, isGRpcCert,
+				ALGO_CONS, consKeypair);
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		return KeypairPo.builder()
@@ -180,7 +180,7 @@ public class VaultKeypairBuildService {
 	}
 	
 	public GRpcKeypairCertBo getGrpcKeypair(String consId, KeypairPo consKeypair) throws Exception {
-		KeypairPo grpcKeypair = geneNewNodeKeypair(consId, ALGO_CONS, consKeypair);
+		KeypairPo grpcKeypair = geneNewNodeKeypair(consId, ALGO_CONS, true, consKeypair);
 		String grpcCert = grpcKeypair.getCertStr();
 		String grpcPriv = privateKeyToPem(privateKeyFromBase64(ALGO_CONS, grpcKeypair.getPrivateKey()));
 		log.info("getGrpcKeypair grpcCert:{},grpcPriv:{}", grpcCert, grpcPriv);

@@ -159,6 +159,7 @@ public class VaultKeypairBuildService {
 	}
 	
 	public KeypairPo geneNewNodeKeypair(String consortiumId, String algo, boolean isGRpcCert, KeypairPo consKeypair) {
+		log.info("buildKeypairCert---->222");
 		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(algo, SUBJECT_NODE_CERT, null, isGRpcCert,
 				ALGO_CONS, consKeypair);
 		LocalDateTime now = LocalDateTime.now();
@@ -180,6 +181,7 @@ public class VaultKeypairBuildService {
 	}
 	
 	public GRpcKeypairCertBo getGrpcKeypair(String consId, KeypairPo consKeypair) throws Exception {
+		log.info("buildKeypairCert---->111");
 		KeypairPo grpcKeypair = geneNewNodeKeypair(consId, ALGO_CONS, true, consKeypair);
 		String grpcCert = grpcKeypair.getCertStr();
 		String grpcPriv = privateKeyToPem(privateKeyFromBase64(ALGO_CONS, grpcKeypair.getPrivateKey()));

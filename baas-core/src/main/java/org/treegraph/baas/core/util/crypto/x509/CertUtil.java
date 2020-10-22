@@ -51,9 +51,6 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 public class CertUtil {
 	
 	public static Certificate generateRootCA(X500Name subject, KeyPair keyPair, Date notBefore, Date notAfter)
@@ -158,9 +155,7 @@ public class CertUtil {
 		tbsGen.setSubject(subject);
 		tbsGen.setSubjectPublicKeyInfo(csr.getSubjectPublicKeyInfo());
 		tbsGen.setExtensions(extensionsGenerator.generate());
-		log.info("issuer.getSubjectPublicKeyInfo().getAlgorithm()====>"+issuer.getSubjectPublicKeyInfo().getAlgorithm());
-		AlgorithmIdentifier signAlgo = getSignAlgo(issuer.getSubjectPublicKeyInfo().getAlgorithm());
-		tbsGen.setSignature(signAlgo); // 签名算法标识等于颁发者证书的密钥算法标识
+		tbsGen.setSignature(getSignAlgo(issuer.getSubjectPublicKeyInfo().getAlgorithm())); // 签名算法标识等于颁发者证书的密钥算法标识
 		TBSCertificate tbs = tbsGen.generateTBSCertificate();
 		return assembleCert(tbs, issuer.getSubjectPublicKeyInfo(), issuerPrivateKey);
 	}
@@ -236,12 +231,9 @@ public class CertUtil {
 			signature = SignUtil.RSASign(tbsCertificate.getEncoded(), issuerPrivateKey);
 		} else
 			throw new IllegalArgumentException("不支持的密钥算法["+issuerPrivateKey.getAlgorithm()+"]");
-		AlgorithmIdentifier algo = getSignAlgo(issuerSubjectPublicKeyInfo.getAlgorithm());
-		log.info("getSignAlgo(issuerSubjectPublicKeyInfo.getAlgorithm())===>"+algo.toString());
-		log.info("getSignAlgo(issuerSubjectPublicKeyInfo.getAlgorithm())===>"+algo.getAlgorithm().toString());
 		ASN1EncodableVector v = new ASN1EncodableVector();
 		v.add(tbsCertificate);
-		v.add(algo);
+		v.add(getSignAlgo(issuerSubjectPublicKeyInfo.getAlgorithm()));
 		v.add(new DERBitString(signature));
 		return Certificate.getInstance(new DERSequence(v));
 	}

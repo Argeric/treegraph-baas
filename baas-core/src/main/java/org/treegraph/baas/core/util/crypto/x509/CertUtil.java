@@ -149,7 +149,7 @@ public class CertUtil {
 				extUtils.createSubjectKeyIdentifier(csr.getSubjectPublicKeyInfo())); // 使用者密钥标识
 		V3TBSCertificateGenerator tbsGen = new V3TBSCertificateGenerator();
 		tbsGen.setSerialNumber(new ASN1Integer(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE));
-		tbsGen.setIssuer(issuer.getSubject());
+		tbsGen.setIssuer(issuer.getIssuer());
 		tbsGen.setStartDate(new Time(notBefore, Locale.CHINA));
 		tbsGen.setEndDate(new Time(notAfter, Locale.CHINA));
 		tbsGen.setSubject(subject);

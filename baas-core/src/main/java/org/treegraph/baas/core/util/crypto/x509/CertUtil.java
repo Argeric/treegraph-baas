@@ -159,7 +159,8 @@ public class CertUtil {
 		tbsGen.setSubjectPublicKeyInfo(csr.getSubjectPublicKeyInfo());
 		tbsGen.setExtensions(extensionsGenerator.generate());
 		log.info("issuer.getSubjectPublicKeyInfo().getAlgorithm()====>"+issuer.getSubjectPublicKeyInfo().getAlgorithm());
-		tbsGen.setSignature(issuer.getSubjectPublicKeyInfo().getAlgorithm()); // 签名算法标识等于颁发者证书的密钥算法标识
+		AlgorithmIdentifier signAlgo = getSignAlgo(issuer.getSubjectPublicKeyInfo().getAlgorithm());
+		tbsGen.setSignature(signAlgo); // 签名算法标识等于颁发者证书的密钥算法标识
 		TBSCertificate tbs = tbsGen.generateTBSCertificate();
 		return assembleCert(tbs, issuer.getSubjectPublicKeyInfo(), issuerPrivateKey);
 	}

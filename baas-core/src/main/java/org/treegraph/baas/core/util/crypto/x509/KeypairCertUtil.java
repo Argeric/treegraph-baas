@@ -57,7 +57,7 @@ public class KeypairCertUtil {
 			if(parentKeypair != null) {
 				log.info("buildKeypairCert---->333, isGRpcCert:{}", isGRpcCert);
 				PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(subject), keyPair.getPublic(),
-						keyPair.getPrivate(), Lists.newArrayList("101.200.183.108"));
+						keyPair.getPrivate(), Lists.newArrayList());
 				csrStr = CertUtil.csrToPem(csr);
 				if (algo.equals(ECC.getCode())
 						|| isGRpcCert

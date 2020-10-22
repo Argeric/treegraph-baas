@@ -144,8 +144,7 @@ public class CertUtil {
 		BcX509ExtensionUtils extUtils = new BcX509ExtensionUtils();
 		ExtensionsGenerator extensionsGenerator = new ExtensionsGenerator();
 		extensionsGenerator.addExtension(Extension.basicConstraints, true, new BasicConstraints(isCACert)); // entity cert
-		extensionsGenerator.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature));
-		extensionsGenerator.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.keyCertSign));
+		extensionsGenerator.addExtension(Extension.keyUsage, true, new KeyUsage(KeyUsage.digitalSignature|KeyUsage.keyCertSign));
 		extensionsGenerator.addExtension(Extension.authorityKeyIdentifier, false,
 				extUtils.createAuthorityKeyIdentifier(issuer)); // 授权密钥标识
 		extensionsGenerator.addExtension(Extension.subjectKeyIdentifier, false,

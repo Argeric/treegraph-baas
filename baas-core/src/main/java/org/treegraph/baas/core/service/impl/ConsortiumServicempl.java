@@ -26,7 +26,6 @@ import static org.treegraph.baas.core.constant.MonitorConstant.DEFAULT_HOST_WEB_
 import static org.treegraph.baas.core.constant.SplitterConstant.FILE_SEP;
 import static org.treegraph.baas.core.constant.SplitterConstant.LINE_SEP;
 import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
-import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
 import static org.treegraph.baas.core.util.ConfluxUtils.toIpAtPort;
 import static org.treegraph.baas.core.util.DateTimeUtils.FORMAT_yyyyMMddHHmmss;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFromBase64;
@@ -536,7 +535,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			String ecPri = StringUtils.leftPad(ecKeypair.getPrivateKey().toString(16), 64, '0');
 			NodePo node = nodeKeypair.getNode();
 			String consId = node.getConsortiumId();
-			GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.getRpcKeypair(consId, consKeypair);
+			GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.geneNewRpcKeypair(consId, consKeypair, null);
 			StringBuffer scriptContent = new StringBuffer();
 			append(scriptContent, "consortium_cert = \"\"\"" + consKeypair.getCertStr() + "\"\"\"");
 			append(scriptContent, "consortium_nodes = \"\"\"" + consortiumNodes.toString() + "\"\"\"");
@@ -771,7 +770,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		// build defer request
 		KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair();
-		KeypairPo consKeypair = vaultKeypairBuildService.getNewConsortiumKeyPair(consId, rootKeypair, notAfter);
+		KeypairPo consKeypair = vaultKeypairBuildService.geneNewConsortiumKeyPair(consId, rootKeypair, notAfter);
 		CertificateDeferPo defer = buildService.buildCertificateDefer(consKeypair);
 		certificateDeferDas.createCertificateDefer(defer);
 		

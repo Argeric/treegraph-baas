@@ -108,13 +108,13 @@ public class VaultKeypairBuildService {
 			return consortiumKeypairs.get(0);
 		}
 		
-		return getNewConsortiumKeyPair(consortiumId, rootKeypair, null);
+		return geneNewConsortiumKeyPair(consortiumId, rootKeypair, null);
 	}
 	
-	public KeypairPo getNewConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair,
+	public KeypairPo geneNewConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair,
 			Date lastCertExpireDate) {
 		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(ALGO_CONS, SUBJECT_CONS_CERT, lastCertExpireDate,
-				ALGO_CONS, rootKeypair);
+				rootKeypair);
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		return KeypairPo.builder()
@@ -174,9 +174,10 @@ public class VaultKeypairBuildService {
 		return NodeKeypairBo.builder().keypair(keypair).nodeKey(nodeKey).node(node).build();
 	}
 	
-	public GRpcKeypairCertBo getRpcKeypair(String consortiumId, KeypairPo consKeypair) throws Exception {
-		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(ALGO_RPC, SUBJECT_RPC_CERT, new Date(), 
-				 ALGO_CONS, consKeypair);
+	public GRpcKeypairCertBo geneNewRpcKeypair(String consortiumId, KeypairPo consKeypair, Date lastCertExpireDate)
+			throws Exception {
+		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(ALGO_RPC, SUBJECT_RPC_CERT, lastCertExpireDate,
+				consKeypair);
 		String rpcCert = keypairCert.getCertStr();
 		String rpcPriv = privateKeyToPem(privateKeyFromBase64(ALGO_RPC, keypairCert.getPrivateKey()));
 		log.info("getGrpcKeypair grpcCert:{},grpcPriv:{}", rpcCert, rpcPriv);

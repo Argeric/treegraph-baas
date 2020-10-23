@@ -240,18 +240,11 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 	}
 	
 	public String sendRawTransaction(String consId, String nodeId, String hexEncoded) {
-		GrpcWeb3j cfx = null;
-		try {
-			GRpcParaBo rpcPara = getGRpcParas(consId, nodeId);
-			cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
-					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
-		} catch(Exception e) {
-			log.error("[get sendRawTransaction]grpcWeb3j init,error:", e);
-			return null;
-		}
-		
 		String txResult = null;
 		try {
+			GRpcParaBo rpcPara = getGRpcParas(consId, nodeId);
+			GrpcWeb3j cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
+					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
 			txResult = cfx.sendRawTransaction(hexEncoded);
 		} catch(Exception e) {
 			log.error("[get sendRawTransaction]error:", e);
@@ -275,7 +268,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consId, null);
 		String serverCertFile = consKeypair.getCertStr();
 		String serverKeyFile = privateKeyToPem(privateKeyFromBase64(ALGO_CONS, consKeypair.getPrivateKey()));
-		GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.getRpcKeypair(consId, consKeypair);
+		GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.geneNewRpcKeypair(consId, consKeypair, null);
 		
 		// write to host
 		String nodeCertPath = MessageFormat.format(NODE_CERT_Path, consId, nodeId);

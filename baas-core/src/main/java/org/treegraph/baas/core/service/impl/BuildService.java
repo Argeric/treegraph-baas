@@ -1,8 +1,5 @@
 package org.treegraph.baas.core.service.impl;
 
-import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
-import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
-
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -256,7 +253,6 @@ public class BuildService {
 		List<NodeKeypairBo> existDbNodeKeypairs = existNodes.stream().map(
 				item -> vaultKeypairBuildService.getNodeKeypairBo(consId, item))
 				.collect(Collectors.toList());
-		KeypairPo consKeyPair = vaultKeypairBuildService.getConsortiumKeyPair(consId, null);
 		List<NodeKeypairBo> toAddNodeKeypairs = toAddNodes.stream().map(item -> {
 				NodeKeypairBo nodeKeypair = vaultKeypairBuildService.getNodeKeypairBo(consId, item);
 				nodeKeypair.getNode().setMembershipStatus(MembershipStatus.ADD_START.getCode());

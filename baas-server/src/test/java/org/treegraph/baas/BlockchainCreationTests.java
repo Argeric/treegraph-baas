@@ -366,7 +366,7 @@ public class BlockchainCreationTests {
 			String transactionResult = rpcService.sendRawTransaction(node.getConsortiumId(), node.getId(),
 					transactionSign);
 			currentNonce = currentNonce.add(BigInteger.ONE);
-			log.info("[step--->testRechargeGenesis]nonce--->{}, transactionResult--->{}", currentNonce, transactionResult);
+			log.info("[step--->testRechargeGenesis]nonce--->{}, transactionSign->{},transactionResult--->{}", currentNonce, transactionSign, transactionResult);
 			Assert.assertTrue("[step--->testRechargeGenesis]null transactionResult", transactionResult != null);
 			
 //			BigInteger epochNum = rpcService.getBftEpochNumber(node.getConsortiumId(), node.getId());

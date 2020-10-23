@@ -55,6 +55,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import conflux.web3j.grpc.GrpcWeb3j;
+import conflux.web3j.response.Status;
 import jodd.io.FileUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -245,6 +246,8 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 			GRpcParaBo rpcPara = getGRpcParas(consId, nodeId);
 			GrpcWeb3j cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
 					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
+			Status status = cfx.getStatus();
+			log.info("[get sendRawTransaction]status:{}", JSON.toJSONString(status));
 			txResult = cfx.sendRawTransaction(hexEncoded);
 		} catch(Exception e) {
 			log.error("[get sendRawTransaction]error:", e);

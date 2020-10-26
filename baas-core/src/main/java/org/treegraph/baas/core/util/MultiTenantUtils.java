@@ -2,7 +2,7 @@ package org.treegraph.baas.core.util;
 
 import static org.treegraph.baas.core.constant.CharacterConstant.BLANK;
 import static org.treegraph.baas.core.constant.CharacterConstant.DOT;
-import static org.treegraph.baas.core.constant.CharacterConstant.OPEN_BRAKET;
+import static org.treegraph.baas.core.constant.CharacterConstant.OPEN_BRACKET;
 import static org.treegraph.baas.core.constant.CharacterConstant.UNDERSCORE;
 
 import java.util.ArrayDeque;
@@ -136,7 +136,7 @@ public class MultiTenantUtils {
                 continue;
             }
             if (fromStartNum > 0) {
-                if (nextElement.startsWith(OPEN_BRAKET)) {
+                if (nextElement.startsWith(OPEN_BRACKET)) {
                     fromStartNum = 0;
                 } else if (++fromStartNum > 2) {
                     fromStartNum = 0;

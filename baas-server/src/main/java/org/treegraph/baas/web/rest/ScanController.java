@@ -20,7 +20,7 @@ import io.swagger.annotations.ApiOperation;
  * @version 1.0
  */
 @RestController
-@Api(tags = "scan模块", description = "scan管理")
+@Api(tags = "scan模块")
 public class ScanController {
 	
     @Resource
@@ -49,9 +49,9 @@ public class ScanController {
 			"/contract/contract/delete"
 	})
 	@ApiOperation("scan请求转发")
-	public Object listBlock(HttpServletRequest request, @RequestBody Map<String, Map<String, String>> requestParams) throws Exception {
+	public Object listBlock(HttpServletRequest request, @RequestBody Map<String, Map<String, String>> requestParams) {
 		Map<String, String> selfParams = requestParams.get("self");
-		String chainId = (String)selfParams.get("blockchainId");
+		String chainId = selfParams.get("blockchainId");
 		
 		String requestUri = request.getRequestURI().replace("/"+chainId, "");
 		String scanUri = requestUri.startsWith("/scan") ? (uriScan + requestUri.replaceFirst("scan", "api"))

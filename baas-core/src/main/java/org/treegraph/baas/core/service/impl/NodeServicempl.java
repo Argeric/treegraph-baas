@@ -31,7 +31,7 @@ import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
 import org.treegraph.baas.core.enums.NodeEnum.Status;
 import org.treegraph.baas.core.exception.AlertException;
-import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
+import org.treegraph.baas.core.heartbeat.impl.HeartbeatListener;
 import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.service.NodeService;
 import org.treegraph.baas.core.service.bo.MembershipChangeBo;
@@ -76,7 +76,7 @@ public class NodeServicempl implements NodeService {
 				.collect(Collectors.toMap(BlockChainPo::getId, BlockChainPo::getBlockchainName));
     	
     	List<NodeInfo> nodeInfos = nodeList.stream().map(item -> {
-			Status nodeStatus = HeartbeatLinstener.getInstance().getNodeStatus(item.getConsortiumId(), item.getId());
+			Status nodeStatus = HeartbeatListener.getInstance().getNodeStatus(item.getConsortiumId(), item.getId());
 			
 			return NodeInfo.builder()
 					.id(item.getId())
@@ -106,7 +106,7 @@ public class NodeServicempl implements NodeService {
 				.orElseThrow(() -> new AlertException("consortium.not.found"));
 		BlockChainPo blockchain = blockchainDas.findById(node.getBlockchainId())
 				.orElseThrow(() -> new AlertException("blockchain.not.found"));
-		Status nodeStatus = HeartbeatLinstener.getInstance().getNodeStatus(node.getConsortiumId(), node.getId());
+		Status nodeStatus = HeartbeatListener.getInstance().getNodeStatus(node.getConsortiumId(), node.getId());
 		String logMonitorPortStr = nodeCustomizedConfigDas.findPropertyValueByName(node.getConsortiumId(), node.getId(),
 				ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT);
 		int logMonitorPort = Integer.parseInt(logMonitorPortStr);
@@ -131,7 +131,7 @@ public class NodeServicempl implements NodeService {
 
 	public boolean modifyNode(ModifyNodeRequest req) {
 		NodePo node = nodeDas.findById(req.getId()).orElseThrow(() -> new AlertException("node.not.found"));
-		Assert.isTrue(!NodeEnum.Status.isRuning(node.getStatus()),
+		Assert.isTrue(!NodeEnum.Status.isRunning(node.getStatus()),
 				"节点在运行中或部署中，不可修改[" + req.getIp() + ":" + req.getPort() + "]");
 		
 		NodePo nodePo = NodePo.builder().id(req.getId())

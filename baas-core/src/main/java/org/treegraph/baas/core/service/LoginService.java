@@ -11,5 +11,5 @@ public interface LoginService {
 
 	LoginResponse login(String accountNo, String password, HttpServletRequest request);
 	
-	List<AuthInfo> getAuthInfos(String userId);
+	List<AuthInfo> getAuthInfo(String userId);
 }

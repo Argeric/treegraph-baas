@@ -65,9 +65,9 @@ public class ConsortiumDasImpl implements ConsortiumDas{
 		return consortiumPoMapper.countByExample(example);
 	}
 	
-	public int createConsortium(ConsortiumPo cons) {
-		return consortiumPoMapper.insert(cons);
-	}
+	public void createConsortium(ConsortiumPo cons) {
+        consortiumPoMapper.insert(cons);
+    }
 	
 	public int modifyCons(ConsortiumPo cons){
 		return consortiumPoMapper.updateByPrimaryKeySelective(cons);

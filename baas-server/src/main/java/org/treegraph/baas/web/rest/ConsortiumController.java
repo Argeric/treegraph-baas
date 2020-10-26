@@ -40,12 +40,12 @@ import lombok.AllArgsConstructor;
  * @version 1.0
  */
 @RestController
-@Api(tags = "联盟模块", description = "联盟管理")
+@Api(tags = "联盟模块")
 @RequestMapping("/cons")
 @AllArgsConstructor
 public class ConsortiumController {
 
-	private ConsortiumService consortiumService;
+	private final ConsortiumService consortiumService;
 
 	@PostMapping("/list")
 	@ApiOperation("联盟列表")
@@ -86,16 +86,16 @@ public class ConsortiumController {
 	@PostMapping("/del")
 	@ApiOperation("删除联盟")
 	public BaasResult<Boolean> deleteCons(@RequestBody DeleteConsRequest deleteConsRequest) {
-		boolean succFlag = consortiumService.deleteCons(deleteConsRequest);
-		return BaasResult.success(succFlag);
+		boolean successFlag = consortiumService.deleteCons(deleteConsRequest);
+		return BaasResult.success(successFlag);
 	}
 	
 	@PostMapping("/admin/create")
 	@ApiOperation("创建联盟管理员")
 	public BaasResult<Boolean> createConsAdmin(@RequestBody CreateConsAdminRequest createConsAdminRequest) {
 		checkCreateConsAndAdmin();
-		boolean succFlag = consortiumService.createConsAdmin(createConsAdminRequest);
-		return BaasResult.success(succFlag);
+		boolean successFlag = consortiumService.createConsAdmin(createConsAdminRequest);
+		return BaasResult.success(successFlag);
 	}
 	
 	@PostMapping("/blockchain/create")
@@ -110,8 +110,8 @@ public class ConsortiumController {
 	@ApiOperation("添加节点")
 	public BaasResult<Boolean> addNodes(@RequestBody AddNodesRequest addNodesRequest) throws Exception {
 		checkCreateBlockchainAndNode(addNodesRequest.getConsId());
-		boolean succFlag = consortiumService.addNodes(addNodesRequest);
-		return BaasResult.success(succFlag);
+		boolean successFlag = consortiumService.addNodes(addNodesRequest);
+		return BaasResult.success(successFlag);
 	}
 	
 	@LogSkip

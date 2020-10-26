@@ -36,66 +36,32 @@ spring:
     time-between-eviction-runs-millis: 60000
     min-evictable-idle-time-millis: 300000
     test-on-borrow: true
-  redis:
-    host: ${redis.host}
-    port: ${redis.port}    
-    password: ${redis.password}
-    database: ${redis.database}        
-  kafka:
-    bootstrap-servers: ${kafka.brokers}  
-    consumer:
-      group-id: ${kafka.consumer.groupId}
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      enable.auto.commit: true
-      auto.commit.interval.ms: 1000
-      session.timeout.ms: 15000 
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer 
-  mail:
-    host: smtp.exmail.qq.com
-    username: footstone.crm@mljr.com
-    password: Footstone_321  
-  profiles: 
-    active: ${profile.name}
         
 security:
   basic:
     enabled: false
+
+rest:
+  httpclient:
+    connection-request-timeout: 10000
+    connect-timeout: 1000
+    read-timeout: 1000
+
+logging:
+  level:
+    org.treegraph.baas.core.mapper.primary: DEBUG
     
 mybatis:
   configuration:
     cache-enabled: false
     map-underscore-to-camel-case: true
-#  mapper-locations: classpath:mapper/*.xml
-#  type-aliases-package: org.treegraph.baas.core.mapper
+
 pagehelper:
   helperDialect: mysql
   reasonable: true
   rowboundsWithCount: true
   offsetAsPageNum: true
   supportMethodsArguments: false  
-
-rest:
-  httpclient:
-    connection-request-timeout: 10000
-    connect-timeout: 1000
-    read-timeout: 1000          
-
-crm:
-  job:
-    adminAddresses: ${url.crm.job} 
-    executorAppName: mljr-repaytoolkit
-    executorIp:
-    executorPort: ${port.crm.job}
-    executorLogPath: /opt/data/logs/mljr-repaytoolkit/jobhandler
-    executorLogRetentionDays: 30  
-    
-topic:
-  kafka:
-    lyqcFinAccountNotify: ${topic.lyqcFinAccountNotify} 
-    lyqcFinAccountCallBack: ${topic.lyqcFinAccountCallBack}
 
 data-scope:
   globalMethod:
@@ -104,7 +70,3 @@ data-scope:
     UserInvite: all
     UserLoginToken: all
     UserOperLog: all
-
-logging:
-    level:
-      org.treegraph.baas.core.mapper.primary: DEBUG

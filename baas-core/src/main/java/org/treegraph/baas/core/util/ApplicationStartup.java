@@ -20,7 +20,7 @@ import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
-import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
+import org.treegraph.baas.core.heartbeat.impl.HeartbeatListener;
 import org.treegraph.baas.core.task.CheckMembershipChangeTimerTask;
 
 import com.google.common.collect.Lists;
@@ -48,8 +48,8 @@ public class ApplicationStartup implements ApplicationListener<ContextRefreshedE
 				.collect(Collectors.toMap(NodeCustomizedConfigPo::getNodeId, item -> Integer.parseInt(item.getPropertyValue())));
 		
 		// register nodes
-		HeartbeatLinstener heartbeatListener = HeartbeatLinstener.getInstance();
-		nodes.stream().forEach(node -> {
+		HeartbeatListener heartbeatListener = HeartbeatListener.getInstance();
+		nodes.forEach(node -> {
 			if(!heartbeatListener.isNodeValid(node.getConsortiumId(), node.getId())){
 				Heartbeat nodeInfo = Heartbeat.builder()
 						.id(node.getId())
@@ -61,12 +61,12 @@ public class ApplicationStartup implements ApplicationListener<ContextRefreshedE
 		
 		// get uncompleted membership change
 		MembershipChangeDas membershipChangeDas = ac.getBean(MembershipChangeDas.class);
-		List<MembershipChangePo> membershipChangs = membershipChangeDas.getMembershipChangeByStatus(
+		List<MembershipChangePo> membershipChanges = membershipChangeDas.getMembershipChangeByStatus(
 				Lists.newArrayList(MembershipEnum.Status.LAUNCH_CHECK_THREAD_SUCCESS.getCode()));
-		if(CollectionUtils.isEmpty(membershipChangs)) return;
-		membershipChangs.stream().forEach(item -> {
-			int intevalSec = LocalDateTime.now().getSecond() - item.getUpdateTime().getSecond();
-			int delayTimeSec = intevalSec >= 60 ? 0 : intevalSec;
+		if(CollectionUtils.isEmpty(membershipChanges)) return;
+		membershipChanges.forEach(item -> {
+			int intervalSec = LocalDateTime.now().getSecond() - item.getUpdateTime().getSecond();
+			int delayTimeSec = intervalSec >= 60 ? 0 : intervalSec;
 			BizTimer.DELAY_TIMER.newTimeout(new CheckMembershipChangeTimerTask(item.getId()), delayTimeSec, TimeUnit.SECONDS);});
 		
 		// init SSL

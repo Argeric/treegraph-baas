@@ -35,16 +35,16 @@ public class CertificateDeferDasImpl implements CertificateDeferDas {
 		return certificateDeferPoMapper.selectByExample(example);
 	}
 	
-	public int createCertificateDefer(CertificateDeferPo defer) {
-		return certificateDeferPoMapper.insert(defer);
+	public void createCertificateDefer(CertificateDeferPo defer) {
+        certificateDeferPoMapper.insert(defer);
+    }
+	
+	public void modifyCertificateDefer(CertificateDeferPo defer){
+		certificateDeferPoMapper.updateByPrimaryKeySelective(defer);
 	}
 	
-	public int modifyCertificateDefer(CertificateDeferPo defer){
-		return certificateDeferPoMapper.updateByPrimaryKeySelective(defer);
-	}
-	
-	public boolean modifyCertificateDefer(CertificateDeferPo defer, List<Long> keypairIds, Integer deleteFlag,
-			KeypairPo newKeypair) {
+	public void modifyCertificateDefer(CertificateDeferPo defer, List<Long> keypairIds, Integer deleteFlag,
+									   KeypairPo newKeypair) {
 		boolean isSuccess = Boolean.TRUE;
 		isSuccess = isSuccess && certificateDeferPoMapper.updateByPrimaryKeySelective(defer) > 0;
 		
@@ -56,6 +56,5 @@ public class CertificateDeferDasImpl implements CertificateDeferDas {
 		}
 		
 		isSuccess = isSuccess && keypairPoMapper.insert(newKeypair) > 0;
-		return isSuccess;
 	}
 }

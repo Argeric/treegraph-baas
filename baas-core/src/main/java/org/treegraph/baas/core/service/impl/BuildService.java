@@ -40,7 +40,7 @@ import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.exception.AlertException;
-import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
+import org.treegraph.baas.core.heartbeat.impl.HeartbeatListener;
 import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.service.bo.MembershipChangeBo;
 import org.treegraph.baas.core.service.bo.OrgBo;
@@ -277,7 +277,7 @@ public class BuildService {
 		
 		// record pre-bftEpochNumber、committeeNodeIds for this add/delete nodes request
 		NodeKeypairBo proposerNodeKeypair = committeeNodeKeypairs.stream()
-				.filter(item -> HeartbeatEnum.Status.GREEN == HeartbeatLinstener.getInstance()
+				.filter(item -> HeartbeatEnum.Status.GREEN == HeartbeatListener.getInstance()
 						.getNode(item.getNode().getConsortiumId(), item.getNode().getId()).getStatus())
 				.findFirst().orElseThrow(() -> new AlertException("alive.proposer.node.not.found"));
 		NodePo proposerNode = proposerNodeKeypair.getNode();

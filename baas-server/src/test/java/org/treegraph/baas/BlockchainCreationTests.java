@@ -70,7 +70,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BlockchainCreationTests {
 	
-	private static boolean initialized = false; 
+	private static final boolean initialized = false;
 	
 	private static MockMvc mockMvc;
 	
@@ -106,25 +106,25 @@ public class BlockchainCreationTests {
 	private static final String account = "sys-admin";
 	private static final String password = "123456";
 	// create consortium
-	private static final String name = "testunit_联盟名称";
-	private static final String remark = "testunit_联盟描述";
-	private static final String contact = "testunit_联盟联系人姓名";
-	private static final String phone = "testunit_联盟联系人电话";
-	private static final String email = "testunit_联盟联系人邮箱";
+	private static final String name = "unittest_联盟名称";
+	private static final String remark = "unittest_联盟描述";
+	private static final String contact = "unittest_联盟联系人姓名";
+	private static final String phone = "unittest_联盟联系人电话";
+	private static final String email = "unittest_联盟联系人邮箱";
 	// create consortium admin
-	public static final String userId = null;
-	private static final String adminAccount = "testunit_联盟管理员账号";
-	private static final String adminName = "testunit_联盟管理员姓名";
-	private static final String adminEmail = "testunit_联盟管理员邮箱";
-	private static final String adminPhone = "testunit_联盟管理员电话";
-	private static final String adminPwd = "testunit_联盟管理员密钥";
-	private static final String adminOrg = "testunit_联盟管理员组织";
+	//public static final String userId = null;
+	private static final String adminAccount = "unittest_联盟管理员账号";
+	private static final String adminName = "unittest_联盟管理员姓名";
+	private static final String adminEmail = "unittest_联盟管理员邮箱";
+	private static final String adminPhone = "unittest_联盟管理员电话";
+	private static final String adminPwd = "unittest_联盟管理员密钥";
+	private static final String adminOrg = "unittest_联盟管理员组织";
 	// create blockchain
-	private static final String blockchainName = "testunit_区块链名称";
-	private static final String blockchainAlertEmail = "testunit_区块链报警邮箱";
+	private static final String blockchainName = "unittest_区块链名称";
+	private static final String blockchainAlertEmail = "unittest_区块链报警邮箱";
 	// add node
 	private static final String nodeIp = "101.200.183.108";
-	private static final String nodeOrg = "testunit_节点组织";
+	private static final String nodeOrg = "unittest_节点组织";
 	private static final String nodePort_1 = "32323";
 	private static final String nodePort_2 = "32324";
 	private static final String nodePort_3 = "32325";
@@ -151,7 +151,7 @@ public class BlockchainCreationTests {
 	}
 	
 	//=====================================================================================================================
-	// constract
+	// construct
 	//=====================================================================================================================
 	@Test
 	@Order(1)
@@ -222,9 +222,9 @@ public class BlockchainCreationTests {
 		.andReturn();
 		BaasResult<Boolean> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
 				new TypeReference<BaasResult<Boolean>>() {});
-		Boolean succFlag = baasResult.getData();
-		log.info("[step--->testCreateConsortiumAdmin]succFlag--->{}", succFlag);
-		Assert.assertTrue("[step--->testCreateConsortiumAdmin]", succFlag != null && succFlag);
+		Boolean successFlag = baasResult.getData();
+		log.info("[step--->testCreateConsortiumAdmin]successFlag--->{}", successFlag);
+		Assert.assertTrue("[step--->testCreateConsortiumAdmin]", successFlag != null && successFlag);
 	}
 	
 	@Test
@@ -251,8 +251,8 @@ public class BlockchainCreationTests {
 	
 	@Test
 	@Order(5)
-	public void testAddNodesBeforeLanchBlockchain() throws Exception {
-		log.info("[\nstep--->testAddNodesBeforeLanchBlockchain]=====================================================================================================================");
+	public void testAddNodesBeforeLaunchBlockchain() throws Exception {
+		log.info("[\nstep--->testAddNodesBeforeLaunchBlockchain]=====================================================================================================================");
 		NodeInfo node1 = NodeInfo.builder()
 				.ip(nodeIp).port(nodePort_1).org(nodeOrg).build();
 		NodeInfo node2 = NodeInfo.builder()
@@ -275,9 +275,9 @@ public class BlockchainCreationTests {
 		.andReturn();
 		BaasResult<Boolean> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
 				new TypeReference<BaasResult<Boolean>>() {});
-		Boolean succFlag = baasResult.getData();
-		log.info("[step--->testAddNodesBeforeLanchBlockchain]succFlag--->{}", succFlag);
-		Assert.assertTrue("[step--->testAddNodesBeforeLanchBlockchain]", succFlag != null && succFlag);
+		Boolean successFlag = baasResult.getData();
+		log.info("[step--->testAddNodesBeforeLaunchBlockchain]successFlag--->{}", successFlag);
+		Assert.assertTrue("[step--->testAddNodesBeforeLaunchBlockchain]", successFlag != null && successFlag);
 	}
 	
 	@Test
@@ -302,15 +302,16 @@ public class BlockchainCreationTests {
 		FileUtil.writeBytes(dirCreateBlockchain + "/deploy.zip", content);
 		FileUtils.unZip(new File(dirCreateBlockchain + "/deploy.zip"),
 				dirCreateBlockchain);
-		log.info("[step--->testDownloadScript]len--->{}", content == null ? 0 : content.length);
-		Assert.assertTrue("[step--->testDownloadScript]", content != null && content.length > 0);
+		log.info("[step--->testDownloadScript]len--->{}", content.length);
+		Assert.assertTrue("[step--->testDownloadScript]", content.length > 0);
 	}
 	
 	@Test
 	@Order(7)
-	public void testLanchBlockchain() throws IOException, InterruptedException {
-		log.info("[\nstep--->testLanchBlockchain]=====================================================================================================================");
+	public void testLaunchBlockchain() throws IOException, InterruptedException {
+		log.info("[\nstep--->testLaunchBlockchain]=====================================================================================================================");
         File[] folders = new File(dirCreateBlockchain).listFiles();
+		Assert.assertNotNull("[step--->testDownloadScript]folders is null", folders);
         for (File folder : folders){
         	if(folder.isFile()) continue;
 			ProcessBuilder builder = new ProcessBuilder(blockchainBinaryPath, "--customized-config",
@@ -320,10 +321,10 @@ public class BlockchainCreationTests {
 			builder.redirectOutput(new File(folder + File.separator + "stdout"));
 			processes.add(builder.start());
 			TimeUnit.SECONDS.sleep(5);
-			log.info("[step--->testLanchBlockchain]start node--->{}", folder.getName());
+			log.info("[step--->testLaunchBlockchain]start node--->{}", folder.getName());
         }
         TimeUnit.SECONDS.sleep(60);
-        log.info("[step--->testLanchBlockchain]start blockchain completed!");
+        log.info("[step--->testLaunchBlockchain]start blockchain completed!");
 	}
 	
 	@Test
@@ -341,7 +342,7 @@ public class BlockchainCreationTests {
 				.andReturn();
 		BaasResult<ListNodeResponse> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
 				new TypeReference<BaasResult<ListNodeResponse>>() {});
-		nodeIds = baasResult.getData().getList().stream().map(item -> item.getId())
+		nodeIds = baasResult.getData().getList().stream().map(NodeInfo::getId)
 				.collect(Collectors.toList());
 		log.info("[step--->testRechargeGenesis]list nodes--->{}", JSON.toJSONString(nodeIds));
 		Assert.assertTrue("[step--->testRechargeGenesis]node not found", CollectionUtils.isNotEmpty(nodeIds));
@@ -367,8 +368,8 @@ public class BlockchainCreationTests {
 					transactionSign);
 			currentNonce = currentNonce.add(BigInteger.ONE);
 			log.info("[step--->testRechargeGenesis]nonce--->{}, transactionSign->{},transactionResult--->{}", currentNonce, transactionSign, transactionResult);
-			Assert.assertTrue("[step--->testRechargeGenesis]null transactionResult", transactionResult != null);
-			
+			Assert.assertNotNull("[step--->testRechargeGenesis]null transactionResult", transactionResult);
+
 //			BigInteger epochNum = rpcService.getBftEpochNumber(node.getConsortiumId(), node.getId());
 //			currentNonce = currentNonce.add(BigInteger.ONE);
 //			log.info("[step--->testRechargeGenesis]nonce--->{}, epochNum--->{}", currentNonce, epochNum);
@@ -376,7 +377,7 @@ public class BlockchainCreationTests {
     }
 	
 	//=====================================================================================================================
-	// deconstract
+	// deconstruct
 	//=====================================================================================================================
 	@Test
 	@Order(9)
@@ -413,12 +414,12 @@ public class BlockchainCreationTests {
 					.andReturn();
 			BaasResult<Boolean> baasResult1 = JSON.parseObject(mvcResult1.getResponse().getContentAsString(),
 					new TypeReference<BaasResult<Boolean>>() {});
-			Boolean succFlag = baasResult1.getData();
+			Boolean successFlag = baasResult1.getData();
 			log.info("[step--->testRemoveNode]remove node--->{}", nodeId);
-			Assert.assertTrue("[step--->testRemoveNode]remove node--->" + nodeId, succFlag != null && succFlag);
+			Assert.assertTrue("[step--->testRemoveNode]remove node--->" + nodeId, successFlag != null && successFlag);
 		}
-		boolean succBlockchainFlag = removeBlockchain();
-		log.info("[step--->testRemoveNode]succBlockchainFlag:{}, remove node completed!", succBlockchainFlag);
+		boolean successBlockchainFlag = removeBlockchain();
+		log.info("[step--->testRemoveNode]successBlockchainFlag:{}, remove node completed!", successBlockchainFlag);
 	}
 	
 	public boolean removeBlockchain() {
@@ -451,9 +452,9 @@ public class BlockchainCreationTests {
 				.andReturn();
 		BaasResult<Boolean> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
 				new TypeReference<BaasResult<Boolean>>() {});
-		Boolean succFlag = baasResult.getData();
+		Boolean successFlag = baasResult.getData();
 		log.info("[step--->testRemoveConsortiumAdmin]remove admin--->{}", userId);
-		Assert.assertTrue("[step--->testRemoveConsortiumAdmin]remove admin--->" + userId, succFlag != null && succFlag);
+		Assert.assertTrue("[step--->testRemoveConsortiumAdmin]remove admin--->" + userId, successFlag != null && successFlag);
 	}
 	
 	@Test
@@ -470,8 +471,8 @@ public class BlockchainCreationTests {
 		.andReturn();
 		BaasResult<Boolean> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
 				new TypeReference<BaasResult<Boolean>>() {});
-		Boolean succFlag = baasResult.getData();
-		log.info("[step--->testRemoveConsortium]succFlag--->{}", succFlag);
-		Assert.assertTrue("[step--->testRemoveConsortium]", succFlag != null && succFlag);
+		Boolean successFlag = baasResult.getData();
+		log.info("[step--->testRemoveConsortium]successFlag--->{}", successFlag);
+		Assert.assertTrue("[step--->testRemoveConsortium]", successFlag != null && successFlag);
 	}
 }

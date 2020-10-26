@@ -157,7 +157,7 @@ public class UserInfoDasImpl implements UserInfoDas{
     }
     
     
-	public boolean inviteUser(UserInvitePo userInvite, List<UserRoleInvitePo> userRoleInvites) {
+	public void inviteUser(UserInvitePo userInvite, List<UserRoleInvitePo> userRoleInvites) {
 		boolean succFlag = Boolean.TRUE;
 
 		succFlag = succFlag && userInvitePoMapper.insert(userInvite) > 0;
@@ -176,12 +176,11 @@ public class UserInfoDasImpl implements UserInfoDas{
 				.expire((int)expireSecs)
 				.build();
 		succFlag = succFlag && userInvitePoMapper.updateByPrimaryKeySelective(updateInviteUser) > 0;
-		
-		return succFlag;
-	}
+
+    }
 	
-	public boolean updateInviteUserById(UserInvitePo userInvite) {
-		return userInvitePoMapper.updateByPrimaryKeySelective(userInvite) > 0;
+	public void updateInviteUserById(UserInvitePo userInvite) {
+		userInvitePoMapper.updateByPrimaryKeySelective(userInvite);
 	}
     
     public boolean delUser(UserInfoPo user, List<Long> userRoleIds) {

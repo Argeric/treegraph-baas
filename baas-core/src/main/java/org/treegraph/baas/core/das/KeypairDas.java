@@ -22,7 +22,7 @@ public interface KeypairDas {
 	
 	boolean addKeypairs(List<KeypairPo> list);
 
-	boolean modifyKeypair(KeypairPo keypair);
+	//boolean modifyKeypair(KeypairPo keypair);
 	
 	boolean addKeyPairInfo(KeypairPo rootKeypair, KeypairPo consortiumKeypair, List<NodeKeypairBo> nodeKeypairBoList);
 }

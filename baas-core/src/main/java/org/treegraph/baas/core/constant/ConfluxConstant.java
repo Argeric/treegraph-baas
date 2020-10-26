@@ -4,8 +4,6 @@ public class ConfluxConstant {
 	/**
 	 * rpc 
 	 */
-    public static final String RPC_BEATHEART = "cfx_getStatus";
-    
     public static final String RPC_ADD_DELETE_NODE = "cfx_getMembershipChangeRawTransaction";
     
     public static final String RPC_ADD_DELETE_NODE_CONFIRM = "cfx_constructAndSendNewConsortiumMembershipTrans";

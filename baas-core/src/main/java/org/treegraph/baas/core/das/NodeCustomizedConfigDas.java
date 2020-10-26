@@ -9,7 +9,7 @@ public interface NodeCustomizedConfigDas {
 	
 	NodeCustomizedConfigPo findConfigByPropertyName(String consId, String nodeId, String propertyName);
 	
-	List<NodeCustomizedConfigPo> findConfigByPropertyName(List<String> nodeIds, String propertyName);
+	//List<NodeCustomizedConfigPo> findConfigByPropertyName(List<String> nodeIds, String propertyName);
 	
 	String findPropertyValueByName(String consId, String nodeId, String propertyName);
 	

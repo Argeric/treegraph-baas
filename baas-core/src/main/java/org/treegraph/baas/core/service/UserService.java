@@ -16,7 +16,7 @@ import org.treegraph.baas.api.dto.response.ListUserResponse;
 
 public interface UserService {
 
-	boolean createUser(CreateUserRequest req);
+	void createUser(CreateUserRequest req);
 	
 	String inviteUser(InviteUserRequest req);
 	
@@ -30,7 +30,7 @@ public interface UserService {
 	
 	boolean modifyPwd(ModifyPwdRequest modifyPwdRequest);
 	
-	boolean modifyUser(ModifyUserRequest modifyUserRequest);
+	void modifyUser(ModifyUserRequest modifyUserRequest);
 	
-	boolean unfrozenUser(UnfrozenUserRequest unfrozenUserRequest);
+	void unfrozenUser(UnfrozenUserRequest unfrozenUserRequest);
 }

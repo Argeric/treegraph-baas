@@ -22,9 +22,9 @@ public class CertificateEnum {
         FAILURE(23, "延期失败"),
         ;
 
-        private Integer code;
+        private final Integer code;
 
-        private String desc;
+        private final String desc;
 
         public static DeferStatus getByCode(int code) {
             for (DeferStatus s : DeferStatus.values()) {

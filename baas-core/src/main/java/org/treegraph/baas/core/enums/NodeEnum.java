@@ -21,7 +21,7 @@ public class NodeEnum {
         /**
          * 运行中
          */
-        RUNING(1, "运行中"),
+        RUNNING(1, "运行中"),
         
         /**
          * 异常
@@ -29,9 +29,9 @@ public class NodeEnum {
         EXCEPTION(2, "异常"),
         ;
 
-        private Integer code;
+        private final Integer code;
 
-        private String desc;
+        private final String desc;
 
         public static Status getByCode(int code) {
             for (Status s : Status.values()) {
@@ -42,8 +42,8 @@ public class NodeEnum {
             return null;
         }
         
-        public static boolean isRuning(int status) {
-            return RUNING.getCode() == status;
+        public static boolean isRunning(int status) {
+            return RUNNING.getCode() == status;
         }
     }
     
@@ -77,9 +77,9 @@ public class NodeEnum {
         REMOVE_FAILURE(34, "移除节点失败"),
         ;
 
-        private int code;
+        private final int code;
 
-        private String desc;
+        private final String desc;
 
         public static MembershipStatus getByCode(int code) {
             for (MembershipStatus s : MembershipStatus.values()) {

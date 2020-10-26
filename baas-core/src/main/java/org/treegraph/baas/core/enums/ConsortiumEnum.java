@@ -16,15 +16,15 @@ public class ConsortiumEnum {
 
         ESTABLISHING(0, "创建中"),
 
-        RUNING(1, "运行中"),
+        RUNNING(1, "运行中"),
   
-        STOPED(1, "已停止"),
+        STOPPED(1, "已停止"),
 
         ;
 
-        private Integer code;
+        private final Integer code;
 
-        private String desc;
+        private final String desc;
 
         public static Status getByCode(int code) {
             for (Status s : Status.values()) {
@@ -43,11 +43,11 @@ public class ConsortiumEnum {
     @AllArgsConstructor
     public enum EstablishStep {
     	
-    	TO_ESTAB_CONS(0, "创建联盟"),
+    	TO_ESTABLISH_CONS(0, "创建联盟"),
 
-        TO_ESTAB_CONS_ADMIN(1, "创建联盟管理员"),
+        TO_ESTABLISH_CONS_ADMIN(1, "创建联盟管理员"),
 
-        TO_ESTAB_BLOCKCHAIN(2, "创建区块链"),
+        TO_ESTABLISH_BLOCKCHAIN(2, "创建区块链"),
         
         TO_ADD_NODE(3, "添加节点"),
         
@@ -57,9 +57,9 @@ public class ConsortiumEnum {
 
         ;
 
-        private Integer code;
+        private final Integer code;
 
-        private String desc;
+        private final String desc;
 
         public static Status getByCode(int code) {
             for (Status s : Status.values()) {

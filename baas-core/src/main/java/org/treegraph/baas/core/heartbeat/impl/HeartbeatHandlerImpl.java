@@ -1,7 +1,6 @@
 package org.treegraph.baas.core.heartbeat.impl;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,21 +30,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class HeartbeatHandlerImpl implements HeartbeatHandler {
 	
-	private HeartbeatClient heartbeatClient;
+	private final HeartbeatClient heartbeatClient;
 	
-    private NodeDas nodeDas;
+    private final NodeDas nodeDas;
 	
 	@Scheduled(cron="0 0/2 * * * ?")
     public void sendHeartBeat() {
-        HeartbeatLinstener linstener = HeartbeatLinstener.getInstance();
-        Map<String, Map<String, Heartbeat>> consortiums = linstener.getNodes();
-        Iterator<Entry<String, Map<String, Heartbeat>>> consortiumIter = consortiums.entrySet().iterator();
-        
-        while(consortiumIter.hasNext()){
-        	Entry<String, Map<String, Heartbeat>> consortium = consortiumIter.next();
-        	Map<String, Heartbeat> nodes = consortium.getValue();
-        	this.sendHeartBeat(nodes);
-        }
+        HeartbeatListener listener = HeartbeatListener.getInstance();
+        Map<String, Map<String, Heartbeat>> consortiums = listener.getNodes();
+		for (Entry<String, Map<String, Heartbeat>> consortium : consortiums.entrySet()) {
+			Map<String, Heartbeat> nodes = consortium.getValue();
+			this.sendHeartBeat(nodes);
+		}
     }
 
 	public synchronized void sendHeartBeat(Map<String, Heartbeat> nodes) {
@@ -58,7 +54,7 @@ public class HeartbeatHandlerImpl implements HeartbeatHandler {
 		).collect(Collectors.toList());
 		List<Heartbeat> heartbeats = futureList.stream().map(CompletableFuture::join).collect(Collectors.toList());
 		log.debug("heartbeat--->{}", JSONObject.toJSONString(heartbeats, true));
-		heartbeats.stream().forEach(item -> nodes.put(item.getId(), item));
+		heartbeats.forEach(item -> nodes.put(item.getId(), item));
 		updateNodeStatus(heartbeats);
 	}
 	
@@ -67,7 +63,7 @@ public class HeartbeatHandlerImpl implements HeartbeatHandler {
 		List<String> yellowList = Lists.newArrayList();
 		List<String> redList = Lists.newArrayList();
 		try {
-			heartbeats.stream().forEach(item -> {
+			heartbeats.forEach(item -> {
 				if(item.getStatus() == HeartbeatEnum.Status.GREEN) {
 					greenList.add(item.getId());
 				} else if(item.getStatus() == HeartbeatEnum.Status.YELLOW) {
@@ -77,7 +73,7 @@ public class HeartbeatHandlerImpl implements HeartbeatHandler {
 				}
 			});
 			if(CollectionUtils.isNotEmpty(greenList)) {
-				nodeDas.modifyNodesStatus(greenList, NodeEnum.Status.RUNING);
+				nodeDas.modifyNodesStatus(greenList, NodeEnum.Status.RUNNING);
 			}
 			if(CollectionUtils.isNotEmpty(yellowList)) {
 				nodeDas.modifyNodesStatus(yellowList, NodeEnum.Status.EXCEPTION);

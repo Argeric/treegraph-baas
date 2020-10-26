@@ -29,7 +29,7 @@ import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
-import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
+import org.treegraph.baas.core.heartbeat.impl.HeartbeatListener;
 import org.treegraph.baas.core.mapper.primary.ConsortiumPoMapper;
 import org.treegraph.baas.core.mapper.primary.KeypairPoMapper;
 import org.treegraph.baas.core.mapper.primary.NodeKeyPoMapper;
@@ -187,10 +187,10 @@ public class NodeDasImpl implements NodeDas {
 		return succFlag;
 	}
 	
-	public boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList,
-			List<NodeCustomizedConfigPo> stepFactorConfigList, List<NodeCustomizedConfigPo> customizedConfigList,
-			MembershipChangePo membershipChange,
-			List<MembershipPo> memberships) {
+	public void addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList,
+								List<NodeCustomizedConfigPo> stepFactorConfigList, List<NodeCustomizedConfigPo> customizedConfigList,
+								MembershipChangePo membershipChange,
+								List<MembershipPo> memberships) {
 		boolean succFlag =  Boolean.TRUE;
 		// add nodes
 		List<NodePo> nodes = nodeKeypairBoList.stream().map(NodeKeypairBo::getNode).collect(Collectors.toList());
@@ -226,12 +226,11 @@ public class NodeDasImpl implements NodeDas {
 		succFlag = succFlag && membershipDas.addMembershipChange(membershipChange, memberships);
 		// add heartbeat listener
 		addHeartbeatListener(nodes, customizedConfigList);
-		
-		return succFlag;
+
 	}
 	
-	public boolean addNodesMembershipChange(List<String> nodeIds, MembershipStatus membershipStatus,
-			MembershipChangePo membershipChange, List<MembershipPo> memberships) {
+	public void addNodesMembershipChange(List<String> nodeIds, MembershipStatus membershipStatus,
+                                         MembershipChangePo membershipChange, List<MembershipPo> memberships) {
 		boolean succFlag =  Boolean.TRUE;
 		// update node membership status
 		NodePo record = NodePo.builder().membershipStatus(membershipStatus.getCode()).build();
@@ -241,9 +240,8 @@ public class NodeDasImpl implements NodeDas {
 		succFlag = succFlag &&  nodePoMapper.updateByExampleSelective(record, example) == nodeIds.size();
 		// add membershipChange and memberships
 		succFlag = succFlag && membershipDas.addMembershipChange(membershipChange, memberships);
-		
-		return succFlag;
-	}
+
+    }
 
 	public boolean modifyNode(NodePo node) {
 		return nodePoMapper.updateByPrimaryKeySelective(node) > 0;
@@ -258,8 +256,8 @@ public class NodeDasImpl implements NodeDas {
 		return nodePoMapper.updateByExampleSelective(record, example) == nodeIds.size();
 	}
 	
-	public boolean modifyNodesMembershipStatus(List<String> nodeIds, MembershipStatus membershipStatus,
-			Long membershipChangeId, MembershipEnum.Status membershipChangeStatus) {
+	public void modifyNodesMembershipStatus(List<String> nodeIds, MembershipStatus membershipStatus,
+											Long membershipChangeId, MembershipEnum.Status membershipChangeStatus) {
 		boolean succFlag = Boolean.TRUE;
 		// update node membership status
 		NodePo record = NodePo.builder().membershipStatus(membershipStatus.getCode()).build();
@@ -276,7 +274,6 @@ public class NodeDasImpl implements NodeDas {
 		// update membership change status
 		List<Long> membershipChangeIds = Lists.newArrayList(membershipChangeId);
 		succFlag = succFlag &&  membershipDas.modifyMembershipChangeStatus(membershipChangeIds, membershipChangeStatus);
-		return succFlag;
 	}
 	
 	public boolean deleteNodes(NodePo node, ConsortiumPo cons) {
@@ -302,7 +299,7 @@ public class NodeDasImpl implements NodeDas {
 	}
 
 	private void addHeartbeatListener(List<NodePo> nodes, List<NodeCustomizedConfigPo> customizedConfigList) {
-		HeartbeatLinstener heartbeatListener = HeartbeatLinstener.getInstance();
+		HeartbeatListener heartbeatListener = HeartbeatListener.getInstance();
 		Map<String, Integer> rpcHttpPortMap = customizedConfigList.stream()
 				.filter(item -> item.getPropertyName().equalsIgnoreCase(ConfluxConstant.PROPERTY_JSONRPC_PORT))
 				.collect(Collectors.toMap(NodeCustomizedConfigPo::getNodeId, item -> Integer.parseInt(item.getPropertyValue())));

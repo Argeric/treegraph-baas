@@ -8,10 +8,10 @@ import org.treegraph.baas.core.domain.KeypairPo;
 public interface CertificateDeferDas {
 	List<CertificateDeferPo> findByConsortiumId(String consId, List<Integer> statusList);
 	
-	int createCertificateDefer(CertificateDeferPo cons);
+	void createCertificateDefer(CertificateDeferPo cons);
 	
-	int modifyCertificateDefer(CertificateDeferPo defer);
+	void modifyCertificateDefer(CertificateDeferPo defer);
 	
-	boolean modifyCertificateDefer(CertificateDeferPo defer, List<Long> keypairIds, Integer deleteFlag,
-			KeypairPo newKeypair);
+	void modifyCertificateDefer(CertificateDeferPo defer, List<Long> keypairIds, Integer deleteFlag,
+								KeypairPo newKeypair);
 }

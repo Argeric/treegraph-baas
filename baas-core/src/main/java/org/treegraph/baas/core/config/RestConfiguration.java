@@ -10,6 +10,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -51,7 +52,7 @@ public class RestConfiguration {
 	final class TraceLogInterceptor implements ClientHttpRequestInterceptor {
 
 		@Override
-		public ClientHttpResponse intercept(HttpRequest request, byte[] bytes, ClientHttpRequestExecution execution)
+		public ClientHttpResponse intercept(@NotNull HttpRequest request, @NotNull byte[] bytes, ClientHttpRequestExecution execution)
 				throws IOException {
 			Long seq = IdWorker.generateId();
 			traceRequest(seq, request, bytes);
@@ -63,7 +64,7 @@ public class RestConfiguration {
 		}
 
 		private void traceRequest(Long seq, HttpRequest request, byte[] body) {
-			log.info("rest[request][seq:{}] uri:{},header:{},requestbody:{},method:{}", seq, request.getURI(),
+			log.info("rest[request][seq:{}] uri:{},header:{},requestBody:{},method:{}", seq, request.getURI(),
 					request.getHeaders().toString(), new String(body, StandardCharsets.UTF_8),
 					request.getMethodValue());
 		}
@@ -84,7 +85,7 @@ public class RestConfiguration {
 		}
 	}
 
-	final class BufferingClientHttpResponseWrapper implements ClientHttpResponse {
+	static final class BufferingClientHttpResponseWrapper implements ClientHttpResponse {
 
 		private final ClientHttpResponse response;
 		private byte[] body;

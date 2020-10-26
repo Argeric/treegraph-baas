@@ -41,8 +41,8 @@ public class JsonRpcHeartbeatClientImpl implements HeartbeatClient{
 		
 		String lastPongMd5 = heartbeat.getPong() != null ? MD5.encode(heartbeat.getPong()) : null;
 		String pong = JSON.toJSONString(statusResponse);
-		String pongMd5 = pong != null ? MD5.encode(pong) : null;
-		HeartbeatEnum.Status status = null;
+		String pongMd5 = MD5.encode(pong);
+		HeartbeatEnum.Status status;
 		if(error != null){
 			status = HeartbeatEnum.Status.RED;
 		} else{

@@ -16,7 +16,7 @@ public class X509CertConstant {
 	public static final String COMMON_NAME_CONSORTIUM_CERT= "baas.conflux-chain.org";
 	
 	public static final CertificateSignType DEFAULT_CERT_SIGN_TYPE = CryptoEnum.CertificateSignType.BC;
-	public static final int EXPIRE_CONSORTIUM_CERT_IN_DYAS = 365;
-	public static final String VAULT_ROLE_ISSUE_CERTIFICATE = "baasroot";
+	public static final int EXPIRE_CONSORTIUM_CERT_IN_DYA = 365;
+	public static final String VAULT_ROLE_ISSUE_CERTIFICATE = "baas_root";
 	public static final String VAULT_PKI_PATH = "pki_baas_" + ALGO_CONS;
 }

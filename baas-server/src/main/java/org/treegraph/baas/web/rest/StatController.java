@@ -17,12 +17,12 @@ import lombok.AllArgsConstructor;
  * @version 1.0
  */
 @RestController
-@Api(tags = "统计模块", description = "统计数据管理")
+@Api(tags = "统计模块")
 @RequestMapping("/stat")
 @AllArgsConstructor
 public class StatController {
 	
-	private StatService statService;
+	private final StatService statService;
 
 	@PostMapping("/dashboard")
 	@ApiOperation("综合数据统计")

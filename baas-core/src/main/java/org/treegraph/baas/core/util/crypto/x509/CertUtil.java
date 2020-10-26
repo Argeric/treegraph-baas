@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -36,8 +37,6 @@ import org.bouncycastle.asn1.x509.Extensions;
 import org.bouncycastle.asn1.x509.ExtensionsGenerator;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
-//import org.bouncycastle.asn1.x509.GeneralName;
-//import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.KeyUsage;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.asn1.x509.TBSCertificate;
@@ -94,7 +93,7 @@ public class CertUtil {
 		        builder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest, extensionsGenerator.generate());
 	        }
 	        
-	        ContentSigner signGen = null;
+	        ContentSigner signGen;
 	        SubjectPublicKeyInfo subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
 	        AlgorithmIdentifier signAlgo = getSignAlgo(subjectPublicKeyInfo.getAlgorithm());
 	        if (signAlgo.getAlgorithm().equals(GMObjectIdentifiers.sm2sign_with_sm3)) {
@@ -188,16 +187,14 @@ public class CertUtil {
 	
 	public static X509Certificate certFromPem(String certString) throws Exception {
 		CertificateFactory certificate_factory = CertificateFactory.getInstance("X.509");
-		InputStream is = new ByteArrayInputStream(certString.getBytes("UTF-8"));
-		X509Certificate x509certificate = (X509Certificate) certificate_factory.generateCertificate(is);
-		return x509certificate;
+		InputStream is = new ByteArrayInputStream(certString.getBytes(StandardCharsets.UTF_8));
+		return (X509Certificate) certificate_factory.generateCertificate(is);
 	}
 	
 	public static X509Certificate certFromPemFile(String pathToCert) throws Exception {
 		CertificateFactory certificate_factory = CertificateFactory.getInstance("X.509");
-		FileInputStream file_inputstream = new FileInputStream(pathToCert);
-		X509Certificate x509certificate = (X509Certificate) certificate_factory.generateCertificate(file_inputstream);
-		return x509certificate;
+		FileInputStream fileInputstream = new FileInputStream(pathToCert);
+		return (X509Certificate) certificate_factory.generateCertificate(fileInputstream);
 	}
     
     public static String csrToPem(PKCS10CertificationRequest obj) throws Exception{
@@ -209,14 +206,14 @@ public class CertUtil {
         return bos.toString();
     }
 	
-	public static AlgorithmIdentifier getSignAlgo(AlgorithmIdentifier asymAlgo) { // 根据公钥算法标识返回对应签名算法标识
-		if (asymAlgo.getAlgorithm().equals(X9ObjectIdentifiers.id_ecPublicKey)
-				&& asymAlgo.getParameters().equals(GMObjectIdentifiers.sm2p256v1)) {
+	public static AlgorithmIdentifier getSignAlgo(AlgorithmIdentifier algo) { // 根据公钥算法标识返回对应签名算法标识
+		if (algo.getAlgorithm().equals(X9ObjectIdentifiers.id_ecPublicKey)
+				&& algo.getParameters().equals(GMObjectIdentifiers.sm2p256v1)) {
 			return new AlgorithmIdentifier(GMObjectIdentifiers.sm2sign_with_sm3, DERNull.INSTANCE);
-		} else if (asymAlgo.getAlgorithm().equals(X9ObjectIdentifiers.id_ecPublicKey)
-				&& asymAlgo.getParameters().equals(SECObjectIdentifiers.secp256k1)) {
+		} else if (algo.getAlgorithm().equals(X9ObjectIdentifiers.id_ecPublicKey)
+				&& algo.getParameters().equals(SECObjectIdentifiers.secp256k1)) {
 			return new AlgorithmIdentifier(X9ObjectIdentifiers.ecdsa_with_SHA256);
-		} else if (asymAlgo.getAlgorithm().equals(PKCSObjectIdentifiers.rsaEncryption)) {
+		} else if (algo.getAlgorithm().equals(PKCSObjectIdentifiers.rsaEncryption)) {
 			return new AlgorithmIdentifier(PKCSObjectIdentifiers.sha256WithRSAEncryption, DERNull.INSTANCE);
 		} else
 			throw new IllegalArgumentException("密钥算法不支持");
@@ -232,7 +229,7 @@ public class CertUtil {
 
 	private static Certificate assembleCert(TBSCertificate tbsCertificate,
 			SubjectPublicKeyInfo issuerSubjectPublicKeyInfo, PrivateKey issuerPrivateKey) throws Exception {
-		byte[] signature = null;
+		byte[] signature;
 		if (issuerPrivateKey.getAlgorithm().equalsIgnoreCase("ECDSA"))
 			if (issuerSubjectPublicKeyInfo.getAlgorithm().getParameters().equals(GMObjectIdentifiers.sm2p256v1)) {
 				signature = SignUtil.SM2Sign(tbsCertificate.getEncoded(), issuerPrivateKey);

@@ -26,13 +26,13 @@ public interface ConsortiumPoMapper {
 
     int updateByExampleSelective(@Param("record") ConsortiumPo record, @Param("example") ConsortiumPoExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") ConsortiumPo record, @Param("example") ConsortiumPoExample example);
+    //int updateByExampleWithBLOBs(@Param("record") ConsortiumPo record, @Param("example") ConsortiumPoExample example);
 
     int updateByExample(@Param("record") ConsortiumPo record, @Param("example") ConsortiumPoExample example);
 
     int updateByPrimaryKeySelective(ConsortiumPo record);
 
-    int updateByPrimaryKeyWithBLOBs(ConsortiumPo record);
+    //int updateByPrimaryKeyWithBLOBs(ConsortiumPo record);
 
     int updateByPrimaryKey(ConsortiumPo record);
 }

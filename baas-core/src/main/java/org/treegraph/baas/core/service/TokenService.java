@@ -7,7 +7,7 @@ public interface TokenService {
 
 	UserInfoPo checkToken(String token);
 	
-	UserInvitePo checkInvitToken(String token);
+	UserInvitePo checkInviteToken(String token);
 	
 	void authPermission(String userId, String uri);
 }

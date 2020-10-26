@@ -10,8 +10,8 @@ import lombok.Getter;
 @Getter
 public class BusinessException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
-	private int               code;
-    private String            message;
+	private final int               code;
+    private final String            message;
 
     
     public BusinessException(ErrorCodeEnum code) {

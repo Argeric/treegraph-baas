@@ -78,7 +78,7 @@ public class UserServicempl implements UserService {
     
     private TokenService tokenService;
     
-	public boolean createUser(CreateUserRequest req) {
+	public void createUser(CreateUserRequest req) {
 		Optional<UserInfoPo> userInfoOp = userInfoDas.findByAccount(req.getAccount());
 		Assert.isTrue(!userInfoOp.isPresent(), "用户账号不可重复[" + req.getAccount() + "]");
 		List<Role> roles = validateRoleInfo(req.getRoles());
@@ -88,8 +88,8 @@ public class UserServicempl implements UserService {
 				.build()).collect(Collectors.toList());
 		UserInfoBo user = buildService.buildUser(req.getAccount(), req.getName(), req.getPhone(), req.getEmail(),
 				req.getPwd(), roles, orgs);
-		
-		return userInfoDas.createUser(user.getUser(), user.getUserRoles(), user.getUserOrgs());
+
+		userInfoDas.createUser(user.getUser(), user.getUserRoles(), user.getUserOrgs());
 	}
 	
 	public String inviteUser(InviteUserRequest req) {
@@ -132,7 +132,7 @@ public class UserServicempl implements UserService {
 	}
 	
 	public boolean acceptInvite(AcceptInviteRequest req) {
-		UserInvitePo userInvite = tokenService.checkInvitToken(req.getToken());
+		UserInvitePo userInvite = tokenService.checkInviteToken(req.getToken());
 		List<UserRoleInvitePo> userRoleInvites = inviteUserDas.findByInviteId(userInvite.getId());
 
 		Map<String, List<String>> roleInfoMap = userRoleInvites.stream()
@@ -261,7 +261,7 @@ public class UserServicempl implements UserService {
 		return userInfoDas.updateUser(updateUser);
 	}
 	
-	public boolean modifyUser(ModifyUserRequest req){
+	public void modifyUser(ModifyUserRequest req){
 		UserInfoPo updateUser = UserInfoPo.builder()
 				.id(req.getId())
 				.password(req.getPwd() != null ? passwordService.bcryptEncoder(req.getPwd()) : null)
@@ -307,12 +307,12 @@ public class UserServicempl implements UserService {
 				.build()).collect(Collectors.toList());
 		List<UserOrganizationPo> dbUserOrgs = userInfoDas.findUserOrgsByUserIds(Lists.newArrayList(req.getId()));
 		UserOrgBo userOrgBo = buildService.buildModifyUserOrg(dbUserOrgs, reqUserOrgs);
-		
-		return userInfoDas.modifyUser(req.getId(), updateUser, toDelUserRoleIds, toAddUserRoles,
+
+		userInfoDas.modifyUser(req.getId(), updateUser, toDelUserRoleIds, toAddUserRoles,
 				userOrgBo.getToDelUserOrgIds(), userOrgBo.getToAddUserOrgs());
 	}
 	
-    public boolean unfrozenUser(UnfrozenUserRequest unfrozenUserRequest) {
+    public void unfrozenUser(UnfrozenUserRequest unfrozenUserRequest) {
     	String accountNo = unfrozenUserRequest.getAccountNo();
     	UserInfoPo user = userInfoDas.findByAccount(accountNo)
 				.orElseThrow(() -> new AlertException("用户不存在"));
@@ -320,8 +320,8 @@ public class UserServicempl implements UserService {
         
 		UserInfoPo userUpdate = UserInfoPo.builder().id(user.getId()).tryTimes(0)
 				.status(UserEnum.Status.AVAILABLE.getCode()).build();
-        return userInfoDas.updateUser(userUpdate);
-    }
+		userInfoDas.updateUser(userUpdate);
+	}
 	
 	private List<Role> validateRoleInfo(List<RoleInfo> roles) {
 		if(CollectionUtils.isEmpty(roles)) {

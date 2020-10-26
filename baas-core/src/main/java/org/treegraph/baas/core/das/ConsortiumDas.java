@@ -21,7 +21,7 @@ public interface ConsortiumDas {
 	
 	long count();
 	
-	int createConsortium(ConsortiumPo cons);
+	void createConsortium(ConsortiumPo cons);
 
 	int modifyCons(ConsortiumPo cons);
 

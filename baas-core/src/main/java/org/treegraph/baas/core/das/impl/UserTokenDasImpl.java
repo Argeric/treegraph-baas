@@ -47,17 +47,17 @@ public class UserTokenDasImpl implements UserTokenDas {
 		return token;
 	}
 
-	@Override
-	public String updateByUserId(String token, String userId) {
-		return null;
-	}
-
-	@Override
-	public boolean deleteByUserId(String userId) {
-		UserLoginTokenPoExample userTokenPoExample = new UserLoginTokenPoExample();
-		userTokenPoExample.createCriteria().andUserIdEqualTo(userId);
-		return userLoginTokenPoMapper.deleteByExample(userTokenPoExample) > 0;
-	}
+//	@Override
+//	public String updateByUserId(String token, String userId) {
+//		return null;
+//	}
+//
+//	@Override
+//	public boolean deleteByUserId(String userId) {
+//		UserLoginTokenPoExample userTokenPoExample = new UserLoginTokenPoExample();
+//		userTokenPoExample.createCriteria().andUserIdEqualTo(userId);
+//		return userLoginTokenPoMapper.deleteByExample(userTokenPoExample) > 0;
+//	}
 
 	@Override
 	public UserLoginTokenPo findByUserId(String userId) {

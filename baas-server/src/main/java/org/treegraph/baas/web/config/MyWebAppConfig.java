@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.treegraph.baas.web.interceptor.LoginAuthInterceptor;
 
 @Configuration
-public class MyWebAppConfig /*extends WebMvcConfigurerAdapter*/ implements WebMvcConfigurer {
+public class MyWebAppConfig implements WebMvcConfigurer {
 	
     @Resource
     private LoginAuthInterceptor loginAuthInterceptor;
@@ -24,12 +24,12 @@ public class MyWebAppConfig /*extends WebMvcConfigurerAdapter*/ implements WebMv
                 "/blockchain/**", "/treegraph/blockchain/**",
                 "/node/**", "/treegraph/node/**"
         };
-        String[] noneedTokenAuthUrls = new String[]{
+        String[] noNeedTokenAuthUrls = new String[]{
         		"/sys/login", "/treegraph/sys/login",
         		"/user/pwd/modify", "/treegraph/user/pwd/modify",
                 "/user/invite/accept", "/treegraph/user/invite/accept"
         };
 		registry.addInterceptor(loginAuthInterceptor).addPathPatterns(needTokenAuthUrls)
-				.excludePathPatterns(noneedTokenAuthUrls);
+				.excludePathPatterns(noNeedTokenAuthUrls);
     }
 }

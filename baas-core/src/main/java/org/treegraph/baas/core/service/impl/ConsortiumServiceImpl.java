@@ -1,59 +1,12 @@
 package org.treegraph.baas.core.service.impl;
 
-import static org.treegraph.baas.core.constant.CharacterConstant.AT;
-import static org.treegraph.baas.core.constant.CharacterConstant.COLON;
-import static org.treegraph.baas.core.constant.CharacterConstant.COMMA;
-import static org.treegraph.baas.core.constant.CharacterConstant.DOT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_GRPC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSONRPC_LOCAL_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_JSONRPC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_GRPC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_LOC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_PORT_STEP_FACTOR;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_CONTAINER_NETWORK;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_CONTAINER_NETWORK_STEP_FACTOR;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT_STEP_FACTOR;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_JSONRPC_PORT_STEP;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_LOG_MONITOR_CONTAINER_NETWORK_STEP;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_LOG_MONITOR_WEB_PORT_STEP;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_MONITOR_PORT_INTERVAL;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_RPC_PORT_INTERVAL;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_SWITCH;
-import static org.treegraph.baas.core.constant.MonitorConstant.DEFAULT_CONTAINER_NETWORK;
-import static org.treegraph.baas.core.constant.MonitorConstant.DEFAULT_HOST_WEB_PORT;
-import static org.treegraph.baas.core.constant.SplitterConstant.FILE_SEP;
-import static org.treegraph.baas.core.constant.SplitterConstant.LINE_SEP;
-import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
-import static org.treegraph.baas.core.util.ConfluxUtils.toIpAtPort;
-import static org.treegraph.baas.core.util.DateTimeUtils.FORMAT_yyyyMMddHHmmss;
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFromBase64;
-
-import java.io.OutputStream;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.cert.X509Certificate;
-import java.text.MessageFormat;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.servlet.http.HttpServletResponse;
-
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.util.encoders.Base64;
@@ -61,45 +14,15 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
-import org.treegraph.baas.api.dto.ConsAdminInfo;
-import org.treegraph.baas.api.dto.ConsDetailInfo;
-import org.treegraph.baas.api.dto.ConsInfo;
-import org.treegraph.baas.api.dto.ListRequest;
-import org.treegraph.baas.api.dto.NodeInfo;
-import org.treegraph.baas.api.dto.Role;
-import org.treegraph.baas.api.dto.request.AddNodesRequest;
-import org.treegraph.baas.api.dto.request.CreateBlockchainRequest;
-import org.treegraph.baas.api.dto.request.CreateConsAdminRequest;
-import org.treegraph.baas.api.dto.request.CreateConsRequest;
-import org.treegraph.baas.api.dto.request.DeferCertificateRequest;
-import org.treegraph.baas.api.dto.request.DeleteConsRequest;
-import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
-import org.treegraph.baas.api.dto.request.ModifyConsRequest;
-import org.treegraph.baas.api.dto.request.QueryConsDetailRequest;
-import org.treegraph.baas.api.dto.request.QueryConsRequest;
+import org.treegraph.baas.api.dto.*;
+import org.treegraph.baas.api.dto.request.*;
 import org.treegraph.baas.api.dto.response.ListConsResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.constant.MonitorConstant;
-import org.treegraph.baas.core.das.BlockchainDas;
-import org.treegraph.baas.core.das.CertificateDeferDas;
-import org.treegraph.baas.core.das.ConsortiumDas;
-import org.treegraph.baas.core.das.KeypairDas;
-import org.treegraph.baas.core.das.NodeCustomizedConfigDas;
-import org.treegraph.baas.core.das.NodeDas;
-import org.treegraph.baas.core.das.RoleDas;
-import org.treegraph.baas.core.das.UserInfoDas;
+import org.treegraph.baas.core.das.*;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
-import org.treegraph.baas.core.domain.BlockChainPo;
-import org.treegraph.baas.core.domain.CertificateDeferPo;
-import org.treegraph.baas.core.domain.ConsortiumPo;
-import org.treegraph.baas.core.domain.KeypairPo;
-import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
-import org.treegraph.baas.core.domain.NodePo;
-import org.treegraph.baas.core.domain.RolePo;
-import org.treegraph.baas.core.domain.UserInfoPo;
-import org.treegraph.baas.core.domain.UserOrganizationPo;
-import org.treegraph.baas.core.domain.UserRolePo;
+import org.treegraph.baas.core.domain.*;
 import org.treegraph.baas.core.enums.BlockchainEnum;
 import org.treegraph.baas.core.enums.CertificateEnum.DeferStatus;
 import org.treegraph.baas.core.enums.ConsortiumEnum;
@@ -111,12 +34,7 @@ import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.service.ConsortiumService;
-import org.treegraph.baas.core.service.bo.CustomizedConfigBo;
-import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
-import org.treegraph.baas.core.service.bo.MembershipChangeBo;
-import org.treegraph.baas.core.service.bo.OrgBo;
-import org.treegraph.baas.core.service.bo.RoleInfoBo;
-import org.treegraph.baas.core.service.bo.UserInfoBo;
+import org.treegraph.baas.core.service.bo.*;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.DateTimeUtils;
 import org.treegraph.baas.core.util.FileUtils;
@@ -127,42 +45,54 @@ import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.treegraph.baas.core.util.crypto.x509.SignUtil;
 import org.web3j.crypto.ECKeyPair;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.google.common.base.Functions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import javax.servlet.http.HttpServletResponse;
+import java.security.PrivateKey;
+import java.security.cert.X509Certificate;
+import java.text.MessageFormat;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import static org.treegraph.baas.core.constant.CharacterConstant.*;
+import static org.treegraph.baas.core.constant.ConfluxConstant.*;
+import static org.treegraph.baas.core.constant.MonitorConstant.DEFAULT_CONTAINER_NETWORK;
+import static org.treegraph.baas.core.constant.MonitorConstant.DEFAULT_HOST_WEB_PORT;
+import static org.treegraph.baas.core.constant.SplitterConstant.FILE_SEP;
+import static org.treegraph.baas.core.constant.SplitterConstant.LINE_SEP;
+import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
+import static org.treegraph.baas.core.util.ConfluxUtils.toIpAtPort;
+import static org.treegraph.baas.core.util.DateTimeUtils.FORMAT_yyyyMMddHHmmss;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFromBase64;
 
 @Validated
 @Service
 @AllArgsConstructor
 @Slf4j
-public class ConsortiumServicempl implements ConsortiumService {
+public class ConsortiumServiceImpl implements ConsortiumService {
     
-    private ConsortiumDas consortiumDas;
+    private final ConsortiumDas consortiumDas;
     
-    private UserInfoDas userInfoDas;
+    private final UserInfoDas userInfoDas;
     
-    private RoleDas roleDas;
+    private final RoleDas roleDas;
     
-    private BlockchainDas blockchainDas;
+    private final BlockchainDas blockchainDas;
     
-    private NodeDas nodeDas;
+    private final NodeDas nodeDas;
     
-    private KeypairDas keypairDas;
+    private final KeypairDas keypairDas;
     
-    private NodeCustomizedConfigDas nodeCustomizedConfigDas;
+    private final NodeCustomizedConfigDas nodeCustomizedConfigDas;
     
-    private CertificateDeferDas certificateDeferDas;
+    private final CertificateDeferDas certificateDeferDas;
     
-    private BuildService buildService;
+    private final BuildService buildService;
     
-    private VaultKeypairBuildService vaultKeypairBuildService;
+    private final VaultKeypairBuildService vaultKeypairBuildService;
     
-    private BlockchainRpcService rpcService;
+    private final BlockchainRpcService rpcService;
     
 	public ListConsResponse listCons(ListRequest req) {
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
@@ -183,15 +113,13 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.status(item.getStatus())
 				.step(item.getEstablishStep())
 				.build()).collect(Collectors.toList());
-		
-		ListConsResponse listConsResponse = ListConsResponse.builder()
+
+		return ListConsResponse.builder()
 				.current(req.getCurrent())
 				.pageSize(req.getPageSize())
 				.total(pageInfo.getTotal())
 				.list(consInfoList)
 				.build();
-		
-		return listConsResponse;
 	}
 	
 	public List<ConsInfo> queryCons(QueryConsRequest req) {
@@ -222,7 +150,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 			String blockchainId = blockChain != null ? blockChain.getId() : null;
 			String blockchainName = blockChain != null ? blockChain.getBlockchainName() : null;
 			List<NodeInfo> nodeInfoList = Lists.newArrayList();
-			Optional.ofNullable(nodeMap.get(blockchainId)).ifPresent(nodeList -> nodeList.stream()
+			Optional.ofNullable(nodeMap.get(blockchainId)).ifPresent(nodeList -> nodeList
 					.forEach(node -> nodeInfoList.add(NodeInfo.builder().ip(node.getNodeIp())
 							.port(node.getNodePort() + "").org(node.getOrganizationName()).status(node.getStatus())
 							.createTime(DateTimeUtils.formatTime(node.getCreateTime(), FORMAT_yyyyMMddHHmmss))
@@ -253,7 +181,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.contactEmail(req.getEmail())
 				.contactPhone(req.getPhone())
 				.status(ConsortiumEnum.Status.ESTABLISHING.getCode())
-				.establishStep(ConsortiumEnum.EstablishStep.TO_ESTAB_CONS_ADMIN.getCode())
+				.establishStep(ConsortiumEnum.EstablishStep.TO_ESTABLISH_CONS_ADMIN.getCode())
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
 				.createTime(now)
 				.createBy(oper)
@@ -265,7 +193,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		return cons.getConsortiumId();
 	}
 
-	public boolean modifyCons(ModifyConsRequest req) {
+	public void modifyCons(ModifyConsRequest req) {
 		List<ConsortiumPo> consList = consortiumDas.findByName(req.getName());
 		List<ConsortiumPo> repeatNameConsList = consList.stream()
 				.filter(item -> !item.getConsortiumId().equals(req.getId())).collect(Collectors.toList());
@@ -282,9 +210,9 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.updateTime(LocalDateTime.now())
 				.updateBy(WebHelper.getUserId())
 				.build();
-		
-		return consortiumDas.modifyCons(cons) > 0;
-	}
+
+        consortiumDas.modifyCons(cons);
+    }
 
 	public boolean deleteCons(DeleteConsRequest req) {
 		ConsortiumPo cons = ConsortiumPo.builder()
@@ -301,12 +229,12 @@ public class ConsortiumServicempl implements ConsortiumService {
 		Optional<RolePo> roleOp = roleDas.findConsAdminRole(req.getConsId());
 		if (!roleOp.isPresent()) {
 			List<String> reqPermissions = UserEnum.PermissionPoint.getForConsAdmin().stream()
-					.map(item -> item.getCode()).collect(Collectors.toList());
+					.map(UserEnum.PermissionPoint::getCode).collect(Collectors.toList());
 			roleBo = buildService.buildRole(UserEnum.Role.CONSORTIUM_ADMIN.getCode(),
 					UserEnum.Role.CONSORTIUM_ADMIN.getDesc(), req.getConsId(), reqPermissions);
 		}
 		
-		String roleId = roleBo != null ? roleBo.getRole().getId() : roleOp.get().getId();
+		String roleId = roleBo != null ? roleBo.getRole().getId() : (roleOp.map(RolePo::getId).orElse(null));
 		List<UserInfoBo> userBos = req.getUsers().stream().filter(item -> item.getUserId() == null).map(item -> {
 			OrgBo orgBo = OrgBo.builder().consortiumId(req.getConsId()).organizationName(item.getOrg()).build();
 			return buildService.buildUser(item.getAccount(), item.getName(), item.getPhone(), item.getEmail(),
@@ -318,7 +246,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		List<UserRolePo> userRoles = Lists.newArrayList();
 		List<UserOrganizationPo> userOrgs = Lists.newArrayList();
 		if(CollectionUtils.isNotEmpty(userBos)) {
-			userBos.stream().forEach(item -> {
+			userBos.forEach(item -> {
 				users.add(item.getUser());
 				userRoles.addAll(item.getUserRoles());
 				userOrgs.addAll(item.getUserOrgs());
@@ -333,7 +261,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.forEach(item -> userRoles.addAll(buildService.buildUserRoles(item,
 						Lists.newArrayList(Role.builder().consId(req.getConsId()).roleId(roleId).build()))));
 		
-		ConsortiumPo cons = buildService.buildToUpdateCons(req.getConsId(), EstablishStep.TO_ESTAB_BLOCKCHAIN);
+		ConsortiumPo cons = buildService.buildToUpdateCons(req.getConsId(), EstablishStep.TO_ESTABLISH_BLOCKCHAIN);
 		
 		return userInfoDas.createConsAdmin(roleBo != null ? roleBo.getRole() : null,
 				roleBo != null ? roleBo.getRolePermissionList() : null, users, userRoles, userOrgs, cons);
@@ -351,10 +279,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 				.blockchainName(req.getName())
 				.consortiumId(req.getConsId())
 				.alarmEmail(req.getAlertEmail())
-				.consensusAlgorithm(req.getConsensus() == null ? BlockchainEnum.Consensus.TREE_GRAPH.getCode()
-						: BlockchainEnum.Consensus.getByName(req.getConsensus()).getCode())
-				.encryptAlgorithm(req.getAlgorithm() == null ? BlockchainEnum.ALGORITHM.TREE_GRAPH.getCode()
-						: BlockchainEnum.ALGORITHM.getByName(req.getConsensus()).getCode())
+				.consensusAlgorithm(BlockchainEnum.Consensus.TREE_GRAPH.getCode())
+				.encryptAlgorithm(BlockchainEnum.ALGORITHM.TREE_GRAPH.getCode())
 				.status(BlockchainEnum.Status.TO_DEPLOY.getCode())
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
 				.createTime(now)
@@ -388,14 +314,12 @@ public class ConsortiumServicempl implements ConsortiumService {
 		String consId = req.getConsId();
 		String blockchainId = req.getBlockchainId();
 		List<NodePo> existNodes = nodeDas.findByConsIdAndChainId(consId, blockchainId);
-		existNodes.stream().forEach(item -> checkExistNode(item));
+		existNodes.forEach(this::checkExistNode);
 		Map<String, NodePo> existNodeMap = existNodes.stream().collect(
 				Collectors.toMap(item -> toIpAtPort(item.getNodeIp(), item.getNodePort()), Functions.identity()));
 		Map<String, NodePo> finalStateNodeMap = Maps.newHashMap();
 		List<NodeInfo> reqNodes = req.getNodes();
-		reqNodes.stream().forEach(item -> {
-			checkToAddNode(item, existNodeMap, finalStateNodeMap);
-		});
+		reqNodes.forEach(item -> checkToAddNode(item, existNodeMap, finalStateNodeMap));
 		
 		// build
 		LocalDateTime now = LocalDateTime.now();
@@ -408,7 +332,9 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		// before download deploy scripts
 		boolean addNodeResult = Boolean.FALSE;
-		int establishStep = consortiumDas.findById(consId).get().getEstablishStep();
+		Optional<ConsortiumPo> consortiumOp = consortiumDas.findById(consId);
+		int establishStep = consortiumOp.isPresent() ? consortiumOp.get().getEstablishStep()
+				: EstablishStep.TO_ESTABLISH_CONS.getCode();
 		if(establishStep < EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
 			ConsortiumPo cons = buildService.buildToUpdateCons(consId, EstablishStep.TO_DEPLOY);
 			addNodeResult = nodeDas.addNodes(toInsertDbNodes/* exclude exist nodes */, cons,
@@ -463,13 +389,11 @@ public class ConsortiumServicempl implements ConsortiumService {
 		// download deploy.zip file
 		resp.setContentType("application/zip");
 		resp.setHeader("Content-disposition", "attachment; filename=\"deploy.zip\"");
-		ZipOutputStream zipOutputStream = new ZipOutputStream((OutputStream) resp.getOutputStream());
+		ZipOutputStream zipOutputStream = new ZipOutputStream(resp.getOutputStream());
 		for(Map.Entry<String, Map<String, String>> item : toDownloadNodeScriptMap.entrySet()){
 			String basePath = item.getKey();
 			Map<String, String> scripts = item.getValue();
-			Iterator<String> iter = scripts.keySet().iterator();
-			while(iter.hasNext()) {
-				String path = iter.next();
+			for (String path : scripts.keySet()) {
 				String content = scripts.get(path);
 				zipOutputStream.putNextEntry(new ZipEntry(basePath + FILE_SEP + path));
 				zipOutputStream.write(content.getBytes());
@@ -486,7 +410,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 	}
 
 	private Map<String, Map<String, String>> buildDeployScript(String consortiumId, List<NodePo> nodes)
-			throws Exception, NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+			throws Exception {
 		// certificate info
 		KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair();
 		KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consortiumId, rootKeypair);
@@ -501,9 +425,12 @@ public class ConsortiumServicempl implements ConsortiumService {
 			nodeKeypairBoList.add(nodeKeypairBo);
 			ECKeyPair ecKeypair = loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
 					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
-			consortiumNodes.append("cfxnode://");
-			consortiumNodes.append(StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0') 
-					+ AT + nodeKeypairBo.getNode().getNodeIp() + COLON + nodeKeypairBo.getNode().getNodePort());
+			consortiumNodes.append("cfxnode://")
+					.append(StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0'))
+					.append(AT)
+					.append(nodeKeypairBo.getNode().getNodeIp())
+					.append(COLON)
+					.append(nodeKeypairBo.getNode().getNodePort());
 			if(!node.getId().equalsIgnoreCase(nodes.get(nodes.size()-1).getId())) {
 				consortiumNodes.append(COMMA);
 			}
@@ -544,9 +471,9 @@ public class ConsortiumServicempl implements ConsortiumService {
 			append(scriptContent, "grpc_server_cert = \"\"\"" + gRpcKeypair.getCert() + "\"\"\"");
 			append(scriptContent, "grpc_server_key = \"\"\"" + gRpcKeypair.getPrivateKey() + "\"\"\"");
 			Map<String, String> configs = configMap.get(node.getId());
-			StringBuffer customizedScriptContent = buildCustomizedDeployScript(node.getId(), ecKeypair, configs);
-			Map<String, String> logMonitorScripts = buildLogMonitorScript(node.getId(), configs);
-			Map<String, String> sysMonitorScripts = buildSysMonitorScript(node.getId(), configs);
+			StringBuffer customizedScriptContent = buildCustomizedDeployScript(ecKeypair, configs);
+			Map<String, String> logMonitorScripts = buildLogMonitorScript(configs);
+			Map<String, String> sysMonitorScripts = buildSysMonitorScript(configs);
 			
 			// build script map
 			Map<String, String> scripts = Maps.newHashMap();
@@ -563,19 +490,19 @@ public class ConsortiumServicempl implements ConsortiumService {
 		return nodeScriptContentMap;
 	}
 
-	private StringBuffer buildCustomizedDeployScript(String nodeId, ECKeyPair ecKeypair, Map<String, String> configs) {
+	private StringBuffer buildCustomizedDeployScript(ECKeyPair ecKeypair, Map<String, String> configs) {
 		// node customized script content
 		StringBuffer customizedScriptContent = new StringBuffer();
 		String jsonRpcHttpPort = configs.get(PROPERTY_JSONRPC_PORT);
 		String jsonRpcLocalHttpPort = configs.get(PROPERTY_JSONRPC_LOC_PORT);
-		customizedScriptContent.append(PROPERTY_JSONRPC_PORT + " = " + jsonRpcHttpPort)
+		customizedScriptContent.append(PROPERTY_JSONRPC_PORT + " = ").append(jsonRpcHttpPort)
 				.append(LINE_SEP).append(LINE_SEP);
-		customizedScriptContent.append(PROPERTY_JSONRPC_LOC_PORT + " = " + jsonRpcLocalHttpPort)
+		customizedScriptContent.append(PROPERTY_JSONRPC_LOC_PORT + " = ").append(jsonRpcLocalHttpPort)
 				.append(LINE_SEP).append(LINE_SEP);
-		customizedScriptContent.append(PROPERTY_GRPC_PORT + "=" + ( TEST_SWITCH
-				? (Integer.parseInt(jsonRpcLocalHttpPort) + TEST_RPC_PORT_INTERVAL) : DEFAULT_GRPC_PORT))
+		customizedScriptContent.append(PROPERTY_GRPC_PORT + "=").append(TEST_SWITCH
+				? (Integer.parseInt(jsonRpcLocalHttpPort) + TEST_RPC_PORT_INTERVAL) : DEFAULT_GRPC_PORT)
 				.append(LINE_SEP).append(LINE_SEP);
-		customizedScriptContent.append("mining_author = \"" + ConfluxUtils.toAddress(ecKeypair) + "\"")
+		customizedScriptContent.append("mining_author = \"").append(ConfluxUtils.toAddress(ecKeypair)).append("\"")
 				.append(LINE_SEP).append(LINE_SEP);
 		customizedScriptContent.append("log_file = './conflux.log'")
 				.append(LINE_SEP).append(LINE_SEP);
@@ -584,7 +511,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		return customizedScriptContent;
 	}
 
-	private Map<String, String> buildLogMonitorScript(String nodeId, Map<String, String> configs) {
+	private Map<String, String> buildLogMonitorScript(Map<String, String> configs) {
 		Map<String, String> scripts = Maps.newHashMap();
 		List<String> files = Lists.newArrayList(
 				"log_monitor/start_log_monitor.sh", 
@@ -592,8 +519,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 				"log_monitor/docker-compose.yml", 
 				"log_monitor/.env"//from string with placeholder
 				);
-		files.stream().forEach(item -> {
-			String content = null;
+		files.forEach(item -> {
+			String content;
 			if(item.endsWith(".env")) {
 				String webPort = configs.get(PROPERTY_LOG_MONITOR_WEB_PORT);
 				String network = configs.get(PROPERTY_LOG_MONITOR_CONTAINER_NETWORK);
@@ -608,7 +535,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		return scripts;
 	}
 	
-	private Map<String, String> buildSysMonitorScript(String nodeId, Map<String, String> configs){
+	private Map<String, String> buildSysMonitorScript(Map<String, String> configs){
 		Map<String, String> scripts = Maps.newHashMap();
 		List<String> files = Lists.newArrayList(
 				"sys_monitor/start_sys_monitor.sh",
@@ -620,8 +547,8 @@ public class ConsortiumServicempl implements ConsortiumService {
 				"sys_monitor/grafana/data/readme.md",
 				"sys_monitor/prometheus/prometheus.yml"//from string with placeholder
 				);
-		files.stream().forEach(item -> {
-			String content = null;
+		files.forEach(item -> {
+			String content;
 			String logMonitorWebPort = configs.get(PROPERTY_LOG_MONITOR_WEB_PORT);
 			String logMonitorNetwork = configs.get(PROPERTY_LOG_MONITOR_CONTAINER_NETWORK);
 			String webPort = (Integer.parseInt(logMonitorWebPort) + TEST_MONITOR_PORT_INTERVAL) + "";
@@ -659,12 +586,9 @@ public class ConsortiumServicempl implements ConsortiumService {
 	/**
 	 * case 1. not added/delete ever can be added/deleted
 	 * case 2. nodes which are added/deleted success or fail can be repeatly added/deleted
-	 * @param item
-	 * @param existNodeMap
-	 * @param existAddSuccessNodeMap
-	 * @param existAddFailNodeMap
-	 * @param existRemoveSuccessNodeMap
-	 * @param existRemoveFailNodeMap
+	 * @param item node to check
+	 * @param existNodeMap put exist nodes
+	 * @param finalStateNodeMap put final state nodes
 	 */
 	private void checkToAddNode(NodeInfo item, Map<String, NodePo> existNodeMap,
 			Map<String, NodePo> finalStateNodeMap) {
@@ -776,7 +700,7 @@ public class ConsortiumServicempl implements ConsortiumService {
 		
 		// get membership nodes and send request
 		List<NodePo> existNodes = nodeDas.findByConsIdAndChainId(consId, req.getBlockchainId());
-		List<String> membershipNodeIds = existNodes.stream().filter(item -> buildService.isMembershipNode(item))
+		List<String> membershipNodeIds = existNodes.stream().filter(buildService::isMembershipNode)
 				.map(NodePo::getId).collect(Collectors.toList());
 		String certStr = consKeypair.getCertStr();
 		boolean isSuccess = rpcService.updateCert(consId, certStr, membershipNodeIds);

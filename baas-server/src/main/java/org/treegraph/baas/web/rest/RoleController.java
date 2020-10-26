@@ -28,12 +28,12 @@ import lombok.AllArgsConstructor;
  * @version 1.0
  */
 @RestController
-@Api(tags = "角色模块", description = "权限角色管理")
+@Api(tags = "角色模块")
 @RequestMapping("/role")
 @AllArgsConstructor
 public class RoleController {
 	
-	private RoleService roleService;
+	private final RoleService roleService;
 	
 	@PostMapping("/list")
 	@ApiOperation("角色权限列表")

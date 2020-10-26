@@ -30,12 +30,12 @@ import lombok.AllArgsConstructor;
  * @version 1.0
  */
 @RestController
-@Api(tags = "区块链模块", description = "区块链管理")
+@Api(tags = "区块链模块")
 @RequestMapping("/blockchain")
 @AllArgsConstructor
 public class BlockchainController {
 	
-	private BlockchainService blockchainService;
+	private final BlockchainService blockchainService;
 
 	@PostMapping("/list")
 	@ApiOperation("区块链列表")
@@ -75,14 +75,14 @@ public class BlockchainController {
 	@PostMapping("/stop")
 	@ApiOperation("停止区块链")
 	public BaasResult<Void> stopBlockchain(@RequestBody SwitchBlockchainStatusRequest switchBlockchainStatusRequest) {
-		blockchainService.switchBlockchainStatus(switchBlockchainStatusRequest, BlockchainEnum.Status.STOPED);
+		blockchainService.switchBlockchainStatus(switchBlockchainStatusRequest, BlockchainEnum.Status.STOPPED);
 		return BaasResult.success();
 	}
 	
 	@PostMapping("/start")
 	@ApiOperation("启动区块链")
 	public BaasResult<Void> startBlockchain(@RequestBody SwitchBlockchainStatusRequest switchBlockchainStatusRequest) {
-		blockchainService.switchBlockchainStatus(switchBlockchainStatusRequest, BlockchainEnum.Status.RUNING);
+		blockchainService.switchBlockchainStatus(switchBlockchainStatusRequest, BlockchainEnum.Status.RUNNING);
 		return BaasResult.success();
 	}
 }

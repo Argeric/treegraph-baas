@@ -24,12 +24,12 @@ import lombok.AllArgsConstructor;
  * @version 1.0
  */
 @RestController
-@Api(tags = "节点模块", description = "节点管理")
+@Api(tags = "节点模块")
 @RequestMapping("/node")
 @AllArgsConstructor
 public class NodeController {
 
-	private NodeService nodeService;
+	private final NodeService nodeService;
 
 	@PostMapping("/list")
 	@ApiOperation("节点列表")
@@ -62,7 +62,7 @@ public class NodeController {
 	@PostMapping("/del")
 	@ApiOperation("删除节点")
 	public BaasResult<Boolean> modifyNode(@RequestBody DeleteNodeRequest delNodeRequest) throws Exception {
-		boolean succFlag = nodeService.deleteNode(delNodeRequest);
-		return BaasResult.success(succFlag);
+		boolean successFlag = nodeService.deleteNode(delNodeRequest);
+		return BaasResult.success(successFlag);
 	}
 }

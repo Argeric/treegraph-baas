@@ -201,8 +201,7 @@ public class BlockchainServiceImpl implements BlockchainService {
 				.build();
 	}
 
-	public boolean downloadCert(DownloadCertRequest downloadCertRequest) {
-		return false;
+	public void downloadCert(DownloadCertRequest downloadCertRequest) {
 	}
 	
 	public boolean switchBlockchainStatus(SwitchBlockchainStatusRequest req, BlockchainEnum.Status status) {

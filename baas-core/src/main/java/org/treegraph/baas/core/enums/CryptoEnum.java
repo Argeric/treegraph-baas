@@ -16,9 +16,9 @@ public class CryptoEnum {
 
 		;
 
-		private String code;
+		private final String code;
 
-		private String desc;
+		private final String desc;
 
 		Algo(String code, String desc) {
 			this.code = code;
@@ -44,9 +44,9 @@ public class CryptoEnum {
 
 		;
 
-		private String code;
+		private final String code;
 
-		private String desc;
+		private final String desc;
 
 		Pkcs(String code, String desc) {
 			this.code = code;
@@ -74,9 +74,9 @@ public class CryptoEnum {
 
 		NODE(2, "节点类型"),;
 
-		private Integer code;
+		private final Integer code;
 
-		private String desc;
+		private final String desc;
 
 		public static KeyType getByCode(int code) {
 			for (KeyType s : KeyType.values()) {
@@ -99,9 +99,9 @@ public class CryptoEnum {
 
 		VAULT(2, "hashicorp vault"),;
 
-		private Integer code;
+		private final Integer code;
 
-		private String desc;
+		private final String desc;
 
 		public static KeyType getByCode(int code) {
 			for (KeyType s : KeyType.values()) {

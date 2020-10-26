@@ -36,14 +36,14 @@ import lombok.AllArgsConstructor;
  * @version 1.0
  */
 @RestController
-@Api(tags = "用户模块", description = "用户管理")
+@Api(tags = "用户模块")
 @RequestMapping("/user")
 @AllArgsConstructor
 public class UserController {
 
-	private UserService userService;
+	private final UserService userService;
 	
-	private LoginService loginService;
+	private final LoginService loginService;
 
 	@PostMapping("/list")
 	@ApiOperation("用户列表")
@@ -62,7 +62,7 @@ public class UserController {
 	@PostMapping("/create")
 	@ApiOperation("创建用户")
 	public BaasResult<Void> createUser(@RequestBody CreateUserRequest createUserRequest) {
-		checkCreatUser(createUserRequest.getRoles());
+		checkCreateUser(createUserRequest.getRoles());
 		userService.createUser(createUserRequest);
 		return BaasResult.success();
 	}
@@ -99,8 +99,8 @@ public class UserController {
 	@ApiOperation("删除用户")
 	public BaasResult<Boolean> deleteUser(@RequestBody DeleteUserRequest deleteUserRequest) {
 		checkDelUser(deleteUserRequest);
-		boolean succFlag = userService.deleteUser(deleteUserRequest);
-		return BaasResult.success(succFlag);
+		boolean successFlag = userService.deleteUser(deleteUserRequest);
+		return BaasResult.success(successFlag);
 	}
 	
 	@PostMapping("/unfrozen")
@@ -110,7 +110,7 @@ public class UserController {
 		return BaasResult.success();
 	}
 	
-	private void checkCreatUser(List<RoleInfo> roles) {
+	private void checkCreateUser(List<RoleInfo> roles) {
 		if(CollectionUtils.isNotEmpty(roles)) {
 			List<String> consIds = roles.stream().map(RoleInfo::getConsId).collect(Collectors.toList());
 			SysManager.checkOwnCons(consIds);
@@ -118,9 +118,9 @@ public class UserController {
 	}
 
 	private void checkDelUser(DeleteUserRequest deleteUserRequest) {
-		List<AuthInfo> authInfos = loginService.getAuthInfos(deleteUserRequest.getId());
-		if(CollectionUtils.isNotEmpty(authInfos)) {
-			List<String> consIds = authInfos.stream().map(AuthInfo::getConsId).collect(Collectors.toList());
+		List<AuthInfo> authInfoList = loginService.getAuthInfo(deleteUserRequest.getId());
+		if(CollectionUtils.isNotEmpty(authInfoList)) {
+			List<String> consIds = authInfoList.stream().map(AuthInfo::getConsId).collect(Collectors.toList());
 			SysManager.checkOwnCons(consIds);
 		}
 	}

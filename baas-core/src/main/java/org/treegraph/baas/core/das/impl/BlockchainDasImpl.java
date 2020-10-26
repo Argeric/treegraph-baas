@@ -78,11 +78,10 @@ public class BlockchainDasImpl implements BlockchainDas{
 		return blockChainPoMapper.countByExample(example);
 	}
 
-    public boolean createBlockchain(BlockChainPo blockchain, ConsortiumPo cons) {
+    public void createBlockchain(BlockChainPo blockchain, ConsortiumPo cons) {
     	boolean succFlag =  Boolean.TRUE;
     	succFlag = succFlag && blockChainPoMapper.insert(blockchain) > 0;
     	succFlag = succFlag && consortiumPoMapper.updateByPrimaryKeySelective(cons) > 0;
-    	return succFlag;
     }
 
 	public boolean modify(BlockChainPo blockChainPo) {

@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -30,12 +31,12 @@ public class LoginAuthInterceptor extends HandlerInterceptorAdapter {
     private TokenService tokenService;
     
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+    public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler)
             throws Exception {
     	
         String token = request.getHeader(JwtUtils.HEADER_TOKEN);
 
-        UserInfoPo user = null;
+        UserInfoPo user;
         try {
         	user = tokenService.checkToken(token);
         } catch(Exception e) {
@@ -58,7 +59,7 @@ public class LoginAuthInterceptor extends HandlerInterceptorAdapter {
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+    public void afterCompletion(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler, Exception ex) {
         if (ex != null) {
             log.error("[userId={}]LoginAuthInterceptor uri:{},err:", WebHelper.getUserId(), request.getRequestURI(), ex);
         }

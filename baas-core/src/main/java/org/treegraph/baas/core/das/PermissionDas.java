@@ -15,7 +15,7 @@ public interface PermissionDas {
 	
 	List<PermissionPo> findAll();
 	
-	List<RolePermissionPo> findRolePermissionsByRoleId(String roldId);
+	List<RolePermissionPo> findRolePermissionsByRoleId(String roleId);
 
 	List<RolePermissionPo> findRolePermissionsByRoleIds(List<String> roleIds);
 	

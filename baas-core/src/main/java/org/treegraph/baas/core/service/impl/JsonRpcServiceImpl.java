@@ -29,7 +29,7 @@ import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
-import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
+import org.treegraph.baas.core.heartbeat.impl.HeartbeatListener;
 import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.task.CheckMembershipChangeTimerTask;
 import org.treegraph.baas.core.util.ConfluxUtils;
@@ -68,11 +68,11 @@ public class JsonRpcServiceImpl implements BlockchainRpcService{
     	NodeKeypairBo proposerNodeKeypair = null;
     	try {
 			proposerNodeKeypair = committeeNodeKeypairs.stream()
-					.filter(item -> HeartbeatEnum.Status.GREEN == HeartbeatLinstener.getInstance()
+					.filter(item -> HeartbeatEnum.Status.GREEN == HeartbeatListener.getInstance()
 							.getNode(item.getNode().getConsortiumId(), item.getNode().getId()).getStatus())
 					.findFirst().orElseThrow(() -> new AlertException("alive.proposer.node.not.found"));
 			NodePo proposerNode = proposerNodeKeypair.getNode();
-			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(proposerNode.getConsortiumId(),
+			Heartbeat heartbeat = HeartbeatListener.getInstance().getNode(proposerNode.getConsortiumId(),
 					proposerNode.getId());
 			uri = ConfluxUtils.toUri(heartbeat.getIp(), heartbeat.getPort());
 			cfx = Cfx.create(uri, 1, 1, TimeUnit.SECONDS);
@@ -197,7 +197,7 @@ public class JsonRpcServiceImpl implements BlockchainRpcService{
 		Request<BigInteger, BigIntResponse> getBftEpochNumberRequest = null;
 		BigInteger getBftEpochNumberResponse = null;
 		try {
-			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, nodeId);
+			Heartbeat heartbeat = HeartbeatListener.getInstance().getNode(consId, nodeId);
 			uri = ConfluxUtils.toUri(heartbeat.getIp(), heartbeat.getPort());
 			Cfx cfx = Cfx.create(uri, 1, 1, TimeUnit.SECONDS);
 			getBftEpochNumberRequest = cfx.getCustomizedRequest(BigIntResponse.class, RPC_GET_BFT_EPOCH_NUMBER);
@@ -218,7 +218,7 @@ public class JsonRpcServiceImpl implements BlockchainRpcService{
 		String resp = null;
 		try {
 			String proposerNodeId = membershipNodeIds.stream()
-					.filter(item -> HeartbeatLinstener.getInstance().getNode(consId, item)
+					.filter(item -> HeartbeatListener.getInstance().getNode(consId, item)
 							.getStatus() == HeartbeatEnum.Status.GREEN)
 					.findFirst().orElseThrow(() -> new AlertException("alive.proposer.node.not.found"));
 			NodeKeypairInfoBo proposerKeypair = keypairDas.findAll(consId, KeyType.NODE.getCode(), ALGO_NODE,
@@ -226,7 +226,7 @@ public class JsonRpcServiceImpl implements BlockchainRpcService{
 			String grpcKeyPem = privateKeyToPem(privateKeyFromBase64(ALGO_NODE, proposerKeypair.getPrivateKey()));
 			String grpcCertPem = proposerKeypair.getCertStr();
 			
-			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, proposerNodeId);
+			Heartbeat heartbeat = HeartbeatListener.getInstance().getNode(consId, proposerNodeId);
 			uri = ConfluxUtils.toUri(heartbeat.getIp(), heartbeat.getPort());
 			Cfx cfx = Cfx.create(uri, 1, 1, TimeUnit.SECONDS);
 			req = cfx.getCustomizedRequest(StringResponse.class, RPC_UPDATE_CERT, consCertPem, grpcKeyPem, grpcCertPem);
@@ -246,7 +246,7 @@ public class JsonRpcServiceImpl implements BlockchainRpcService{
 		Request<String, StringResponse> sendRawTransactionRequest = null;
 		String txResult = null;
 		try {
-			Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, nodeId);
+			Heartbeat heartbeat = HeartbeatListener.getInstance().getNode(consId, nodeId);
 			uri = ConfluxUtils.toUri(heartbeat.getIp(), heartbeat.getPort());
 			Cfx cfx = Cfx.create(uri);
 			sendRawTransactionRequest = cfx.sendRawTransaction(hexEncoded);

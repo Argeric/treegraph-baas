@@ -16,8 +16,8 @@ public enum ErrorCodeEnum {
 	AUTH_PERMISSION_ERROR(40002, "permission异常"),
     ;
 
-    private int    code;
-    private String message;
+    private final int    code;
+    private final String message;
     
     public static ErrorCodeEnum getEnumByCode(int code) {
 

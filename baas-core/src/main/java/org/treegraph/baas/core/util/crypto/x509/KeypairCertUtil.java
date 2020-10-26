@@ -35,11 +35,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class KeypairCertUtil {
 	
-    private VaultOperations vaultOperations;
+    private final VaultOperations vaultOperations;
     
     public KeypairCertBo buildKeypair(String algo) {
-		String publicKey = null;
-		String privateKey = null;
+		String publicKey;
+		String privateKey;
 		try {
 			KeyPair keyPair = KeyUtil.generateKeyPair(algo);
 			publicKey = KeyUtil.publicKeyToBase64(keyPair.getPublic());
@@ -57,9 +57,9 @@ public class KeypairCertUtil {
     
 	public KeypairCertBo buildKeypairCert(String algo, String subject, Date latestCertExpireDate,
 			KeypairPo parentKeypair) {
-		KeyPair keyPair = null;
-		String publicKey = null;
-		String privateKey = null;
+		KeyPair keyPair;
+		String publicKey;
+		String privateKey;
 		try {
 			keyPair = KeyUtil.generateKeyPair(algo);
 			publicKey = KeyUtil.publicKeyToBase64(keyPair.getPublic());
@@ -76,13 +76,13 @@ public class KeypairCertUtil {
 					.build();
 		}
 		
-		String csrStr = null;
-		String certStr = null;
+		String csrStr;
+		String certStr;
 		try {
 			PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(subject), keyPair.getPublic(),
 					keyPair.getPrivate(), Lists.newArrayList("101.200.183.108"));
 			if (X509CertConstant.DEFAULT_CERT_SIGN_TYPE == CryptoEnum.CertificateSignType.BC) {
-				certStr = signCertificateRequestByBC(parentKeypair.getAlgorithm(), parentKeypair, csr, true);
+				certStr = signCertificateRequestByBC(parentKeypair.getAlgorithm(), parentKeypair, csr);
 			} else if(X509CertConstant.DEFAULT_CERT_SIGN_TYPE == CryptoEnum.CertificateSignType.VAULT) {
 				certStr = signCertificateRequestByVault(csr, latestCertExpireDate);
 			} else {
@@ -101,14 +101,14 @@ public class KeypairCertUtil {
 				.certStr(certStr)
 				.build();
 	}
-    
+
 	private String signCertificateRequestByBC(String parentKeypairAlgo, KeypairPo parentKeypair,
-			PKCS10CertificationRequest csr, boolean isEntityCert) throws Exception {
+											  PKCS10CertificationRequest csr) throws Exception {
 		PrivateKey parentPrivateKey = KeyUtil.privateKeyFromBase64(parentKeypairAlgo, parentKeypair.getPrivateKey());
 		byte[] parentCertBytes = CertUtil.certFromPem(parentKeypair.getCertStr()).getEncoded();
 		Certificate cert = CertUtil.generateCert(csr, parentPrivateKey, parentCertBytes,
-				CertUtil.getNotBefore(), CertUtil.getNotAfter(X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DYAS),
-				isEntityCert);
+				CertUtil.getNotBefore(), CertUtil.getNotAfter(X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DYA),
+				true);
 		return CertUtil.certToPem(cert);
 	}
 
@@ -117,11 +117,11 @@ public class KeypairCertUtil {
 		int lastCertLeftDays = 0;
 		if (lastCertExpireDate != null) {
 			lastCertLeftDays = DateUtils.betweenDays(Calendar.getInstance().getTime(), lastCertExpireDate);
-			lastCertLeftDays = lastCertLeftDays > 0 ? lastCertLeftDays : 0;
+			lastCertLeftDays = Math.max(lastCertLeftDays, 0);
 		}
 		
 		VaultCertificateRequest request = VaultCertificateRequest.builder()
-				.ttl(Duration.ofDays(lastCertLeftDays + X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DYAS))
+				.ttl(Duration.ofDays(lastCertLeftDays + X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DYA))
 				.commonName(X509CertConstant.COMMON_NAME_CONSORTIUM_CERT).build();
 		VaultSignCertificateRequestResponse certificateResponse = vaultOperations
 				.opsForPki(X509CertConstant.VAULT_PKI_PATH)
@@ -133,14 +133,11 @@ public class KeypairCertUtil {
     
 	private String generatePem(String base64Str) {  
         Iterable<String> lines = Splitter.fixedLength(64).split(base64Str);
-        StringBuffer content = new StringBuffer();  
+        StringBuilder content = new StringBuilder();
         for (String line : lines) {  
         	content.append(line).append("\n");  
         }
-        
-        StringBuffer code = new StringBuffer("-----BEGIN CERTIFICATE-----\n");  
-        code.append(content.toString());
-        code.append("-----END CERTIFICATE-----"); 
-        return code.toString();  
+		return "-----BEGIN CERTIFICATE-----\n" + content.toString() +
+				"-----END CERTIFICATE-----";
     }
 }

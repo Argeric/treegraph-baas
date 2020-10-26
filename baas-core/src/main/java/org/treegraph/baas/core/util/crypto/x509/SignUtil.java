@@ -1,7 +1,5 @@
 package org.treegraph.baas.core.util.crypto.x509;
 
-import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.digests.SHA3Digest;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithID;
 import org.bouncycastle.crypto.signers.SM2Signer;
@@ -9,12 +7,7 @@ import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.jcajce.provider.asymmetric.util.ECUtil;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Security;
-import java.security.Signature;
+import java.security.*;
 
 public class SignUtil {
     private static final byte[] SM2_ID = {
@@ -65,13 +58,13 @@ public class SignUtil {
         return signer.verify(signature);
     }
     
-    public static byte[] SHA3Digest(byte[] data) {
-    	Digest bcSHA3 = new SHA3Digest();
-		bcSHA3.update(data, 0, data.length);
-		byte[] byteFinal = new byte[bcSHA3.getDigestSize()];
-		bcSHA3.doFinal(byteFinal, 0);
-		return byteFinal;
-    }
+//    public static byte[] SHA3Digest(byte[] data) {
+//    	Digest bcSHA3 = new SHA3Digest();
+//		bcSHA3.update(data, 0, data.length);
+//		byte[] byteFinal = new byte[bcSHA3.getDigestSize()];
+//		bcSHA3.doFinal(byteFinal, 0);
+//		return byteFinal;
+//    }
     
     public static byte[] SHA256Digest(byte[] data) throws NoSuchAlgorithmException {
 		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");

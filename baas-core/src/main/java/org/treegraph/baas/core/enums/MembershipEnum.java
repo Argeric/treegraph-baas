@@ -17,9 +17,9 @@ public class MembershipEnum {
         ADD(1, "添加节点"),
         ;
 
-        private Integer code;
+        private final Integer code;
 
-        private String desc;
+        private final String desc;
 
         public static Type getByCode(int code) {
             for (Type s : Type.values()) {
@@ -66,9 +66,9 @@ public class MembershipEnum {
 
         ;
 
-        private int code;
+        private final int code;
 
-        private String desc;
+        private final String desc;
 
         public static Status getByCode(int code) {
             for (Status s : Status.values()) {

@@ -40,7 +40,7 @@ import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
-import org.treegraph.baas.core.heartbeat.impl.HeartbeatLinstener;
+import org.treegraph.baas.core.heartbeat.impl.HeartbeatListener;
 import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
 import org.treegraph.baas.core.service.bo.GRpcParaBo;
@@ -83,7 +83,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
     	NodeKeypairBo proposerNodeKeypair = null;
     	try {
 			proposerNodeKeypair = committeeNodeKeypairs.stream()
-					.filter(item -> HeartbeatEnum.Status.GREEN == HeartbeatLinstener.getInstance()
+					.filter(item -> HeartbeatEnum.Status.GREEN == HeartbeatListener.getInstance()
 							.getNode(item.getNode().getConsortiumId(), item.getNode().getId()).getStatus())
 					.findFirst().orElseThrow(() -> new AlertException("alive.proposer.node.not.found"));
 			NodePo proposerNode = proposerNodeKeypair.getNode();
@@ -219,7 +219,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 	public boolean updateCert(String consId, String consCertPem, List<String> membershipNodeIds) {
 		try {
 			String proposerNodeId = membershipNodeIds.stream()
-					.filter(item -> HeartbeatLinstener.getInstance().getNode(consId, item)
+					.filter(item -> HeartbeatListener.getInstance().getNode(consId, item)
 							.getStatus() == HeartbeatEnum.Status.GREEN)
 					.findFirst().orElseThrow(() -> new AlertException("alive.proposer.node.not.found"));
 			NodeKeypairInfoBo proposerKeypair = keypairDas.findAll(consId, KeyType.NODE.getCode(), ALGO_NODE,
@@ -260,7 +260,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 	
 	private GRpcParaBo getGRpcParas(String consId, String nodeId) throws Exception {
 		// get ip and gRpcPort
-		Heartbeat heartbeat = HeartbeatLinstener.getInstance().getNode(consId, nodeId);
+		Heartbeat heartbeat = HeartbeatListener.getInstance().getNode(consId, nodeId);
 		String ip = heartbeat.getIp();
 		String jsonRpcLocalHttpPortStr = nodeCustomizedConfigDas.findPropertyValueByName(consId, nodeId,
 				PROPERTY_JSONRPC_LOC_PORT);

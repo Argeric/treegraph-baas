@@ -24,7 +24,7 @@ public interface BlockchainService {
 
 	ListCertResponse listCert(ListCertRequest listCertRequest);
 
-	boolean downloadCert(DownloadCertRequest downloadCertRequest);
+	void downloadCert(DownloadCertRequest downloadCertRequest);
 	
     boolean switchBlockchainStatus(SwitchBlockchainStatusRequest switchBlockchainStatusRequest, BlockchainEnum.Status status);
 }

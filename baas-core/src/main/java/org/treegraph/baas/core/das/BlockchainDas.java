@@ -19,7 +19,7 @@ public interface BlockchainDas {
 	
 	long count();
 	
-	boolean createBlockchain(BlockChainPo blockchain, ConsortiumPo cons);
+	void createBlockchain(BlockChainPo blockchain, ConsortiumPo cons);
 	
 	boolean modify(BlockChainPo blockChainPo);
 }

@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BCryptPasswordEncoder {
 
-  private Pattern BCRYPT_PATTERN = Pattern.compile("\\A\\$2a?\\$\\d\\d\\$[./0-9A-Za-z]{53}");
+  private final Pattern BCRYPT_PATTERN = Pattern.compile("\\A\\$2a?\\$\\d\\d\\$[./0-9A-Za-z]{53}");
 
   private final int strength;
 
@@ -100,12 +100,12 @@ public class BCryptPasswordEncoder {
     String endPwd = encoder.encode(pwd);
     System.out.println(endPwd);
 
-    boolean succe1 = encoder.matches(pwd, endPwd);
+    boolean success1 = encoder.matches(pwd, endPwd);
 
-    System.out.println("pwd="+pwd+",endPwd="+endPwd.length()+",succe1="+succe1);
+    System.out.println("pwd="+pwd+",endPwd="+endPwd.length()+",success1="+success1);
 
-    boolean succe2 = encoder.matches(pwd + "d", endPwd);
+    boolean success2 = encoder.matches(pwd + "d", endPwd);
 
-    System.out.println("pwd+d="+pwd+"d,endPwd="+endPwd+",succe2="+succe2);
+    System.out.println("pwd+d="+pwd+"d,endPwd="+endPwd+",success2="+success2);
   }
 }

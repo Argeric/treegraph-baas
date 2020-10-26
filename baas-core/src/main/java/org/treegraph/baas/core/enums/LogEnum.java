@@ -17,9 +17,9 @@ public class LogEnum {
 
     ;
 
-    private int code;
+    private final int code;
     
-    private String desc;
+    private final String desc;
 
     Login(int code, String desc) {
       this.code = code;

@@ -29,7 +29,7 @@ public interface ConsortiumService {
 
 	String createCons(CreateConsRequest createConsRequest);
 
-	boolean modifyCons(ModifyConsRequest modifyConsRequest);
+	void modifyCons(ModifyConsRequest modifyConsRequest);
 
 	boolean deleteCons(DeleteConsRequest deleteConsRequest);
 

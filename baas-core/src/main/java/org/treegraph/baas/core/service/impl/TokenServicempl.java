@@ -125,7 +125,7 @@ public class TokenServicempl implements TokenService {
     	return user;
     }
     
-    public UserInvitePo checkInvitToken(String token) {
+    public UserInvitePo checkInviteToken(String token) {
     	// parse token
     	Map<String, Object> paraMap = JwtUtils.validateInviteToken(token);
     	

@@ -118,7 +118,7 @@ public class LoginServicempl implements LoginService {
     			.isFirstLogin(needChangePwd)
     			.build();
 
-    	List<AuthInfo> authInfo = getAuthInfos(user.getId());
+    	List<AuthInfo> authInfo = getAuthInfo(user.getId());
     	userDetailInfo.setAuth(authInfo);
         String token = userTokenDas.createToken(user);
         userDetailInfo.setToken(token);
@@ -166,7 +166,7 @@ public class LoginServicempl implements LoginService {
 		return authInfos;
 	}
     
-    public List<AuthInfo> getAuthInfos(String userId) {
+    public List<AuthInfo> getAuthInfo(String userId) {
 		List<PermissionInfoBo> permInfos = permissionDas.findPermissionInfoByUserId(userId);
 		Map<String, List<PermissionInfoBo>> permMap = permInfos.stream()
 				.collect(Collectors.groupingBy(PermissionInfoBo::getConsId));

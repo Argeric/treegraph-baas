@@ -1,14 +1,11 @@
 package org.treegraph.baas.core.util;
-import org.apache.commons.lang3.StringUtils;
+
+import lombok.extern.slf4j.Slf4j;
 import org.treegraph.baas.core.constant.CharacterConstant;
-import org.treegraph.baas.core.enums.CryptoEnum;
-import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
 import org.web3j.crypto.Sign;
 import org.web3j.utils.Numeric;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ConfluxUtils {
@@ -18,11 +15,11 @@ public class ConfluxUtils {
 		return "1" + address.substring(1);
 	}
 	
-	public static String toAddress(String publicKey, String privateKey) {
-		ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(publicKey,
-				privateKey, CryptoEnum.Algo.ECC.getCode());
-		return toAddress(ecKeypair);
-	}
+//	public static String toAddress(String publicKey, String privateKey) {
+//		ECKeyPair ecKeypair = KeyUtil.loadECKeyPairFromBase64(publicKey,
+//				privateKey, CryptoEnum.Algo.ECC.getCode());
+//		return toAddress(ecKeypair);
+//	}
 	
 	public static String toUri(String nodeIp, Integer jsonRpcHttpPort) {
 		return "http://"+nodeIp + CharacterConstant.COLON + jsonRpcHttpPort;
@@ -32,10 +29,10 @@ public class ConfluxUtils {
 		return nodeIp + CharacterConstant.AT + jsonRpcHttpPort;
 	}
 	
-	public static String toIpAtPortForLog(String nodeIp, Integer jsonRpcHttpPort) {
-		String uri = nodeIp + CharacterConstant.AT + jsonRpcHttpPort;
-		return StringUtils.rightPad(uri, 21, " ");
-	}
+//	public static String toIpAtPortForLog(String nodeIp, Integer jsonRpcHttpPort) {
+//		String uri = nodeIp + CharacterConstant.AT + jsonRpcHttpPort;
+//		return StringUtils.rightPad(uri, 21, " ");
+//	}
 	
 	public static String signMessage(byte[] message, ECKeyPair ecKeyPair) {
 		Sign.SignatureData data = Sign.signMessage(message, ecKeyPair);

@@ -15,15 +15,15 @@ public class BlockchainEnum {
 
         TO_DEPLOY(0, "待部署"),
 
-        RUNING(1, "运行中"),
+        RUNNING(1, "运行中"),
   
-        STOPED(2, "已停止"),
+        STOPPED(2, "已停止"),
 
         ;
 
-        private Integer code;
+        private final Integer code;
 
-        private String desc;
+        private final String desc;
 
         public static Status getByCode(int code) {
             for (Status s : Status.values()) {
@@ -45,11 +45,11 @@ public class BlockchainEnum {
         TREE_GRAPH(1, "treegraph", "数图共识"),
         ;
 
-        private Integer code;
+        private final Integer code;
         
-        private String name;
+        private final String name;
 
-        private String desc;
+        private final String desc;
 
         public static Consensus getByCode(int code) {
             for (Consensus s : Consensus.values()) {
@@ -80,11 +80,11 @@ public class BlockchainEnum {
     	TREE_GRAPH(1, "treegraph", "数图加密"),
         ;
 
-        private Integer code;
+        private final Integer code;
         
-        private String name;
+        private final String name;
 
-        private String desc;
+        private final String desc;
 
         public static ALGORITHM getByCode(int code) {
             for (ALGORITHM s : ALGORITHM.values()) {

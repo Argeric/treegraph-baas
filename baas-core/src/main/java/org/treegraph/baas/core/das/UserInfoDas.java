@@ -29,9 +29,9 @@ public interface UserInfoDas {
 	
 	boolean createUserRoles(List<UserRolePo> userRoles);
 	
-	boolean inviteUser(UserInvitePo userInvite, List<UserRoleInvitePo> userRoleInvites);
+	void inviteUser(UserInvitePo userInvite, List<UserRoleInvitePo> userRoleInvites);
 	
-	boolean updateInviteUserById(UserInvitePo userInvite);
+	void updateInviteUserById(UserInvitePo userInvite);
 
 	boolean delUser(UserInfoPo user, List<Long> userRoleIds);
 
@@ -39,7 +39,7 @@ public interface UserInfoDas {
 	
 	boolean updateUser(UserInfoPo user);
 
-	boolean modifyUser(String uesrId, UserInfoPo user, List<Long> toDelUserRoleIds, List<UserRolePo> toAddUserRoles,
+	boolean modifyUser(String userId, UserInfoPo user, List<Long> toDelUserRoleIds, List<UserRolePo> toAddUserRoles,
 			List<Long> toDelUserOrgIds, List<UserOrganizationPo> toAddUserOrgs);
 
 	boolean createConsAdmin(RolePo consAdminRole, List<RolePermissionPo> rolePermissions, List<UserInfoPo> users,

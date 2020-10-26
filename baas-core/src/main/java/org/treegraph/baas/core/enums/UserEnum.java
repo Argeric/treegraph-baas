@@ -30,9 +30,9 @@ public class UserEnum {
         AVAILABLE(1, "启用"),
         ;
 
-        private int code;
+        private final int code;
 
-        private String desc;
+        private final String desc;
 
         public static Status getByCode(int code) {
             for (Status s : Status.values()) {
@@ -66,9 +66,9 @@ public class UserEnum {
         COMMON_USER(3, "普通角色"),
         ;
 
-        private int code;
+        private final int code;
 
-        private String desc;
+        private final String desc;
 
         public static Status getByCode(int code) {
             for (Status s : Status.values()) {
@@ -108,9 +108,9 @@ public class UserEnum {
 		VIEW_NODE_MONITOR("viewNodeMonitor", "查看节点运维信息"),
 		;
 
-		private String code;
+		private final String code;
 
-		private String name;
+		private final String name;
 
 		public static PermissionPoint getByCode(String code) {
 			for (PermissionPoint s : PermissionPoint.values()) {
@@ -137,15 +137,15 @@ public class UserEnum {
 
         INIT(0, "创建邀请记录"),
 
-        SNED(1, "发送邀请"),
+        SEND(1, "发送邀请"),
         
         ACCEPT(2, "接受邀请"),
 
         ;
 
-        private int code;
+        private final int code;
 
-        private String desc;
+        private final String desc;
 
         public static Status getByCode(int code) {
             for (Status s : Status.values()) {
@@ -170,9 +170,9 @@ public class UserEnum {
         
         ;
 
-        private int code;
+        private final int code;
 
-        private String desc;
+        private final String desc;
 
         public static Status getByCode(int code) {
             for (Status s : Status.values()) {

@@ -23,17 +23,17 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@Api(tags = "系统模块", description = "登录管理相关")
+@Api(tags = "系统模块")
 @RequestMapping("/sys")
 @AllArgsConstructor
 @Slf4j
 public class SysController {
 
-	private LoginService loginService;
+	private final LoginService loginService;
 	
-	private LogService logService;
+	private final LogService logService;
 	
-	private VaultTemplate vaultTemplate;
+	private final VaultTemplate vaultTemplate;
 
 	@PostMapping("/login")
 	@ApiOperation("用户登陆接口")
@@ -44,8 +44,7 @@ public class SysController {
 
 		LoginResponse userDetailInfo = loginService.login(loginRequest.getAccount(), loginRequest.getPassword(),
 				request);
-		BaasResult<LoginResponse> resp = BaasResult.success(userDetailInfo);
-		return resp;
+		return BaasResult.success(userDetailInfo);
 	}
 
 	@PostMapping("/log/list")

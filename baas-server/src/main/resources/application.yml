@@ -36,7 +36,11 @@ spring:
     time-between-eviction-runs-millis: 60000
     min-evictable-idle-time-millis: 300000
     test-on-borrow: true
-        
+  mail:
+    host: smtp.exmail.qq.com
+    username: footstone.crm@mljr.com
+    password: Footstone_321
+
 security:
   basic:
     enabled: false

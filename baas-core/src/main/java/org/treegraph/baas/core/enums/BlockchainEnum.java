@@ -75,7 +75,7 @@ public class BlockchainEnum {
      */
     @Getter
     @AllArgsConstructor
-    public enum ALGORITHM {
+    public enum Algorithm {
     	
     	TREE_GRAPH(1, "treegraph", "数图加密"),
         ;
@@ -86,8 +86,8 @@ public class BlockchainEnum {
 
         private final String desc;
 
-        public static ALGORITHM getByCode(int code) {
-            for (ALGORITHM s : ALGORITHM.values()) {
+        public static Algorithm getByCode(int code) {
+            for (Algorithm s : Algorithm.values()) {
                 if (s.code.equals(code)) {
                     return s;
                 }
@@ -95,8 +95,8 @@ public class BlockchainEnum {
             return null;
         }
         
-        public static ALGORITHM getByName(String name) {
-            for (ALGORITHM s : ALGORITHM.values()) {
+        public static Algorithm getByName(String name) {
+            for (Algorithm s : Algorithm.values()) {
                 if (s.name.equals(name)) {
                     return s;
                 }

@@ -11,8 +11,8 @@ public class GRpcConstant {
 	
 	public static final String SERVER_KEY_FILE = "server.key";
 	
-	public static final String RPC_CERT_CHAIN_FILE = "client.crt";
+	public static final String RPC_CERT_CHAIN_FILE = "rpc.crt";
 	
-	public static final String RPC_KEY_FILE = "client.key";
+	public static final String RPC_KEY_FILE = "rpc.key";
 	
 }

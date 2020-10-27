@@ -153,7 +153,9 @@ public class NodeServiceImpl implements NodeService {
 		
 		// before download deploy scripts
 		boolean deleteNodeResult = Boolean.FALSE;
-		int establishStep = consortiumDas.findById(consId).get().getEstablishStep();
+		ConsortiumPo consortium = consortiumDas.findById(consId)
+				.orElseThrow(() -> new AlertException("consortium.not.found"));
+		int establishStep = consortium.getEstablishStep();
 		if (req.getForce() || establishStep < EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
 			ConsortiumPo cons = buildService.buildToUpdateCons(consId, EstablishStep.TO_DEPLOY);
 			deleteNodeResult = nodeDas.deleteNodes(node, cons);

@@ -14,6 +14,6 @@ public class GRpcExample {
         String rpcCertFile = "./grpc/rpc.crt";
         String rpcKey = "./grpc/key.pem";
         GrpcWeb3j cfx = new GrpcWeb3j(ip, rpcPort, serverCertFile, rpcCertFile, rpcKey);
-        Status status = cfx.getStatus();
+        cfx.getStatus()
     }
 }

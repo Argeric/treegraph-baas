@@ -111,7 +111,7 @@ public class BlockchainServiceImpl implements BlockchainService {
 		
 		List<BlockchainInfo> list = blockchains.stream().map(item ->{ 
 			    log.info("item:"+JSON.toJSONString(item));
-				Integer status = BlockchainEnum.Status.getByCode(item.getStatus()).getCode();
+				BlockchainEnum.Status status = BlockchainEnum.Status.getByCode(item.getStatus());
 				List<String> expireDates = expireDateMap.get(item.getConsortiumId());
 				return BlockchainInfo.builder()
 				.id(item.getId())
@@ -123,7 +123,7 @@ public class BlockchainServiceImpl implements BlockchainService {
 						: null)
 				.createUser(userMap.get(item.getCreateBy()).getName())
 				.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
-				.status(status)
+				.status(status != null ? status.getCode() : null)
 				.nodeCount(chainCountMap.get(item.getId()) == null ? "0" : chainCountMap.get(item.getId()) + "")
 				.tps(null)
 				.contractCount(null)
@@ -144,13 +144,15 @@ public class BlockchainServiceImpl implements BlockchainService {
 	
 	public List<BlockchainInfo> queryBlockchain(QueryBlockchainRequest req){
 		List<BlockChainPo> blockchains = blockchainDas.findAll(req.getId(), req.getConsId());
-		return blockchains.stream().map(item ->
-			BlockchainInfo.builder()
-			.id(item.getId())
-			.name(item.getBlockchainName())
-			.status(BlockchainEnum.Status.getByCode(item.getStatus()).getCode())
-			.alertEmail(item.getAlarmEmail())
-			.build()).collect(Collectors.toList());
+		return blockchains.stream().map(item -> {
+			BlockchainEnum.Status status = BlockchainEnum.Status.getByCode(item.getStatus());
+			return BlockchainInfo.builder()
+					.id(item.getId())
+					.name(item.getBlockchainName())
+					.status(status != null ? status.getCode() : null)
+					.alertEmail(item.getAlarmEmail())
+					.build();
+		}).collect(Collectors.toList());
 	}
 
 	public QueryBlockchainDetailResponse getBlockchainDetail(QueryBlockchainDetailRequest req) {
@@ -164,7 +166,9 @@ public class BlockchainServiceImpl implements BlockchainService {
 				.port(item.getNodePort()+"")
 				.org(item.getOrganizationName())
 				.build()).collect(Collectors.toList());
-		
+
+		BlockchainEnum.Consensus consensus = BlockchainEnum.Consensus.getByCode(chain.getConsensusAlgorithm());
+		BlockchainEnum.Algorithm algorithm = BlockchainEnum.Algorithm.getByCode(chain.getEncryptAlgorithm());
 		return QueryBlockchainDetailResponse.builder()
 				.id(chain.getId())
 				.name(chain.getBlockchainName())
@@ -176,8 +180,8 @@ public class BlockchainServiceImpl implements BlockchainService {
 				.consContact(cons.getContactName())
 				.consEmail(cons.getContactEmail())
 				.consPhone(cons.getContactPhone())
-				.consensus(BlockchainEnum.Consensus.getByCode(chain.getConsensusAlgorithm()).getName())
-				.algorithm(BlockchainEnum.ALGORITHM.getByCode(chain.getEncryptAlgorithm()).getName())
+				.consensus(consensus != null ? consensus.getName() : null)
+				.algorithm(algorithm != null ? algorithm.getName() : null)
 				.tps(null)
 				.txCount(null)
 				.build();

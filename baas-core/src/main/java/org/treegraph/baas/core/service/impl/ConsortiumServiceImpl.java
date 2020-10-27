@@ -280,7 +280,7 @@ public class ConsortiumServiceImpl implements ConsortiumService {
 				.consortiumId(req.getConsId())
 				.alarmEmail(req.getAlertEmail())
 				.consensusAlgorithm(BlockchainEnum.Consensus.TREE_GRAPH.getCode())
-				.encryptAlgorithm(BlockchainEnum.ALGORITHM.TREE_GRAPH.getCode())
+				.encryptAlgorithm(BlockchainEnum.Algorithm.TREE_GRAPH.getCode())
 				.status(BlockchainEnum.Status.TO_DEPLOY.getCode())
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
 				.createTime(now)

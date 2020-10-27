@@ -42,7 +42,7 @@ public class LogServiceImpl implements LogService{
 	@LogSkip
 	public void addLoginLog(String userId, String userName, Login login, HttpServletRequest request) {
 		String ip = Objects.isNull(request) ? "" : WebUtils.getIpAddress(request);
-		String device = Objects.isNull(request) ? "" : WebUtils.getDeviceeInfo(request);
+		String device = Objects.isNull(request) ? "" : WebUtils.getDeviceInfo(request);
 		this.addOperLog(userId, userName, ip, device, login.getDesc(), device);
 	}
 	

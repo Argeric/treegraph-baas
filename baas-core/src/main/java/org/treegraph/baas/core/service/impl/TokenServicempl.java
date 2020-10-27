@@ -132,7 +132,7 @@ public class TokenServicempl implements TokenService {
     	// check invite
     	Long inviteId = Long.parseLong(JwtUtils.getInviteId(paraMap));
     	String inviter = JwtUtils.getInviter(paraMap);
-    	String accepter = JwtUtils.getAccepter(paraMap);
+    	String accepter = JwtUtils.getAcceptor(paraMap);
 		UserInvitePo invite = inviteUserDas.findById(inviteId)
 				.orElseThrow(() -> new AlertException("邀请不存在[" + inviteId + "]"));
     	Assert.isTrue(invite.getInviter().equals(inviter), "邀请人不一致["+invite.getInviter()+"]");

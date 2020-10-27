@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -39,7 +40,7 @@ public class FileUtils {
 					targetFile.createNewFile();
 					try (InputStream is = zipFile.getInputStream(entry);
 							FileOutputStream fos = new FileOutputStream(targetFile)) {
-						int len = -1;
+						int len;
 						byte[] buf = new byte[1024];
 						while ((len = is.read(buf)) != -1) {
 							fos.write(buf, 0, len);
@@ -53,9 +54,9 @@ public class FileUtils {
 	}
 	
 	public static String readFile(ClassPathResource resource) {
-		StringBuffer str = new StringBuffer();
-		try (BufferedReader in = new BufferedReader(new InputStreamReader(resource.getInputStream(), "UTF-8"))) {
-			String line = null;
+		StringBuilder str = new StringBuilder();
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
+			String line;
 			while ((line = in.readLine()) != null) {
 				str.append(line).append(System.getProperty("line.separator"));
 			}
@@ -66,9 +67,9 @@ public class FileUtils {
     }
 	
 	public static String readFile(InputStream ins) {
-		StringBuffer str = new StringBuffer();
-		try (BufferedReader in = new BufferedReader(new InputStreamReader(ins, "UTF-8"))) {
-			String line = null;
+		StringBuilder str = new StringBuilder();
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(ins, StandardCharsets.UTF_8))) {
+			String line;
 			while ((line = in.readLine()) != null) {
 				str.append(line).append(System.getProperty("line.separator"));
 			}

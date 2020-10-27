@@ -1,11 +1,7 @@
 package org.treegraph.baas.core.util;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
+import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -23,9 +19,12 @@ import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatListener;
 import org.treegraph.baas.core.task.CheckMembershipChangeTimerTask;
 
-import com.google.common.collect.Lists;
-
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class ApplicationStartup implements ApplicationListener<ContextRefreshedEvent> {
@@ -50,7 +49,7 @@ public class ApplicationStartup implements ApplicationListener<ContextRefreshedE
 		// register nodes
 		HeartbeatListener heartbeatListener = HeartbeatListener.getInstance();
 		nodes.forEach(node -> {
-			if(!heartbeatListener.isNodeValid(node.getConsortiumId(), node.getId())){
+			if(heartbeatListener.isNodeValid(node.getConsortiumId(), node.getId())){
 				Heartbeat nodeInfo = Heartbeat.builder()
 						.id(node.getId())
 						.ip(node.getNodeIp())
@@ -65,8 +64,8 @@ public class ApplicationStartup implements ApplicationListener<ContextRefreshedE
 				Lists.newArrayList(MembershipEnum.Status.LAUNCH_CHECK_THREAD_SUCCESS.getCode()));
 		if(CollectionUtils.isEmpty(membershipChanges)) return;
 		membershipChanges.forEach(item -> {
-			int intervalSec = LocalDateTime.now().getSecond() - item.getUpdateTime().getSecond();
-			int delayTimeSec = intervalSec >= 60 ? 0 : intervalSec;
+			long intervalSec = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8")) - item.getUpdateTime().toEpochSecond(ZoneOffset.of("+8"));
+			long delayTimeSec = intervalSec >= 60 ? 0 : intervalSec;
 			BizTimer.DELAY_TIMER.newTimeout(new CheckMembershipChangeTimerTask(item.getId()), delayTimeSec, TimeUnit.SECONDS);});
 		
 		// init SSL

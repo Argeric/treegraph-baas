@@ -214,7 +214,7 @@ public class MultiTenantUtils {
     @SuppressWarnings("unused")
 	private static String parseUpdateOrDelete(String rawSql, String isolatingCondition, String tenantId) {
         StringTokenizer rawSqlStringTokenizer = new StringTokenizer(rawSql);
-        boolean succeed = false;
+//        boolean succeed = false;
         List<String> segmentSqlList = Lists.newArrayListWithExpectedSize(200);
         boolean hasWhereStatement = false;
         while (rawSqlStringTokenizer.hasMoreElements()) {
@@ -222,18 +222,18 @@ public class MultiTenantUtils {
             segmentSqlList.add(nextElement);
             if (StringUtils.equals(WHERE_STATEMENT, nextElement)) {
                 hasWhereStatement = true;
-                succeed = true;
+//                succeed = true;
                 segmentSqlList.add(StringUtils.join(isolatingCondition, tenantId, BLANK, AND_STATEMENT));
             }
         }
         if (!hasWhereStatement) {
-            succeed = true;
+//            succeed = true;
             segmentSqlList.add(StringUtils.join(WHERE_STATEMENT, BLANK, isolatingCondition, tenantId));
         }
-        if (!succeed) {
-			throw new BusinessException(ErrorCodeEnum.BUSINESS_EXCEPTION.getCode(),
-					"add multi tenant isolating failed, sql = " + rawSql);
-        }
+//        if (!succeed) {
+//			throw new BusinessException(ErrorCodeEnum.BUSINESS_EXCEPTION.getCode(),
+//					"add multi tenant isolating failed, sql = " + rawSql);
+//        }
         return StringUtils.join(segmentSqlList, BLANK);
     }
 

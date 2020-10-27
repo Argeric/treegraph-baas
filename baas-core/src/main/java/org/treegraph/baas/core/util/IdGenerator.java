@@ -24,9 +24,9 @@ public class IdGenerator implements Serializable {
 	/**
 	 * 自增id生成器，可扩展为其他策略
 	 */
-	private volatile static AtomicInteger inc;
+	private static final AtomicInteger inc = new AtomicInteger(0);
 	
-	private static final String SEPERATOR = ".";
+	private static final String SEPARATOR = ".";
 	
 	
 
@@ -58,19 +58,19 @@ public class IdGenerator implements Serializable {
 		// 获取进程id
 		final int processBlock;
 		{
-			int process = new Random().nextInt();
+			int process;
 			try {
 				process = ManagementFactory.getRuntimeMXBean().getName()
 						.hashCode();
 			} catch (Throwable e) {
+				process = new Random().nextInt();
 			}
 
 			// 获取类加载器id
 			ClassLoader loader = IdGenerator.class.getClassLoader();
 			int loaderId = loader == null ? 0 : System.identityHashCode(loader);
-			processBlock = new StringBuilder()
-					.append(Integer.toHexString(process))
-					.append(Integer.toHexString(loaderId)).toString()
+			processBlock = (Integer.toHexString(process) +
+					Integer.toHexString(loaderId))
 					.hashCode() & 0xFFFF;
 		}
 
@@ -80,13 +80,12 @@ public class IdGenerator implements Serializable {
 	/**
 	 * 生成Id
 	 * 
-	 * @return
+	 * @return id
 	 */
 	public static String generate() {
-		return new StringBuffer()
-				.append(Integer.toHexString((int) (System.currentTimeMillis() / 1000)))
-				.append(Integer.toHexString(machineId))
-				.append(Integer.toHexString(inc.addAndGet(1))).toString();
+		return Integer.toHexString((int) (System.currentTimeMillis() / 1000)) +
+				Integer.toHexString(machineId) +
+				Integer.toHexString(inc.addAndGet(1));
 	}
 
 	/**
@@ -94,20 +93,19 @@ public class IdGenerator implements Serializable {
 	 * generateReadable:生成带有时间戳的定长id，长度:30；可读性略强，但性能较之generate()方法差了约3倍 <br/>
 	 *
 	 * @author tongzheng.zhang
-	 * @return
+	 * @return id
 	 * @since JDK 1.6
 	 */
 	public static String generateReadable() {
 		Calendar c = Calendar.getInstance();
-		return new StringBuffer()
-				.append(c.get(Calendar.YEAR))
-				.append(formatNum(c.get(Calendar.MONTH) + 1))
-				.append(formatNum(c.get(Calendar.DATE)))
-				.append(formatNum(c.get(Calendar.HOUR_OF_DAY)))
-				.append(formatNum(c.get(Calendar.MINUTE)))
-				.append(formatNum(c.get(Calendar.SECOND))).append(SEPERATOR)
-				.append(Integer.toHexString(machineId))
-				.append(Integer.toHexString(inc.addAndGet(1))).toString();
+		return c.get(Calendar.YEAR) +
+				formatNum(c.get(Calendar.MONTH) + 1) +
+				formatNum(c.get(Calendar.DATE)) +
+				formatNum(c.get(Calendar.HOUR_OF_DAY)) +
+				formatNum(c.get(Calendar.MINUTE)) +
+				formatNum(c.get(Calendar.SECOND)) + SEPARATOR +
+				Integer.toHexString(machineId) +
+				Integer.toHexString(inc.addAndGet(1));
 	}
 
 	/**
@@ -115,28 +113,27 @@ public class IdGenerator implements Serializable {
 	 * formatNum:格式化数字，主要为个位数加前缀零. <br/>
 	 *
 	 * @author tongzheng.zhang
-	 * @param num
-	 * @return
+	 * @param num num
+	 * @return num
 	 * @since JDK 1.6
 	 */
 	private static String formatNum(int num) {
 		if (num < 10) {
-			return String.valueOf("0" + num);
+			return "0" + num;
 		}
 		return String.valueOf(num);
 	}
 	
-	/**
-	 * 
-	 * generateNumberId:生成数字id. <br/>
-	 *
-	 * @author tongzheng.zhang
-	 * @return
-	 * @since JDK 1.6
-	 */
-	public static synchronized long generateNumberId() {
-		return 0L;
-	}
+//	/**
+//	 *
+//	 * generateNumberId:生成数字id. <br/>
+//	 *
+//	 * @return num
+//	 * @since JDK 1.6
+//	 */
+//	public static synchronized long generateNumberId() {
+//		return 0L;
+//	}
 	
 	public static void main(String[] args) {
 		Stream.generate(IdGenerator :: generate).limit(100).forEach(System.out :: println);

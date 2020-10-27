@@ -17,7 +17,7 @@ public class IdWorker {
     /**
      * 时间起始标记点，作为基准，一般取系统的最近时间
      */
-    private final long epoch = 1419696000000L;
+    public final long epoch = 1419696000000L;
 
     /**
      * 机器标识位数
@@ -27,7 +27,7 @@ public class IdWorker {
     /**
      * 机器ID最大值: 1023
      */
-    private final long maxWorkerId = -1L ^ -1L << this.workerIdBits;
+    public final long maxWorkerId = ~(-1L << this.workerIdBits);
 
     /**
      * 0，并发控制
@@ -39,9 +39,9 @@ public class IdWorker {
      */
     private final long sequenceBits = 12L;
 
-    private final long workerIdShift = this.sequenceBits;
-    private final long timestampLeftShift = this.sequenceBits + this.workerIdBits;
-    private final long sequenceMask = -1L ^ -1L << this.sequenceBits;
+    public final long workerIdShift = this.sequenceBits;
+    public final long timestampLeftShift = this.sequenceBits + this.workerIdBits;
+    public final long sequenceMask = ~(-1L << this.sequenceBits);
     private long lastTimestamp = -1L;
 
     private final static class IdWorkerBuilder {
@@ -65,8 +65,7 @@ public class IdWorker {
     }
 
     public long getId() {
-        long id = nextId();
-        return id;
+        return nextId();
     }
 
     private synchronized long nextId() {
@@ -96,8 +95,7 @@ public class IdWorker {
 
     private static long getWorkId() {
 
-        long id = ((0x000000FF & (long)MAC[MAC.length - 1]) | (0x0000FF00 & (((long)MAC[MAC.length - 2]) << 8))) >> 6;
-        return id;
+        return ((0x000000FF & (long)MAC[MAC.length - 1]) | (0x0000FF00 & (((long)MAC[MAC.length - 2]) << 8))) >> 6;
     }
 
     /**

@@ -1,4 +1,5 @@
 package org.treegraph.baas.core.util;
+
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.Field;
@@ -6,36 +7,16 @@ import org.mybatis.generator.api.dom.java.InnerClass;
 import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.internal.DefaultCommentGenerator;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Properties;
-
 /**
  * mybatis generator生成注释插件
  */
 public class MyCommentGenerator extends DefaultCommentGenerator {
 	
-	private boolean suppressAllComments;
-	
-    @SuppressWarnings("unused")
-	private Properties properties;
-    
-    @SuppressWarnings("unused")
-	private Properties systemPro;
-    
-    @SuppressWarnings("unused")
-	private boolean suppressDate;
-    
-    @SuppressWarnings("unused")
-	private String currentDateStr;
+	private final boolean suppressAllComments;
 
     public MyCommentGenerator() {
         super();
-        properties = new Properties();
-        systemPro = System.getProperties();
-        suppressDate = false;
         suppressAllComments = false;
-        currentDateStr = (new SimpleDateFormat("yyyy-MM-dd")).format(new Date());
     }
 
 

@@ -168,8 +168,7 @@ public class UserInfoDasImpl implements UserInfoDas{
 		}
 		
 		long expireSecs = CacheTimeUtil.getSecondToMorning();
-		String token = JwtUtils.generateInviteToken(userInvite.getId(), userInvite.getInviter(),
-				userInvite.getAccepter(), expireSecs);
+		String token = JwtUtils.generateInviteToken(expireSecs);
 		UserInvitePo updateInviteUser = UserInvitePo.builder()
 				.id(userInvite.getId())
 				.token(token)

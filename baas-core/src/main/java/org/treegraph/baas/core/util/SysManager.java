@@ -18,7 +18,7 @@ public class SysManager {
 			return Boolean.TRUE;
 		}
 		Set<String> consIdSet = PermHelper.getConsIdSet();
-		operConsIds.stream().forEach(item -> Assert.isTrue(consIdSet.contains(item), "无联盟操作权限[" + item + "]"));
+		operConsIds.forEach(item -> Assert.isTrue(consIdSet.contains(item), "无联盟操作权限[" + item + "]"));
 		return Boolean.TRUE;
 	}
 }

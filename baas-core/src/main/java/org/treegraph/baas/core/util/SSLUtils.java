@@ -1,17 +1,10 @@
 package org.treegraph.baas.core.util;
 
-import java.security.cert.X509Certificate;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
 import com.google.common.collect.Lists;
-
 import lombok.extern.slf4j.Slf4j;
+
+import javax.net.ssl.*;
+import java.security.cert.X509Certificate;
 
 @Slf4j
 public class SSLUtils {
@@ -33,11 +26,9 @@ public class SSLUtils {
 	}
 	
 	private static void setDefaultHostnameVerifier() {
-		HostnameVerifier hv = new HostnameVerifier() {
-			public boolean verify(String urlHostName, SSLSession session) {
-				log.info("SSLUtils, URL Host: " + urlHostName + " vs. " + session.getPeerHost());
-				return true;
-			}
+		HostnameVerifier hv = (urlHostName, session) -> {
+			log.info("SSLUtils, URL Host: " + urlHostName + " vs. " + session.getPeerHost());
+			return true;
 		};
 		HttpsURLConnection.setDefaultHostnameVerifier(hv);
 	}
@@ -47,22 +38,10 @@ public class SSLUtils {
 			return null;
 		}
 
-		public boolean isServerTrusted(java.security.cert.X509Certificate[] certs) {
-			return true;
+		public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
 		}
 
-		public boolean isClientTrusted(java.security.cert.X509Certificate[] certs) {
-			return true;
-		}
-
-		public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType)
-				throws java.security.cert.CertificateException {
-			return;
-		}
-
-		public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType)
-				throws java.security.cert.CertificateException {
-			return;
+		public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
 		}
 	}
 }

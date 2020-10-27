@@ -1,20 +1,16 @@
 package org.treegraph.baas.core.util;
 
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.collect.Lists;
-
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.OperatingSystem;
 import eu.bitwalker.useragentutils.UserAgent;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class WebUtils extends org.springframework.web.util.WebUtils {
 
@@ -34,7 +30,10 @@ public class WebUtils extends org.springframework.web.util.WebUtils {
 		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
 			ip = request.getRemoteAddr();
 		}
-		if (ip != null && ip.indexOf(":") >= 0) { // 判断是否为IPV6地址
+		if (ip == null) {
+			return null;
+		}
+		if (ip.contains(":")) { // 判断是否为IPV6地址
 			ip = "127.0.0.1";
 		}
 		//log.info("ip is :{}", ip);
@@ -49,62 +48,58 @@ public class WebUtils extends org.springframework.web.util.WebUtils {
 		return CollectionUtils.isEmpty(ipList) ? StringUtils.EMPTY : ipList.get(0);
 	}
 
-	/**
-	 * 判断该请求是否是AJAX请求
-	 */
-	public static boolean isAjax(HttpServletRequest request) {
+//	/**
+//	 * 判断该请求是否是AJAX请求
+//	 */
+//	public static boolean isAjax(HttpServletRequest request) {
+//
+//		String ajaxRequest = request.getHeader("X-Requested-With");
+//
+//		return "XMLHttpRequest".equalsIgnoreCase(ajaxRequest);
+//	}
 
-		String ajaxRequest = request.getHeader("X-Requested-With");
+//	/**
+//	 * 获取cookies值
+//	 */
+//	public static String getCookiesValue(HttpServletRequest request, String cookiesName) {
+//		Cookie[] cookies = request.getCookies();
+//		if (cookies != null && cookies.length > 0) {
+//			return null;
+//		}
+//		for (Cookie cookie : cookies) {
+//			if (cookie.getName().equals(cookiesName)) {
+//				return cookie.getValue();
+//			}
+//		}
+//		return null;
+//	}
 
-		return "XMLHttpRequest".equalsIgnoreCase(ajaxRequest);
-	}
-
-	/**
-	 * 获取cookies值
-	 */
-	public static String getCookiesValue(HttpServletRequest request, String cookiesName) {
-		Cookie[] cookies = request.getCookies();
-		if (cookies != null && cookies.length > 0) {
-			return null;
-		}
-		for (Cookie cookie : cookies) {
-			if (cookie.getName().equals(cookiesName)) {
-				return cookie.getValue();
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * 获取请求host地址
-	 */
-	public static String getRequestHost(HttpServletRequest request) {
-		String url = request.getRequestURL().toString();
-		String uri = request.getRequestURI();
-		return url.replace(uri, "");
-	}
+//	/**
+//	 * 获取请求host地址
+//	 */
+//	public static String getRequestHost(HttpServletRequest request) {
+//		String url = request.getRequestURL().toString();
+//		String uri = request.getRequestURI();
+//		return url.replace(uri, "");
+//	}
 
 	/**
 	 * 获取登录设备信息
 	 *
-	 * @param request
-	 * @return
+	 * @param request HttpServletRequest
+	 * @return device info
 	 */
-	public static String getDeviceeInfo(HttpServletRequest request) {
+	public static String getDeviceInfo(HttpServletRequest request) {
 		String userAgent = request.getHeader("User-Agent");
 		if (StringUtils.isBlank(userAgent)) {
 			return "无法获取userAgent";
 		}
 		UserAgent ua = UserAgent.parseUserAgentString(userAgent);
-		if (ua != null) {
-			Browser browser = ua.getBrowser();
-			OperatingSystem operatingSystem = ua.getOperatingSystem();
-			if (browser == Browser.UNKNOWN || operatingSystem == OperatingSystem.UNKNOWN) {
-				return userAgent;
-			}
-			return browser.getName() + "," + operatingSystem.getName();
-		} else {
+		Browser browser = ua.getBrowser();
+		OperatingSystem operatingSystem = ua.getOperatingSystem();
+		if (browser == Browser.UNKNOWN || operatingSystem == OperatingSystem.UNKNOWN) {
 			return userAgent;
 		}
+		return browser.getName() + "," + operatingSystem.getName();
 	}
 }

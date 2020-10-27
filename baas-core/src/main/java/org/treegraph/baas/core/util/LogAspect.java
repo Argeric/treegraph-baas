@@ -32,11 +32,8 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class LogAspect {
 	
-	private LogService logService;
+	private final LogService logService;
 
-    /**
-     * @Description: 日志切点
-     */
 	@Pointcut("execution(* org.treegraph.baas.web.rest..*.*(..)) || execution(* org.treegraph.baas.core.service.impl..*.*(..)) || execution(* org.treegraph.baas.core.das.impl..*.*(..))")
     public void logPointCut() {
     }
@@ -46,7 +43,6 @@ public class LogAspect {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        Object result = null;
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         String methodName = method.getDeclaringClass().getSimpleName() + "." + method.getName();
 
@@ -54,23 +50,24 @@ public class LogAspect {
         try{
         	userId = WebHelper.getUserId(); 
         } catch(Exception e){
+			log.debug("[userId=null]not login, cannot get userId");
         }
         
 		Object[] argArrays = null;
 		Object[] originalArrays = joinPoint.getArgs();
 		if (originalArrays != null && originalArrays.length > 0) {
 			List<Object> argList = Lists.newArrayList(originalArrays).stream()
-					.filter(item -> isShowArg(item)).collect(Collectors.toList());
+					.filter(this::isShowArg).collect(Collectors.toList());
 			argArrays = CollectionUtils.isNotEmpty(argList) ? argList.toArray() : null;
 		}
 
         log.info("[userId={}]{} req:{}", userId, methodName, JSON.toJSONString(argArrays));
+		Object result;
         try {
             result = joinPoint.proceed();
         } catch (Throwable e) {
         	addOperLog(methodName, JSON.toJSONString(argArrays), StringUtils.substring(e.getMessage(), 0, 100));
-			log.error("[userId={}]{} resp:{},elapsed:{},err:", userId, methodName, JSON.toJSONString(result),
-					stopWatch.getTime(), e);
+			log.error("[userId={}]{} resp:null,elapsed:{},err:", userId, methodName, stopWatch.getTime(), e);
             throw e;
         }
         addOperLog(methodName, JSON.toJSONString(argArrays), JSON.toJSONString(result));
@@ -80,11 +77,7 @@ public class LogAspect {
     }
 
 	private boolean isShowArg(Object item) {
-		if (item instanceof HttpServletRequest) {
-			return false;
-		}
-		// add other subject
-		return true;
+		return !(item instanceof HttpServletRequest);
 	}
 	
 	private void addOperLog(String methodName, String req, String resp) {
@@ -92,8 +85,7 @@ public class LogAspect {
 		if (!paras[0].endsWith("Controller") || WebHelper.getUserId() == null) {
 			return;
 		}
-		StringBuilder info = new StringBuilder("req=").append(req).append(",resp=").append(resp);
 		logService.addOperLog(WebHelper.getUserId(), WebHelper.getUserName(), WebHelper.getUserIp(), null, paras[1],
-				info.toString());
+				"req=" + req + ",resp=" + resp);
 	}
 }

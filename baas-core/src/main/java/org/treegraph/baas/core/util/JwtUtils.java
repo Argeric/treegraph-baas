@@ -62,9 +62,8 @@ public class JwtUtils {
 	public static Map<String, Object> validateToken(String token) {
 		try {
 			// parse the token.
-			Map<String, Object> body = Jwts.parser().setSigningKey(SECRET)
+			return Jwts.parser().setSigningKey(SECRET)
 					.parseClaimsJws(token.replace(TOKEN_PREFIX, "")).getBody();
-			return body;
 		} catch (ExpiredJwtException e) {
 			throw new BusinessException(ErrorCodeEnum.AUTH_TOKEN_ERROR, "签名已经过期");
 		} catch (Exception e) {
@@ -87,7 +86,7 @@ public class JwtUtils {
 	/**
 	 * 生成invite token
 	 */
-	public static String generateInviteToken(Long invitId, String fromUid, String toUid, long ttlSecs) {
+	public static String generateInviteToken(long ttlSecs) {
 
 		HashMap<String, Object> map = new HashMap<>();
 		// you can put any data in the map
@@ -114,9 +113,8 @@ public class JwtUtils {
 	public static Map<String, Object> validateInviteToken(String inviteToken) {
 		try {
 			// parse the token.
-			Map<String, Object> body = Jwts.parser().setSigningKey(SECRET)
+			return Jwts.parser().setSigningKey(SECRET)
 					.parseClaimsJws(inviteToken.replace(TOKEN_PREFIX, "")).getBody();
-			return body;
 		} catch (ExpiredJwtException e) {
 			throw new BusinessException(ErrorCodeEnum.AUTH_TOKEN_ERROR, "签名已经过期");
 		} catch (Exception e) {
@@ -128,7 +126,7 @@ public class JwtUtils {
 		return (String) map.get(PARAM_FROM_UID);
 	}
 
-	public static String getAccepter(Map<String, Object> map) {
+	public static String getAcceptor(Map<String, Object> map) {
 		return (String) map.get(PARAM_TO_UID);
 	}
 

@@ -29,14 +29,12 @@ public class HeartbeatListener {
      * check node valid from avoiding to register twice
      */
     public boolean isNodeValid(String consortiumId, String nodeId) {
-		if (!consortiumNodes.contains(consortiumId) 
-				|| !consortiumNodes.get(consortiumId).containsKey(nodeId))
-			return false;
-		if (!consortiumNodeStatus.contains(consortiumId)
-				|| !consortiumNodeStatus.get(consortiumId).containsKey(nodeId)
-				|| (System.currentTimeMillis() - consortiumNodeStatus.get(consortiumId).get(nodeId)) > timeout)
-			return false;
-		return true;
+        if (!consortiumNodes.contains(consortiumId)
+                || !consortiumNodes.get(consortiumId).containsKey(nodeId))
+            return true;
+        return !consortiumNodeStatus.contains(consortiumId)
+                || !consortiumNodeStatus.get(consortiumId).containsKey(nodeId)
+                || (System.currentTimeMillis() - consortiumNodeStatus.get(consortiumId).get(nodeId)) > timeout;
     }
  
     /**

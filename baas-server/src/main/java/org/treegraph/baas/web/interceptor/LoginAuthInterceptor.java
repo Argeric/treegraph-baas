@@ -52,7 +52,7 @@ public class LoginAuthInterceptor extends HandlerInterceptorAdapter {
         }
     	
         String userIp = WebUtils.getIpAddress(request);
-        String device = WebUtils.getDeviceeInfo(request);
+        String device = WebUtils.getDeviceInfo(request);
 		WebHelper.init(user.getId(), user.getAccount(), user.getName(), userIp, device);
 		
         return true;

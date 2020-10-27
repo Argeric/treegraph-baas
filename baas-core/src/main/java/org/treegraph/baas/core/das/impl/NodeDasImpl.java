@@ -304,7 +304,7 @@ public class NodeDasImpl implements NodeDas {
 				.filter(item -> item.getPropertyName().equalsIgnoreCase(ConfluxConstant.PROPERTY_JSONRPC_PORT))
 				.collect(Collectors.toMap(NodeCustomizedConfigPo::getNodeId, item -> Integer.parseInt(item.getPropertyValue())));
 		nodes.stream().forEach(node -> {
-			if(!heartbeatListener.isNodeValid(node.getConsortiumId(), node.getId())){
+			if(heartbeatListener.isNodeValid(node.getConsortiumId(), node.getId())){
 				Heartbeat nodeInfo = Heartbeat.builder()
 						.id(node.getId())
 						.ip(node.getNodeIp())

@@ -12,8 +12,8 @@ public class WebHelper {
 	private static final String NAME = "name";
 	private static final String IP = "ip";
 	private static final String DEVICE = "device";
-	private static boolean loginRequrired = true;
-	private static final ThreadLocal<Map<String, Object>> loginContext = new ThreadLocal<Map<String, Object>>();
+	private static final boolean loginRequired = true;
+	private static final ThreadLocal<Map<String, Object>> loginContext = new ThreadLocal<>();
 	
 	public static void init(String userId, String account, String name, String ip, String device) {
         if (loginContext.get() == null) {
@@ -32,7 +32,7 @@ public class WebHelper {
     }
 
     public static String getUserId() {
-        if (!loginRequrired) {
+        if (!loginRequired) {
             return defaultUserId;
         }
         if (loginContext.get() == null) {
@@ -41,45 +41,45 @@ public class WebHelper {
         return (String) loginContext.get().get(UID);
     }
     
-    public static String getUserAccount() {
-        if (!loginRequrired || loginContext.get() == null) {
-            return null;
-        }
-        return (String) loginContext.get().get(ACCOUNT);
-    }
+//    public static String getUserAccount() {
+//        if (!loginRequired || loginContext.get() == null) {
+//            return null;
+//        }
+//        return (String) loginContext.get().get(ACCOUNT);
+//    }
     
     public static String getUserName() {
-        if (!loginRequrired || loginContext.get() == null) {
+        if (!loginRequired || loginContext.get() == null) {
             return null;
         }
         return (String) loginContext.get().get(NAME);
     }
     
     public static String getUserIp() {
-        if (!loginRequrired || loginContext.get() == null) {
+        if (!loginRequired || loginContext.get() == null) {
             return null;
         }
         return (String) loginContext.get().get(IP);
     }
     
     public static String getUserDevice() {
-        if (!loginRequrired || loginContext.get() == null) {
+        if (!loginRequired || loginContext.get() == null) {
             return null;
         }
         return (String) loginContext.get().get(DEVICE);
     }
 
-    public static void setLoginRequrired(boolean loginRequrired) {
-        WebHelper.loginRequrired = loginRequrired;
-    }
+//    public static void setLoginRequired(boolean loginRequired) {
+//        WebHelper.loginRequired = loginRequired;
+//    }
 
-    public static boolean isLoginRequrired() {
-        return loginRequrired;
-    }
+//    public static boolean isLoginRequired() {
+//        return loginRequired;
+//    }
     
 	private static Map<String, Object> getMap(String k1, Object o1, String k2, Object o2, String k3,
 			Object o3, String k4, Object o4, String k5, Object o5) {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
         map.put(k1, o1);
         map.put(k2, o2);
         map.put(k3, o3);

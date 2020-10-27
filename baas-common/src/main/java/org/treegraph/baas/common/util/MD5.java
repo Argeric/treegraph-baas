@@ -1,5 +1,6 @@
 package org.treegraph.baas.common.util;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 public class MD5 implements Signature {
@@ -15,19 +16,18 @@ public class MD5 implements Signature {
 	}
 
 	private static String byteToString(byte[] bByte) {
-		StringBuffer sBuffer = new StringBuffer();
-		for (int i = 0; i < bByte.length; i++) {
-			sBuffer.append(byteToArrayString(bByte[i]));
+		StringBuilder sBuffer = new StringBuilder();
+		for (byte b : bByte) {
+			sBuffer.append(byteToArrayString(b));
 		}
 		return sBuffer.toString();
 	}
 
 	public static String encode(String strObj) {
-		String resultString = null;
+		String resultString;
 		try {
-			resultString = new String(strObj);
 			MessageDigest md = MessageDigest.getInstance("MD5");
-			resultString = byteToString(md.digest(strObj.getBytes("UTF-8")));
+			resultString = byteToString(md.digest(strObj.getBytes(StandardCharsets.UTF_8)));
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}

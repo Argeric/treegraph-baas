@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class PermHelper {
 	
-	private static boolean loginRequrired = true;
+	private static boolean loginRequired = true;
 	private static final ThreadLocal<Boolean> sysAdminFlagThreadLocal = new ThreadLocal<>();
 	private static final ThreadLocal<Set<String>> consAdminSetThreadLocal = new ThreadLocal<>();
 	private static final ThreadLocal<Set<String>> consIdSetThreadLocal = new ThreadLocal<>();
@@ -30,45 +30,45 @@ public class PermHelper {
     }
 
     public static boolean getSysAdminFlag() {
-        if (!loginRequrired || sysAdminFlagThreadLocal.get() == null) {
+        if (!loginRequired || sysAdminFlagThreadLocal.get() == null) {
             return Boolean.FALSE;
         }
         return sysAdminFlagThreadLocal.get();
     }
     
     public static Set<String> getConsAdminSet() {
-        if (!loginRequrired || consAdminSetThreadLocal.get() == null) {
+        if (!loginRequired || consAdminSetThreadLocal.get() == null) {
             return null;
         }
         return consAdminSetThreadLocal.get();
     }
     
     public static Set<String> getConsIdSet() {
-        if (!loginRequrired || consIdSetThreadLocal.get() == null) {
+        if (!loginRequired || consIdSetThreadLocal.get() == null) {
             return null;
         }
         return consIdSetThreadLocal.get();
     }
     
     public static Map<String, Set<String>> getConsPermMap() {
-        if (!loginRequrired || consPermMapThreadLocal.get() == null) {
+        if (!loginRequired || consPermMapThreadLocal.get() == null) {
             return null;
         }
         return consPermMapThreadLocal.get();
     }
     
     public static String getConsIdsCond() {
-        if (!loginRequrired || consIdsCondThreadLocal.get() == null) {
+        if (!loginRequired || consIdsCondThreadLocal.get() == null) {
             return null;
         }
         return consIdsCondThreadLocal.get();
     }
     
-    public static void setLoginRequrired(boolean loginRequrired) {
-        PermHelper.loginRequrired = loginRequrired;
+    public static void setLoginRequired(boolean loginRequired) {
+        PermHelper.loginRequired = loginRequired;
     }
 
-    public static boolean isLoginRequrired() {
-        return loginRequrired;
+    public static boolean isLoginRequired() {
+        return loginRequired;
     }
 }

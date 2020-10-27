@@ -12,18 +12,18 @@ public enum ByteTypeEnum{
     FALSE((byte)0, "false"), 
     ;
     
-    private Byte value;
-    private String name;
+    private final Byte value;
+    private final String name;
     
-    private ByteTypeEnum(Byte value, String name){
+    ByteTypeEnum(Byte value, String name){
         this.value = value;
         this.name = name;
     }
     
     /**
      * 是否为真
-     * @param value
-     * @return
+     * @param value value
+     * @return boolean
      */
     public static boolean isTrue(Byte value){
         return isSomeType(value, ByteTypeEnum.TRUE);
@@ -31,8 +31,8 @@ public enum ByteTypeEnum{
     
     /**
      * 是否为假
-     * @param value
-     * @return
+     * @param value value
+     * @return boolean
      */
     public static boolean isFalse(Byte value){
         return isSomeType(value, ByteTypeEnum.FALSE);

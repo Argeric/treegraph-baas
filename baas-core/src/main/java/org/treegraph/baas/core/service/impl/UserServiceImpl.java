@@ -60,23 +60,23 @@ import lombok.AllArgsConstructor;
 @Validated
 @Service
 @AllArgsConstructor
-public class UserServicempl implements UserService {
+public class UserServiceImpl implements UserService {
 
-    private UserInfoDas userInfoDas;
+    private final UserInfoDas userInfoDas;
     
-    private RoleDas roleDas;
+    private final RoleDas roleDas;
     
-    private InviteUserDas inviteUserDas;
+    private final InviteUserDas inviteUserDas;
     
-    private ConsortiumDas consortiumDas;
+    private final ConsortiumDas consortiumDas;
 	
-    private PasswordService passwordService;
+    private final PasswordService passwordService;
 	
-    private BuildService buildService;
+    private final BuildService buildService;
     
-    private EmailService emailService;
+    private final EmailService emailService;
     
-    private TokenService tokenService;
+    private final TokenService tokenService;
     
 	public void createUser(CreateUserRequest req) {
 		Optional<UserInfoPo> userInfoOp = userInfoDas.findByAccount(req.getAccount());
@@ -97,7 +97,7 @@ public class UserServicempl implements UserService {
 				.orElseThrow(() -> new AlertException("user.not.found"));
 		validateRoleInfo(req.getRoles());
 		List<UserRoleInvitePo> userRoleInvites = Lists.newArrayList();
-		req.getRoles().stream().forEach(role -> {
+		req.getRoles().forEach(role -> {
 			List<UserRoleInvitePo> userRoleInviteList = role.getRoleIds().stream()
 					.map(roleId -> UserRoleInvitePo.builder()
 							.inviteId(null)
@@ -138,7 +138,7 @@ public class UserServicempl implements UserService {
 		Map<String, List<String>> roleInfoMap = userRoleInvites.stream()
 				.collect(Collectors.groupingBy(item -> item.getConsortiumId() + "," + item.getOrganizationName(),
 						Collectors.mapping(UserRoleInvitePo::getRoleId, Collectors.toList())));
-		List<RoleInfo> roleInfos = roleInfoMap.entrySet().stream().map(item -> {
+		List<RoleInfo> roleInfoList = roleInfoMap.entrySet().stream().map(item -> {
 			List<String> paras = SplitterConstant.COMMA_SPLITTER.splitToList(item.getKey());
 			return RoleInfo.builder()
 					.consId(paras.get(0))
@@ -146,7 +146,7 @@ public class UserServicempl implements UserService {
 					.roleIds(item.getValue())
 					.build();
 		}).collect(Collectors.toList());
-		List<Role> roles = validateRoleInfo(roleInfos);
+		List<Role> roles = validateRoleInfo(roleInfoList);
 		
 		List<UserRolePo> userRoles = buildService.buildUserRoles(userInvite.getAccepter(), roles);
 		return userInfoDas.createUserRoles(userRoles);
@@ -203,12 +203,10 @@ public class UserServicempl implements UserService {
 	public List<UserInfo> queryUser(QueryUserRequest req) {
 		String account = req.getAccount();
 		List<UserInfoPo> users = userInfoDas.findByAccountLike(account);
-		
-		List<UserInfo> userList = users.stream().map(item -> UserInfo.builder().id(item.getId())
+
+		return users.stream().map(item -> UserInfo.builder().id(item.getId())
 				.account(item.getAccount())
 				.name(item.getName()).build()).collect(Collectors.toList());
-
-		return userList;
 	}
 	
 	public ListUserResponse listUser(ListUserRequest req){
@@ -232,15 +230,13 @@ public class UserServicempl implements UserService {
 						.roles(roleMap.get(item.getId()))
 						.build())
 				.collect(Collectors.toList());
-		
-		ListUserResponse listUserResponse = ListUserResponse.builder()
+
+		return ListUserResponse.builder()
 				.current(req.getCurrent())
 				.pageSize(req.getPageSize())
 				.total(pageInfo.getTotal())
 				.list(users)
 				.build();
-		
-		return listUserResponse;
 	}
 	
 	public boolean modifyPwd(ModifyPwdRequest req){
@@ -276,11 +272,11 @@ public class UserServicempl implements UserService {
 		List<String> reqRoleIds = reqRoles.stream().map(Role::getRoleId).collect(Collectors.toList());
 		List<UserRolePo> dbUserRoles = roleDas.findUserRolesByUserId(req.getId());
 		List<String> dbRoleIds = dbUserRoles.stream().map(UserRolePo::getRoleId).collect(Collectors.toList());
-		List<String> interset = Lists.newArrayList();
-		interset.addAll(reqRoleIds);
-		interset.retainAll(dbRoleIds);
-		reqRoleIds.removeAll(interset);
-		dbRoleIds.removeAll(interset);
+		List<String> intersect = Lists.newArrayList();
+		intersect.addAll(reqRoleIds);
+		intersect.retainAll(dbRoleIds);
+		reqRoleIds.removeAll(intersect);
+		dbRoleIds.removeAll(intersect);
 		
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
@@ -330,19 +326,19 @@ public class UserServicempl implements UserService {
 		
 		List<String> consIds = roles.stream().map(RoleInfo::getConsId).collect(Collectors.toList());
 		List<RolePo> dbRoles = roleDas.findByConsIds(consIds);
-		Map<String, List<String>> dbConsIdRoldIdMap = dbRoles.stream().collect(
+		Map<String, List<String>> dbConsIdRoleIdMap = dbRoles.stream().collect(
 				Collectors.groupingBy(RolePo::getConsortiumId, Collectors.mapping(RolePo::getId, Collectors.toList())));
 		
-		roles.stream().forEach(item -> {
-			List<String> dbRoleIdList = dbConsIdRoldIdMap.get(item.getConsId());
+		roles.forEach(item -> {
+			List<String> dbRoleIdList = dbConsIdRoleIdMap.get(item.getConsId());
 			Assert.notEmpty(dbRoleIdList, "给用户所授角色,联盟无此角色[" + item.getConsId() + "]");
 			List<String> reqRoleIdList = item.getRoleIds();
-			reqRoleIdList.stream()
+			reqRoleIdList
 					.forEach(roleId -> Assert.isTrue(dbRoleIdList.contains(roleId), "给用户所授角色无效[" + roleId + "]"));
 		});
 		
 		List<Role> userRoleList = Lists.newArrayList();
-		roles.stream().forEach(item -> {
+		roles.forEach(item -> {
 			List<Role> userRoles = item.getRoleIds().stream()
 					.map(roleId -> Role.builder().consId(item.getConsId()).roleId(roleId).build())
 					.collect(Collectors.toList());
@@ -369,10 +365,10 @@ public class UserServicempl implements UserService {
 				.collect(Collectors.groupingBy(item -> item.getUserId() + "," + item.getConsortiumId()));
 		
 		return userRoles.stream().collect(Collectors.groupingBy(UserRolePo::getUserId)).entrySet().stream()
-				.collect(Collectors.toMap(item -> item.getKey(), item -> {
+				.collect(Collectors.toMap(Map.Entry::getKey, item -> {
 					List<String> roleIds = item.getValue().stream().map(UserRolePo::getRoleId)
 							.collect(Collectors.toList());
-					List<RolePo> rolePos = roleIds.stream().map(roleId -> allRoleMap.get(roleId))
+					List<RolePo> rolePos = roleIds.stream().map(allRoleMap::get)
 							.collect(Collectors.toList());
 					Map<String, List<RolePo>> rolePoMap = rolePos.stream()
 							.collect(Collectors.groupingBy(RolePo::getConsortiumId));

@@ -36,15 +36,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class TokenServicempl implements TokenService {
+public class TokenServiceImpl implements TokenService {
 
-    private UserInfoDas userInfoDas;
+    private final UserInfoDas userInfoDas;
     
-    private UserTokenDas userTokenDas;
+    private final UserTokenDas userTokenDas;
     
-    private InviteUserDas inviteUserDas;
+    private final InviteUserDas inviteUserDas;
     
-    private PermissionDas permissionDas;
+    private final PermissionDas permissionDas;
     
     private static final Map<String, String> URI_PERMISSION_MAP = Maps.newHashMap();
     
@@ -132,11 +132,11 @@ public class TokenServicempl implements TokenService {
     	// check invite
     	Long inviteId = Long.parseLong(JwtUtils.getInviteId(paraMap));
     	String inviter = JwtUtils.getInviter(paraMap);
-    	String accepter = JwtUtils.getAcceptor(paraMap);
+    	String acceptor = JwtUtils.getAcceptor(paraMap);
 		UserInvitePo invite = inviteUserDas.findById(inviteId)
 				.orElseThrow(() -> new AlertException("邀请不存在[" + inviteId + "]"));
     	Assert.isTrue(invite.getInviter().equals(inviter), "邀请人不一致["+invite.getInviter()+"]");
-    	Assert.isTrue(invite.getAccepter().equals(accepter), "被邀请人不一致["+invite.getAccepter()+"]");
+    	Assert.isTrue(invite.getAccepter().equals(acceptor), "被邀请人不一致["+invite.getAccepter()+"]");
 		Assert.isTrue(inviter.equals(WebHelper.getUserId()),
 				"被邀请人和登陆用户不一致[" + invite.getInviter() + "][" + WebHelper.getUserId() + "]");
     	
@@ -154,8 +154,8 @@ public class TokenServicempl implements TokenService {
     	Set<String> consAdminSet = Sets.newHashSet();
     	Set<String> consIdSet = Sets.newHashSet();
     	Map<String, Set<String>> consPermMap = Maps.newHashMap();
-    	List<PermissionInfoBo> permInfos = permissionDas.findPermissionInfoByUserId(userId);
-    	for(PermissionInfoBo permInfo:permInfos){
+    	List<PermissionInfoBo> permInfoList = permissionDas.findPermissionInfoByUserId(userId);
+    	for(PermissionInfoBo permInfo:permInfoList){
     		Integer roleType = permInfo.getRoleType();
     		String consId = permInfo.getConsId();
     		String permCode = permInfo.getPermCode();
@@ -166,18 +166,14 @@ public class TokenServicempl implements TokenService {
     			consAdminSet.add(consId);
     		}
     		consIdSet.add(consId);
-    		Set<String> permSet = consPermMap.get(consId);
-    		if(permSet == null) {
-    			permSet = Sets.newHashSet();
-    			consPermMap.put(consId, permSet);
-    		}
-    		permSet.add(permCode);
+			Set<String> permSet = consPermMap.computeIfAbsent(consId, k -> Sets.newHashSet());
+			permSet.add(permCode);
     	}
     	String consIdsCond = getConsId(consIdSet);
     	PermHelper.init(sysAdminFlag, consAdminSet, consIdSet, consPermMap, consIdsCond);
     	
     	Set<String> ownPerms = Sets.newHashSet();
-    	consPermMap.values().stream().forEach(item -> ownPerms.addAll(item));
+    	consPermMap.values().forEach(ownPerms::addAll);
     	String reqPerm = URI_PERMISSION_MAP.get(uri);
     	boolean permit = TAG_DATA_PERMISSION.equals(reqPerm) || ownPerms.contains(reqPerm);
 		log.info("uri======>" + uri + "\npermit======>" + permit + "\nreqPerm======>" + reqPerm + "\nownPerms======>"
@@ -190,7 +186,7 @@ public class TokenServicempl implements TokenService {
 			return null;
 		}
 		StringJoiner cond = new StringJoiner(",", "(", ")");
-		consIds.stream().forEach(item -> cond.add(new StringJoiner("", "'", "'").add(item).toString()));
+		consIds.forEach(item -> cond.add(new StringJoiner("", "'", "'").add(item).toString()));
 		return cond.toString();
 	}
 }

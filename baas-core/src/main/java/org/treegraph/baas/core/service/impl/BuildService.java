@@ -63,13 +63,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BuildService {
 	
-    private PermissionDas permissionDas;
+    private final PermissionDas permissionDas;
 	
-    private PasswordService passwordService;
+    private final PasswordService passwordService;
     
-    private VaultKeypairBuildService vaultKeypairBuildService;
+    private final VaultKeypairBuildService vaultKeypairBuildService;
     
-    private BlockchainRpcService rpcService;
+    private final BlockchainRpcService rpcService;
 
 	public RoleInfoBo buildRole(int roleType, String roleName, String consId, List<String> reqPermissions) {
    		LocalDateTime now = LocalDateTime.now();
@@ -89,7 +89,7 @@ public class BuildService {
    		List<RolePermissionPo> rolePermissionList = Lists.newArrayList();
 		if(CollectionUtils.isNotEmpty(reqPermissions)) {
 			Map<String, Long> permissionCodeIdMap = permissionDas.validatePermissions(reqPermissions);
-   			reqPermissions.stream().forEach(item -> {
+   			reqPermissions.forEach(item -> {
    				RolePermissionPo rolePerm = RolePermissionPo.builder()
    						.roleId(role.getId())
    						.permissionId(permissionCodeIdMap.get(item))
@@ -173,21 +173,21 @@ public class BuildService {
 	}
 	
 	public UserOrgBo buildModifyUserOrg(List<UserOrganizationPo> dbUserOrgs, List<UserOrganizationPo> reqUserOrgs) {
-		Set<String> dbOrgs = dbUserOrgs.stream().map(item -> this.buildUserOrgIdentifier(item))
+		Set<String> dbOrgs = dbUserOrgs.stream().map(this::buildUserOrgIdentifier)
 				.collect(Collectors.toSet());
-		Set<String> reqOrgs = reqUserOrgs.stream().map(item -> this.buildUserOrgIdentifier(item))
+		Set<String> reqOrgs = reqUserOrgs.stream().map(this::buildUserOrgIdentifier)
 				.collect(Collectors.toSet());
 		
-		Set<String> intersetOrgs = Sets.newHashSet();
-		intersetOrgs.addAll(dbOrgs);
-		intersetOrgs.retainAll(reqOrgs);
-		reqOrgs.removeAll(intersetOrgs);log.info("reqOrgs======>"+JSON.toJSONString(reqOrgs));
-		dbOrgs.removeAll(intersetOrgs);log.info("dbOrgs======>"+JSON.toJSONString(dbOrgs));
+		Set<String> intersectOrgs = Sets.newHashSet();
+		intersectOrgs.addAll(dbOrgs);
+		intersectOrgs.retainAll(reqOrgs);
+		reqOrgs.removeAll(intersectOrgs);log.info("reqOrgs======>"+JSON.toJSONString(reqOrgs));
+		dbOrgs.removeAll(intersectOrgs);log.info("dbOrgs======>"+JSON.toJSONString(dbOrgs));
 		
-		List<UserOrganizationPo> toAddUserOrgs = reqOrgs.stream().map(item -> this.buildUserOrg(item))
+		List<UserOrganizationPo> toAddUserOrgs = reqOrgs.stream().map(this::buildUserOrg)
 				.collect(Collectors.toList());
 		Map<String, UserOrganizationPo> dbOrgMap = dbUserOrgs.stream()
-				.collect(Collectors.toMap(item -> this.buildUserOrgIdentifier(item), Functions.identity()));
+				.collect(Collectors.toMap(this::buildUserOrgIdentifier, Functions.identity()));
 		List<Long> toDelUserOrgIds = dbOrgs.stream().map(item -> dbOrgMap.get(item).getId())
 				.collect(Collectors.toList());
 
@@ -198,8 +198,7 @@ public class BuildService {
 	}
 	
 	private String buildUserOrgIdentifier(UserOrganizationPo usrOrg) {
-		return new StringBuilder(usrOrg.getUserId()).append(",").append(usrOrg.getConsortiumId()).append(",")
-				.append(usrOrg.getOrganizationName()).toString();
+		return usrOrg.getUserId() + "," + usrOrg.getConsortiumId() + "," + usrOrg.getOrganizationName();
 	}
 	
 	private UserOrganizationPo buildUserOrg(String identifier) {
@@ -242,8 +241,7 @@ public class BuildService {
 	}
 	
 	public MembershipChangeBo preMembershipChange(String consId, String blockchainId, List<NodePo> existNodes,
-			List<NodePo> toAddNodes, List<NodePo> toRemoveNodes, Map<String, NodePo> finalStateNodeMap)
-			throws Exception {
+			List<NodePo> toAddNodes, List<NodePo> toRemoveNodes, Map<String, NodePo> finalStateNodeMap) {
 		// process null case
 		toAddNodes = CollectionUtils.isEmpty(toAddNodes) ? Lists.newArrayList() : toAddNodes;
 		toRemoveNodes = CollectionUtils.isEmpty(toRemoveNodes) ? Lists.newArrayList() : toRemoveNodes;

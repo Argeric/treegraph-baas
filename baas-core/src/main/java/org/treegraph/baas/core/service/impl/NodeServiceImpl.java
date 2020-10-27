@@ -45,24 +45,24 @@ import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
-public class NodeServicempl implements NodeService {
+public class NodeServiceImpl implements NodeService {
 
-    private NodeDas nodeDas;
+    private final NodeDas nodeDas;
     
-    private ConsortiumDas consortiumDas;
+    private final ConsortiumDas consortiumDas;
     
-    private BlockchainDas blockchainDas;
+    private final BlockchainDas blockchainDas;
     
-    private NodeCustomizedConfigDas nodeCustomizedConfigDas;
+    private final NodeCustomizedConfigDas nodeCustomizedConfigDas;
     
-    private BuildService buildService;
+    private final BuildService buildService;
     
-    private BlockchainRpcService rpcService;
+    private final BlockchainRpcService rpcService;
  
 	public ListNodeResponse listNodes(ListNodeRequest req) {
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
     	List<NodePo> nodes = nodeDas.findAll(req.getConsId(), req.getIp());
-    	PageInfo<NodePo> pageInfo = new PageInfo<NodePo>(nodes);
+    	PageInfo<NodePo> pageInfo = new PageInfo<>(nodes);
     	
 		List<NodePo> nodeList = pageInfo.getList();
 		List<String> consIds = nodeList.stream().map(NodePo::getConsortiumId).collect(Collectors.toList());
@@ -75,7 +75,7 @@ public class NodeServicempl implements NodeService {
 		Map<String, String> blockchainIdNameMap = blockchains.stream()
 				.collect(Collectors.toMap(BlockChainPo::getId, BlockChainPo::getBlockchainName));
     	
-    	List<NodeInfo> nodeInfos = nodeList.stream().map(item -> {
+    	List<NodeInfo> nodeInfoList = nodeList.stream().map(item -> {
 			Status nodeStatus = HeartbeatListener.getInstance().getNodeStatus(item.getConsortiumId(), item.getId());
 			
 			return NodeInfo.builder()
@@ -96,7 +96,7 @@ public class NodeServicempl implements NodeService {
     			.current(req.getCurrent())
 				.pageSize(req.getPageSize())
     			.total(pageInfo.getTotal())
-    			.list(nodeInfos)
+    			.list(nodeInfoList)
     			.build();
 	}
 	

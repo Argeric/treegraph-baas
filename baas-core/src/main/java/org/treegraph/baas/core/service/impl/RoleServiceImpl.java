@@ -43,29 +43,29 @@ import lombok.AllArgsConstructor;
 @Validated
 @Service
 @AllArgsConstructor
-public class RoleServicempl implements RoleService {
+public class RoleServiceImpl implements RoleService {
 
-    private RoleDas roleDas;
+    private final RoleDas roleDas;
 	
-    private PermissionDas permissionDas;
+    private final PermissionDas permissionDas;
     
-    private ConsortiumDas consortiumDas;
+    private final ConsortiumDas consortiumDas;
     
-    private BuildService buildService;
+    private final BuildService buildService;
     
     public ListRoleResponse listRole(ListRoleRequest req) {
     	PageHelper.startPage(req.getCurrent(), req.getPageSize());
     	List<RolePo> roles = roleDas.findAll(null, req.getConsId(), req.getName());
-    	PageInfo<RolePo> pageInfo = new PageInfo<RolePo>(roles);
+    	PageInfo<RolePo> pageInfo = new PageInfo<>(roles);
     	
     	List<RolePo> roleList = pageInfo.getList();
-    	List<RolePermissionInfo> rolePermInfos = getRolePermissionInfo(roleList);
+    	List<RolePermissionInfo> rolePermInfoList = getRolePermissionInfo(roleList);
     	
     	return ListRoleResponse.builder()
     			.current(req.getCurrent())
 				.pageSize(req.getPageSize())
     			.total(pageInfo.getTotal())
-    			.list(rolePermInfos)
+    			.list(rolePermInfoList)
     			.build();
     }
     
@@ -106,11 +106,11 @@ public class RoleServicempl implements RoleService {
 			List<String> dbPermissionCodes = dbPermissions.stream().map(PermissionPo::getPermissionCode)
 					.collect(Collectors.toList());
 	   		
-	   		List<String> interset = Lists.newArrayList();
-	   		interset.addAll(reqPermissionCodes);
-	   		interset.retainAll(dbPermissionCodes);
-	   		reqPermissionCodes.removeAll(interset);
-	   		dbPermissionCodes.removeAll(interset);
+	   		List<String> intersect = Lists.newArrayList();
+			intersect.addAll(reqPermissionCodes);
+			intersect.retainAll(dbPermissionCodes);
+	   		reqPermissionCodes.removeAll(intersect);
+	   		dbPermissionCodes.removeAll(intersect);
 	   		
 	   		toAddPerms = reqPermissionCodes.stream().map(item -> RolePermissionPo.builder()
 	   				.roleId(roleId)
@@ -122,7 +122,7 @@ public class RoleServicempl implements RoleService {
 					.updateTime(now)
 					.updateBy(WebHelper.getUserId())
 	   				.build()).collect(Collectors.toList());
-			toDelPermIds = dbPermissionCodes.stream().map(item -> permissionCodeIdMap.get(item))
+			toDelPermIds = dbPermissionCodes.stream().map(permissionCodeIdMap::get)
 					.collect(Collectors.toList());
    		}
    		
@@ -140,13 +140,10 @@ public class RoleServicempl implements RoleService {
 		List<PermissionPo> permissions = permissionDas.findAll();
 		Set<String> permissionCodeSet = permissions.stream().map(PermissionPo::getPermissionCode)
 				.collect(Collectors.toSet());
-		reqPermissions.stream().forEach(item -> {
-			Assert.isTrue(permissionCodeSet.contains(item), "角色权限非法[" + item + "]");
-		});
+		reqPermissions.forEach(item -> Assert.isTrue(permissionCodeSet.contains(item), "角色权限非法[" + item + "]"));
 
-		Map<String, Long> permissionCodeIdMap = permissions.stream()
+		return permissions.stream()
 				.collect(Collectors.toMap(PermissionPo::getPermissionCode, PermissionPo::getId));
-		return permissionCodeIdMap;
 	}
 
 	private List<RolePermissionInfo> getRolePermissionInfo(List<RolePo> roleList) {

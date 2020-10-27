@@ -59,22 +59,22 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BlockchainServiceImpl implements BlockchainService {
 
-	private BlockchainDas blockchainDas;
+	private final BlockchainDas blockchainDas;
 	
-	private ConsortiumDas consortiumDas;
+	private final ConsortiumDas consortiumDas;
 	
-	private NodeDas nodeDas;
+	private final NodeDas nodeDas;
 	
-	private UserInfoDas userInfoDas;
+	private final UserInfoDas userInfoDas;
 	
-	private CertDas certDas;
+	private final CertDas certDas;
 	
-	private KeypairDas keypairDas;
+	private final KeypairDas keypairDas;
 
 	public ListBlockchainResponse listBlockchain(ListRequest req) {
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
 		List<BlockChainPo> chains = blockchainDas.findAll(null, null);
-		PageInfo<BlockChainPo> pageInfo = new PageInfo<BlockChainPo>(chains);
+		PageInfo<BlockChainPo> pageInfo = new PageInfo<>(chains);
 		
 		List<BlockChainPo> blockchains = pageInfo.getList();
 		List<String> consIdList = blockchains.stream().map(BlockChainPo::getConsortiumId).collect(Collectors.toList());
@@ -97,7 +97,7 @@ public class BlockchainServiceImpl implements BlockchainService {
 		List<KeypairPo> consKeypairs = keypairDas.findAll(consIdList, CryptoEnum.KeyType.CONSORTIUM.getCode(),
 				CryptoEnum.Algo.RSA.getCode());
 		Map<String, List<String>> expireDateMap = Maps.newHashMap();
-		consKeypairs.stream().forEach(item -> {
+		consKeypairs.forEach(item -> {
 			try {
 				X509Certificate cert = CertUtil.certFromPem(item.getCertStr());
 				List<String> expireDates = Lists.newArrayList();
@@ -105,12 +105,14 @@ public class BlockchainServiceImpl implements BlockchainService {
 				expireDates.add(DateUtils.format(cert.getNotAfter(), DateUtils.SYSTEM_DATE_FORMAT));
 				expireDateMap.put(item.getConsortiumId(), expireDates);
 			} catch (Exception e) {
+				log.debug("get expireDates err", e);
 			}
 		});
 		
 		List<BlockchainInfo> list = blockchains.stream().map(item ->{ 
 			    log.info("item:"+JSON.toJSONString(item));
-			    List<String> expireDates = expireDateMap.get(item.getConsortiumId());
+				Integer status = BlockchainEnum.Status.getByCode(item.getStatus()).getCode();
+				List<String> expireDates = expireDateMap.get(item.getConsortiumId());
 				return BlockchainInfo.builder()
 				.id(item.getId())
 				.name(item.getBlockchainName())
@@ -121,7 +123,7 @@ public class BlockchainServiceImpl implements BlockchainService {
 						: null)
 				.createUser(userMap.get(item.getCreateBy()).getName())
 				.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
-				.status(BlockchainEnum.Status.getByCode(item.getStatus()).getCode())
+				.status(status)
 				.nodeCount(chainCountMap.get(item.getId()) == null ? "0" : chainCountMap.get(item.getId()) + "")
 				.tps(null)
 				.contractCount(null)
@@ -157,7 +159,7 @@ public class BlockchainServiceImpl implements BlockchainService {
 		ConsortiumPo cons = consortiumDas.findById(chain.getConsortiumId())
 				.orElseThrow(() -> new AlertException("consortium.not.found"));
 		List<NodePo> nodes = nodeDas.findByConsIdAndChainId(cons.getConsortiumId(), chain.getId());
-		List<NodeInfo> nodeInfos = nodes.stream().map(item -> NodeInfo.builder()
+		List<NodeInfo> nodeInfoList = nodes.stream().map(item -> NodeInfo.builder()
 				.ip(item.getNodeIp())
 				.port(item.getNodePort()+"")
 				.org(item.getOrganizationName())
@@ -167,7 +169,7 @@ public class BlockchainServiceImpl implements BlockchainService {
 				.id(chain.getId())
 				.name(chain.getBlockchainName())
 				.alertEmail(chain.getAlarmEmail())
-				.nodes(nodeInfos)
+				.nodes(nodeInfoList)
 				.consId(chain.getConsortiumId())
 				.consName(cons.getName())
 				.consAvatar(cons.getAvatar() != null ? new String(cons.getAvatar()) : null)
@@ -183,9 +185,9 @@ public class BlockchainServiceImpl implements BlockchainService {
 
 	public ListCertResponse listCert(ListCertRequest req) {
 		List<CertificateRequestPo> certReqList = certDas.findByBlockchainId(req.getBlockchainId());
-		List<String> applyeeIds = certReqList.stream().map(CertificateRequestPo::getApplyUserId)
+		List<String> applyUserIdList = certReqList.stream().map(CertificateRequestPo::getApplyUserId)
 				.collect(Collectors.toList());
-		List<UserInfoPo> users = userInfoDas.findByIds(applyeeIds);
+		List<UserInfoPo> users = userInfoDas.findByIds(applyUserIdList);
 		Map<String, UserInfoPo> userMap = users.stream()
 				.collect(Collectors.toMap(UserInfoPo::getId, Function.identity()));
 		

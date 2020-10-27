@@ -32,9 +32,9 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class LogServiceImpl implements LogService{
 
-	private UserInfoDas userInfoPoDas;
+	private final UserInfoDas userInfoPoDas;
 
-	private UserOperLogDas userOperLogDas;
+	private final UserOperLogDas userOperLogDas;
 
 	/**
 	 * 添加登录日志
@@ -82,8 +82,8 @@ public class LogServiceImpl implements LogService{
 
 		List<UserOperLogPo> list = pageInfo.getList();
 		List<String> userIds = list.stream().map(UserOperLogPo::getUserId).collect(Collectors.toList());
-		List<UserInfoPo> userInfos = userInfoPoDas.findByIds(userIds);
-		Map<String, String> userInfoMap = userInfos.stream()
+		List<UserInfoPo> userInfoList = userInfoPoDas.findByIds(userIds);
+		Map<String, String> userInfoMap = userInfoList.stream()
 				.collect(Collectors.toMap(UserInfoPo::getId, UserInfoPo::getAccount));
 		List<OperLogInfo> logs = list.stream()
 				.map(item -> OperLogInfo.builder()

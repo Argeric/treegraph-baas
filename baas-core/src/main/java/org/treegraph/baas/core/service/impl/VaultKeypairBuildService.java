@@ -57,13 +57,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class VaultKeypairBuildService {
 	
-    private KeypairDas keypairDas;
+    private final KeypairDas keypairDas;
     
-    private NodeKeyDas nodeKeyDas;
+    private final NodeKeyDas nodeKeyDas;
     
-    private VaultOperations vaultOperations;
+    private final VaultOperations vaultOperations;
     
-    private KeypairCertUtil keypairCertUtil;
+    private final KeypairCertUtil keypairCertUtil;
     
 	public KeypairPo getRootKeypair() throws Exception{
 		List<KeypairPo> rootKeypairs = keypairDas.findAll(ConsortiumConstant.DEFAULT_CONSORTIUM_ID,
@@ -136,7 +136,7 @@ public class VaultKeypairBuildService {
 	public NodeKeypairBo getNodeKeypairBo(String consortiumId, NodePo node) {
 		List<NodeKeyPo> nodeKeys = nodeKeyDas.findAll(consortiumId, node.getId());
 		if(CollectionUtils.isNotEmpty(nodeKeys)) {
-			List<Long> keypairIds = nodeKeys.stream().map(item -> item.getKeypairId()).collect(Collectors.toList());
+			List<Long> keypairIds = nodeKeys.stream().map(NodeKeyPo::getKeypairId).collect(Collectors.toList());
 			List<KeypairPo> nodeKeypairs = keypairDas.findByIds(keypairIds);
 			Optional<KeypairPo> keypairOp = nodeKeypairs.stream()
 					.filter(item -> item.getAlgorithm().equalsIgnoreCase(ALGO_NODE)).findFirst();
@@ -179,9 +179,9 @@ public class VaultKeypairBuildService {
 		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(ALGO_RPC, SUBJECT_RPC_CERT, lastCertExpireDate,
 				consKeypair);
 		String rpcCert = keypairCert.getCertStr();
-		String rpcPriv = privateKeyToPem(privateKeyFromBase64(ALGO_RPC, keypairCert.getPrivateKey()));
-		log.info("getGrpcKeypair grpcCert:{},grpcPriv:{}", rpcCert, rpcPriv);
-		return GRpcKeypairCertBo.builder().consId(consortiumId).cert(rpcCert).privateKey(rpcPriv).build();
+		String rpcPrivate = privateKeyToPem(privateKeyFromBase64(ALGO_RPC, keypairCert.getPrivateKey()));
+		log.info("getGrpcKeypair grpcCert:{},grpcPrivate:{}", rpcCert, rpcPrivate);
+		return GRpcKeypairCertBo.builder().consId(consortiumId).cert(rpcCert).privateKey(rpcPrivate).build();
 	}
 
 	private void vaultMount() {
@@ -202,12 +202,12 @@ public class VaultKeypairBuildService {
 	private void writeRootCaToVault(String certPem, String keyPem) {
 		vaultMount();
 		
-		Map<String, String> pembundle = Collections.singletonMap("pem_bundle", certPem + keyPem);
+		Map<String, String> pemBundle = Collections.singletonMap("pem_bundle", certPem + keyPem);
 		VaultResponse writeCaToVaultResponse = vaultOperations.write(X509CertConstant.VAULT_PKI_PATH + "/config/ca",
-				pembundle);
+				pemBundle);
 		log.info("writeCaResponse resp:{}", JSON.toJSONString(writeCaToVaultResponse));
 
-		Map<String, String> role = new HashMap<String, String>();
+		Map<String, String> role = new HashMap<>();
 		role.put("allowed_domains", "localhost,conflux-chain.org");
 		role.put("allow_subdomains", "true");
 		role.put("allow_localhost", "true");

@@ -20,7 +20,7 @@ public class EmailService{
     public void sendEmail(List<String> toAddresses, String title, String content){
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(from);
-        message.setTo(toAddresses.toArray(new String[toAddresses.size()]));
+        message.setTo(toAddresses.toArray(new String[0]));
         message.setSubject(title);
         message.setText(content);
         sender.send(message);

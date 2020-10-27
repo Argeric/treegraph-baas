@@ -16,13 +16,13 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class StatServiceImpl implements StatService {
 	
-	private ConsortiumDas consortiumDas;
+	private final ConsortiumDas consortiumDas;
 
-	private BlockchainDas blockchainDas;
+	private final BlockchainDas blockchainDas;
 	
-	private NodeDas nodeDas;
+	private final NodeDas nodeDas;
 	
-	private UserInfoDas userInfoDas;
+	private final UserInfoDas userInfoDas;
 	
 	public QueryDashboardResponse queryDashboardInfo() {
 		

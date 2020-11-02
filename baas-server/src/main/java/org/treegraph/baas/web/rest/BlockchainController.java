@@ -20,6 +20,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
 import org.treegraph.baas.core.service.CertService;
+import org.treegraph.baas.core.util.LogSkip;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -65,7 +66,8 @@ public class BlockchainController {
 		ListCertResponse data = blockchainService.listCert(listCertRequest);
 		return BaasResult.success(data);
 	}
-	
+
+	@LogSkip
 	@PostMapping("/ca/download")
 	@ApiOperation("下载（申请）证书")
 	public BaasResult<Void> downloadCert(@RequestBody DownloadRpcCertRequest downloadRpcCertRequest, HttpServletResponse response) throws Exception {

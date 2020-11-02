@@ -11,12 +11,10 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Encoding;
@@ -84,7 +82,9 @@ public class CertUtil {
 		try {
 	        PKCS10CertificationRequestBuilder builder = new JcaPKCS10CertificationRequestBuilder(subject, publicKey);
 	        if(CollectionUtils.isNotEmpty(sanList)) {
-				List<GeneralName> generalNameList = sanList.stream()
+				// sanList去重
+				Set<String> sanSet = Sets.newHashSet(sanList);
+				List<GeneralName> generalNameList = sanSet.stream()
 						.map(item -> new GeneralName(GeneralName.iPAddress, item))
 						.collect(Collectors.toList());
 		        GeneralNames generalNames = new GeneralNames(generalNameList.toArray(new GeneralName[] {}));

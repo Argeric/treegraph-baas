@@ -1,11 +1,9 @@
 package org.treegraph.baas.core.util.crypto.x509;
 
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.time.Duration;
-import java.util.Calendar;
-import java.util.Date;
-
+import com.alibaba.fastjson.JSON;
+import com.google.common.base.Splitter;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.Certificate;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
@@ -22,12 +20,12 @@ import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.bo.KeypairCertBo;
 import org.treegraph.baas.core.util.DateUtils;
 
-import com.alibaba.fastjson.JSON;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.time.Duration;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 @Validated
 @Service
@@ -55,7 +53,7 @@ public class KeypairCertUtil {
 				.build();
 	}
     
-	public KeypairCertBo buildKeypairCert(String algo, String subject, Date latestCertExpireDate,
+	public KeypairCertBo buildKeypairCert(String algo, String subject, Date latestCertExpireDate, List<String> sanList,
 			KeypairPo parentKeypair) {
 		KeyPair keyPair;
 		String publicKey;
@@ -80,7 +78,7 @@ public class KeypairCertUtil {
 		String certStr;
 		try {
 			PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(subject), keyPair.getPublic(),
-					keyPair.getPrivate(), Lists.newArrayList("101.200.183.108"));
+					keyPair.getPrivate(), sanList);
 			if (X509CertConstant.DEFAULT_CERT_SIGN_TYPE == CryptoEnum.CertificateSignType.BC) {
 				certStr = signCertificateRequestByBC(parentKeypair.getAlgorithm(), parentKeypair, csr);
 			} else if(X509CertConstant.DEFAULT_CERT_SIGN_TYPE == CryptoEnum.CertificateSignType.VAULT) {

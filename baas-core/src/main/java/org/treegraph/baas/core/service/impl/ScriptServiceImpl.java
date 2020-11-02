@@ -125,6 +125,7 @@ public class ScriptServiceImpl implements ScriptService {
 		// nodes info
 		StringBuilder consortiumNodes = new StringBuilder();
 		List<NodeKeypairBo> nodeKeypairBoList = new ArrayList<>();
+		List<String> toDownloadNodeIpList = Lists.newArrayList();
 		for(NodePo node:nodes){
 			NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypairBo(consortiumId,
 					node);
@@ -140,6 +141,7 @@ public class ScriptServiceImpl implements ScriptService {
 			if(!node.getId().equalsIgnoreCase(nodes.get(nodes.size()-1).getId())) {
 				consortiumNodes.append(COMMA);
 			}
+			nodes.forEach(item -> toDownloadNodeIpList.add(item.getNodeIp()));
 		}
 		
 		// nodes info digest
@@ -168,7 +170,8 @@ public class ScriptServiceImpl implements ScriptService {
 			String ecPri = StringUtils.leftPad(ecKeypair.getPrivateKey().toString(16), 64, '0');
 			NodePo node = nodeKeypair.getNode();
 			String consId = node.getConsortiumId();
-			GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.geneNewRpcKeypair(consId, consKeypair, null);
+			GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.geneNewRpcKeypair(consId, consKeypair, null,
+					toDownloadNodeIpList);
 			StringBuffer scriptContent = new StringBuffer();
 			append(scriptContent, "consortium_cert = \"\"\"" + consKeypair.getCertStr() + "\"\"\"");
 			append(scriptContent, "consortium_nodes = \"\"\"" + consortiumNodes.toString() + "\"\"\"");

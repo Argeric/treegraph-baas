@@ -1,18 +1,24 @@
 package org.treegraph.baas.core.service.impl;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.request.DownloadRpcCertRequest;
+import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.domain.KeypairPo;
+import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.service.CertService;
 import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
 import org.treegraph.baas.core.util.LogSkip;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -25,6 +31,8 @@ import static org.treegraph.baas.core.constant.GRpcConstant.*;
 @AllArgsConstructor
 @Slf4j
 public class CertServiceImpl implements CertService {
+
+	private final NodeDas nodeDas;
     
     private final VaultKeypairBuildService vaultKeypairBuildService;
 
@@ -33,11 +41,25 @@ public class CertServiceImpl implements CertService {
 		// check and build
 		String consId = req.getConsId();
 		Assert.notNull(consId, "consortiumId.not.found");
+		List<NodePo> nodes = nodeDas.findAll(consId, null);
+		Assert.notEmpty(nodes, "node.not.found");
+
+		// get to support nodes
+		List<String> toDownloadNodeIpList = Lists.newArrayList();
+		List<String> toDownloadNodeIdList = req.getNodeId();
+		if(CollectionUtils.isNotEmpty(toDownloadNodeIdList)) {
+			Set<String>	toDownloadNodeIdSet = new HashSet<>(toDownloadNodeIdList);
+			nodes.stream().filter(item -> toDownloadNodeIdSet.contains(item.getId()))
+					.forEach(item -> toDownloadNodeIpList.add(item.getNodeIp()));
+		} else{
+			nodes.forEach(item -> toDownloadNodeIpList.add(item.getNodeIp()));
+		}
 
 		// get certs
 		KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consId, null);
 		String serverCertFile = consKeypair.getCertStr();
-		GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.geneNewRpcKeypair(consId, consKeypair, null);
+		GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.geneNewRpcKeypair(consId, consKeypair, null,
+				toDownloadNodeIpList);
 		Map<String, String> certPathContentMap = Maps.newHashMap();
 		certPathContentMap.put(SERVER_CERT_FILE, serverCertFile);
 		certPathContentMap.put(RPC_CERT_CHAIN_FILE, gRpcKeypair.getCert());

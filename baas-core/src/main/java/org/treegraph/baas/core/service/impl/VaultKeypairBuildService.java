@@ -114,7 +114,7 @@ public class VaultKeypairBuildService {
 	public KeypairPo geneNewConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair,
 			Date lastCertExpireDate) {
 		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(ALGO_CONS, SUBJECT_CONS_CERT, lastCertExpireDate,
-				rootKeypair);
+				null, rootKeypair);
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		return KeypairPo.builder()
@@ -173,16 +173,26 @@ public class VaultKeypairBuildService {
 				.build();
 		return NodeKeypairBo.builder().keypair(keypair).nodeKey(nodeKey).node(node).build();
 	}
-	
-	public GRpcKeypairCertBo geneNewRpcKeypair(String consortiumId, KeypairPo consKeypair, Date lastCertExpireDate)
-			throws Exception {
+
+	public GRpcKeypairCertBo geneNewRpcKeypair(String consortiumId, KeypairPo consKeypair, Date lastCertExpireDate,
+			List<String> sanList) throws Exception {
 		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(ALGO_RPC, SUBJECT_RPC_CERT, lastCertExpireDate,
-				consKeypair);
+				sanList, consKeypair);
 		String rpcCert = keypairCert.getCertStr();
 		String rpcPrivate = privateKeyToPem(privateKeyFromBase64(ALGO_RPC, keypairCert.getPrivateKey()));
 		log.info("getGrpcKeypair grpcCert:{},grpcPrivate:{}", rpcCert, rpcPrivate);
 		return GRpcKeypairCertBo.builder().consId(consortiumId).cert(rpcCert).privateKey(rpcPrivate).build();
 	}
+	
+//	public GRpcKeypairCertBo geneNewRpcKeypair(String consortiumId, KeypairPo consKeypair, Date lastCertExpireDate)
+//			throws Exception {
+//		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(ALGO_RPC, SUBJECT_RPC_CERT, lastCertExpireDate,
+//				consKeypair);
+//		String rpcCert = keypairCert.getCertStr();
+//		String rpcPrivate = privateKeyToPem(privateKeyFromBase64(ALGO_RPC, keypairCert.getPrivateKey()));
+//		log.info("getGrpcKeypair grpcCert:{},grpcPrivate:{}", rpcCert, rpcPrivate);
+//		return GRpcKeypairCertBo.builder().consId(consortiumId).cert(rpcCert).privateKey(rpcPrivate).build();
+//	}
 
 	private void vaultMount() {
 		VaultSysOperations adminOperations = vaultOperations.opsForSys();

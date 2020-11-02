@@ -70,9 +70,8 @@ public class BlockchainController {
 	@LogSkip
 	@PostMapping("/ca/download")
 	@ApiOperation("下载（申请）证书")
-	public BaasResult<Void> downloadCert(@RequestBody DownloadRpcCertRequest downloadRpcCertRequest, HttpServletResponse response) throws Exception {
+	public void downloadCert(@RequestBody DownloadRpcCertRequest downloadRpcCertRequest, HttpServletResponse response) throws Exception {
 		certService.downloadRpcCert(downloadRpcCertRequest, response);
-		return BaasResult.success();
 	}
 	
 	@PostMapping("/stop")

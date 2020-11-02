@@ -9,11 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.treegraph.baas.api.dto.BaasResult;
 import org.treegraph.baas.api.dto.BlockchainInfo;
 import org.treegraph.baas.api.dto.ListRequest;
-import org.treegraph.baas.api.dto.request.DownloadCertRequest;
-import org.treegraph.baas.api.dto.request.ListCertRequest;
-import org.treegraph.baas.api.dto.request.QueryBlockchainDetailRequest;
-import org.treegraph.baas.api.dto.request.QueryBlockchainRequest;
-import org.treegraph.baas.api.dto.request.SwitchBlockchainStatusRequest;
+import org.treegraph.baas.api.dto.request.*;
 import org.treegraph.baas.api.dto.response.ListBlockchainResponse;
 import org.treegraph.baas.api.dto.response.ListCertResponse;
 import org.treegraph.baas.api.dto.response.QueryBlockchainDetailResponse;
@@ -23,6 +19,9 @@ import org.treegraph.baas.core.service.BlockchainService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
+import org.treegraph.baas.core.service.CertService;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author zt
@@ -36,6 +35,8 @@ import lombok.AllArgsConstructor;
 public class BlockchainController {
 	
 	private final BlockchainService blockchainService;
+
+	private final CertService certService;
 
 	@PostMapping("/list")
 	@ApiOperation("区块链列表")
@@ -67,8 +68,8 @@ public class BlockchainController {
 	
 	@PostMapping("/ca/download")
 	@ApiOperation("下载（申请）证书")
-	public BaasResult<Void> downloadCert(@RequestBody DownloadCertRequest downloadCertRequest) {
-		blockchainService.downloadCert(downloadCertRequest);
+	public BaasResult<Void> downloadCert(@RequestBody DownloadRpcCertRequest downloadRpcCertRequest, HttpServletResponse response) throws Exception {
+		certService.downloadRpcCert(downloadRpcCertRequest, response);
 		return BaasResult.success();
 	}
 	

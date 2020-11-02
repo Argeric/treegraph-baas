@@ -39,8 +39,5 @@ public interface ConsortiumService {
 
 	boolean addNodes(AddNodesRequest addNodesRequest) throws Exception;
 
-	void downloadDeployScript(DownloadDeployScriptRequest downloadDeployScriptRequest, HttpServletResponse response)
-			throws Exception;
-	
 	void deferConsortiumCert(DeferCertificateRequest req) throws Exception;
 }

@@ -27,6 +27,7 @@ import org.treegraph.baas.api.dto.request.QueryConsRequest;
 import org.treegraph.baas.api.dto.response.ListConsResponse;
 import org.treegraph.baas.common.util.PermHelper;
 import org.treegraph.baas.core.service.ConsortiumService;
+import org.treegraph.baas.core.service.ScriptService;
 import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.SysManager;
 
@@ -46,6 +47,8 @@ import lombok.AllArgsConstructor;
 public class ConsortiumController {
 
 	private final ConsortiumService consortiumService;
+
+	private final ScriptService scriptService;
 
 	@PostMapping("/list")
 	@ApiOperation("联盟列表")
@@ -118,7 +121,7 @@ public class ConsortiumController {
 	@PostMapping("/script/download")
 	@ApiOperation("获取部署脚本")
 	public void getDeployScript(@RequestBody DownloadDeployScriptRequest downloadDeployScriptRequest, HttpServletResponse response) throws Exception {
-		consortiumService.downloadDeployScript(downloadDeployScriptRequest, response);
+		scriptService.downloadDeployScript(downloadDeployScriptRequest, response);
 	}
 	
 	@PostMapping("/cert/defer")

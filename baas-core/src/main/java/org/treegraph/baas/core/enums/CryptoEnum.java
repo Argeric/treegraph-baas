@@ -72,7 +72,11 @@ public class CryptoEnum {
 
 		CONSORTIUM(1, "联盟类型"),
 
-		NODE(2, "节点类型"),;
+		NODE(2, "节点类型"),
+
+		RPC(3, "RPC类型"),
+
+		;
 
 		private final Integer code;
 

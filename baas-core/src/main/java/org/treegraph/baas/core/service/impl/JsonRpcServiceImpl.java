@@ -31,6 +31,7 @@ import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.task.CheckMembershipChangeTimerTask;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.IdWorker;
+import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
 
@@ -245,6 +246,7 @@ public class JsonRpcServiceImpl implements BlockchainRpcService{
 		return txResult;
 	}
 
+	@LogSkip
 	public StatusBo getStatus(Heartbeat heartbeat) {
 		String uri = null;
 		String statusRequest = null;

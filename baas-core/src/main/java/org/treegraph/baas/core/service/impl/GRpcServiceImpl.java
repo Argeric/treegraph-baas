@@ -32,6 +32,7 @@ import org.treegraph.baas.core.service.bo.GRpcParaBo;
 import org.treegraph.baas.core.task.CheckMembershipChangeTimerTask;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.IdWorker;
+import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
 
@@ -234,15 +235,16 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		return txResult;
 	}
 
+	@LogSkip
 	public StatusBo getStatus(Heartbeat heartbeat) {
 		String uri = null;
 		Status statusResponse = null;
 		String error = null;
 		try {
 			GRpcParaBo rpcPara = getGRpcParas(heartbeat.getGroupId(), heartbeat.getId());
+			uri = ConfluxUtils.toUri(rpcPara.getIp(), rpcPara.getGRpcPort());
 			GrpcWeb3j cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
 					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
-			uri = ConfluxUtils.toUri(rpcPara.getIp(), rpcPara.getGRpcPort());
 			statusResponse = cfx.getStatus();
 		} catch(Exception e) {
 			error = e.getMessage();

@@ -8,6 +8,8 @@ import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.heartbeat.HeartbeatClient;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
+import org.treegraph.baas.core.heartbeat.bo.StatusBo;
+import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.util.ConfluxUtils;
 
 import com.alibaba.fastjson.JSON;
@@ -21,11 +23,13 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class JsonRpcHeartbeatClientImpl implements HeartbeatClient{
+public class RpcHeartbeatClientImpl implements HeartbeatClient{
+
+	private final BlockchainRpcService rpcService;
 	
-	public Heartbeat send(Heartbeat heartbeat) {
+	public Heartbeat send0(Heartbeat heartbeat) {
 		long pingTime = System.currentTimeMillis();
-		String uri = null;
+		String uri;
 		Request<Status, Status.Response> statusRequest = null;
 		Status statusResponse = null;
 		String error = null;
@@ -52,7 +56,7 @@ public class JsonRpcHeartbeatClientImpl implements HeartbeatClient{
 				status = HeartbeatEnum.Status.YELLOW;
 			}
 		}
-//		log.info("\n\theartbeat--->{}\n\tping--->{}\n\tpong--->{}\\n\\terror--->{}", uri,
+//		log.info("\n\t heartbeat--->{}\n\t ping--->{}\n\t pong--->{}\\n\\t error--->{}", uri,
 //				JSON.toJSONString(statusRequest), JSON.toJSONString(statusResponse), error);
 		log.info("{} heartbeat:{}", ConfluxUtils.toIpAtPortForLog(heartbeat.getIp(), heartbeat.getPort()), status);
 		
@@ -69,6 +73,40 @@ public class JsonRpcHeartbeatClientImpl implements HeartbeatClient{
 				.pongMd5(pongMd5)
 				.error(error)
 				
+				.status(status)
+				.build();
+	}
+
+	public Heartbeat send(Heartbeat heartbeat) {
+		long pingTime = System.currentTimeMillis();
+		StatusBo statusBo = rpcService.getStatus(heartbeat);
+		String pong = JSON.toJSONString(statusBo.getStatusResponse());
+		String pongMd5 = MD5.encode(pong);
+		String lastPongMd5 = heartbeat.getPongMd5();
+
+		HeartbeatEnum.Status status;
+		if(statusBo.getError() != null){
+			status = HeartbeatEnum.Status.RED;
+		} else{
+			if(pongMd5 != null && lastPongMd5 != null && !pongMd5.equalsIgnoreCase(lastPongMd5)){
+				status = HeartbeatEnum.Status.GREEN;
+			} else{
+				status = HeartbeatEnum.Status.YELLOW;
+			}
+		}
+		log.info("{} heartbeat:{}", ConfluxUtils.toIpAtPortForLog(heartbeat.getIp(), heartbeat.getPort()), status);
+
+		return Heartbeat.builder().id(heartbeat.getId())
+				.ip(heartbeat.getIp())
+				.port(heartbeat.getPort())
+				.lastPong(heartbeat.getPong())
+				.lastPongMd5(lastPongMd5)
+				.ping(statusBo.getStatusRequest())
+				.pong(pong)
+				.pingTime(pingTime)
+				.pongTime(System.currentTimeMillis())
+				.pongMd5(pongMd5)
+				.error(statusBo.getError())
 				.status(status)
 				.build();
 	}

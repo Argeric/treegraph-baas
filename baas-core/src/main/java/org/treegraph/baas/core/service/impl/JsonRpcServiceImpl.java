@@ -25,6 +25,7 @@ import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
+import org.treegraph.baas.core.heartbeat.bo.StatusBo;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatListener;
 import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.task.CheckMembershipChangeTimerTask;
@@ -244,14 +245,23 @@ public class JsonRpcServiceImpl implements BlockchainRpcService{
 		return txResult;
 	}
 
-	public Status getStatus(Heartbeat heartbeat){
+	public StatusBo getStatus(Heartbeat heartbeat) {
+		String uri = null;
+		String statusRequest = null;
+		Status statusResponse = null;
+		String error = null;
 		try {
-			String uri = ConfluxUtils.toUri(heartbeat.getIp(), heartbeat.getPort());
+			uri = ConfluxUtils.toUri(heartbeat.getIp(), heartbeat.getPort());
 			Cfx cfx = Cfx.create(uri, ConfluxConstant.TIMEOUT_CONNECT, ConfluxConstant.TIMEOUT_READ, TimeUnit.SECONDS);
-			Request<Status, Status.Response> statusRequest = cfx.getStatus();
-			return statusRequest.sendAndGet();
+			Request<Status, Status.Response> request = cfx.getStatus();
+			statusRequest = JSON.toJSONString(request);
+			statusResponse = request.sendAndGet();
 		} catch(Exception e) {
-			throw new RuntimeException(e);
+			error = e.getMessage();
+		} finally{
+			log.info("\n\t getStatus--->{}\n\t ping--->{}\n\t pong--->{}\n\t error--->{}", uri,
+					statusRequest, JSON.toJSONString(statusResponse), error);
 		}
+		return StatusBo.builder().statusRequest(statusRequest).statusResponse(statusResponse).error(error).build();
 	}
 }

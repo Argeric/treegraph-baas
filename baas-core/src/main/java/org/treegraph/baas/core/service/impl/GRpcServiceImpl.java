@@ -14,6 +14,7 @@ import org.springframework.util.Assert;
 import org.treegraph.baas.core.component.BizTimer;
 import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.das.NodeCustomizedConfigDas;
+import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.das.bo.NodeKeypairInfoBo;
 import org.treegraph.baas.core.domain.KeypairPo;
@@ -23,6 +24,7 @@ import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
+import org.treegraph.baas.core.heartbeat.bo.StatusBo;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatListener;
 import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
@@ -55,6 +57,8 @@ import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 @AllArgsConstructor
 @Slf4j
 public class GRpcServiceImpl implements BlockchainRpcService{
+
+	private final NodeDas nodeDas;
 	
     private final KeypairDas keypairDas;
     
@@ -230,15 +234,24 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		return txResult;
 	}
 
-	public Status getStatus(String consId, String nodeId){
+	public StatusBo getStatus(Heartbeat heartbeat) {
+		String uri = null;
+		Status statusResponse = null;
+		String error = null;
 		try {
-			GRpcParaBo rpcPara = getGRpcParas(consId, nodeId);
+			NodePo node = nodeDas.findById(heartbeat.getId()).orElseThrow(() -> new AlertException("node.not.found"));
+			GRpcParaBo rpcPara = getGRpcParas(node.getConsortiumId(), node.getId());
 			GrpcWeb3j cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
 					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
-			return cfx.getStatus();
+			uri = ConfluxUtils.toUri(rpcPara.getIp(), rpcPara.getGRpcPort());
+			statusResponse = cfx.getStatus();
 		} catch(Exception e) {
-			throw new RuntimeException(e);
+			error = e.getMessage();
+		} finally{
+			log.info("\n\t getStatus--->{}\n\t ping--->{}\n\t pong--->{}\n\t error--->{}", uri,
+					null, JSON.toJSONString(statusResponse), error);
 		}
+		return StatusBo.builder().statusRequest(uri).statusResponse(statusResponse).error(error).build();
 	}
 	
 	private GRpcParaBo getGRpcParas(String consId, String nodeId) throws Exception {

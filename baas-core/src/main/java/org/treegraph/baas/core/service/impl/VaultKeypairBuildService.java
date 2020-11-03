@@ -186,7 +186,7 @@ public class VaultKeypairBuildService {
 				sanList, consKeypair);
 		String rpcCert = keypairCert.getCertStr();
 		String rpcPrivate = privateKeyToPem(privateKeyFromBase64(ALGO_RPC, keypairCert.getPrivateKey()));
-		log.info("getGrpcKeypair grpcCert:{},grpcPrivate:{}", rpcCert, rpcPrivate);
+		//log.info("getGrpcKeypair grpcCert:{},grpcPrivate:{}", rpcCert, rpcPrivate);
 		return GRpcKeypairCertBo.builder().consId(consortiumId).cert(rpcCert).privateKey(rpcPrivate).build();
 	}
 	

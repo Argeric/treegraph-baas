@@ -277,7 +277,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		certPathContentMap.put(SERVER_KEY_FILE, serverKeyFile);
 		certPathContentMap.put(RPC_CERT_CHAIN_FILE, gRpcKeypair.getCert());
 		certPathContentMap.put(RPC_KEY_FILE, gRpcKeypair.getPrivateKey());
-		log.info("[get getGRpcParas]certPathContentMap--->{}", JSON.toJSONString(certPathContentMap));
+		//log.info("[get getGRpcParas]certPathContentMap--->{}", JSON.toJSONString(certPathContentMap));
 		for (Entry<String, String> entry : certPathContentMap.entrySet()) {
 			String file = entry.getKey();
 			String content = entry.getValue();

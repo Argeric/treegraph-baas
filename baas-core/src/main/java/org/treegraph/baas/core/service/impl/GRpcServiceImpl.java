@@ -14,7 +14,6 @@ import org.springframework.util.Assert;
 import org.treegraph.baas.core.component.BizTimer;
 import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.das.NodeCustomizedConfigDas;
-import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.das.bo.NodeKeypairInfoBo;
 import org.treegraph.baas.core.domain.KeypairPo;
@@ -59,8 +58,6 @@ import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 @Slf4j
 public class GRpcServiceImpl implements BlockchainRpcService{
 
-	private final NodeDas nodeDas;
-	
     private final KeypairDas keypairDas;
     
     private final NodeCustomizedConfigDas nodeCustomizedConfigDas;
@@ -242,12 +239,17 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		String error = null;
 		try {
 			GRpcParaBo rpcPara = getGRpcParas(heartbeat.getGroupId(), heartbeat.getId());
+			log.info("===========>getStatus par--->{}", JSON.toJSONString(rpcPara));
 			uri = ConfluxUtils.toUri(rpcPara.getIp(), rpcPara.getGRpcPort());
+			log.info("===========>getStatus uri--->{}", JSON.toJSONString(uri));
 			GrpcWeb3j cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
 					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
+			log.info("===========>getStatus cfx--->{}", JSON.toJSONString(cfx));
 			statusResponse = cfx.getStatus();
+			log.info("===========>getStatus rsp--->{}", JSON.toJSONString(statusResponse));
 		} catch(Exception e) {
 			error = e.getMessage();
+			log.info("===========>getStatus err--->{}", JSON.toJSONString(error));
 		} finally{
 			log.info("\n\t getStatus--->{}\n\t ping--->{}\n\t pong--->{}\n\t error--->{}", uri,
 					null, JSON.toJSONString(statusResponse), error);

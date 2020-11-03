@@ -8,6 +8,7 @@ import org.treegraph.baas.core.das.bo.NodeKeypairInfoBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.KeypairPoExample;
 import org.treegraph.baas.core.persistence.GlobalLevel;
+import org.treegraph.baas.core.util.LogSkip;
 
 @GlobalLevel
 public interface KeypairPoMapper {
@@ -21,6 +22,7 @@ public interface KeypairPoMapper {
 
     int insertSelective(KeypairPo record);
 
+    @LogSkip
     List<KeypairPo> selectByExample(KeypairPoExample example);
 
     Optional<KeypairPo> selectByPrimaryKey(Long id);

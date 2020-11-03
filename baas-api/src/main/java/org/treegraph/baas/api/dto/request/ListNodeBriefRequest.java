@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class ListNodeBriefRequest{
 	private String consId;
+	private String blockchainId;
 }

@@ -98,7 +98,7 @@ public class NodeServiceImpl implements NodeService {
 	}
 
 	public ListNodeBriefResponse listNodeBriefs(ListNodeBriefRequest req){
-		List<NodePo> nodes = nodeDas.findAll(req.getConsId(), null);
+		List<NodePo> nodes = nodeDas.findByConsIdAndChainId(req.getConsId(), req.getBlockchainId());
 
 		List<NodeInfo> nodeInfoList = nodes.stream().map(item ->
 				NodeInfo.builder()

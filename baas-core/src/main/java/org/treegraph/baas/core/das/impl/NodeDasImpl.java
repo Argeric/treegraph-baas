@@ -88,9 +88,13 @@ public class NodeDasImpl implements NodeDas {
 	public List<NodePo> findByConsIdAndChainId(String consId, String chainId) {
 		NodePoExample example = new NodePoExample();
 		Criteria criteria = example.createCriteria();
-		criteria.andConsortiumIdEqualTo(consId)
-				.andBlockchainIdEqualTo(chainId)
-				.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+		if (StringUtils.isNotBlank(consId)) {
+			criteria.andConsortiumIdEqualTo(consId);
+		}
+		if (StringUtils.isNotBlank(chainId)) {
+			criteria.andBlockchainIdEqualTo(chainId);
+		}
+		criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
 		example.setOrderByClause("create_time desc");
 		return nodePoMapper.selectByExample(example);
 	}
@@ -246,7 +250,7 @@ public class NodeDasImpl implements NodeDas {
 	public boolean modifyNode(NodePo node) {
 		return nodePoMapper.updateByPrimaryKeySelective(node) > 0;
 	}
-	
+
 	@LogSkip
 	public boolean modifyNodesStatus(List<String> nodeIds, NodeEnum.Status status) {
 		NodePo record = NodePo.builder().status(status.getCode()).build();

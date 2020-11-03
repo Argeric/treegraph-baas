@@ -6,12 +6,14 @@ import java.util.Optional;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.das.bo.NodeKeypairInfoBo;
 import org.treegraph.baas.core.domain.KeypairPo;
+import org.treegraph.baas.core.util.LogSkip;
 
 public interface KeypairDas {
 	Optional<KeypairPo> findById(Long id);
 	
 	List<KeypairPo> findByIds(List<Long> ids);
-	
+
+	@LogSkip
 	List<KeypairPo> findAll(String consId, Integer keyType, String algo);
 	
 	List<NodeKeypairInfoBo> findAll(String consId, Integer keyType, String algo, List<String> nodeIds);

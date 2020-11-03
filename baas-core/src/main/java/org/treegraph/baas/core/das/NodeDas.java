@@ -11,6 +11,7 @@ import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.enums.NodeEnum;
+import org.treegraph.baas.core.util.LogSkip;
 
 public interface NodeDas {
 	Optional<NodePo> findById(String id);
@@ -41,7 +42,8 @@ public interface NodeDas {
 						 List<MembershipPo> memberships);
 
 	boolean modifyNode(NodePo node);
-	
+
+	@LogSkip
 	boolean modifyNodesStatus(List<String> nodeIds, NodeEnum.Status status);
 	
 	void modifyNodesMembershipStatus(List<String> nodeIds, NodeEnum.MembershipStatus membershipStatus,

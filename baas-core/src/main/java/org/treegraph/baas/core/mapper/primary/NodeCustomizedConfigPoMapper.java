@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodeCustomizedConfigPoExample;
 import org.treegraph.baas.core.persistence.GlobalLevel;
+import org.treegraph.baas.core.util.LogSkip;
 
 public interface NodeCustomizedConfigPoMapper {
     long countByExample(NodeCustomizedConfigPoExample example);
@@ -18,6 +19,7 @@ public interface NodeCustomizedConfigPoMapper {
 
     int insertSelective(NodeCustomizedConfigPo record);
 
+    @LogSkip
     @GlobalLevel
     List<NodeCustomizedConfigPo> selectByExample(NodeCustomizedConfigPoExample example);
 

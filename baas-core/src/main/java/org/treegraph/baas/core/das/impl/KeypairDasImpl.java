@@ -21,6 +21,7 @@ import org.treegraph.baas.core.mapper.primary.NodeKeyPoMapper;
 import com.google.common.collect.Lists;
 
 import lombok.AllArgsConstructor;
+import org.treegraph.baas.core.util.LogSkip;
 
 @Service
 @AllArgsConstructor
@@ -44,7 +45,8 @@ public class KeypairDasImpl implements KeypairDas {
 		example.setOrderByClause("create_time desc");
 		return keypairPoMapper.selectByExample(example);
 	}
-	
+
+	@LogSkip
 	public List<KeypairPo> findAll(String consId, Integer keyType, String algo) {
 		KeypairPoExample example = new KeypairPoExample();
 		Criteria criteria = example.createCriteria();

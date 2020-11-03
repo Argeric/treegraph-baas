@@ -1,4 +1,4 @@
-FROM openjdk:8-jdk-alpine
+FROM openjdk:8-jre-alpine
 
 LABEL name="treegraph-baas" version="1.0" author="zt<zhenting@conflux-chain.org>"
 

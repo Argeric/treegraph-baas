@@ -224,6 +224,8 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 			GrpcWeb3j cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
 					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
 			txResult = cfx.sendRawTransaction(hexEncoded);
+			Status statusResponse = cfx.getStatus();
+			log.info("statusResponse--->{}", JSON.toJSONString(statusResponse));
 		} catch(Exception e) {
 			log.error("[get sendRawTransaction]error:", e);
 		} finally {
@@ -239,19 +241,14 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		String error = null;
 		try {
 			GRpcParaBo rpcPara = getGRpcParas(heartbeat.getGroupId(), heartbeat.getId());
-			log.info("===========>getStatus par--->{}", JSON.toJSONString(rpcPara));
-			uri = ConfluxUtils.toUri(rpcPara.getIp(), rpcPara.getGRpcPort());
-			log.info("===========>getStatus uri--->{}", JSON.toJSONString(uri));
+			uri = ConfluxUtils.toIpAtPortForLog(rpcPara.getIp(), rpcPara.getGRpcPort());
 			GrpcWeb3j cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
 					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
-			log.info("===========>getStatus cfx--->{}", JSON.toJSONString(cfx));
 			statusResponse = cfx.getStatus();
-			log.info("===========>getStatus rsp--->{}", JSON.toJSONString(statusResponse));
 		} catch(Exception e) {
 			error = e.getMessage();
-			log.info("===========>getStatus err--->{}", JSON.toJSONString(error));
 		} finally{
-			log.info("\n\t getStatus--->{}\n\t ping--->\n\t pong--->{}\n\t error--->{}", uri,
+			log.info("\n\t getStatus--->\n\t ping--->{}\n\t pong--->{}\n\t error--->{}", uri,
 					JSON.toJSONString(statusResponse), error);
 		}
 		return StatusBo.builder().statusRequest(uri).statusResponse(statusResponse).error(error).build();

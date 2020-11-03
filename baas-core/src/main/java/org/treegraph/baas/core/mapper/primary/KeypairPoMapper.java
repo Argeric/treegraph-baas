@@ -7,7 +7,9 @@ import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.das.bo.NodeKeypairInfoBo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.KeypairPoExample;
+import org.treegraph.baas.core.persistence.GlobalLevel;
 
+@GlobalLevel
 public interface KeypairPoMapper {
     long countByExample(KeypairPoExample example);
 

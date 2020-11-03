@@ -1,6 +1,7 @@
 package org.treegraph.baas.core.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.treegraph.baas.core.constant.CharacterConstant;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
@@ -29,10 +30,10 @@ public class ConfluxUtils {
 		return nodeIp + CharacterConstant.AT + jsonRpcHttpPort;
 	}
 	
-//	public static String toIpAtPortForLog(String nodeIp, Integer jsonRpcHttpPort) {
-//		String uri = nodeIp + CharacterConstant.AT + jsonRpcHttpPort;
-//		return StringUtils.rightPad(uri, 21, " ");
-//	}
+	public static String toIpAtPortForLog(String nodeIp, Integer jsonRpcHttpPort) {
+		String uri = nodeIp + CharacterConstant.AT + jsonRpcHttpPort;
+		return StringUtils.rightPad(uri, 21, " ");
+	}
 	
 	public static String signMessage(byte[] message, ECKeyPair ecKeyPair) {
 		Sign.SignatureData data = Sign.signMessage(message, ecKeyPair);

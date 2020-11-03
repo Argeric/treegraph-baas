@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import conflux.web3j.jsonrpc.Cfx;
 import conflux.web3j.jsonrpc.Request;
 import conflux.web3j.response.BigIntResponse;
+import conflux.web3j.response.Status;
 import conflux.web3j.response.StringResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.treegraph.baas.core.component.BizTimer;
+import org.treegraph.baas.core.constant.ConfluxConstant;
 import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.das.bo.NodeKeypairInfoBo;
@@ -240,5 +242,16 @@ public class JsonRpcServiceImpl implements BlockchainRpcService{
 					JSON.toJSONString(sendRawTransactionRequest), txResult);
 		}
 		return txResult;
+	}
+
+	public Status getStatus(Heartbeat heartbeat){
+		try {
+			String uri = ConfluxUtils.toUri(heartbeat.getIp(), heartbeat.getPort());
+			Cfx cfx = Cfx.create(uri, ConfluxConstant.TIMEOUT_CONNECT, ConfluxConstant.TIMEOUT_READ, TimeUnit.SECONDS);
+			Request<Status, Status.Response> statusRequest = cfx.getStatus();
+			return statusRequest.sendAndGet();
+		} catch(Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

@@ -307,6 +307,7 @@ public class NodeDasImpl implements NodeDas {
 			if(heartbeatListener.isNodeValid(node.getConsortiumId(), node.getId())){
 				Heartbeat nodeInfo = Heartbeat.builder()
 						.id(node.getId())
+						.groupId(node.getConsortiumId())
 						.ip(node.getNodeIp())
 						.port(rpcHttpPortMap.get(node.getId())).build();
 				heartbeatListener.registerNode(node.getConsortiumId(), node.getId(), nodeInfo);

@@ -12,9 +12,11 @@ import lombok.Data;
 @Data
 @Builder
 public class Heartbeat {
-	 
+
     private String id;
-    private String ip; 
+    @JSONField(serialize=false)
+    private String groupId;
+    private String ip;
     private int port;
 	@JSONField(serialize=false)  
     private String lastPong;

@@ -239,8 +239,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		Status statusResponse = null;
 		String error = null;
 		try {
-			NodePo node = nodeDas.findById(heartbeat.getId()).orElseThrow(() -> new AlertException("node.not.found"));
-			GRpcParaBo rpcPara = getGRpcParas(node.getConsortiumId(), node.getId());
+			GRpcParaBo rpcPara = getGRpcParas(heartbeat.getGroupId(), heartbeat.getId());
 			GrpcWeb3j cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
 					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
 			uri = ConfluxUtils.toUri(rpcPara.getIp(), rpcPara.getGRpcPort());

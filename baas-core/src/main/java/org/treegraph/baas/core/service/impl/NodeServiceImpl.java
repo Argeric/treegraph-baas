@@ -104,6 +104,7 @@ public class NodeServiceImpl implements NodeService {
 				NodeInfo.builder()
 						.id(item.getId())
 						.consId(item.getConsortiumId())
+						.blockchainId(item.getBlockchainId())
 						.ip(item.getNodeIp())
 						.build()
 		).collect(Collectors.toList());

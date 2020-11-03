@@ -92,6 +92,7 @@ public class TokenServiceImpl implements TokenService {
     	URI_PERMISSION_MAP.put("/blockchain/start", PermissionPoint.UPDATE_BLOCKCHAIN.getCode());
     	// node module
     	URI_PERMISSION_MAP.put("/node/list", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
+		URI_PERMISSION_MAP.put("/node/brief/list", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
     	URI_PERMISSION_MAP.put("/node/detail", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
     	URI_PERMISSION_MAP.put("/node/log", PermissionPoint.VIEW_NODE_LOG.getCode());
     	URI_PERMISSION_MAP.put("/node/modify", PermissionPoint.UPDATE_NODE.getCode());

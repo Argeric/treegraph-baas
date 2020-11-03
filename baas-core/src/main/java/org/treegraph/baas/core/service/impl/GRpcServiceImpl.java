@@ -251,8 +251,8 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 			error = e.getMessage();
 			log.info("===========>getStatus err--->{}", JSON.toJSONString(error));
 		} finally{
-			log.info("\n\t getStatus--->{}\n\t ping--->{}\n\t pong--->{}\n\t error--->{}", uri,
-					null, JSON.toJSONString(statusResponse), error);
+			log.info("\n\t getStatus--->{}\n\t ping--->\n\t pong--->{}\n\t error--->{}", uri,
+					JSON.toJSONString(statusResponse), error);
 		}
 		return StatusBo.builder().statusRequest(uri).statusResponse(statusResponse).error(error).build();
 	}

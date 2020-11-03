@@ -42,6 +42,7 @@ import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.CryptoEnum;
 import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
 import org.treegraph.baas.core.service.bo.KeypairCertBo;
+import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.crypto.x509.CertUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeypairCertUtil;
@@ -64,7 +65,8 @@ public class VaultKeypairBuildService {
     private final VaultOperations vaultOperations;
     
     private final KeypairCertUtil keypairCertUtil;
-    
+
+	@LogSkip
 	public KeypairPo getRootKeypair() throws Exception{
 		List<KeypairPo> rootKeypairs = keypairDas.findAll(ConsortiumConstant.DEFAULT_CONSORTIUM_ID,
 				CryptoEnum.KeyType.CONSORTIUM.getCode(), ALGO_ROOT);
@@ -100,7 +102,8 @@ public class VaultKeypairBuildService {
 				.updateBy(operUser)
 				.build();
 	}
-	
+
+	@LogSkip
 	public KeypairPo getConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair) {
 		List<KeypairPo> consortiumKeypairs = keypairDas.findAll(consortiumId,
 				CryptoEnum.KeyType.CONSORTIUM.getCode(), ALGO_CONS);
@@ -110,7 +113,8 @@ public class VaultKeypairBuildService {
 		
 		return geneNewConsortiumKeyPair(consortiumId, rootKeypair, null);
 	}
-	
+
+	@LogSkip
 	public KeypairPo geneNewConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair,
 			Date lastCertExpireDate) {
 		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(ALGO_CONS, SUBJECT_CONS_CERT, lastCertExpireDate,
@@ -132,7 +136,8 @@ public class VaultKeypairBuildService {
 				.updateBy(operUser)
 				.build();
 	}
-	
+
+	@LogSkip
 	public NodeKeypairBo getNodeKeypairBo(String consortiumId, NodePo node) {
 		List<NodeKeyPo> nodeKeys = nodeKeyDas.findAll(consortiumId, node.getId());
 		if(CollectionUtils.isNotEmpty(nodeKeys)) {
@@ -174,6 +179,7 @@ public class VaultKeypairBuildService {
 		return NodeKeypairBo.builder().keypair(keypair).nodeKey(nodeKey).node(node).build();
 	}
 
+	@LogSkip
 	public GRpcKeypairCertBo geneNewRpcKeypair(String consortiumId, KeypairPo consKeypair, Date lastCertExpireDate,
 			List<String> sanList) throws Exception {
 		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(ALGO_RPC, SUBJECT_RPC_CERT, lastCertExpireDate,

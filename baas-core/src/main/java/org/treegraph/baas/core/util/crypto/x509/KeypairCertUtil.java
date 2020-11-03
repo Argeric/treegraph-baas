@@ -65,7 +65,6 @@ public class KeypairCertUtil {
 		} catch(Exception e) {
 			throw new AlertException("generate keypair error!");
 		}
-		
 		if(!Algo.RSA.getCode().equals(algo)) {
 			return KeypairCertBo.builder()
 					.algorithm(algo)
@@ -73,9 +72,12 @@ public class KeypairCertUtil {
 					.privateKey(privateKey)
 					.build();
 		}
-		
+
 		String csrStr;
 		String certStr;
+		if(parentKeypair == null){
+			throw new AlertException("parentKeypair.not.found");
+		}
 		try {
 			PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(subject), keyPair.getPublic(),
 					keyPair.getPrivate(), sanList);

@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.NodePoExample;
 import org.treegraph.baas.core.persistence.GlobalLevel;
+import org.treegraph.baas.core.util.LogSkip;
 
 public interface NodePoMapper {
 	long countByExample(NodePoExample example);
@@ -26,6 +27,7 @@ public interface NodePoMapper {
 	Optional<NodePo> selectByPrimaryKey(String id);
 
 	@GlobalLevel
+	@LogSkip
 	int updateByExampleSelective(@Param("record") NodePo record, @Param("example") NodePoExample example);
 
 	int updateByExample(@Param("record") NodePo record, @Param("example") NodePoExample example);

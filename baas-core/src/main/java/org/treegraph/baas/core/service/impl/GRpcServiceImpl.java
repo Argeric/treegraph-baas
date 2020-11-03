@@ -248,8 +248,11 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		} catch(Exception e) {
 			error = e.getMessage();
 		} finally{
-			log.info("\n\t getStatus--->\n\t ping--->{}\n\t pong--->{}\n\t error--->{}", uri,
-					JSON.toJSONString(statusResponse), error);
+			if(error != null) {
+				log.info("\n\t getStatus--->\n\t ping--->{}\n\t pong--->null\n\t error--->{}", uri, error);
+			} else {
+				log.info("\n\t getStatus--->\n\t ping--->{}\n\t pong--->{}", uri, JSON.toJSONString(statusResponse));
+			}
 		}
 		return StatusBo.builder().statusRequest(uri).statusResponse(statusResponse).error(error).build();
 	}
@@ -277,7 +280,6 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		certPathContentMap.put(SERVER_KEY_FILE, serverKeyFile);
 		certPathContentMap.put(RPC_CERT_CHAIN_FILE, gRpcKeypair.getCert());
 		certPathContentMap.put(RPC_KEY_FILE, gRpcKeypair.getPrivateKey());
-		//log.info("[get getGRpcParas]certPathContentMap--->{}", JSON.toJSONString(certPathContentMap));
 		for (Entry<String, String> entry : certPathContentMap.entrySet()) {
 			String file = entry.getKey();
 			String content = entry.getValue();
@@ -288,14 +290,12 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 				FileUtil.writeBytes(nodeCertPath + file, content.getBytes(StandardCharsets.UTF_8));
 			}
 		}
-		
-		GRpcParaBo gRpcParaBo =  GRpcParaBo.builder()
+
+		return GRpcParaBo.builder()
 				.ip(ip)
 				.gRpcPort(gRpcPort)
 				.serverCertFile(nodeCertPath + SERVER_CERT_FILE)
 				.rpcCertChainFile(nodeCertPath + RPC_CERT_CHAIN_FILE)
 				.rpcKeyFile(nodeCertPath + RPC_KEY_FILE).build();
-		//log.info("[get getGRpcParas]gRpcParaBo--->{}", JSON.toJSONString(gRpcParaBo));
-		return gRpcParaBo;
 	}
 }

@@ -10,11 +10,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.treegraph.baas.api.dto.NodeInfo;
-import org.treegraph.baas.api.dto.request.DeleteNodeRequest;
-import org.treegraph.baas.api.dto.request.ListNodeRequest;
-import org.treegraph.baas.api.dto.request.ModifyNodeRequest;
-import org.treegraph.baas.api.dto.request.QueryNodeDetailRequest;
-import org.treegraph.baas.api.dto.request.QueryNodeLogRequest;
+import org.treegraph.baas.api.dto.request.*;
+import org.treegraph.baas.api.dto.response.ListNodeBriefResponse;
 import org.treegraph.baas.api.dto.response.ListNodeResponse;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.constant.ConfluxConstant;
@@ -98,6 +95,22 @@ public class NodeServiceImpl implements NodeService {
     			.total(pageInfo.getTotal())
     			.list(nodeInfoList)
     			.build();
+	}
+
+	public ListNodeBriefResponse listNodeBriefs(ListNodeBriefRequest req){
+		List<NodePo> nodes = nodeDas.findAll(req.getConsId(), null);
+
+		List<NodeInfo> nodeInfoList = nodes.stream().map(item ->
+				NodeInfo.builder()
+						.id(item.getId())
+						.consId(item.getConsortiumId())
+						.ip(item.getNodeIp())
+						.build()
+		).collect(Collectors.toList());
+
+		return ListNodeBriefResponse.builder()
+				.list(nodeInfoList)
+				.build();
 	}
 	
 	public NodeInfo getNodeDetail(QueryNodeDetailRequest req) {

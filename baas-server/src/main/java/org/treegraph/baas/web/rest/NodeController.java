@@ -6,11 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.treegraph.baas.api.dto.BaasResult;
 import org.treegraph.baas.api.dto.NodeInfo;
-import org.treegraph.baas.api.dto.request.DeleteNodeRequest;
-import org.treegraph.baas.api.dto.request.ListNodeRequest;
-import org.treegraph.baas.api.dto.request.ModifyNodeRequest;
-import org.treegraph.baas.api.dto.request.QueryNodeDetailRequest;
-import org.treegraph.baas.api.dto.request.QueryNodeLogRequest;
+import org.treegraph.baas.api.dto.request.*;
+import org.treegraph.baas.api.dto.response.ListNodeBriefResponse;
 import org.treegraph.baas.api.dto.response.ListNodeResponse;
 import org.treegraph.baas.core.service.NodeService;
 
@@ -36,6 +33,13 @@ public class NodeController {
 	public BaasResult<ListNodeResponse> listNodes(@RequestBody ListNodeRequest listNodeRequest) {
 		ListNodeResponse nodes = nodeService.listNodes(listNodeRequest);
 		return BaasResult.success(nodes);
+	}
+
+	@PostMapping("/brief/list")
+	@ApiOperation("节点简介列表")
+	public BaasResult<ListNodeBriefResponse> listNodeBriefs(@RequestBody ListNodeBriefRequest listNodeBriefRequest) {
+		ListNodeBriefResponse nodeBriefs = nodeService.listNodeBriefs(listNodeBriefRequest);
+		return BaasResult.success(nodeBriefs);
 	}
 	
 	@PostMapping("/detail")

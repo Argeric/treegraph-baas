@@ -13,6 +13,7 @@ import org.treegraph.baas.core.domain.NodeCustomizedConfigPoExample.Criteria;
 import org.treegraph.baas.core.mapper.primary.NodeCustomizedConfigPoMapper;
 
 import lombok.AllArgsConstructor;
+import org.treegraph.baas.core.util.LogSkip;
 
 @Service
 @AllArgsConstructor
@@ -66,7 +67,8 @@ public class NodeCustomizedConfigDasImpl implements NodeCustomizedConfigDas {
 		example.setOrderByClause("create_time desc");
 		return nodeCustomizedConfigPoMapper.selectByExample(example);
 	}
-	
+
+	@LogSkip
 	public String findPropertyValueByName(String consId, String nodeId, String propertyName) {
 		NodeCustomizedConfigPoExample example = new NodeCustomizedConfigPoExample();
 		Criteria criteria = example.createCriteria();

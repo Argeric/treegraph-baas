@@ -8,6 +8,7 @@ import org.treegraph.baas.core.domain.NodeCustomizedConfigPoExample;
 import org.treegraph.baas.core.persistence.GlobalLevel;
 import org.treegraph.baas.core.util.LogSkip;
 
+@GlobalLevel
 public interface NodeCustomizedConfigPoMapper {
     long countByExample(NodeCustomizedConfigPoExample example);
 
@@ -20,7 +21,6 @@ public interface NodeCustomizedConfigPoMapper {
     int insertSelective(NodeCustomizedConfigPo record);
 
     @LogSkip
-    @GlobalLevel
     List<NodeCustomizedConfigPo> selectByExample(NodeCustomizedConfigPoExample example);
 
     NodeCustomizedConfigPo selectByPrimaryKey(Long id);

@@ -90,7 +90,6 @@ public class CertUtil {
 		        GeneralNames generalNames = new GeneralNames(generalNameList.toArray(new GeneralName[] {}));
 		        ExtensionsGenerator extensionsGenerator = new ExtensionsGenerator();
 		        extensionsGenerator.addExtension(Extension.subjectAlternativeName, false, generalNames);
-				extensionsGenerator.addExtension(Extension.basicConstraints, true, new BasicConstraints(true)); // ca cert
 		        builder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest, extensionsGenerator.generate());
 	        }
 	        

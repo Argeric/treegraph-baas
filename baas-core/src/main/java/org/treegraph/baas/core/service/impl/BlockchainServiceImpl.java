@@ -29,7 +29,6 @@ import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.domain.BlockChainPo;
-import org.treegraph.baas.core.domain.CertificateRequestPo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;

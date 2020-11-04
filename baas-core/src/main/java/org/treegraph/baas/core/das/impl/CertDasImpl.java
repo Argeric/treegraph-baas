@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.treegraph.baas.core.das.CertDas;
-import org.treegraph.baas.core.domain.CertificateRequestPo;
-import org.treegraph.baas.core.domain.CertificateRequestPoExample;
 import org.treegraph.baas.core.mapper.primary.CertificateRequestPoMapper;
 
 import lombok.AllArgsConstructor;

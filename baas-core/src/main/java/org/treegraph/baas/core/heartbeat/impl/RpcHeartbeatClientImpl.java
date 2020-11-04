@@ -95,7 +95,7 @@ public class RpcHeartbeatClientImpl implements HeartbeatClient{
 			}
 		}
 		//log.info("{} heartbeat:{}", ConfluxUtils.toIpAtPortForLog(heartbeat.getIp(), heartbeat.getPort()), status);
-		log.info("\t heartbeat:{}--->\n\t ping--->{}\n\t pong--->{}\n\t error--->{}",
+		log.info("\n\t heartbeat:{}--->\n\t ping--->{}\n\t pong--->{}\n\t error--->{}",
 				ConfluxUtils.toIpAtPortForLog(heartbeat.getIp(), heartbeat.getPort()), statusBo.getStatusRequest(),
 				pong, statusBo.getError());
 

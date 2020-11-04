@@ -32,29 +32,29 @@ import java.util.List;
 @AllArgsConstructor
 @Slf4j
 public class KeypairCertUtil {
-	
-    private final VaultOperations vaultOperations;
-    
-    public KeypairCertBo buildKeypair(String algo) {
+
+	private final VaultOperations vaultOperations;
+
+	public KeypairCertBo buildKeypair(String algo) {
 		String publicKey;
 		String privateKey;
 		try {
 			KeyPair keyPair = KeyUtil.generateKeyPair(algo);
 			publicKey = KeyUtil.publicKeyToBase64(keyPair.getPublic());
 			privateKey = KeyUtil.privateKeyToBase64(keyPair.getPrivate());
-		} catch(Exception e) {
+		} catch (Exception e) {
 			throw new AlertException("generate keypair error!");
 		}
-		
+
 		return KeypairCertBo.builder()
 				.algorithm(algo)
 				.publicKey(publicKey)
 				.privateKey(privateKey)
 				.build();
 	}
-    
+
 	public KeypairCertBo buildKeypairCert(String algo, String subject, Date latestCertExpireDate, List<String> sanList,
-			KeypairPo parentKeypair) {
+										  KeypairPo parentKeypair) {
 		KeyPair keyPair;
 		String publicKey;
 		String privateKey;
@@ -62,10 +62,10 @@ public class KeypairCertUtil {
 			keyPair = KeyUtil.generateKeyPair(algo);
 			publicKey = KeyUtil.publicKeyToBase64(keyPair.getPublic());
 			privateKey = KeyUtil.privateKeyToBase64(keyPair.getPrivate());
-		} catch(Exception e) {
+		} catch (Exception e) {
 			throw new AlertException("generate keypair error!");
 		}
-		if(!Algo.RSA.getCode().equals(algo)) {
+		if (!Algo.RSA.getCode().equals(algo)) {
 			return KeypairCertBo.builder()
 					.algorithm(algo)
 					.publicKey(publicKey)
@@ -75,7 +75,7 @@ public class KeypairCertUtil {
 
 		String csrStr;
 		String certStr;
-		if(parentKeypair == null){
+		if (parentKeypair == null) {
 			throw new AlertException("parentKeypair.not.found");
 		}
 		try {
@@ -83,16 +83,16 @@ public class KeypairCertUtil {
 					keyPair.getPrivate(), sanList);
 			if (X509CertConstant.DEFAULT_CERT_SIGN_TYPE == CryptoEnum.CertificateSignType.BC) {
 				certStr = signCertificateRequestByBC(parentKeypair.getAlgorithm(), parentKeypair, csr);
-			} else if(X509CertConstant.DEFAULT_CERT_SIGN_TYPE == CryptoEnum.CertificateSignType.VAULT) {
+			} else if (X509CertConstant.DEFAULT_CERT_SIGN_TYPE == CryptoEnum.CertificateSignType.VAULT) {
 				certStr = signCertificateRequestByVault(csr, latestCertExpireDate);
 			} else {
 				throw new AlertException("certificate sign request not supported!");
 			}
 			csrStr = CertUtil.csrToPem(csr);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			throw new AlertException(e);
 		}
-		
+
 		return KeypairCertBo.builder()
 				.algorithm(algo)
 				.publicKey(publicKey)
@@ -107,7 +107,7 @@ public class KeypairCertUtil {
 		PrivateKey parentPrivateKey = KeyUtil.privateKeyFromBase64(parentKeypairAlgo, parentKeypair.getPrivateKey());
 		byte[] parentCertBytes = CertUtil.certFromPem(parentKeypair.getCertStr()).getEncoded();
 		Certificate cert = CertUtil.generateCert(csr, parentPrivateKey, parentCertBytes,
-				CertUtil.getNotBefore(), CertUtil.getNotAfter(X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DYA),
+				CertUtil.getNotBefore(), CertUtil.getNotAfter(X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DAY),
 				true);
 		return CertUtil.certToPem(cert);
 	}
@@ -119,9 +119,9 @@ public class KeypairCertUtil {
 			lastCertLeftDays = DateUtils.betweenDays(Calendar.getInstance().getTime(), lastCertExpireDate);
 			lastCertLeftDays = Math.max(lastCertLeftDays, 0);
 		}
-		
+
 		VaultCertificateRequest request = VaultCertificateRequest.builder()
-				.ttl(Duration.ofDays(lastCertLeftDays + X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DYA))
+				.ttl(Duration.ofDays(lastCertLeftDays + X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DAY))
 				.commonName(X509CertConstant.COMMON_NAME_CONSORTIUM_CERT).build();
 		VaultSignCertificateRequestResponse certificateResponse = vaultOperations
 				.opsForPki(X509CertConstant.VAULT_PKI_PATH)
@@ -130,14 +130,14 @@ public class KeypairCertUtil {
 		log.info("signCertificateRequestByVault resp:{}", JSON.toJSONString(cert));
 		return generatePem(cert.getCertificate());
 	}
-    
-	private String generatePem(String base64Str) {  
-        Iterable<String> lines = Splitter.fixedLength(64).split(base64Str);
-        StringBuilder content = new StringBuilder();
-        for (String line : lines) {  
-        	content.append(line).append("\n");  
-        }
+
+	private String generatePem(String base64Str) {
+		Iterable<String> lines = Splitter.fixedLength(64).split(base64Str);
+		StringBuilder content = new StringBuilder();
+		for (String line : lines) {
+			content.append(line).append("\n");
+		}
 		return "-----BEGIN CERTIFICATE-----\n" + content.toString() +
 				"-----END CERTIFICATE-----";
-    }
+	}
 }

@@ -54,7 +54,7 @@ public class KeypairCertUtil {
 	}
 
 	public KeypairCertBo buildKeypairCert(String algo, String subject, Date latestCertExpireDate, List<String> sanList,
-										  KeypairPo parentKeypair) {
+										  CryptoEnum.KeyType keyType, KeypairPo parentKeypair) {
 		KeyPair keyPair;
 		String publicKey;
 		String privateKey;
@@ -81,7 +81,8 @@ public class KeypairCertUtil {
 		try {
 			PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(subject), keyPair.getPublic(),
 					keyPair.getPrivate(), sanList);
-			if (X509CertConstant.DEFAULT_CERT_SIGN_TYPE == CryptoEnum.CertificateSignType.BC) {
+			if (keyType == CryptoEnum.KeyType.RPC ||
+					X509CertConstant.DEFAULT_CERT_SIGN_TYPE == CryptoEnum.CertificateSignType.BC) {
 				certStr = signCertificateRequestByBC(parentKeypair.getAlgorithm(), parentKeypair, csr);
 			} else if (X509CertConstant.DEFAULT_CERT_SIGN_TYPE == CryptoEnum.CertificateSignType.VAULT) {
 				certStr = signCertificateRequestByVault(csr, latestCertExpireDate);

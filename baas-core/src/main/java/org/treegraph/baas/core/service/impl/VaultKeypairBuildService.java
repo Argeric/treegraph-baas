@@ -118,7 +118,7 @@ public class VaultKeypairBuildService {
 	public KeypairPo geneNewConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair,
 			Date lastCertExpireDate) {
 		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(ALGO_CONS, SUBJECT_CONS_CERT, lastCertExpireDate,
-				null, rootKeypair);
+				null, CryptoEnum.KeyType.CONSORTIUM, rootKeypair);
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		return KeypairPo.builder()
@@ -183,7 +183,7 @@ public class VaultKeypairBuildService {
 	public GRpcKeypairCertBo geneNewRpcKeypair(String consortiumId, KeypairPo consKeypair, Date lastCertExpireDate,
 			List<String> sanList) throws Exception {
 		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(ALGO_RPC, SUBJECT_RPC_CERT, lastCertExpireDate,
-				sanList, consKeypair);
+				sanList, CryptoEnum.KeyType.RPC, consKeypair);
 		String rpcCert = keypairCert.getCertStr();
 		String rpcPrivate = privateKeyToPem(privateKeyFromBase64(ALGO_RPC, keypairCert.getPrivateKey()));
 		//log.info("getGrpcKeypair grpcCert:{},grpcPrivate:{}", rpcCert, rpcPrivate);

@@ -239,9 +239,6 @@ public class JsonRpcServiceImpl implements BlockchainRpcService{
             txResult = sendRawTransactionRequest.sendAndGet();
 		} catch(Exception e) {
 			log.error("[get sendRawTransaction]error:", e);
-		} finally {
-			log.info("[get sendRawTransaction]uri--->{}, txRequest--->{}, txResponse--->{}", uri,
-					JSON.toJSONString(sendRawTransactionRequest), txResult);
 		}
 		return txResult;
 	}

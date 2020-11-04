@@ -226,8 +226,6 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 			txResult = cfx.sendRawTransaction(hexEncoded);
 		} catch(Exception e) {
 			log.error("[get sendRawTransaction]error:", e);
-		} finally {
-			log.info("[get sendRawTransaction]txResponse--->{}", txResult);
 		}
 		return txResult;
 	}

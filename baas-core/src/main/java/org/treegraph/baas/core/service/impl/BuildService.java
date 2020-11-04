@@ -19,18 +19,7 @@ import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.constant.SplitterConstant;
 import org.treegraph.baas.core.das.PermissionDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
-import org.treegraph.baas.core.domain.CertificateDeferPo;
-import org.treegraph.baas.core.domain.ConsortiumPo;
-import org.treegraph.baas.core.domain.KeypairPo;
-import org.treegraph.baas.core.domain.MembershipChangePo;
-import org.treegraph.baas.core.domain.MembershipPo;
-import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
-import org.treegraph.baas.core.domain.NodePo;
-import org.treegraph.baas.core.domain.RolePermissionPo;
-import org.treegraph.baas.core.domain.RolePo;
-import org.treegraph.baas.core.domain.UserInfoPo;
-import org.treegraph.baas.core.domain.UserOrganizationPo;
-import org.treegraph.baas.core.domain.UserRolePo;
+import org.treegraph.baas.core.domain.*;
 import org.treegraph.baas.core.enums.CertificateEnum.DeferStatus;
 import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
@@ -425,6 +414,21 @@ public class BuildService {
 				.status(NodeEnum.Status.TO_LAUNCH.getCode())
 				.membershipFinalStatus(MembershipStatus.TO_LAUNCH_FIRST_TIME.getCode())
 				.membershipStatus(MembershipStatus.TO_LAUNCH_FIRST_TIME.getCode())
+				.deleteFlag(IntTypeEnum.FALSE.getValue())
+				.createTime(now)
+				.createBy(operUser)
+				.updateTime(now)
+				.updateBy(operUser)
+				.build();
+	}
+
+	public CertificateRequestPo buildCertificateRequest(NodePo node){
+		LocalDateTime now = LocalDateTime.now();
+		String operUser = WebHelper.getUserId();
+		return CertificateRequestPo.builder()
+				.consortiumId(node.getConsortiumId())
+				.blockchainId(node.getBlockchainId())
+				.applyUserId(operUser)
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
 				.createTime(now)
 				.createBy(operUser)

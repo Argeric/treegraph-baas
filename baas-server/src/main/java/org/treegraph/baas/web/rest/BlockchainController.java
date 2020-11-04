@@ -60,12 +60,12 @@ public class BlockchainController {
 		return BaasResult.success(data);
 	}
 
-//	@PostMapping("/ca/list")
-//	@ApiOperation("证书生成历史列表")
-//	public BaasResult<ListCertResponse> listCert(@RequestBody ListCertRequest listCertRequest) {
-//		ListCertResponse data = blockchainService.listCert(listCertRequest);
-//		return BaasResult.success(data);
-//	}
+	@PostMapping("/ca/list")
+	@ApiOperation("证书生成历史列表")
+	public BaasResult<ListCertResponse> listCert(@RequestBody ListCertRequest listCertRequest) {
+		ListCertResponse data = blockchainService.listCert(listCertRequest);
+		return BaasResult.success(data);
+	}
 
 	@LogSkip
 	@PostMapping("/ca/download")

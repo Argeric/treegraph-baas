@@ -224,8 +224,6 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 			GrpcWeb3j cfx = new GrpcWeb3j(rpcPara.getIp(), rpcPara.getGRpcPort(), rpcPara.getServerCertFile(),
 					rpcPara.getRpcCertChainFile(), rpcPara.getRpcKeyFile());
 			txResult = cfx.sendRawTransaction(hexEncoded);
-			Status statusResponse = cfx.getStatus();
-			log.info("statusResponse--->{}", JSON.toJSONString(statusResponse));
 		} catch(Exception e) {
 			log.error("[get sendRawTransaction]error:", e);
 		} finally {

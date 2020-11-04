@@ -10,6 +10,8 @@ import java.util.List;
 public class DownloadRpcCertRequest {
 	
 	private String consId;
+
+	private String blockchainId;
 	
 	private List<String> nodeId;
 }

@@ -48,10 +48,11 @@ public class CertServiceImpl implements CertService {
 	@LogSkip
 	public void downloadRpcCert(DownloadRpcCertRequest req, HttpServletResponse resp) throws Exception {
 		// check and build
-		String consId = req.getConsId();
-		Assert.notNull(consId, "consortiumId.not.found");
-		List<NodePo> nodes = nodeDas.findAll(consId, null);
+		String blockchainId = req.getBlockchainId();
+		Assert.notNull(blockchainId, "blockchainId.not.found");
+		List<NodePo> nodes = nodeDas.findByChainIds(Lists.newArrayList(blockchainId));
 		Assert.notEmpty(nodes, "node.not.found");
+		String consId = nodes.get(0).getConsortiumId();
 
 		// get to support nodes
 		List<String> toDownloadNodeIpList = Lists.newArrayList();

@@ -260,9 +260,6 @@ public class JsonRpcServiceImpl implements BlockchainRpcService{
 			statusResponse = request.sendAndGet();
 		} catch(Exception e) {
 			error = e.getMessage();
-		} finally{
-			log.info("\n\t getStatus--->\n\t ping--->{}\n\t pong--->{}\n\t error--->{}", statusRequest,
-					JSON.toJSONString(statusResponse), error);
 		}
 		return StatusBo.builder().statusRequest(statusRequest).statusResponse(statusResponse).error(error).build();
 	}

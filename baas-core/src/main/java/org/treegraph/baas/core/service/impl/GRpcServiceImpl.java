@@ -247,12 +247,6 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 			statusResponse = cfx.getStatus();
 		} catch(Exception e) {
 			error = e.getMessage();
-		} finally{
-			if(error != null) {
-				log.info("\n\t getStatus--->\n\t ping--->{}\n\t pong--->null\n\t error--->{}", uri, error);
-			} else {
-				log.info("\n\t getStatus--->\n\t ping--->{}\n\t pong--->{}", uri, JSON.toJSONString(statusResponse));
-			}
 		}
 		return StatusBo.builder().statusRequest(uri).statusResponse(statusResponse).error(error).build();
 	}

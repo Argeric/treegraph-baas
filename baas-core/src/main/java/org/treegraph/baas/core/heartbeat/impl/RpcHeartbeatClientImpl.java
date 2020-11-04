@@ -100,6 +100,7 @@ public class RpcHeartbeatClientImpl implements HeartbeatClient{
 				pong, statusBo.getError());
 
 		return Heartbeat.builder().id(heartbeat.getId())
+				.groupId(heartbeat.getGroupId())
 				.ip(heartbeat.getIp())
 				.port(heartbeat.getPort())
 				.lastPong(heartbeat.getPong())

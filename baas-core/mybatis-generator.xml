@@ -119,8 +119,11 @@
         </table>
         <table tableName="node" domainObjectName="NodePo" alias="node">
         </table>   
-        -->
         <table tableName="certificate_defer" domainObjectName="CertificateDeferPo" alias="certificateDefer">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>           
+        -->
+        <table tableName="certificate_request" domainObjectName="CertificateRequestPo" alias="certificateRequest">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>                
     </context>

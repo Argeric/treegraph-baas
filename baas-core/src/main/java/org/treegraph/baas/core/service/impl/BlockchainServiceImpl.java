@@ -29,6 +29,7 @@ import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.domain.BlockChainPo;
+import org.treegraph.baas.core.domain.CertificateRequestPo;
 import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
@@ -40,8 +41,6 @@ import org.treegraph.baas.core.service.BlockchainService;
 import org.treegraph.baas.core.util.DateTimeUtils;
 import org.treegraph.baas.core.util.DateUtils;
 import org.treegraph.baas.core.util.crypto.x509.CertUtil;
-
-import static org.treegraph.baas.core.util.DateTimeUtils.FORMAT_yyyyMMddHHmmss;
 
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
@@ -198,7 +197,7 @@ public class BlockchainServiceImpl implements BlockchainService {
 				.id(req.getBlockchainId())
 				.name(userMap.get(item.getApplyUserId()).getName())
 				.account(userMap.get(item.getApplyUserId()).getAccount())
-				.createTime(DateTimeUtils.formatTime(item.getCreateTime(), FORMAT_yyyyMMddHHmmss))
+				.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
 				.build()).collect(Collectors.toList());
 		
 		return ListCertResponse.builder()

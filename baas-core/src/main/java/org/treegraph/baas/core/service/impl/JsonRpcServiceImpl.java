@@ -47,8 +47,8 @@ import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 
-//@Service(value = "rpcService")
-@Service(value = "jsonRpcService")
+@Service(value = "rpcService")
+//@Service(value = "jsonRpcService")
 @AllArgsConstructor
 @Slf4j
 public class JsonRpcServiceImpl implements BlockchainRpcService{
@@ -228,8 +228,8 @@ public class JsonRpcServiceImpl implements BlockchainRpcService{
 	}
 	
 	public String sendRawTransaction(String consId, String nodeId, String hexEncoded) {
-		String uri = null;
-		Request<String, StringResponse> sendRawTransactionRequest = null;
+		String uri;
+		Request<String, StringResponse> sendRawTransactionRequest;
 		String txResult = null;
 		try {
 			Heartbeat heartbeat = HeartbeatListener.getInstance().getNode(consId, nodeId);
@@ -245,7 +245,7 @@ public class JsonRpcServiceImpl implements BlockchainRpcService{
 
 	@LogSkip
 	public StatusBo getStatus(Heartbeat heartbeat) {
-		String uri = null;
+		String uri;
 		String statusRequest = null;
 		Status statusResponse = null;
 		String error = null;

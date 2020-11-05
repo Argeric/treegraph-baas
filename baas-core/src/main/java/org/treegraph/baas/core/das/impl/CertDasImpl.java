@@ -20,6 +20,7 @@ public class CertDasImpl implements CertDas {
 	public List<CertificateRequestPo> findByBlockchainId(String blockchainId){
 		CertificateRequestPoExample example = new CertificateRequestPoExample();
 		example.createCriteria().andBlockchainIdEqualTo(blockchainId);
+		example.setOrderByClause("create_time desc");
 		return certificateRequestPoMapper.selectByExample(example);
 	}
 

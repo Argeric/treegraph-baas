@@ -89,6 +89,7 @@ public class CertUtil {
 						.collect(Collectors.toList());
 		        GeneralNames generalNames = new GeneralNames(generalNameList.toArray(new GeneralName[] {}));
 		        ExtensionsGenerator extensionsGenerator = new ExtensionsGenerator();
+				extensionsGenerator.addExtension(Extension.basicConstraints, true, new BasicConstraints(true)); // entity cert
 		        extensionsGenerator.addExtension(Extension.subjectAlternativeName, false, generalNames);
 		        builder.addAttribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest, extensionsGenerator.generate());
 	        }

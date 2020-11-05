@@ -6,6 +6,7 @@
     <result column="certificateRequest_consortium_id" jdbcType="VARCHAR" property="consortiumId" />
     <result column="certificateRequest_blockchain_id" jdbcType="VARCHAR" property="blockchainId" />
     <result column="certificateRequest_apply_user_id" jdbcType="VARCHAR" property="applyUserId" />
+    <result column="certificateRequest_san" jdbcType="VARCHAR" property="san" />
     <result column="certificateRequest_delete_flag" jdbcType="INTEGER" property="deleteFlag" />
     <result column="certificateRequest_create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="certificateRequest_update_time" jdbcType="TIMESTAMP" property="updateTime" />
@@ -73,9 +74,9 @@
   <sql id="Base_Column_List">
     certificateRequest.id as certificateRequest_id, certificateRequest.consortium_id as certificateRequest_consortium_id, 
     certificateRequest.blockchain_id as certificateRequest_blockchain_id, certificateRequest.apply_user_id as certificateRequest_apply_user_id, 
-    certificateRequest.delete_flag as certificateRequest_delete_flag, certificateRequest.create_time as certificateRequest_create_time, 
-    certificateRequest.update_time as certificateRequest_update_time, certificateRequest.create_by as certificateRequest_create_by, 
-    certificateRequest.update_by as certificateRequest_update_by
+    certificateRequest.san as certificateRequest_san, certificateRequest.delete_flag as certificateRequest_delete_flag, 
+    certificateRequest.create_time as certificateRequest_create_time, certificateRequest.update_time as certificateRequest_update_time, 
+    certificateRequest.create_by as certificateRequest_create_by, certificateRequest.update_by as certificateRequest_update_by
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.CertificateRequestPoExample" resultMap="BaseResultMap">
     select
@@ -109,11 +110,13 @@
   </delete>
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.CertificateRequestPo" useGeneratedKeys="true">
     insert into certificate_request (consortium_id, blockchain_id, apply_user_id, 
-      delete_flag, create_time, update_time, 
-      create_by, update_by)
+      san, delete_flag, create_time, 
+      update_time, create_by, update_by
+      )
     values (#{consortiumId,jdbcType=VARCHAR}, #{blockchainId,jdbcType=VARCHAR}, #{applyUserId,jdbcType=VARCHAR}, 
-      #{deleteFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
-      #{createBy,jdbcType=VARCHAR}, #{updateBy,jdbcType=VARCHAR})
+      #{san,jdbcType=VARCHAR}, #{deleteFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{updateBy,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.CertificateRequestPo" useGeneratedKeys="true">
     insert into certificate_request
@@ -126,6 +129,9 @@
       </if>
       <if test="applyUserId != null">
         apply_user_id,
+      </if>
+      <if test="san != null">
+        san,
       </if>
       <if test="deleteFlag != null">
         delete_flag,
@@ -152,6 +158,9 @@
       </if>
       <if test="applyUserId != null">
         #{applyUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="san != null">
+        #{san,jdbcType=VARCHAR},
       </if>
       <if test="deleteFlag != null">
         #{deleteFlag,jdbcType=INTEGER},
@@ -191,6 +200,9 @@
       <if test="record.applyUserId != null">
         certificateRequest.apply_user_id = #{record.applyUserId,jdbcType=VARCHAR},
       </if>
+      <if test="record.san != null">
+        certificateRequest.san = #{record.san,jdbcType=VARCHAR},
+      </if>
       <if test="record.deleteFlag != null">
         certificateRequest.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       </if>
@@ -217,6 +229,7 @@
       certificateRequest.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
       certificateRequest.blockchain_id = #{record.blockchainId,jdbcType=VARCHAR},
       certificateRequest.apply_user_id = #{record.applyUserId,jdbcType=VARCHAR},
+      certificateRequest.san = #{record.san,jdbcType=VARCHAR},
       certificateRequest.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       certificateRequest.create_time = #{record.createTime,jdbcType=TIMESTAMP},
       certificateRequest.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
@@ -237,6 +250,9 @@
       </if>
       <if test="applyUserId != null">
         apply_user_id = #{applyUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="san != null">
+        san = #{san,jdbcType=VARCHAR},
       </if>
       <if test="deleteFlag != null">
         delete_flag = #{deleteFlag,jdbcType=INTEGER},
@@ -261,6 +277,7 @@
     set consortium_id = #{consortiumId,jdbcType=VARCHAR},
       blockchain_id = #{blockchainId,jdbcType=VARCHAR},
       apply_user_id = #{applyUserId,jdbcType=VARCHAR},
+      san = #{san,jdbcType=VARCHAR},
       delete_flag = #{deleteFlag,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP},

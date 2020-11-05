@@ -35,6 +35,11 @@ public class CertificateRequestPo implements Serializable {
     /**
      * 
      */
+    private String san;
+
+    /**
+     * 
+     */
     private Integer deleteFlag;
 
     /**

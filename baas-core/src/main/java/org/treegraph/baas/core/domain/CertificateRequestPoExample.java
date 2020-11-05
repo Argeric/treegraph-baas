@@ -375,6 +375,76 @@ public class CertificateRequestPoExample {
             return (Criteria) this;
         }
 
+        public Criteria andSanIsNull() {
+            addCriterion("certificateRequest.san is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSanIsNotNull() {
+            addCriterion("certificateRequest.san is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSanEqualTo(String value) {
+            addCriterion("certificateRequest.san =", value, "san");
+            return (Criteria) this;
+        }
+
+        public Criteria andSanNotEqualTo(String value) {
+            addCriterion("certificateRequest.san <>", value, "san");
+            return (Criteria) this;
+        }
+
+        public Criteria andSanGreaterThan(String value) {
+            addCriterion("certificateRequest.san >", value, "san");
+            return (Criteria) this;
+        }
+
+        public Criteria andSanGreaterThanOrEqualTo(String value) {
+            addCriterion("certificateRequest.san >=", value, "san");
+            return (Criteria) this;
+        }
+
+        public Criteria andSanLessThan(String value) {
+            addCriterion("certificateRequest.san <", value, "san");
+            return (Criteria) this;
+        }
+
+        public Criteria andSanLessThanOrEqualTo(String value) {
+            addCriterion("certificateRequest.san <=", value, "san");
+            return (Criteria) this;
+        }
+
+        public Criteria andSanLike(String value) {
+            addCriterion("certificateRequest.san like", value, "san");
+            return (Criteria) this;
+        }
+
+        public Criteria andSanNotLike(String value) {
+            addCriterion("certificateRequest.san not like", value, "san");
+            return (Criteria) this;
+        }
+
+        public Criteria andSanIn(List<String> values) {
+            addCriterion("certificateRequest.san in", values, "san");
+            return (Criteria) this;
+        }
+
+        public Criteria andSanNotIn(List<String> values) {
+            addCriterion("certificateRequest.san not in", values, "san");
+            return (Criteria) this;
+        }
+
+        public Criteria andSanBetween(String value1, String value2) {
+            addCriterion("certificateRequest.san between", value1, value2, "san");
+            return (Criteria) this;
+        }
+
+        public Criteria andSanNotBetween(String value1, String value2) {
+            addCriterion("certificateRequest.san not between", value1, value2, "san");
+            return (Criteria) this;
+        }
+
         public Criteria andDeleteFlagIsNull() {
             addCriterion("certificateRequest.delete_flag is null");
             return (Criteria) this;

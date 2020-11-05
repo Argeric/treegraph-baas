@@ -217,7 +217,7 @@
                     </buildArgs>
                 </configuration>
       		</plugin>    
-
+			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
@@ -233,7 +233,7 @@
 							<outputDirectory>${basedir}/target</outputDirectory>
 							<resources>
 								<resource>
-									<directory>${basedir}/allatori</directory>
+									<directory>${basedir}/src/main/resources/allatori</directory>
 									<includes>
 										<include>allatori.xml</include>
 									</includes>
@@ -263,12 +263,11 @@
 						<argument>-Xms128m</argument>
 						<argument>-Xmx512m</argument>
 						<argument>-jar</argument>
-						<argument>${basedir}/allatori/allatori.jar</argument>
+						<argument>../allatori/allatori.jar</argument>
 						<argument>${basedir}/target/allatori.xml</argument>
 					</arguments>
 				</configuration>
 			</plugin>
-			-->
     	</plugins>
         <resources>
             <resource>

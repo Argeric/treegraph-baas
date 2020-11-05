@@ -1,0 +1,23 @@
+<config>
+    <input>
+        <jar in="treegraph-baas.jar" out="treegraph-baas-allatori.jar"/>
+    </input>
+    <ignore-classes>
+        <class template="class *springframework*" />
+        <class template="class *shardingjdbc*" />
+        <class template="class *jni*" />
+        <class template="class *alibaba*"/>
+        <class template="class *persistence*"/>
+        <!-- 排除如下两个包下的类-->
+        <class template="class org.treegraph.baas.TreeGraphBaasApp" />
+        <class template="class org.treegraph.baas.core.das*" />
+        <class template="class org.treegraph.baas.core.domain*" />
+    </ignore-classes>
+    <keep-names>
+        <class access="protected+">
+            <field access="protected+"/>
+            <method access="protected+"/>
+        </class>
+    </keep-names>
+    <property name="log-file" value="log.xml"/>
+</config>

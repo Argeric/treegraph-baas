@@ -1,6 +1,6 @@
 <config>
     <input>
-        <jar in="treegraph-baas.jar" out="=treegraph-baas-allatori.jar"/>
+        <jar in="baas-core-1.0.0-SNAPSHOT-pre.jar" out="baas-core-1.0.0-SNAPSHOT.jar"/>
     </input>
     <ignore-classes>
         <class template="class *springframework*" />

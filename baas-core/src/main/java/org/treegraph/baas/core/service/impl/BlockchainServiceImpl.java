@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.alibaba.fastjson.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.BlockchainInfo;
@@ -192,11 +193,12 @@ public class BlockchainServiceImpl implements BlockchainService {
 		List<UserInfoPo> users = userInfoDas.findByIds(applyUserIdList);
 		Map<String, UserInfoPo> userMap = users.stream()
 				.collect(Collectors.toMap(UserInfoPo::getId, Function.identity()));
-		
+
 		List<CertInfo> list = certReqList.stream().map(item -> CertInfo.builder()
 				.id(req.getBlockchainId())
 				.name(userMap.get(item.getApplyUserId()).getName())
 				.account(userMap.get(item.getApplyUserId()).getAccount())
+				.ipList(item.getSan() != null ? JSONObject.parseArray(item.getSan(), String.class) : null)
 				.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
 				.build()).collect(Collectors.toList());
 		

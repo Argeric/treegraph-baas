@@ -76,7 +76,7 @@ public class CertServiceImpl implements CertService {
 		certPathContentMap.put(RPC_KEY_FILE, gRpcKeypair.getPrivateKey());
 
 		// record request
-		CertificateRequestPo certificateRequest= buildService.buildCertificateRequest(nodes.get(0));
+		CertificateRequestPo certificateRequest= buildService.buildCertificateRequest(nodes.get(0), toDownloadNodeIpList);
 		certDas.add(certificateRequest);
 
 		// download file

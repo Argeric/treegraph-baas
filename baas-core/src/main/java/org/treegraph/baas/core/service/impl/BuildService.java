@@ -422,13 +422,14 @@ public class BuildService {
 				.build();
 	}
 
-	public CertificateRequestPo buildCertificateRequest(NodePo node){
+	public CertificateRequestPo buildCertificateRequest(NodePo node, List<String> toDownloadNodeIpList){
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		return CertificateRequestPo.builder()
 				.consortiumId(node.getConsortiumId())
 				.blockchainId(node.getBlockchainId())
 				.applyUserId(operUser)
+				.san(JSON.toJSONString(toDownloadNodeIpList))
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
 				.createTime(now)
 				.createBy(operUser)

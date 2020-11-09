@@ -27,6 +27,7 @@ import org.treegraph.baas.core.constant.X509CertConstant;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.enums.CryptoEnum;
 import org.treegraph.baas.core.enums.CryptoEnum.Algo;
+import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.bo.KeypairCertBo;
 import org.treegraph.baas.core.util.DateUtils;
@@ -58,7 +59,7 @@ public class KeypairCertUtil {
 	}
 
 	public KeypairCertBo buildKeypairCert(String consortiumId, String subject, Date latestCertExpireDate,
-			List<String> sanList, CryptoEnum.KeyType keyType, KeypairPo parentKeypair) {
+			List<String> sanList, CryptoEnum.KeyType keyType, KeypairPo parentKeypair) throws Exception {
 		KeyPair keyPair;
 		String publicKey;
 		String privateKey;
@@ -67,7 +68,7 @@ public class KeypairCertUtil {
 			publicKey = KeyUtil.publicKeyToBase64(keyPair.getPublic());
 			privateKey = KeyUtil.privateKeyToBase64(keyPair.getPrivate());
 		} catch (Exception e) {
-			throw new AlertException("generate keypair error!");
+			throw new AlertException("generate.keypair.error");
 		}
 		if (!Algo.RSA.getCode().equals(keyType.getAlgo().getCode())) {
 			return KeypairCertBo.builder()
@@ -77,24 +78,25 @@ public class KeypairCertUtil {
 					.build();
 		}
 
-		String csrStr;
-		String certStr;
-		if (parentKeypair == null) {
-			throw new AlertException("parentKeypair.not.found");
-		}
-		try {
+		String certStr, csrStr = null;
+		if(keyType.getCode() == KeyType.ROOT_CA.getCode().intValue()){
+			Certificate rootCA = CertUtil.generateRootCA(new X500Name(keyType.getSubject().getCode()), keyPair,
+					CertUtil.getNotBefore(), CertUtil.getNotAfter(X509CertConstant.TTL_ROOT_CA_IN_DAY));
+			certStr = CertUtil.certToPem(rootCA);
+		} else{
 			PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(subject), keyPair.getPublic(),
 					keyPair.getPrivate(), sanList);
 			if (keyType.getSignType() == CryptoEnum.CertificateSignType.BC) {
+				if (parentKeypair == null) {
+					throw new AlertException("parentKeypair.not.found");
+				}
 				certStr = signCertificateRequestByBC(parentKeypair, csr, latestCertExpireDate);
 			} else if (keyType.getSignType()  == CryptoEnum.CertificateSignType.VAULT) {
 				certStr = signCertificateRequestByVault(consortiumId, csr, latestCertExpireDate);
 			} else {
-				throw new AlertException("certificate sign request not supported!");
+				throw new AlertException("sign.csr.not.supported");
 			}
 			csrStr = CertUtil.csrToPem(csr);
-		} catch (Exception e) {
-			throw new AlertException(e);
 		}
 
 		return KeypairCertBo.builder()

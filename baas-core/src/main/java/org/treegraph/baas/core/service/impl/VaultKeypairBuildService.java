@@ -4,7 +4,6 @@ import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBas
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 
 import com.alibaba.fastjson.JSON;
-import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -17,8 +16,6 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x509.Certificate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
@@ -41,7 +38,6 @@ import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
 import org.treegraph.baas.core.service.bo.KeypairCertBo;
 import org.treegraph.baas.core.util.LogSkip;
-import org.treegraph.baas.core.util.crypto.x509.CertUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeypairCertUtil;
 
@@ -66,13 +62,12 @@ public class VaultKeypairBuildService {
 		if(CollectionUtils.isNotEmpty(rootKeypairs)){
 			return rootKeypairs.get(0);
 		}
-		
-		KeyPair rootKeyPair = KeyUtil.generateKeyPair(KeyType.ROOT_CA.getAlgo().getCode());
-		Certificate rootCA = CertUtil.generateRootCA(new X500Name(KeyType.ROOT_CA.getSubject().getCode()), rootKeyPair,
-				CertUtil.getNotBefore(), CertUtil.getNotAfter(365 * 10));
-		String rootPublicKey = KeyUtil.publicKeyToBase64(rootKeyPair.getPublic());
-		String rootPrivateKey = KeyUtil.privateKeyToBase64(rootKeyPair.getPrivate());
-		String rootCa = CertUtil.certToPem(rootCA);
+
+		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(null, KeyType.ROOT_CA.getSubject().getCode(),
+				null,null, KeyType.ROOT_CA, null);
+		String rootPublicKey = keypairCert.getPublicKey();
+		String rootPrivateKey = keypairCert.getPrivateKey();
+		String rootCa = keypairCert.getCertStr();
 
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
@@ -83,7 +78,7 @@ public class VaultKeypairBuildService {
 				.certStr(rootCa)
 				.algorithm(KeyType.ROOT_CA.getAlgo().getCode())
 				.consortiumId(ConsortiumConstant.DEFAULT_CONSORTIUM_ID)
-				.keyType(CryptoEnum.KeyType.CONSORTIUM.getCode())
+				.keyType(KeyType.ROOT_CA.getCode())
 				.deleteFlag(IntTypeEnum.FALSE.getValue())
 				.createTime(now)
 				.createBy(operUser)

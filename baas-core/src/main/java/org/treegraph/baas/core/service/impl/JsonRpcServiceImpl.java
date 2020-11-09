@@ -1,5 +1,12 @@
 package org.treegraph.baas.core.service.impl;
 
+import static org.treegraph.baas.core.constant.ConfluxConstant.RPC_ADD_DELETE_NODE;
+import static org.treegraph.baas.core.constant.ConfluxConstant.RPC_ADD_DELETE_NODE_CONFIRM;
+import static org.treegraph.baas.core.constant.ConfluxConstant.RPC_GET_BFT_EPOCH_NUMBER;
+import static org.treegraph.baas.core.constant.ConfluxConstant.RPC_UPDATE_CERT;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
+
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -8,6 +15,12 @@ import conflux.web3j.jsonrpc.Request;
 import conflux.web3j.response.BigIntResponse;
 import conflux.web3j.response.Status;
 import conflux.web3j.response.StringResponse;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -34,18 +47,6 @@ import org.treegraph.baas.core.util.IdWorker;
 import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
-
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import static org.treegraph.baas.core.constant.ConfluxConstant.*;
-import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 
 //@Service(value = "rpcService")
 @Service(value = "jsonRpcService")
@@ -207,9 +208,9 @@ public class JsonRpcServiceImpl implements BlockchainRpcService{
 					.filter(item -> HeartbeatListener.getInstance().getNode(consId, item)
 							.getStatus() == HeartbeatEnum.Status.GREEN)
 					.findFirst().orElseThrow(() -> new AlertException("alive.proposer.node.not.found"));
-			NodeKeypairInfoBo proposerKeypair = keypairDas.findAll(consId, KeyType.NODE.getCode(), ALGO_NODE,
+			NodeKeypairInfoBo proposerKeypair = keypairDas.findAll(consId, KeyType.NODE.getCode(), KeyType.NODE.getAlgo().getCode(),
 					Lists.newArrayList(proposerNodeId)).get(0);
-			String grpcKeyPem = privateKeyToPem(privateKeyFromBase64(ALGO_NODE, proposerKeypair.getPrivateKey()));
+			String grpcKeyPem = privateKeyToPem(privateKeyFromBase64(KeyType.NODE.getAlgo().getCode(), proposerKeypair.getPrivateKey()));
 			String grpcCertPem = proposerKeypair.getCertStr();
 			
 			Heartbeat heartbeat = HeartbeatListener.getInstance().getNode(consId, proposerNodeId);

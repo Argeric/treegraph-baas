@@ -1,10 +1,31 @@
 package org.treegraph.baas.core.service.impl;
 
+import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_GRPC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_LOC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_RPC_PORT_INTERVAL;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_SWITCH;
+import static org.treegraph.baas.core.constant.GRpcConstant.NODE_CERT_Path;
+import static org.treegraph.baas.core.constant.GRpcConstant.RPC_CERT_CHAIN_FILE;
+import static org.treegraph.baas.core.constant.GRpcConstant.RPC_KEY_FILE;
+import static org.treegraph.baas.core.constant.GRpcConstant.SERVER_CERT_FILE;
+import static org.treegraph.baas.core.constant.GRpcConstant.SERVER_KEY_FILE;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
+
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import conflux.web3j.grpc.GrpcWeb3j;
 import conflux.web3j.response.Status;
+import java.io.File;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import jodd.io.FileUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,23 +55,6 @@ import org.treegraph.baas.core.util.IdWorker;
 import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
-
-import java.io.File;
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.text.MessageFormat;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import static org.treegraph.baas.core.constant.ConfluxConstant.*;
-import static org.treegraph.baas.core.constant.GRpcConstant.*;
-import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
-import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_NODE;
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 
 @Service(value = "rpcService")
 //@Service(value = "gRpcService")
@@ -199,9 +203,9 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 					.filter(item -> HeartbeatListener.getInstance().getNode(consId, item)
 							.getStatus() == HeartbeatEnum.Status.GREEN)
 					.findFirst().orElseThrow(() -> new AlertException("alive.proposer.node.not.found"));
-			NodeKeypairInfoBo proposerKeypair = keypairDas.findAll(consId, KeyType.NODE.getCode(), ALGO_NODE,
+			NodeKeypairInfoBo proposerKeypair = keypairDas.findAll(consId, KeyType.NODE.getCode(), KeyType.NODE.getAlgo().getCode(),
 					Lists.newArrayList(proposerNodeId)).get(0);
-			String grpcKeyPem = privateKeyToPem(privateKeyFromBase64(ALGO_NODE, proposerKeypair.getPrivateKey()));
+			String grpcKeyPem = privateKeyToPem(privateKeyFromBase64(KeyType.NODE.getAlgo().getCode(), proposerKeypair.getPrivateKey()));
 			String grpcCertPem = proposerKeypair.getCertStr();
 			
 			GRpcParaBo rpcPara = getGRpcParas(consId, proposerNodeId);
@@ -259,7 +263,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 		// server cert and rpc cert
 		KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consId, null);
 		String serverCertFile = consKeypair.getCertStr();
-		String serverKeyFile = privateKeyToPem(privateKeyFromBase64(ALGO_CONS, consKeypair.getPrivateKey()));
+		String serverKeyFile = privateKeyToPem(privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(), consKeypair.getPrivateKey()));
 		GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.geneNewRpcKeypair(consId, consKeypair, null,
 				Lists.newArrayList(ip));
 		

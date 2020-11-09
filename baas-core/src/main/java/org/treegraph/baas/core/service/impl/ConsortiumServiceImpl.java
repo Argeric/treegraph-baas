@@ -16,10 +16,14 @@ import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_RPC_PORT_INT
 import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_SWITCH;
 import static org.treegraph.baas.core.constant.MonitorConstant.DEFAULT_CONTAINER_NETWORK;
 import static org.treegraph.baas.core.constant.MonitorConstant.DEFAULT_HOST_WEB_PORT;
-import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
 import static org.treegraph.baas.core.util.ConfluxUtils.toIpAtPort;
 import static org.treegraph.baas.core.util.DateTimeUtils.FORMAT_yyyyMMddHHmmss;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
@@ -30,7 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
+import lombok.AllArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -90,14 +94,6 @@ import org.treegraph.baas.core.service.bo.RoleInfoBo;
 import org.treegraph.baas.core.service.bo.UserInfoBo;
 import org.treegraph.baas.core.util.DateTimeUtils;
 import org.treegraph.baas.core.util.crypto.x509.CertUtil;
-
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.google.common.base.Functions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import lombok.AllArgsConstructor;
 
 @Validated
 @Service
@@ -504,7 +500,7 @@ public class ConsortiumServiceImpl implements ConsortiumService {
 		}
 		
 		// get not after of last certificate
-		List<KeypairPo> consKeypairs = keypairDas.findAll(consId, KeyType.CONSORTIUM.getCode(), ALGO_CONS);
+		List<KeypairPo> consKeypairs = keypairDas.findAll(consId, KeyType.CONSORTIUM.getCode(), KeyType.CONSORTIUM.getAlgo().getCode());
 		Date notAfter = null;
 		if(CollectionUtils.isNotEmpty(consKeypairs)) {
 			KeypairPo consKeypairDb = consKeypairs.get(0);

@@ -1,7 +1,36 @@
 package org.treegraph.baas.core.service.impl;
 
+import static org.treegraph.baas.core.constant.CharacterConstant.AT;
+import static org.treegraph.baas.core.constant.CharacterConstant.COLON;
+import static org.treegraph.baas.core.constant.CharacterConstant.COMMA;
+import static org.treegraph.baas.core.constant.CharacterConstant.DOT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_GRPC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_GRPC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_LOC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_CONTAINER_NETWORK;
+import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_MONITOR_PORT_INTERVAL;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_RPC_PORT_INTERVAL;
+import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_SWITCH;
+import static org.treegraph.baas.core.constant.SplitterConstant.FILE_SEP;
+import static org.treegraph.baas.core.constant.SplitterConstant.LINE_SEP;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFromBase64;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.security.PrivateKey;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -24,6 +53,7 @@ import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
+import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.service.ScriptService;
 import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
 import org.treegraph.baas.core.util.ConfluxUtils;
@@ -33,21 +63,6 @@ import org.treegraph.baas.core.util.crypto.x509.EncryptUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.treegraph.baas.core.util.crypto.x509.SignUtil;
 import org.web3j.crypto.ECKeyPair;
-
-import javax.servlet.http.HttpServletResponse;
-import java.security.PrivateKey;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import static org.treegraph.baas.core.constant.CharacterConstant.*;
-import static org.treegraph.baas.core.constant.ConfluxConstant.*;
-import static org.treegraph.baas.core.constant.SplitterConstant.FILE_SEP;
-import static org.treegraph.baas.core.constant.SplitterConstant.LINE_SEP;
-import static org.treegraph.baas.core.constant.X509CertConstant.ALGO_CONS;
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFromBase64;
 
 @Validated
 @Service
@@ -120,7 +135,7 @@ public class ScriptServiceImpl implements ScriptService {
 		// certificate info
 		KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair();
 		KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consortiumId, rootKeypair);
-		PrivateKey privateKey = KeyUtil.privateKeyFromBase64(ALGO_CONS, consKeypair.getPrivateKey());
+		PrivateKey privateKey = KeyUtil.privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(), consKeypair.getPrivateKey());
 		
 		// nodes info
 		StringBuilder consortiumNodes = new StringBuilder();
@@ -146,7 +161,7 @@ public class ScriptServiceImpl implements ScriptService {
 		
 		// nodes info digest
 		byte[] consNodesSHA3 = SignUtil.SHA256Digest(consortiumNodes.toString().getBytes());
-		byte[] consNodesDigestCipher = EncryptUtil.codecByPrivateKey(ALGO_CONS, true, privateKey, consNodesSHA3);
+		byte[] consNodesDigestCipher = EncryptUtil.codecByPrivateKey(KeyType.CONSORTIUM.getAlgo().getCode(), true, privateKey, consNodesSHA3);
 		String consNodesDigest = Base64.toBase64String(consNodesDigestCipher);
 		
 		// node config

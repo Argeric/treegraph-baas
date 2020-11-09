@@ -35,26 +35,52 @@ public class CryptoEnum {
 		}
 	}
 
+	/**
+	 * 签发证书的类型
+	 */
 	@Getter
-	public enum Pkcs {
+	@AllArgsConstructor
+	public enum CertificateSignType {
 
-		PKCS5("pkcs5", "pkcs5密钥加密算法"),
+		BC(1, "bounce castle"),
 
-		PKCS8("pkcs8", "pkcs8密钥加密算法"),
+		VAULT(2, "hashicorp vault"),;
 
+		private final Integer code;
+
+		private final String desc;
+
+		public static CertificateSignType getByCode(int code) {
+			for (CertificateSignType s : CertificateSignType.values()) {
+				if (s.code == code) {
+					return s;
+				}
+			}
+			return null;
+		}
+	}
+
+	@Getter
+	public enum Subject {
+
+		ROOT_CA("CN=root.conflux-chain.org,OU=it-dept,O=conflux-chain,L=SH,ST=SH,C=CN", "root.ca.subject"),
+
+		CONSORTIUM("CN=consortium.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN", "consortium.ca.subject"),
+
+		RPC("CN=rpc.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN", "rpc.cert.subject"),
 		;
 
 		private final String code;
 
 		private final String desc;
 
-		Pkcs(String code, String desc) {
+		Subject(String code, String desc) {
 			this.code = code;
 			this.desc = desc;
 		}
 
-		public static Pkcs getByCode(String code) {
-			for (Pkcs s : Pkcs.values()) {
+		public static Subject getByCode(String code) {
+			for (Subject s : Subject.values()) {
 				if (s.code.equalsIgnoreCase(code)) {
 					return s;
 				}
@@ -70,40 +96,23 @@ public class CryptoEnum {
 	@AllArgsConstructor
 	public enum KeyType {
 
-		CONSORTIUM(1, "联盟类型"),
+		ROOT_CA(0, Algo.RSA, CertificateSignType.BC, Subject.ROOT_CA, "root.ca.keypair"),
 
-		NODE(2, "节点类型"),
+		CONSORTIUM(1, Algo.RSA, CertificateSignType.BC, Subject.CONSORTIUM, "consortium.keypair"),
 
-		RPC(3, "RPC类型"),
+		NODE(2, Algo.ECC, CertificateSignType.BC, null, "node.keypair"),
+
+		RPC(3, Algo.RSA, CertificateSignType.VAULT, Subject.RPC, "rpc.keypair"),
 
 		;
 
 		private final Integer code;
 
-		private final String desc;
+		private final Algo algo;
 
-		public static KeyType getByCode(int code) {
-			for (KeyType s : KeyType.values()) {
-				if (s.code == code) {
-					return s;
-				}
-			}
-			return null;
-		}
-	}
-	
-	/**
-	 * 签发证书的类型
-	 */
-	@Getter
-	@AllArgsConstructor
-	public enum CertificateSignType {
+		private final CertificateSignType signType;
 
-		BC(1, "bounce castle"),
-
-		VAULT(2, "hashicorp vault"),;
-
-		private final Integer code;
+		private final Subject subject;
 
 		private final String desc;
 

@@ -1,5 +1,8 @@
 package org.treegraph.baas;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import conflux.web3j.types.RawTransaction;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -7,7 +10,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
+import jodd.io.FileUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
@@ -56,13 +60,6 @@ import org.treegraph.baas.core.util.Order;
 import org.treegraph.baas.core.util.SSLUtils;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
-
-import conflux.web3j.types.RawTransaction;
-import jodd.io.FileUtil;
-import lombok.extern.slf4j.Slf4j;
 
 //@RunWith(SpringRunner.class)
 @RunWith(OrderedRunner.class)

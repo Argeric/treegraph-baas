@@ -2,9 +2,20 @@ package org.treegraph.baas.core.util.crypto.x509;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.base.Splitter;
+import com.google.common.collect.Maps;
+import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.Certificate;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.springframework.stereotype.Service;
@@ -19,13 +30,6 @@ import org.treegraph.baas.core.enums.CryptoEnum.Algo;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.bo.KeypairCertBo;
 import org.treegraph.baas.core.util.DateUtils;
-
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.time.Duration;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 
 @Validated
 @Service
@@ -53,21 +57,21 @@ public class KeypairCertUtil {
 				.build();
 	}
 
-	public KeypairCertBo buildKeypairCert(String algo, String subject, Date latestCertExpireDate, List<String> sanList,
-										  CryptoEnum.KeyType keyType, KeypairPo parentKeypair) {
+	public KeypairCertBo buildKeypairCert(String consortiumId, String subject, Date latestCertExpireDate,
+			List<String> sanList, CryptoEnum.KeyType keyType, KeypairPo parentKeypair) {
 		KeyPair keyPair;
 		String publicKey;
 		String privateKey;
 		try {
-			keyPair = KeyUtil.generateKeyPair(algo);
+			keyPair = KeyUtil.generateKeyPair(keyType.getAlgo().getCode());
 			publicKey = KeyUtil.publicKeyToBase64(keyPair.getPublic());
 			privateKey = KeyUtil.privateKeyToBase64(keyPair.getPrivate());
 		} catch (Exception e) {
 			throw new AlertException("generate keypair error!");
 		}
-		if (!Algo.RSA.getCode().equals(algo)) {
+		if (!Algo.RSA.getCode().equals(keyType.getAlgo().getCode())) {
 			return KeypairCertBo.builder()
-					.algorithm(algo)
+					.algorithm(keyType.getAlgo().getCode())
 					.publicKey(publicKey)
 					.privateKey(privateKey)
 					.build();
@@ -81,11 +85,10 @@ public class KeypairCertUtil {
 		try {
 			PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(subject), keyPair.getPublic(),
 					keyPair.getPrivate(), sanList);
-			if (keyType == CryptoEnum.KeyType.RPC ||
-					X509CertConstant.DEFAULT_CERT_SIGN_TYPE == CryptoEnum.CertificateSignType.BC) {
-				certStr = signCertificateRequestByBC(parentKeypair.getAlgorithm(), parentKeypair, csr);
-			} else if (X509CertConstant.DEFAULT_CERT_SIGN_TYPE == CryptoEnum.CertificateSignType.VAULT) {
-				certStr = signCertificateRequestByVault(csr, latestCertExpireDate);
+			if (keyType.getSignType() == CryptoEnum.CertificateSignType.BC) {
+				certStr = signCertificateRequestByBC(parentKeypair, csr, latestCertExpireDate);
+			} else if (keyType.getSignType()  == CryptoEnum.CertificateSignType.VAULT) {
+				certStr = signCertificateRequestByVault(consortiumId, csr, latestCertExpireDate);
 			} else {
 				throw new AlertException("certificate sign request not supported!");
 			}
@@ -95,7 +98,7 @@ public class KeypairCertUtil {
 		}
 
 		return KeypairCertBo.builder()
-				.algorithm(algo)
+				.algorithm(keyType.getAlgo().getCode())
 				.publicKey(publicKey)
 				.privateKey(privateKey)
 				.csrStr(csrStr)
@@ -103,17 +106,18 @@ public class KeypairCertUtil {
 				.build();
 	}
 
-	private String signCertificateRequestByBC(String parentKeypairAlgo, KeypairPo parentKeypair,
-											  PKCS10CertificationRequest csr) throws Exception {
-		PrivateKey parentPrivateKey = KeyUtil.privateKeyFromBase64(parentKeypairAlgo, parentKeypair.getPrivateKey());
+	private String signCertificateRequestByBC(KeypairPo parentKeypair,
+											  PKCS10CertificationRequest csr, Date lastCertExpireDate) throws Exception {
+		PrivateKey parentPrivateKey = KeyUtil.privateKeyFromBase64(parentKeypair.getAlgorithm(),
+				parentKeypair.getPrivateKey());
 		byte[] parentCertBytes = CertUtil.certFromPem(parentKeypair.getCertStr()).getEncoded();
 		Certificate cert = CertUtil.generateCert(csr, parentPrivateKey, parentCertBytes,
-				CertUtil.getNotBefore(), CertUtil.getNotAfter(X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DAY),
+				CertUtil.getNotBefore(), CertUtil.getNotAfter(X509CertConstant.TTL_CONSORTIUM_CA_IN_DAY),
 				true);
 		return CertUtil.certToPem(cert);
 	}
 
-	private String signCertificateRequestByVault(PKCS10CertificationRequest csr, Date lastCertExpireDate)
+	private String signCertificateRequestByVault(String pkiPath, PKCS10CertificationRequest csr, Date lastCertExpireDate)
 			throws Exception {
 		int lastCertLeftDays = 0;
 		if (lastCertExpireDate != null) {
@@ -121,11 +125,14 @@ public class KeypairCertUtil {
 			lastCertLeftDays = Math.max(lastCertLeftDays, 0);
 		}
 
+		Map<String, String> displayNameMap = parseSubject(csr.getSubject());
+		String cn = displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.CN));
+
 		VaultCertificateRequest request = VaultCertificateRequest.builder()
-				.ttl(Duration.ofDays(lastCertLeftDays + X509CertConstant.EXPIRE_CONSORTIUM_CERT_IN_DAY))
-				.commonName(X509CertConstant.COMMON_NAME_CONSORTIUM_CERT).build();
+				.ttl(Duration.ofDays(lastCertLeftDays + X509CertConstant.TTL_CONSORTIUM_CA_IN_DAY))
+				.commonName(cn).build();
 		VaultSignCertificateRequestResponse certificateResponse = vaultOperations
-				.opsForPki(X509CertConstant.VAULT_PKI_PATH)
+				.opsForPki(pkiPath)
 				.signCertificateRequest(X509CertConstant.VAULT_ROLE_ISSUE_CERTIFICATE, CertUtil.csrToPem(csr), request);
 		org.springframework.vault.support.Certificate cert = certificateResponse.getRequiredData();
 		log.info("signCertificateRequestByVault resp:{}", JSON.toJSONString(cert));
@@ -140,5 +147,15 @@ public class KeypairCertUtil {
 		}
 		return "-----BEGIN CERTIFICATE-----\n" + content.toString() +
 				"-----END CERTIFICATE-----";
+	}
+
+	private Map<String, String> parseSubject(X500Name subject) {
+		String displayName = BCStyle.INSTANCE.toString(subject);
+		Map<String, String> displayNameMap = Maps.newHashMap();
+		Arrays.stream(StringUtils.split(displayName, ",")).forEach(item -> {
+			String[] paras = item.split("=");
+			displayNameMap.put(paras[0], paras[1]);
+		});
+		return displayNameMap;
 	}
 }

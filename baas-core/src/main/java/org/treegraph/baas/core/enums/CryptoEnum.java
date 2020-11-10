@@ -63,11 +63,11 @@ public class CryptoEnum {
 	@Getter
 	public enum Subject {
 
-		ROOT_CA("CN=root.conflux-chain.org,OU=it-dept,O=conflux-chain,L=SH,ST=SH,C=CN", "root.ca.subject"),
+		ROOT_CA("CN=root.baas.conflux-chain.org,OU=it-dept,O=conflux-chain,L=SH,ST=SH,C=CN", "root.ca.subject"),
 
-		CONSORTIUM("CN=consortium.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN", "consortium.ca.subject"),
+		CONSORTIUM("CN=consortium.baas.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN", "consortium.ca.subject"),
 
-		RPC("CN=rpc.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN", "rpc.cert.subject"),
+		RPC("CN=rpc.baas.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN", "rpc.cert.subject"),
 		;
 
 		private final String code;

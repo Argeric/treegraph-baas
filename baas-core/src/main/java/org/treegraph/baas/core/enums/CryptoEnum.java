@@ -102,7 +102,7 @@ public class CryptoEnum {
 
 		NODE(2, Algo.ECC, CertSignType.BC, null, "node.keypair"),
 
-		RPC(3, Algo.RSA, CertSignType.VAULT, Subject.RPC, "rpc.keypair"),
+		RPC(3, Algo.RSA, CertSignType.BC, Subject.RPC, "rpc.keypair"),
 
 		;
 

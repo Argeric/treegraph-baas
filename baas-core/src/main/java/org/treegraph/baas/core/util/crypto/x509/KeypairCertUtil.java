@@ -134,7 +134,7 @@ public class KeypairCertUtil {
 		String cn = displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.CN));
 
 		VaultCertificateRequest request = VaultCertificateRequest.builder()
-				.ttl(Duration.ofDays(lastCertLeftDays + X509CertConstant.TTL_CONSORTIUM_CA_IN_DAY))
+				.ttl(Duration.ofDays(lastCertLeftDays + X509CertConstant.TTL_RPC_CA_IN_DAY))
 				.commonName(cn).build();
 		VaultSignCertificateRequestResponse certificateResponse = vaultOperations
 				.opsForPki(pkiPath)

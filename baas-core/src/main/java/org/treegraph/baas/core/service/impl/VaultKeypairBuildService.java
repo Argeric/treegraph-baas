@@ -207,6 +207,6 @@ public class VaultKeypairBuildService {
 
 		Map<String, VaultMount> mounts = adminOperations.getMounts();
 		log.info("vaultMount path:{},resp:{}", pkiPath, JSON.toJSONString(mounts));
-		Assert.isTrue(mounts.containsKey(pkiPath), "vault mount pki path error");
+		Assert.isTrue(mounts.containsKey(pkiPath + "/"), "vault mount pki path error");
 	}
 }

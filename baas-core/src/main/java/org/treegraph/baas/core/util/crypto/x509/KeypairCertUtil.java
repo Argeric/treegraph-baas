@@ -1,6 +1,7 @@
 package org.treegraph.baas.core.util.crypto.x509;
 
 import static org.treegraph.baas.core.constant.X509CertConstant.TTL_CONSORTIUM_CA_IN_DAY;
+import static org.treegraph.baas.core.constant.X509CertConstant.TTL_ROOT_CA_IN_DAY;
 import static org.treegraph.baas.core.constant.X509CertConstant.TTL_RPC_CERT_IN_DAY;
 
 import com.google.common.base.Splitter;
@@ -83,21 +84,28 @@ public class KeypairCertUtil {
 		String certStr = null, csrStr = null;
 		try {
 			if(keyTypeCode == KeyType.ROOT_CA.getCode()){
-				Certificate rootCA = CertUtil.generateRootCA(new X500Name(keyType.getSubject().getCode()), keyPair,
-						CertUtil.getNotBefore(), CertUtil.getNotAfter(X509CertConstant.TTL_ROOT_CA_IN_DAY));
+				Certificate rootCA = CertUtil.generateRootCA(new X500Name(keyType.getSubject().getCode()),
+						keyPair, CertUtil.getNotBefore(), CertUtil.getNotAfter(TTL_ROOT_CA_IN_DAY));
 				certStr = CertUtil.certToPem(rootCA);
 			} else{
+				CertSignType signType = keyType.getSignType();
+				Assert.isTrue(signType == CertSignType.BC || signType == CertSignType.VAULT,
+						"sign.csr.not.supported");
+
 				PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(keyType.getSubject().getCode()),
 						keyPair.getPublic(), keyPair.getPrivate(), sanList);
-				CertSignType signType = keyType.getSignType();
-				Assert.isTrue(signType == CertSignType.BC || signType == CertSignType.VAULT, "sign.csr.not.supported");
-				int ttl = keyTypeCode == KeyType.CONSORTIUM.getCode() ? TTL_CONSORTIUM_CA_IN_DAY : TTL_RPC_CERT_IN_DAY;
+				int ttl = keyTypeCode == KeyType.CONSORTIUM.getCode() ? TTL_CONSORTIUM_CA_IN_DAY
+						: TTL_RPC_CERT_IN_DAY;
+
 				if (keyType.getSignType() == CertSignType.BC) {
 					Assert.notNull(bcCa,"parentKeypair.not.found");
-					certStr = signCertificateRequestByBC(bcCa, csr, lastCrtExpire, ttl);
+					certStr = signCertRequestByBC(bcCa, csr, lastCrtExpire, ttl);
 				}
 				if (keyType.getSignType()  == CertSignType.VAULT) {
-					certStr = signCertificateRequestByVault(vaultCa, csr, lastCrtExpire, ttl);
+					String issuer = keyTypeCode == KeyType.CONSORTIUM.getCode()
+							? X509CertConstant.VAULT_ROLE_ISSUER_CONS
+							: X509CertConstant.VAULT_ROLE_ISSUER_RPC;
+					certStr = signCertRequestByVault(vaultCa, csr, lastCrtExpire, ttl, issuer);
 				}
 				csrStr = CertUtil.csrToPem(csr);
 			}
@@ -114,7 +122,7 @@ public class KeypairCertUtil {
 				.build();
 	}
 
-	private String signCertificateRequestByBC(KeypairPo parentKeypair, PKCS10CertificationRequest csr,
+	private String signCertRequestByBC(KeypairPo parentKeypair, PKCS10CertificationRequest csr,
 			Date lastCrtExpire, int ttl) throws Exception {
 		PrivateKey parentPrivateKey = KeyUtil.privateKeyFromBase64(parentKeypair.getAlgorithm(),
 				parentKeypair.getPrivateKey());
@@ -125,8 +133,8 @@ public class KeypairCertUtil {
 		return CertUtil.certToPem(cert);
 	}
 
-	private String signCertificateRequestByVault(String pkiPath, PKCS10CertificationRequest csr,
-			Date lastCrtExpire, int ttl) throws Exception {
+	private String signCertRequestByVault(String pkiPath, PKCS10CertificationRequest csr,
+			Date lastCrtExpire, int ttl, String issuer) throws Exception {
 		int lastCertTtlInDay = getLastCrtTtlInDay(lastCrtExpire);
 		Map<String, String> displayNameMap = parseSubject(csr.getSubject());
 		String cn = displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.CN));
@@ -136,7 +144,7 @@ public class KeypairCertUtil {
 				.commonName(cn).build();
 		VaultSignCertificateRequestResponse certificateResponse = vaultOperations
 				.opsForPki(pkiPath)
-				.signCertificateRequest(X509CertConstant.VAULT_ROLE_ISSUER_RPC, CertUtil.csrToPem(csr), request);
+				.signCertificateRequest(issuer, CertUtil.csrToPem(csr), request);
 		org.springframework.vault.support.Certificate cert = certificateResponse.getRequiredData();
 		return generatePem(cert.getCertificate());
 	}

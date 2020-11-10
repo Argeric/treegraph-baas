@@ -138,7 +138,7 @@ public class KeypairCertUtil {
 				.commonName(cn).build();
 		VaultSignCertificateRequestResponse certificateResponse = vaultOperations
 				.opsForPki(pkiPath)
-				.signCertificateRequest(X509CertConstant.VAULT_ROLE_ISSUE_CERTIFICATE, CertUtil.csrToPem(csr), request);
+				.signCertificateRequest(X509CertConstant.VAULT_ROLE_ISSUER_RPC, CertUtil.csrToPem(csr), request);
 		org.springframework.vault.support.Certificate cert = certificateResponse.getRequiredData();
 		log.info("signCertificateRequestByVault resp:{}", JSON.toJSONString(cert));
 		return generatePem(cert.getCertificate());

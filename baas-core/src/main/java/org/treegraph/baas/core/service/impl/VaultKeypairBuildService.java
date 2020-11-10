@@ -104,8 +104,10 @@ public class VaultKeypairBuildService {
 			Date lastCertExpireDate) throws Exception {
 		KeypairCertBo keypairCert = keypairCertUtil.buildConsKeypairCert(lastCertExpireDate, rootKeypair);
 		if(KeyType.RPC.getSignType() == CertSignType.VAULT) {
-			PrivateKey privateKey = KeyUtil.privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(), keypairCert.getPrivateKey());
-			submitCaToVault(consortiumId, keypairCert.getCertStr(), KeyUtil.privateKeyToPem(privateKey));
+			PrivateKey privateKey = KeyUtil.privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(),
+					keypairCert.getPrivateKey());
+			submitCaToVault(consortiumId, keypairCert.getCertStr(), KeyUtil.privateKeyToPem(privateKey),
+					X509CertConstant.TTL_CONSORTIUM_CA_IN_DAY);
 		}
 
 		LocalDateTime now = LocalDateTime.now();
@@ -177,8 +179,9 @@ public class VaultKeypairBuildService {
 		return GRpcKeypairCertBo.builder().consId(consortiumId).cert(rpcCert).privateKey(rpcPrivate).build();
 	}
 
-	private void submitCaToVault(String pkiPath, String certPem, String keyPem) {
-		mountToVault(pkiPath);
+	private void submitCaToVault(String pkiPath, String certPem, String keyPem, int ttlInDay) {
+		int ttlInHour = ttlInDay * 24;
+		mountToVault(pkiPath, ttlInHour);
 
 		Map<String, String> pemBundle = Collections.singletonMap("pem_bundle", certPem + keyPem);
 		VaultResponse writeCaToVaultResponse = vaultOperations.write(pkiPath + "/config/ca",
@@ -190,20 +193,20 @@ public class VaultKeypairBuildService {
 		role.put("allow_subdomains", "true");
 		role.put("allow_localhost", "true");
 		role.put("allow_ip_sans", "true");
-		role.put("max_ttl", "87600h");
+		role.put("max_ttl", ttlInHour + "h");
 		VaultResponse writeRoleToVaultResponse = vaultOperations.write(
-				pkiPath + "/roles/" + X509CertConstant.VAULT_ROLE_ISSUE_CERTIFICATE, role);
+				pkiPath + "/roles/" + X509CertConstant.VAULT_ROLE_ISSUER_RPC, role);
 		log.info("writeRoleResponse resp:{}", JSON.toJSONString(writeRoleToVaultResponse));
 	}
 
-	private void mountToVault(String pkiPath) {
+	private void mountToVault(String pkiPath, int ttlInHour) {
 		VaultSysOperations adminOperations = vaultOperations.opsForSys();
 		if (adminOperations.getMounts().containsKey(pkiPath)) {
 			return;
 		}
 
 		VaultMount mount = VaultMount.builder().type("pki")
-				.config(Collections.singletonMap("max_lease_ttl", "87600h")).description("bass pki").build();
+				.config(Collections.singletonMap("max_lease_ttl", ttlInHour + "h")).description("bass pki").build();
 		adminOperations.mount(pkiPath, mount);
 
 		Map<String, VaultMount> mounts = adminOperations.getMounts();

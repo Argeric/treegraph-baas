@@ -101,8 +101,8 @@ public class VaultKeypairBuildService {
 
 	@LogSkip
 	public KeypairPo geneNewConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair,
-			Date lastCertExpireDate) throws Exception {
-		KeypairCertBo keypairCert = keypairCertUtil.buildConsKeypairCert(lastCertExpireDate, rootKeypair);
+			Date lastCrtExpire) throws Exception {
+		KeypairCertBo keypairCert = keypairCertUtil.buildConsKeypairCert(lastCrtExpire, rootKeypair);
 		if(KeyType.RPC.getSignType() == CertSignType.VAULT) {
 			PrivateKey privateKey = KeyUtil.privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(),
 					keypairCert.getPrivateKey());
@@ -171,9 +171,9 @@ public class VaultKeypairBuildService {
 	}
 
 	@LogSkip
-	public GRpcKeypairCertBo geneNewRpcKeypair(String consortiumId, KeypairPo consKeypair, Date lastCertExpireDate,
+	public GRpcKeypairCertBo geneNewRpcKeypair(String consortiumId, KeypairPo consKeypair, Date lastCrtExpire,
 			List<String> sanList) throws Exception {
-		KeypairCertBo keypairCert = keypairCertUtil.buildRpcKeypairCert(lastCertExpireDate, sanList, consortiumId, consKeypair);
+		KeypairCertBo keypairCert = keypairCertUtil.buildRpcKeypairCert(lastCrtExpire, sanList, consortiumId, consKeypair);
 		String rpcCert = keypairCert.getCertStr();
 		String rpcPrivate = privateKeyToPem(privateKeyFromBase64(KeyType.RPC.getAlgo().getCode(), keypairCert.getPrivateKey()));
 		return GRpcKeypairCertBo.builder().consId(consortiumId).cert(rpcCert).privateKey(rpcPrivate).build();

@@ -48,8 +48,8 @@ import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
 
-@Service(value = "rpcService")
-//@Service(value = "jsonRpcService")
+//@Service(value = "rpcService")
+@Service(value = "jsonRpcService")
 @AllArgsConstructor
 @Slf4j
 public class JsonRpcServiceImpl implements BlockchainRpcService{

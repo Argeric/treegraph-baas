@@ -12,6 +12,5 @@ public interface CertificateDeferDas {
 	
 	void modifyCertificateDefer(CertificateDeferPo defer);
 	
-	void modifyCertificateDefer(CertificateDeferPo defer, List<Long> keypairIds, Integer deleteFlag,
-								KeypairPo newKeypair);
+	void modifyCertificateDefer(CertificateDeferPo defer, List<Long> keypairIds, KeypairPo newKeypair);
 }

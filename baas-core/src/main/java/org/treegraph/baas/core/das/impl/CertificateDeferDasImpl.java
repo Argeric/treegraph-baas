@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.core.das.CertificateDeferDas;
 import org.treegraph.baas.core.domain.CertificateDeferPo;
 import org.treegraph.baas.core.domain.CertificateDeferPoExample;
@@ -43,16 +44,16 @@ public class CertificateDeferDasImpl implements CertificateDeferDas {
 		certificateDeferPoMapper.updateByPrimaryKeySelective(defer);
 	}
 	
-	public void modifyCertificateDefer(CertificateDeferPo defer, List<Long> keypairIds, Integer deleteFlag,
+	public void modifyCertificateDefer(CertificateDeferPo defer, List<Long> oldKeypairIds,
 									   KeypairPo newKeypair) {
 		boolean isSuccess = Boolean.TRUE;
 		isSuccess = isSuccess && certificateDeferPoMapper.updateByPrimaryKeySelective(defer) > 0;
 		
-		if(CollectionUtils.isNotEmpty(keypairIds)) {
-			KeypairPo record = KeypairPo.builder().deleteFlag(deleteFlag).build();
+		if(CollectionUtils.isNotEmpty(oldKeypairIds)) {
+			KeypairPo record = KeypairPo.builder().deleteFlag(IntTypeEnum.TRUE.getValue()).build();
 			KeypairPoExample example = new KeypairPoExample();
-			example.createCriteria().andIdIn(keypairIds);
-			isSuccess = isSuccess && keypairPoMapper.updateByExampleSelective(record, example) == keypairIds.size();
+			example.createCriteria().andIdIn(oldKeypairIds);
+			isSuccess = isSuccess && keypairPoMapper.updateByExampleSelective(record, example) == oldKeypairIds.size();
 		}
 		
 		isSuccess = isSuccess && keypairPoMapper.insert(newKeypair) > 0;

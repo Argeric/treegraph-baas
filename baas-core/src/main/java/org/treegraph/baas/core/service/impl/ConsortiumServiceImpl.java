@@ -533,6 +533,6 @@ public class ConsortiumServiceImpl implements ConsortiumService {
 		deferUpdate.setStatus(DeferStatus.SUCCESS.getCode());
 		List<Long> oldKeypairIds = consKeypairs.stream().map(KeypairPo::getId).collect(Collectors.toList());
 		KeypairPo newKeypair = buildService.buildConsortiumKeypairPoFromDefer(defer);
-		certificateDeferDas.modifyCertificateDefer(deferUpdate, oldKeypairIds, IntTypeEnum.TRUE.getValue(), newKeypair);
+		certificateDeferDas.modifyCertificateDefer(deferUpdate, oldKeypairIds, newKeypair);
 	}
 }

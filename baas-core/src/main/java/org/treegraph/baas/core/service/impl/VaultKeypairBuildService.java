@@ -180,7 +180,7 @@ public class VaultKeypairBuildService {
 		mountToVault(pkiPath);
 
 		Map<String, String> pemBundle = Collections.singletonMap("pem_bundle", certPem + keyPem);
-		VaultResponse writeCaToVaultResponse = vaultOperations.write(pkiPath + "config/ca",
+		VaultResponse writeCaToVaultResponse = vaultOperations.write(pkiPath + "/config/ca",
 				pemBundle);
 		log.info("writeCaResponse resp:{}", JSON.toJSONString(writeCaToVaultResponse));
 
@@ -191,7 +191,7 @@ public class VaultKeypairBuildService {
 		role.put("allow_ip_sans", "true");
 		role.put("max_ttl", "87600h");
 		VaultResponse writeRoleToVaultResponse = vaultOperations.write(
-				pkiPath + "roles/" + X509CertConstant.VAULT_ROLE_ISSUE_CERTIFICATE, role);
+				pkiPath + "/roles/" + X509CertConstant.VAULT_ROLE_ISSUE_CERTIFICATE, role);
 		log.info("writeRoleResponse resp:{}", JSON.toJSONString(writeRoleToVaultResponse));
 	}
 

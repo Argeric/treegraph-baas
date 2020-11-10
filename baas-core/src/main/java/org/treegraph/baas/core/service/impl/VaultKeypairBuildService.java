@@ -102,7 +102,7 @@ public class VaultKeypairBuildService {
 	public KeypairPo geneNewConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair,
 			Date lastCertExpireDate) throws Exception {
 		KeypairCertBo keypairCert = keypairCertUtil.buildConsKeypairCert(lastCertExpireDate, rootKeypair);
-		if(KeyType.CONSORTIUM.getSignType() == CryptoEnum.CertificateSignType.VAULT) {
+		if(KeyType.RPC.getSignType() == CryptoEnum.CertificateSignType.VAULT) {
 			PrivateKey privateKey = KeyUtil.privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(), keypairCert.getPrivateKey());
 			submitCaToVault(consortiumId, keypairCert.getCertStr(), KeyUtil.privateKeyToPem(privateKey));
 		}

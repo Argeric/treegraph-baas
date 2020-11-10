@@ -91,12 +91,10 @@ public class KeypairCertUtil {
 				CertSignType signType = keyType.getSignType();
 				Assert.isTrue(signType == CertSignType.BC || signType == CertSignType.VAULT,
 						"sign.csr.not.supported");
-
 				PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(keyType.getSubject().getCode()),
 						keyPair.getPublic(), keyPair.getPrivate(), sanList);
 				int ttl = keyTypeCode == KeyType.CONSORTIUM.getCode() ? TTL_CONSORTIUM_CA_IN_DAY
 						: TTL_RPC_CERT_IN_DAY;
-
 				if (keyType.getSignType() == CertSignType.BC) {
 					Assert.notNull(bcCa,"parentKeypair.not.found");
 					certStr = signCertRequestByBC(bcCa, csr, lastCrtExpire, ttl);

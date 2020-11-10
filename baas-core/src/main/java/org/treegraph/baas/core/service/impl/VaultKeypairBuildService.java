@@ -56,15 +56,14 @@ public class VaultKeypairBuildService {
     private final KeypairCertUtil keypairCertUtil;
 
 	@LogSkip
-	public KeypairPo getRootKeypair() throws Exception{
-		List<KeypairPo> rootKeypairs = keypairDas.findAll(ConsortiumConstant.DEFAULT_CONSORTIUM_ID,
+	public KeypairPo getRootKeypair() {
+		List<KeypairPo> rootKeypairList = keypairDas.findAll(ConsortiumConstant.DEFAULT_CONSORTIUM_ID,
 				KeyType.ROOT_CA.getCode(), KeyType.ROOT_CA.getAlgo().getCode());
-		if(CollectionUtils.isNotEmpty(rootKeypairs)){
-			return rootKeypairs.get(0);
+		if(CollectionUtils.isNotEmpty(rootKeypairList)){
+			return rootKeypairList.get(0);
 		}
 
-		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(null, KeyType.ROOT_CA.getSubject().getCode(),
-				null,null, KeyType.ROOT_CA, null);
+		KeypairCertBo keypairCert = keypairCertUtil.buildRootKeypairCert();
 		String rootPublicKey = keypairCert.getPublicKey();
 		String rootPrivateKey = keypairCert.getPrivateKey();
 		String rootCa = keypairCert.getCertStr();
@@ -90,10 +89,10 @@ public class VaultKeypairBuildService {
 	@LogSkip
 	public KeypairPo getConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair)
 			throws Exception {
-		List<KeypairPo> consortiumKeypairs = keypairDas.findAll(consortiumId,
+		List<KeypairPo> consortiumKeypairList = keypairDas.findAll(consortiumId,
 				CryptoEnum.KeyType.CONSORTIUM.getCode(), KeyType.CONSORTIUM.getAlgo().getCode());
-		if(CollectionUtils.isNotEmpty(consortiumKeypairs)){
-			return consortiumKeypairs.get(0);
+		if(CollectionUtils.isNotEmpty(consortiumKeypairList)){
+			return consortiumKeypairList.get(0);
 		}
 		
 		return geneNewConsortiumKeyPair(consortiumId, rootKeypair, null);
@@ -102,9 +101,7 @@ public class VaultKeypairBuildService {
 	@LogSkip
 	public KeypairPo geneNewConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair,
 			Date lastCertExpireDate) throws Exception {
-		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(consortiumId, KeyType.CONSORTIUM.getSubject().getCode(), lastCertExpireDate,
-				null, CryptoEnum.KeyType.CONSORTIUM, rootKeypair);
-
+		KeypairCertBo keypairCert = keypairCertUtil.buildConsKeypairCert(lastCertExpireDate, rootKeypair);
 		if(KeyType.CONSORTIUM.getSignType() == CryptoEnum.CertificateSignType.VAULT) {
 			PrivateKey privateKey = KeyUtil.privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(), keypairCert.getPrivateKey());
 			submitCaToVault(consortiumId, keypairCert.getCertStr(), KeyUtil.privateKeyToPem(privateKey));
@@ -133,15 +130,15 @@ public class VaultKeypairBuildService {
 		List<NodeKeyPo> nodeKeys = nodeKeyDas.findAll(consortiumId, node.getId());
 		if(CollectionUtils.isNotEmpty(nodeKeys)) {
 			List<Long> keypairIds = nodeKeys.stream().map(NodeKeyPo::getKeypairId).collect(Collectors.toList());
-			List<KeypairPo> nodeKeypairs = keypairDas.findByIds(keypairIds);
-			Optional<KeypairPo> keypairOp = nodeKeypairs.stream()
+			List<KeypairPo> nodeKeypairList = keypairDas.findByIds(keypairIds);
+			Optional<KeypairPo> keypairOp = nodeKeypairList.stream()
 					.filter(item -> item.getAlgorithm().equalsIgnoreCase(KeyType.NODE.getAlgo().getCode())).findFirst();
 			if(keypairOp.isPresent()){
 				return NodeKeypairBo.builder().keypair(keypairOp.get()).node(node).build();
 			}
 		}
 		
-		KeypairCertBo keypairCert = keypairCertUtil.buildKeypair(KeyType.NODE.getAlgo().getCode());
+		KeypairCertBo keypairCert = keypairCertUtil.buildNodeKeypairCert();
 		LocalDateTime now = LocalDateTime.now();
 		String operUser = WebHelper.getUserId();
 		KeypairPo keypair = KeypairPo.builder()
@@ -173,8 +170,7 @@ public class VaultKeypairBuildService {
 	@LogSkip
 	public GRpcKeypairCertBo geneNewRpcKeypair(String consortiumId, KeypairPo consKeypair, Date lastCertExpireDate,
 			List<String> sanList) throws Exception {
-		KeypairCertBo keypairCert = keypairCertUtil.buildKeypairCert(consortiumId, KeyType.RPC.getSubject().getCode(), lastCertExpireDate,
-				sanList, KeyType.RPC, consKeypair);
+		KeypairCertBo keypairCert = keypairCertUtil.buildRpcKeypairCert(lastCertExpireDate, sanList, consortiumId, consKeypair);
 		String rpcCert = keypairCert.getCertStr();
 		String rpcPrivate = privateKeyToPem(privateKeyFromBase64(KeyType.RPC.getAlgo().getCode(), keypairCert.getPrivateKey()));
 		return GRpcKeypairCertBo.builder().consId(consortiumId).cert(rpcCert).privateKey(rpcPrivate).build();

@@ -40,26 +40,24 @@ public class KeypairCertUtil {
 
 	private final VaultOperations vaultOperations;
 
-	public KeypairCertBo buildKeypair(String algo) {
-		String publicKey;
-		String privateKey;
-		try {
-			KeyPair keyPair = KeyUtil.generateKeyPair(algo);
-			publicKey = KeyUtil.publicKeyToBase64(keyPair.getPublic());
-			privateKey = KeyUtil.privateKeyToBase64(keyPair.getPrivate());
-		} catch (Exception e) {
-			throw new AlertException("generate keypair error!");
-		}
-
-		return KeypairCertBo.builder()
-				.algorithm(algo)
-				.publicKey(publicKey)
-				.privateKey(privateKey)
-				.build();
+	public KeypairCertBo buildRootKeypairCert() {
+		return this.buildKeypairCert(KeyType.ROOT_CA, null, null, null, null);
 	}
 
-	public KeypairCertBo buildKeypairCert(String consortiumId, String subject, Date latestCertExpireDate,
-			List<String> sanList, CryptoEnum.KeyType keyType, KeypairPo parentKeypair) throws Exception {
+	public KeypairCertBo buildConsKeypairCert(Date lastCrtExpire, KeypairPo bcRootCa) {
+			return this.buildKeypairCert(KeyType.CONSORTIUM, lastCrtExpire, null, null, bcRootCa);
+	}
+
+	public KeypairCertBo buildNodeKeypairCert() {
+			return this.buildKeypairCert(KeyType.NODE, null, null, null, null);
+	}
+
+	public KeypairCertBo buildRpcKeypairCert(Date lastCrtExpire, List<String> sanList, String vaultCa, KeypairPo bcRootCa) {
+		return this.buildKeypairCert(KeyType.RPC, lastCrtExpire, sanList, vaultCa, bcRootCa);
+	}
+
+	private KeypairCertBo buildKeypairCert(CryptoEnum.KeyType keyType, Date lastCrtExpire,
+			List<String> sanList, String vaultCa, KeypairPo bcCa) {
 		KeyPair keyPair;
 		String publicKey;
 		String privateKey;
@@ -79,24 +77,28 @@ public class KeypairCertUtil {
 		}
 
 		String certStr, csrStr = null;
-		if(keyType.getCode() == KeyType.ROOT_CA.getCode().intValue()){
-			Certificate rootCA = CertUtil.generateRootCA(new X500Name(keyType.getSubject().getCode()), keyPair,
-					CertUtil.getNotBefore(), CertUtil.getNotAfter(X509CertConstant.TTL_ROOT_CA_IN_DAY));
-			certStr = CertUtil.certToPem(rootCA);
-		} else{
-			PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(subject), keyPair.getPublic(),
-					keyPair.getPrivate(), sanList);
-			if (keyType.getSignType() == CryptoEnum.CertificateSignType.BC) {
-				if (parentKeypair == null) {
-					throw new AlertException("parentKeypair.not.found");
+		try {
+			if(keyType.getCode() == KeyType.ROOT_CA.getCode().intValue()){
+				Certificate rootCA = CertUtil.generateRootCA(new X500Name(keyType.getSubject().getCode()), keyPair,
+						CertUtil.getNotBefore(), CertUtil.getNotAfter(X509CertConstant.TTL_ROOT_CA_IN_DAY));
+				certStr = CertUtil.certToPem(rootCA);
+			} else{
+				PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(keyType.getSubject().getCode()),
+						keyPair.getPublic(), keyPair.getPrivate(), sanList);
+				if (keyType.getSignType() == CryptoEnum.CertificateSignType.BC) {
+					if (bcCa == null) {
+						throw new AlertException("parentKeypair.not.found");
+					}
+					certStr = signCertificateRequestByBC(bcCa, csr, lastCrtExpire);
+				} else if (keyType.getSignType()  == CryptoEnum.CertificateSignType.VAULT) {
+					certStr = signCertificateRequestByVault(vaultCa, csr, lastCrtExpire);
+				} else {
+					throw new AlertException("sign.csr.not.supported");
 				}
-				certStr = signCertificateRequestByBC(parentKeypair, csr, latestCertExpireDate);
-			} else if (keyType.getSignType()  == CryptoEnum.CertificateSignType.VAULT) {
-				certStr = signCertificateRequestByVault(consortiumId, csr, latestCertExpireDate);
-			} else {
-				throw new AlertException("sign.csr.not.supported");
+				csrStr = CertUtil.csrToPem(csr);
 			}
-			csrStr = CertUtil.csrToPem(csr);
+		} catch (Exception e) {
+			throw new AlertException("generate.cert.error");
 		}
 
 		return KeypairCertBo.builder()

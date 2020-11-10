@@ -98,7 +98,7 @@ public class KeypairCertUtil {
 				csrStr = CertUtil.csrToPem(csr);
 			}
 		} catch (Exception e) {
-			throw new AlertException("generate.cert.error");
+			throw new RuntimeException("generate.cert.error", e);
 		}
 
 		return KeypairCertBo.builder()

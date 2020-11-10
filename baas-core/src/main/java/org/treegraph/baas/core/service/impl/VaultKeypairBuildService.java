@@ -34,6 +34,7 @@ import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.CryptoEnum;
+import org.treegraph.baas.core.enums.CryptoEnum.CertSignType;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
 import org.treegraph.baas.core.service.bo.KeypairCertBo;
@@ -102,7 +103,7 @@ public class VaultKeypairBuildService {
 	public KeypairPo geneNewConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair,
 			Date lastCertExpireDate) throws Exception {
 		KeypairCertBo keypairCert = keypairCertUtil.buildConsKeypairCert(lastCertExpireDate, rootKeypair);
-		if(KeyType.RPC.getSignType() == CryptoEnum.CertificateSignType.VAULT) {
+		if(KeyType.RPC.getSignType() == CertSignType.VAULT) {
 			PrivateKey privateKey = KeyUtil.privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(), keypairCert.getPrivateKey());
 			submitCaToVault(consortiumId, keypairCert.getCertStr(), KeyUtil.privateKeyToPem(privateKey));
 		}

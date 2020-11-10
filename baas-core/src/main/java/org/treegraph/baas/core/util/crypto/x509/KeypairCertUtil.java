@@ -19,6 +19,7 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.Certificate;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.vault.core.VaultOperations;
 import org.springframework.vault.support.VaultCertificateRequest;
@@ -27,6 +28,7 @@ import org.treegraph.baas.core.constant.X509CertConstant;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.enums.CryptoEnum;
 import org.treegraph.baas.core.enums.CryptoEnum.Algo;
+import org.treegraph.baas.core.enums.CryptoEnum.CertSignType;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.bo.KeypairCertBo;
@@ -76,7 +78,7 @@ public class KeypairCertUtil {
 					.build();
 		}
 
-		String certStr, csrStr = null;
+		String certStr = null, csrStr = null;
 		try {
 			if(keyType.getCode() == KeyType.ROOT_CA.getCode().intValue()){
 				Certificate rootCA = CertUtil.generateRootCA(new X500Name(keyType.getSubject().getCode()), keyPair,
@@ -85,15 +87,14 @@ public class KeypairCertUtil {
 			} else{
 				PKCS10CertificationRequest csr = CertUtil.generateCSR(new X500Name(keyType.getSubject().getCode()),
 						keyPair.getPublic(), keyPair.getPrivate(), sanList);
-				if (keyType.getSignType() == CryptoEnum.CertificateSignType.BC) {
-					if (bcCa == null) {
-						throw new AlertException("parentKeypair.not.found");
-					}
+				CertSignType signType = keyType.getSignType();
+				Assert.isTrue(signType == CertSignType.BC || signType == CertSignType.VAULT, "sign.csr.not.supported");
+				if (keyType.getSignType() == CertSignType.BC) {
+					Assert.notNull(bcCa,"parentKeypair.not.found");
 					certStr = signCertificateRequestByBC(bcCa, csr, lastCrtExpire);
-				} else if (keyType.getSignType()  == CryptoEnum.CertificateSignType.VAULT) {
+				}
+				if (keyType.getSignType()  == CertSignType.VAULT) {
 					certStr = signCertificateRequestByVault(vaultCa, csr, lastCrtExpire);
-				} else {
-					throw new AlertException("sign.csr.not.supported");
 				}
 				csrStr = CertUtil.csrToPem(csr);
 			}
@@ -121,11 +122,11 @@ public class KeypairCertUtil {
 		return CertUtil.certToPem(cert);
 	}
 
-	private String signCertificateRequestByVault(String pkiPath, PKCS10CertificationRequest csr, Date lastCertExpireDate)
+	private String signCertificateRequestByVault(String pkiPath, PKCS10CertificationRequest csr, Date lastCertExpire)
 			throws Exception {
 		int lastCertLeftDays = 0;
-		if (lastCertExpireDate != null) {
-			lastCertLeftDays = DateUtils.betweenDays(Calendar.getInstance().getTime(), lastCertExpireDate);
+		if (lastCertExpire != null) {
+			lastCertLeftDays = DateUtils.betweenDays(Calendar.getInstance().getTime(), lastCertExpire);
 			lastCertLeftDays = Math.max(lastCertLeftDays, 0);
 		}
 

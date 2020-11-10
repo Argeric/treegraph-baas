@@ -40,7 +40,7 @@ public class CryptoEnum {
 	 */
 	@Getter
 	@AllArgsConstructor
-	public enum CertificateSignType {
+	public enum CertSignType {
 
 		BC(1, "bounce castle"),
 
@@ -50,8 +50,8 @@ public class CryptoEnum {
 
 		private final String desc;
 
-		public static CertificateSignType getByCode(int code) {
-			for (CertificateSignType s : CertificateSignType.values()) {
+		public static CertSignType getByCode(int code) {
+			for (CertSignType s : CertSignType.values()) {
 				if (s.code == code) {
 					return s;
 				}
@@ -96,13 +96,13 @@ public class CryptoEnum {
 	@AllArgsConstructor
 	public enum KeyType {
 
-		ROOT_CA(0, Algo.RSA, CertificateSignType.BC, Subject.ROOT_CA, "root.ca.keypair"),
+		ROOT_CA(0, Algo.RSA, CertSignType.BC, Subject.ROOT_CA, "root.ca.keypair"),
 
-		CONSORTIUM(1, Algo.RSA, CertificateSignType.BC, Subject.CONSORTIUM, "consortium.keypair"),
+		CONSORTIUM(1, Algo.RSA, CertSignType.BC, Subject.CONSORTIUM, "consortium.keypair"),
 
-		NODE(2, Algo.ECC, CertificateSignType.BC, null, "node.keypair"),
+		NODE(2, Algo.ECC, CertSignType.BC, null, "node.keypair"),
 
-		RPC(3, Algo.RSA, CertificateSignType.VAULT, Subject.RPC, "rpc.keypair"),
+		RPC(3, Algo.RSA, CertSignType.VAULT, Subject.RPC, "rpc.keypair"),
 
 		;
 
@@ -110,7 +110,7 @@ public class CryptoEnum {
 
 		private final Algo algo;
 
-		private final CertificateSignType signType;
+		private final CertSignType signType;
 
 		private final Subject subject;
 

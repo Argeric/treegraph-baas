@@ -72,7 +72,7 @@
         </rollingPolicy>
     </appender>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="CONSOLE_INFO"/>
         <appender-ref ref="FILE_DEBUG"/>
         <appender-ref ref="FILE_INFO"/>

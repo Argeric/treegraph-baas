@@ -79,6 +79,6 @@ management:
   endpoints:
     web:
       exposure:
-        include: *
+        include: loggers
   security:
     enabled: false

@@ -74,3 +74,9 @@ data-scope:
     UserInvite: all
     UserLoginToken: all
     UserOperLog: all
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include=*:

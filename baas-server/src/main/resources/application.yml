@@ -79,4 +79,6 @@ management:
   endpoints:
     web:
       exposure:
-        include=*:
+        include: *
+  security:
+    enabled: false

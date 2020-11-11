@@ -27,7 +27,7 @@ public class SSLUtils {
 	
 	private static void setDefaultHostnameVerifier() {
 		HostnameVerifier hv = (urlHostName, session) -> {
-			log.info("SSLUtils, URL Host: " + urlHostName + " vs. " + session.getPeerHost());
+			log.debug("SSLUtils, URL Host: " + urlHostName + " vs. " + session.getPeerHost());
 			return true;
 		};
 		HttpsURLConnection.setDefaultHostnameVerifier(hv);

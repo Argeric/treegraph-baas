@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-
 public class UserEnum {
 
 

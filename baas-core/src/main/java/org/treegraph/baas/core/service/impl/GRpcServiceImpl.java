@@ -89,7 +89,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
     		log.error("[seq={}][membership change]select proposer error:", seq, e);
     		return MembershipEnum.Status.SELECT_PROPOSER_FAILURE;
     	} finally {
-    		log.info("[seq={}][membership change]select proposer success!", seq);
+    		log.debug("[seq={}][membership change]select proposer success!", seq);
     	}
 
     	//2. RPC name:cfx_getMembershipChangeRawTransaction
@@ -115,7 +115,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
     		log.error("[seq={}][membership change]request change error:", seq, e);
     		return MembershipEnum.Status.REQUEST_MEMBERSHIP_CHANGE_FAILURE;
     	} finally {
-			log.info("[seq={}][membership change]txResponse--->{}", seq, applyResponse);
+				log.debug("[seq={}][membership change]txResponse--->{}", seq, applyResponse);
     	}
 		
     	// 3. Keccak(raw_json) and ring signature
@@ -137,7 +137,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
     		log.error("[seq={}][membership change]ring signature error:", seq, e);
     		return MembershipEnum.Status.SIGNATURE_MEMBERSHIP_FAILURE;
     	} finally {
-			log.info("[seq={}][membership change]ringSignatureMap--->{}", seq, JSON.toJSONString(ringSignatureMap));
+			log.debug("[seq={}][membership change]ringSignatureMap--->{}", seq, JSON.toJSONString(ringSignatureMap));
     	}
 
 		//4. RPC name: cfx_constructAndSendNewConsortiumMembershipTrans
@@ -161,7 +161,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
     		log.error("[seq={}][membership change]confirm change error:", seq, e);
     		return MembershipEnum.Status.CONFIRM_MEMBERSHIP_CHANGE_FAILURE;
     	} finally {
-			log.info("[seq={}][membership change]txResponse--->null", seq);
+			log.debug("[seq={}][membership change]txResponse--->null", seq);
     	}
     	
     	//5. delay query BFT epoch number
@@ -174,7 +174,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
     		log.error("[seq={}][membership change]async check error:", seq, e);
     		return MembershipEnum.Status.LAUNCH_CHECK_THREAD_FAILURE;
     	} finally {
-    		log.info("[seq={}][membership change]async check started!", seq);
+    		log.debug("[seq={}][membership change]async check started!", seq);
     	}
 
     	return status;
@@ -192,7 +192,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 			log.error("[get bftEpochNumber]error:", e);
 			return BigInteger.valueOf(-1L);
 		} finally {
-			log.info("[get bftEpochNumber]txResponse--->{}", getBftEpochNumberResponse);
+			log.debug("[get bftEpochNumber]txResponse--->{}", getBftEpochNumberResponse);
 		}
 		return getBftEpochNumberResponse;
 	}
@@ -216,7 +216,7 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 			log.error("[update credential]error:", e);
 			return Boolean.FALSE;
 		} finally {
-			log.info("[update credential]txResponse--->null");
+			log.debug("[update credential]txResponse--->null");
 		}
 		return Boolean.TRUE;
 	}

@@ -186,7 +186,7 @@ public class VaultKeypairBuildService {
 		Map<String, String> pemBundle = Collections.singletonMap("pem_bundle", certPem + keyPem);
 		VaultResponse writeCaToVaultResponse = vaultOperations.write(pkiPath + "/config/ca",
 				pemBundle);
-		log.info("writeCaResponse resp:{}", JSON.toJSONString(writeCaToVaultResponse));
+		log.debug("writeCaResponse pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(writeCaToVaultResponse));
 
 		Map<String, String> role = new HashMap<>();
 		role.put("allowed_domains", "localhost,baas.conflux-chain.org");
@@ -196,7 +196,7 @@ public class VaultKeypairBuildService {
 		role.put("max_ttl", ttlInHour + "h");
 		VaultResponse writeRoleToVaultResponse = vaultOperations.write(
 				pkiPath + "/roles/" + X509CertConstant.VAULT_ROLE_ISSUER_RPC, role);
-		log.info("writeRoleResponse resp:{}", JSON.toJSONString(writeRoleToVaultResponse));
+		log.debug("writeRoleResponse pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(writeRoleToVaultResponse));
 	}
 
 	private void mountToVault(String pkiPath, int ttlInHour) {
@@ -210,7 +210,7 @@ public class VaultKeypairBuildService {
 		adminOperations.mount(pkiPath, mount);
 
 		Map<String, VaultMount> mounts = adminOperations.getMounts();
-		log.info("vaultMount path:{},resp:{}", pkiPath, JSON.toJSONString(mounts));
+		log.debug("vaultMount pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(mounts));
 		Assert.isTrue(mounts.containsKey(pkiPath + "/"), "vault mount pki path error");
 	}
 }

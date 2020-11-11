@@ -80,12 +80,12 @@ public class BCryptPasswordEncoder {
 
   public boolean matches(CharSequence rawPassword, String encodedPassword) {
     if (encodedPassword == null || encodedPassword.length() == 0) {
-      log.warn("Empty encoded password");
+      log.error("Empty encoded password");
       return false;
     }
 
     if (!BCRYPT_PATTERN.matcher(encodedPassword).matches()) {
-      log.warn("Encoded password does not look like BCrypt");
+      log.error("Encoded password does not look like BCrypt");
       return false;
     }
 

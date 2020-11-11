@@ -1,5 +1,10 @@
 package org.treegraph.baas;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.security.Security;
+import java.util.Map;
+import javax.crypto.Cipher;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,15 +16,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.treegraph.baas.core.util.ApplicationStartup;
 
-import javax.crypto.Cipher;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.security.Security;
-import java.util.Map;
-
-//import org.springframework.context.annotation.ImportResource;
-
-@SuppressWarnings("unchecked")
 @SpringBootApplication
 @PropertySource(value = { "classpath:config-biz.properties", "classpath:config-yw.properties" })
 @EnableConfigurationProperties

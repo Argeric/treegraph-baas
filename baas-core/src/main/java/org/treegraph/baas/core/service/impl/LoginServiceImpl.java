@@ -66,33 +66,33 @@ public class LoginServiceImpl implements LoginService {
         boolean isSysAdmin = isSysAdmin(user.getId());
         if(isSysAdmin) {
         	boolean flag = passwordService.matches(password, user.getPassword());
-        	log.info("user:{},passwordService.matches:{}", user.getId(), flag);
+        	log.debug("user:{},passwordService.matches:{}", user.getId(), flag);
         	Assert.isTrue(flag, "密码错误");
         } else {
 	        UserInfoPo userUpdate = validateTryTimes(password, user);
-	        log.info("user:{},userUpdate:{}", user.getId(), JSON.toJSONString(userUpdate));
+	        log.debug("user:{},userUpdate:{}", user.getId(), JSON.toJSONString(userUpdate));
 	        Assert.isTrue(UserEnum.Status.isAvailable(userUpdate.getStatus()), "该用户已冻结，请联系管理员解冻");
-	        log.info("user:{},userUpdate1:{}", user.getId(), JSON.toJSONString(userUpdate));
+	        log.debug("user:{},userUpdate1:{}", user.getId(), JSON.toJSONString(userUpdate));
 			Assert.isTrue(userUpdate.getTryTimes() == 0,
 					"密码错误,共" + UserConstant.LOGIN_MAX_TRY_TIMES + "次尝试机会，还剩"
 							+ (UserConstant.LOGIN_MAX_TRY_TIMES - userUpdate.getTryTimes()) + "次尝试");
-			log.info("user:{},userUpdate2:{}", user.getId(), JSON.toJSONString(userUpdate));
+			log.debug("user:{},userUpdate2:{}", user.getId(), JSON.toJSONString(userUpdate));
         }
         
         boolean needChangePwd = password.equals(defaultPassword);
 
-		return loginAfter(user, needChangePwd, request);
+			return loginAfter(user, needChangePwd, request);
     }
 
 	private UserInfoPo validateTryTimes(String password, UserInfoPo user) {
 		boolean isMatch = passwordService.matches(password, user.getPassword());
-		log.info("user:{},isMatch:{}", user.getId(), JSON.toJSONString(isMatch));
-        int tryTimes = isMatch ? 0 : user.getTryTimes() + 1;
-        int status = tryTimes >= UserConstant.LOGIN_MAX_TRY_TIMES ? UserEnum.Status.FROZEN.getCode() : user.getStatus();
-        log.info("user:{},tryTimes:{},status:{}", user.getId(), tryTimes, status);
-        UserInfoPo userUpdate = UserInfoPo.builder().id(user.getId()).tryTimes(tryTimes).status(status).build();
-        log.info("user:{},userUpdate:{}", user.getId(), JSON.toJSONString(userUpdate));
-        userInfoDas.updateUser(userUpdate);
+		log.debug("user:{},isMatch:{}", user.getId(), JSON.toJSONString(isMatch));
+		int tryTimes = isMatch ? 0 : user.getTryTimes() + 1;
+		int status = tryTimes >= UserConstant.LOGIN_MAX_TRY_TIMES ? UserEnum.Status.FROZEN.getCode() : user.getStatus();
+		log.debug("user:{},tryTimes:{},status:{}", user.getId(), tryTimes, status);
+		UserInfoPo userUpdate = UserInfoPo.builder().id(user.getId()).tryTimes(tryTimes).status(status).build();
+		log.debug("user:{},userUpdate:{}", user.getId(), JSON.toJSONString(userUpdate));
+		userInfoDas.updateUser(userUpdate);
 		return userUpdate;
 	}
 

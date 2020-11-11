@@ -51,10 +51,6 @@ rest:
     connect-timeout: 1000
     read-timeout: 1000
 
-logging:
-  level:
-    org.treegraph.baas.*: DEBUG
-    
 mybatis:
   configuration:
     cache-enabled: false
@@ -74,6 +70,10 @@ data-scope:
     UserInvite: all
     UserLoginToken: all
     UserOperLog: all
+
+logging:
+  level:
+    org.treegraph.baas.*: DEBUG
 
 management:
   endpoints:

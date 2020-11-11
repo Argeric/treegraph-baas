@@ -34,7 +34,7 @@ public class HeartbeatHandlerImpl implements HeartbeatHandler {
 	
     private final NodeDas nodeDas;
 	
-	@Scheduled(cron="0 0/2 * * * ?")
+	@Scheduled(cron="0 0/1 * * * ?")
     public void sendHeartBeat() {
         HeartbeatListener listener = HeartbeatListener.getInstance();
         Map<String, Map<String, Heartbeat>> consortiums = listener.getNodes();
@@ -53,7 +53,6 @@ public class HeartbeatHandlerImpl implements HeartbeatHandler {
 					return item;})
 		).collect(Collectors.toList());
 		List<Heartbeat> heartbeats = futureList.stream().map(CompletableFuture::join).collect(Collectors.toList());
-		log.debug("heartbeat--->{}", JSONObject.toJSONString(heartbeats, true));
 		heartbeats.forEach(item -> nodes.put(item.getId(), item));
 		updateNodeStatus(heartbeats);
 	}

@@ -19,7 +19,7 @@ public class RpcSelectorService {
 
 	public RpcSelectorService(List<BlockchainRpcService> rpcServices){
 		for(BlockchainRpcService rpcService:rpcServices){
-			log.info("{}.service.loaded", rpcService.getType());
+			log.debug("{}.service.loaded", rpcService.getType());
 			rpcStrategyMap.put(rpcService.getType(), rpcService);
 		}
 	}

@@ -177,7 +177,7 @@ public class TokenServiceImpl implements TokenService {
     	consPermMap.values().forEach(ownPerms::addAll);
     	String reqPerm = URI_PERMISSION_MAP.get(uri);
     	boolean permit = TAG_DATA_PERMISSION.equals(reqPerm) || ownPerms.contains(reqPerm);
-		log.info("uri======>" + uri + "\npermit======>" + permit + "\nreqPerm======>" + reqPerm + "\nownPerms======>"
+		log.debug("uri======>" + uri + "\npermit======>" + permit + "\nreqPerm======>" + reqPerm + "\nownPerms======>"
 				+ JSON.toJSONString(ownPerms));
     	Assert.isTrue(permit, "没有此访问权限");
     }

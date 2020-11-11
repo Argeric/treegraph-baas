@@ -71,6 +71,6 @@ public class ApplicationStartup implements ApplicationListener<ContextRefreshedE
 		
 		// init SSL
 		SSLUtils.initSSL();
-		log.info("ApplicationStartup.onApplicationEvent completed!");
+		log.debug("ApplicationStartup.onApplicationEvent completed!");
 	}
 }

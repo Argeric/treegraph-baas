@@ -1,13 +1,18 @@
 package org.treegraph.baas.core.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import com.alibaba.fastjson.JSONObject;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.BlockchainInfo;
@@ -43,15 +48,6 @@ import org.treegraph.baas.core.util.DateTimeUtils;
 import org.treegraph.baas.core.util.DateUtils;
 import org.treegraph.baas.core.util.crypto.x509.CertUtil;
 
-import com.alibaba.fastjson.JSON;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 @Validated
 @Service
 @AllArgsConstructor
@@ -80,13 +76,11 @@ public class BlockchainServiceImpl implements BlockchainService {
 		List<ConsortiumPo> consList = consortiumDas.findByIds(consIdList);
 		Map<String, ConsortiumPo> consMap = consList.stream()
 				.collect(Collectors.toMap(ConsortiumPo::getConsortiumId, Function.identity()));
-		log.info("consMap:"+JSON.toJSONString(consMap));
 		
 		List<String> creatorIds = blockchains.stream().map(BlockChainPo::getCreateBy).collect(Collectors.toList());
 		List<UserInfoPo> users = userInfoDas.findByIds(creatorIds);
 		Map<String, UserInfoPo> userMap = users.stream()
 				.collect(Collectors.toMap(UserInfoPo::getId, Function.identity()));
-		log.info("userMap:"+JSON.toJSONString(userMap));
 		
 		List<String> chainIdList = blockchains.stream().map(BlockChainPo::getId).collect(Collectors.toList());
 		List<NodePo> nodes = nodeDas.findByChainIds(chainIdList);
@@ -104,12 +98,11 @@ public class BlockchainServiceImpl implements BlockchainService {
 				expireDates.add(DateUtils.format(cert.getNotAfter(), DateUtils.SYSTEM_DATE_FORMAT));
 				expireDateMap.put(item.getConsortiumId(), expireDates);
 			} catch (Exception e) {
-				log.debug("get expireDates err", e);
+				log.error("get expireDates err", e);
 			}
 		});
 		
-		List<BlockchainInfo> list = blockchains.stream().map(item ->{ 
-			    log.info("item:"+JSON.toJSONString(item));
+		List<BlockchainInfo> list = blockchains.stream().map(item ->{
 				BlockchainEnum.Status status = BlockchainEnum.Status.getByCode(item.getStatus());
 				List<String> expireDates = expireDateMap.get(item.getConsortiumId());
 				return BlockchainInfo.builder()

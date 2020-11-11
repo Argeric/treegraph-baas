@@ -15,7 +15,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -39,7 +38,6 @@ import org.treegraph.baas.core.util.DateUtils;
 @Validated
 @Service
 @AllArgsConstructor
-@Slf4j
 public class KeypairCertUtil {
 
 	private final VaultOperations vaultOperations;

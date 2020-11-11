@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -47,7 +46,6 @@ import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatListener;
-import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.service.bo.MembershipChangeBo;
 import org.treegraph.baas.core.service.bo.OrgBo;
 import org.treegraph.baas.core.service.bo.RoleInfoBo;
@@ -58,7 +56,6 @@ import org.treegraph.baas.core.util.ConfluxUtils;
 @Validated
 @Service
 @AllArgsConstructor
-@Slf4j
 public class BuildService {
 	
     private final PermissionDas permissionDas;
@@ -66,10 +63,10 @@ public class BuildService {
     private final PasswordService passwordService;
     
     private final VaultKeypairBuildService vaultKeypairBuildService;
-    
+
     private final RpcSelectorService rpcSelectorService;
 
-	public RoleInfoBo buildRole(int roleType, String roleName, String consId, List<String> reqPermissions) {
+	  public RoleInfoBo buildRole(int roleType, String roleName, String consId, List<String> reqPermissions) {
    		LocalDateTime now = LocalDateTime.now();
    		String oper = WebHelper.getUserId();
    		RolePo role = RolePo.builder()
@@ -179,8 +176,8 @@ public class BuildService {
 		Set<String> intersectOrgs = Sets.newHashSet();
 		intersectOrgs.addAll(dbOrgs);
 		intersectOrgs.retainAll(reqOrgs);
-		reqOrgs.removeAll(intersectOrgs);log.info("reqOrgs======>"+JSON.toJSONString(reqOrgs));
-		dbOrgs.removeAll(intersectOrgs);log.info("dbOrgs======>"+JSON.toJSONString(dbOrgs));
+		reqOrgs.removeAll(intersectOrgs);
+		dbOrgs.removeAll(intersectOrgs);
 		
 		List<UserOrganizationPo> toAddUserOrgs = reqOrgs.stream().map(this::buildUserOrg)
 				.collect(Collectors.toList());

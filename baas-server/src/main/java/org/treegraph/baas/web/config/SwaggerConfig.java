@@ -28,8 +28,8 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("数图Baas系统")
-                .description("数图Baas系统-Alpha")
+                .title("树图Baas系统")
+                .description("树图Baas系统-Alpha")
                 .version("0.0.1")
                 .build();
     }

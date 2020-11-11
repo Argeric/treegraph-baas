@@ -86,8 +86,7 @@ public class RpcHeartbeatClientImpl implements HeartbeatClient{
 				status = HeartbeatEnum.Status.YELLOW;
 			}
 		}
-		//log.info("{} heartbeat:{}", ConfluxUtils.toIpAtPortForLog(heartbeat.getIp(), heartbeat.getPort()), status);
-		log.info("\n\t heartbeat:{}--->\n\t ping--->{}\n\t pong--->{}\n\t error--->{}",
+		log.debug("\n\t heartbeat:{}--->\n\t ping--->{}\n\t pong--->{}\n\t error--->{}",
 				ConfluxUtils.toIpAtPortForLog(heartbeat.getIp(), heartbeat.getPort()), statusBo.getStatusRequest(),
 				pong, statusBo.getError());
 

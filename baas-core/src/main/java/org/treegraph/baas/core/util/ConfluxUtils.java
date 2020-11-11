@@ -42,7 +42,7 @@ public class ConfluxUtils {
 		System.arraycopy(data.getS(), 0, rsv, data.getR().length, data.getS().length);
 		data.getV()[0] = (byte)(data.getV()[0] - 27);
 		System.arraycopy(data.getV(), 0, rsv, data.getR().length + data.getS().length, data.getV().length);
-		log.info(" message--->"+Numeric.toHexString(message)
+		log.debug(" message--->"+Numeric.toHexString(message)
 		+ "\n r--->"+Numeric.toHexString(data.getR())
 		+ "\n s--->"+Numeric.toHexString(data.getS())
 		+ "\n v--->"+Numeric.toHexString(data.getV()));

@@ -7,7 +7,7 @@ public class AlertException extends RuntimeException {
 
 	private static final long serialVersionUID = -5510302775986800261L;
 	
-	int code = 400;
+	  int code = 400;
     String error;
 
     public AlertException(int code, String message) {

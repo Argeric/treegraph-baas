@@ -39,9 +39,9 @@ public class CertServiceImpl implements CertService {
 
 	private final CertDas certDas;
     
-    private final VaultKeypairBuildService vaultKeypairBuildService;
+	private final VaultKeypairBuildService vaultKeypairBuildService;
 
-    private final BuildService buildService;
+	private final BuildService buildService;
 
 	@LogSkip
 	public void downloadRpcCert(DownloadRpcCertRequest req, HttpServletResponse resp) throws Exception {
@@ -89,6 +89,6 @@ public class CertServiceImpl implements CertService {
 			zipOutputStream.closeEntry();
 		}
 		zipOutputStream.close();
-		log.info("write rpc cert finished[{}]", consId);
+		log.debug("write rpc cert finished[{}]", consId);
 	}
 }

@@ -1,13 +1,12 @@
 package org.treegraph.baas.core.enums;
 
 
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @AllArgsConstructor
-@Slf4j
 public enum ErrorCodeEnum {
 	SCAN_EXCEPTION(4001, "调用scan接口异常"),
 	INVALID_PARAMS(9000, "输入参数错误"),
@@ -28,11 +27,6 @@ public enum ErrorCodeEnum {
                 break;
             }
         }
-        if (result == null) {
-            log.warn("code: " + code + " 没有对应的枚举");
-            return BUSINESS_EXCEPTION;
-        } else {
-            return result;
-        }
+      return Objects.requireNonNullElse(result, BUSINESS_EXCEPTION);
     }
 }

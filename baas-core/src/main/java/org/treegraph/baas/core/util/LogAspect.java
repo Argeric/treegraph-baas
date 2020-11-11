@@ -50,7 +50,7 @@ public class LogAspect {
         try{
         	userId = WebHelper.getUserId(); 
         } catch(Exception e){
-			log.debug("[userId=null]not login, cannot get userId");
+			log.error("[userId=null]not login, cannot get userId");
         }
         
 		Object[] argArrays = null;
@@ -61,7 +61,7 @@ public class LogAspect {
 			argArrays = CollectionUtils.isNotEmpty(argList) ? argList.toArray() : null;
 		}
 
-        log.info("[userId={}]{} req:{}", userId, methodName, JSON.toJSONString(argArrays));
+        log.debug("[userId={}]{} req:{}", userId, methodName, JSON.toJSONString(argArrays));
 		Object result;
         try {
             result = joinPoint.proceed();
@@ -71,7 +71,7 @@ public class LogAspect {
             throw e;
         }
         addOperLog(methodName, JSON.toJSONString(argArrays), JSON.toJSONString(result));
-        log.info("[userId={}]{} resp:{},elapsed:{}", userId, methodName, JSON.toJSONString(result), stopWatch.getTime());
+        log.debug("[userId={}]{} resp:{},elapsed:{}", userId, methodName, JSON.toJSONString(result), stopWatch.getTime());
         
         return result;
     }

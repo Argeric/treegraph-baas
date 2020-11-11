@@ -3,7 +3,6 @@ package org.treegraph.baas.core.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-
 public class NodeEnum {
 
 	 /**

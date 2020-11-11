@@ -122,12 +122,12 @@ public class ScriptServiceImpl implements ScriptService {
 			}
 		}
 		zipOutputStream.close();
-		log.info("write deploy script finished[{}]", consortiumId);
+		log.debug("write deploy script finished[{}]", consortiumId);
 		
 		// update consortium establish step
 		ConsortiumPo cons = buildService.buildToUpdateCons(consortiumId, EstablishStep.DOWNLOADED_SCRIPTS);
 		consortiumDas.modifyCons(cons);
-		log.info("update consortium status finished[{}]", consortiumId);
+		log.debug("update consortium status finished[{}]", consortiumId);
 	}
 
 	private Map<String, Map<String, String>> buildDeployScript(String consortiumId, List<NodePo> nodes)
@@ -210,7 +210,7 @@ public class ScriptServiceImpl implements ScriptService {
 		
 		// save key pair
 		keypairDas.addKeyPairInfo(rootKeypair, consKeypair, nodeKeypairBoList);
-		log.info("build deploy script finished[{}]", consortiumId);
+		log.debug("build deploy script finished[{}]", consortiumId);
 		return nodeScriptContentMap;
 	}
 

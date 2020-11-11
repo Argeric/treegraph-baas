@@ -64,7 +64,7 @@ public class RestConfiguration {
 		}
 
 		private void traceRequest(Long seq, HttpRequest request, byte[] body) {
-			log.info("rest[request][seq:{}] uri:{},header:{},requestBody:{},method:{}", seq, request.getURI(),
+			log.debug("rest[request][seq:{}] uri:{},header:{},requestBody:{},method:{}", seq, request.getURI(),
 					request.getHeaders().toString(), new String(body, StandardCharsets.UTF_8),
 					request.getMethodValue());
 		}
@@ -79,7 +79,7 @@ public class RestConfiguration {
 					line = bufferedReader.readLine();
 				}
 			}
-			log.info("rest[response][seq:{}] statusCode:{},statusText:{},headers:{},responseBody:{}", seq,
+			log.debug("rest[response][seq:{}] statusCode:{},statusText:{},headers:{},responseBody:{}", seq,
 					response.getStatusCode(), response.getStatusText(), response.getHeaders().toString(),
 					inputStringBuilder.toString());
 		}

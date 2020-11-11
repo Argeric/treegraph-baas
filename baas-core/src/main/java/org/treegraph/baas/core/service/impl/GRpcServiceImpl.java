@@ -42,6 +42,7 @@ import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.enums.MembershipEnum;
+import org.treegraph.baas.core.enums.RpcEnum.Type;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
 import org.treegraph.baas.core.heartbeat.bo.StatusBo;
@@ -56,8 +57,7 @@ import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
 
-@Service(value = "rpcService")
-//@Service(value = "gRpcService")
+@Service
 @AllArgsConstructor
 @Slf4j
 public class GRpcServiceImpl implements BlockchainRpcService{
@@ -291,5 +291,10 @@ public class GRpcServiceImpl implements BlockchainRpcService{
 				.serverCertFile(nodeCertPath + SERVER_CERT_FILE)
 				.rpcCertChainFile(nodeCertPath + RPC_CERT_CHAIN_FILE)
 				.rpcKeyFile(nodeCertPath + RPC_KEY_FILE).build();
+	}
+
+	@Override
+	public String getType() {
+		return Type.GRPC.getCode();
 	}
 }

@@ -2,15 +2,23 @@ package org.treegraph.baas.core.service.impl;
 
 import static org.treegraph.baas.core.util.ConfluxUtils.toUri;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.treegraph.baas.api.dto.NodeInfo;
-import org.treegraph.baas.api.dto.request.*;
+import org.treegraph.baas.api.dto.request.DeleteNodeRequest;
+import org.treegraph.baas.api.dto.request.ListNodeBriefRequest;
+import org.treegraph.baas.api.dto.request.ListNodeRequest;
+import org.treegraph.baas.api.dto.request.ModifyNodeRequest;
+import org.treegraph.baas.api.dto.request.QueryNodeDetailRequest;
+import org.treegraph.baas.api.dto.request.QueryNodeLogRequest;
 import org.treegraph.baas.api.dto.response.ListNodeBriefResponse;
 import org.treegraph.baas.api.dto.response.ListNodeResponse;
 import org.treegraph.baas.common.util.WebHelper;
@@ -29,16 +37,9 @@ import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
 import org.treegraph.baas.core.enums.NodeEnum.Status;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatListener;
-import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.service.NodeService;
 import org.treegraph.baas.core.service.bo.MembershipChangeBo;
 import org.treegraph.baas.core.util.DateTimeUtils;
-
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.google.common.collect.Lists;
-
-import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
@@ -54,7 +55,7 @@ public class NodeServiceImpl implements NodeService {
     
     private final BuildService buildService;
     
-    private final BlockchainRpcService rpcService;
+    private final RpcSelectorService rpcSelectorService;
  
 	public ListNodeResponse listNodes(ListNodeRequest req) {
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
@@ -186,9 +187,9 @@ public class NodeServiceImpl implements NodeService {
 			nodeDas.addNodesMembershipChange(toRemoveNodeIds, MembershipStatus.REMOVE_START,
 					changeBo.getMembershipChange(), changeBo.getNodeMemberships());
 			
-			MembershipEnum.Status membershipChangeStatus = rpcService.sendMembershipChangeTransactionPlus(
-					changeBo.getMembershipChange().getId(), changeBo.getCommitteeNodeKeypairs(),
-					changeBo.getValidatorNodeKeypairs());
+			MembershipEnum.Status membershipChangeStatus = rpcSelectorService.getRpcService()
+					.sendMembershipChangeTransactionPlus(changeBo.getMembershipChange().getId(),
+							changeBo.getCommitteeNodeKeypairs(), changeBo.getValidatorNodeKeypairs());
 			MembershipStatus nodeMembershipStatus = membershipChangeStatus.isFail() ? MembershipStatus.REMOVE_FAILURE
 					: MembershipStatus.REMOVE_CHECK_THREAD_LAUNCH;
 			nodeDas.modifyNodesMembershipStatus(toRemoveNodeIds, nodeMembershipStatus,

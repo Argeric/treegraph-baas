@@ -85,7 +85,6 @@ import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
 import org.treegraph.baas.core.enums.UserEnum;
 import org.treegraph.baas.core.exception.AlertException;
-import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.service.ConsortiumService;
 import org.treegraph.baas.core.service.bo.CustomizedConfigBo;
 import org.treegraph.baas.core.service.bo.MembershipChangeBo;
@@ -120,7 +119,7 @@ public class ConsortiumServiceImpl implements ConsortiumService {
     
     private final VaultKeypairBuildService vaultKeypairBuildService;
     
-    private final BlockchainRpcService rpcService;
+    private final RpcSelectorService rpcSelectorService;
     
 	public ListConsResponse listCons(ListRequest req) {
 		PageHelper.startPage(req.getCurrent(), req.getPageSize());
@@ -255,7 +254,7 @@ public class ConsortiumServiceImpl implements ConsortiumService {
 	public boolean createConsAdmin(CreateConsAdminRequest req) {
 		RoleInfoBo roleBo = null;
 		Optional<RolePo> roleOp = roleDas.findConsAdminRole(req.getConsId());
-		if (!roleOp.isPresent()) {
+		if (roleOp.isEmpty()) {
 			List<String> reqPermissions = UserEnum.PermissionPoint.getForConsAdmin().stream()
 					.map(UserEnum.PermissionPoint::getCode).collect(Collectors.toList());
 			roleBo = buildService.buildRole(UserEnum.Role.CONSORTIUM_ADMIN.getCode(),
@@ -376,9 +375,9 @@ public class ConsortiumServiceImpl implements ConsortiumService {
 			nodeDas.addNodeKeypairs(changeBo.getToInsertDbNodeKeypairs(), config.getStepFactorConfigList(),
 					config.getConfigList(), changeBo.getMembershipChange(), changeBo.getNodeMemberships());
 			
-			MembershipEnum.Status membershipChangeStatus = rpcService.sendMembershipChangeTransactionPlus(
-					changeBo.getMembershipChange().getId(), changeBo.getCommitteeNodeKeypairs(),
-					changeBo.getValidatorNodeKeypairs());
+			MembershipEnum.Status membershipChangeStatus = rpcSelectorService.getRpcService()
+					.sendMembershipChangeTransactionPlus(changeBo.getMembershipChange().getId(),
+							changeBo.getCommitteeNodeKeypairs(), changeBo.getValidatorNodeKeypairs());
 			List<String> toAddNodeIds = toAddNodes.stream().map(NodePo::getId).collect(Collectors.toList());
 			MembershipStatus nodeMembershipStatus = membershipChangeStatus.isFail()
 					? MembershipStatus.ADD_FAILURE : MembershipStatus.ADD_CHECK_THREAD_LAUNCH;
@@ -519,7 +518,7 @@ public class ConsortiumServiceImpl implements ConsortiumService {
 		List<String> membershipNodeIds = existNodes.stream().filter(buildService::isMembershipNode)
 				.map(NodePo::getId).collect(Collectors.toList());
 		String certStr = consKeypair.getCertStr();
-		boolean isSuccess = rpcService.updateCert(consId, certStr, membershipNodeIds);
+		boolean isSuccess = rpcSelectorService.getRpcService().updateCert(consId, certStr, membershipNodeIds);
 		
 		// response failure
 		CertificateDeferPo deferUpdate = buildService.buildCertificateDeferUpdate(defer.getId());

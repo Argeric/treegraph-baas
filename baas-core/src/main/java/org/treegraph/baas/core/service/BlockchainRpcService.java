@@ -21,4 +21,6 @@ public interface BlockchainRpcService {
 	String sendRawTransaction(String consId, String nodeId, String hexEncoded);
 
 	StatusBo getStatus(Heartbeat heartbeat);
+
+	String getType();
 }

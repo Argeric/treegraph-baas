@@ -53,6 +53,7 @@ import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.service.BlockchainRpcService;
+import org.treegraph.baas.core.service.impl.RpcSelectorService;
 import org.treegraph.baas.core.service.impl.VaultKeypairBuildService;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.FileUtils;
@@ -88,10 +89,10 @@ public class BlockchainCreationTests {
 	private BlockchainDas blockchainDas;
 	
 	@Autowired
-    private UserInfoDas userInfoDas;
+	private UserInfoDas userInfoDas;
 	
 	@Autowired
-    private BlockchainRpcService rpcService;
+	private RpcSelectorService rpcSelectorService;
 	
 	@Autowired
 	private VaultKeypairBuildService vaultKeypairBuildService;
@@ -361,8 +362,8 @@ public class BlockchainCreationTests {
 			String transactionSign = transaction.sign(genesisKeyPair);
 			
 			NodePo node = nodeKeypair.getNode();
-			String transactionResult = rpcService.sendRawTransaction(node.getConsortiumId(), node.getId(),
-					transactionSign);
+			String transactionResult = rpcSelectorService.getRpcService().sendRawTransaction(node.getConsortiumId(),
+					node.getId(), transactionSign);
 			currentNonce = currentNonce.add(BigInteger.ONE);
 			log.info("[step--->testRechargeGenesis]nonce--->{}, transactionSign->{},transactionResult--->{}", currentNonce, transactionSign, transactionResult);
 			Assert.assertNotNull("[step--->testRechargeGenesis]null transactionResult", transactionResult);

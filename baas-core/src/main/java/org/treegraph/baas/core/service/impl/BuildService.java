@@ -67,7 +67,7 @@ public class BuildService {
     
     private final VaultKeypairBuildService vaultKeypairBuildService;
     
-    private final BlockchainRpcService rpcService;
+    private final RpcSelectorService rpcSelectorService;
 
 	public RoleInfoBo buildRole(int roleType, String roleName, String consId, List<String> reqPermissions) {
    		LocalDateTime now = LocalDateTime.now();
@@ -277,7 +277,8 @@ public class BuildService {
 						.getNode(item.getNode().getConsortiumId(), item.getNode().getId()).getStatus())
 				.findFirst().orElseThrow(() -> new AlertException("alive.proposer.node.not.found"));
 		NodePo proposerNode = proposerNodeKeypair.getNode();
-		BigInteger preBftEpochNumber = rpcService.getBftEpochNumber(proposerNode.getConsortiumId(), proposerNode.getId());
+		BigInteger preBftEpochNumber = rpcSelectorService.getRpcService().getBftEpochNumber(proposerNode.getConsortiumId(),
+				proposerNode.getId());
 		List<String> committeeNodeIds = committeeNodeKeypairs.stream().map(item -> item.getNode().getId())
 				.collect(Collectors.toList());
 		MembershipChangePo membershipChange = this.buildMembershipChangePo(consId, blockchainId,

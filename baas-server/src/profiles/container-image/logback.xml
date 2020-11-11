@@ -15,15 +15,30 @@
         </filter>
     </appender>
 
+    <appender name="FILE_DEBUG"
+      class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${LOG_HOME}/${LOG_NAME}-debug.log</File>
+
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-17thread    %logger{0}[%L] %msg %n
+            </pattern>
+        </encoder>
+
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${LOG_HOME}/backup/${LOG_NAME}-debug.%d{yyyy-MM-dd}.log
+            </FileNamePattern>
+        </rollingPolicy>
+    </appender>
+
     <appender name="FILE_INFO"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <File>${LOG_HOME}/${LOG_NAME}.log</File>
 
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-        	<!-- 
-            <pattern>[%thread] |-|%level |-|%d{yyyy-MM-dd 'T' HH:mm:ss.SSS+08:00} |-|%logger{5}[%L] |-|%msg |-|%n
-            </pattern>
-            -->
             <pattern>%d{yyyy-MM-dd 'T' HH:mm:ss.SSS+08:00} %-5level %-17thread    %logger{0}[%L] %msg %n
             </pattern>
         </encoder>
@@ -43,10 +58,6 @@
         <File>${LOG_HOME}/${LOG_NAME}-error.log</File>
 
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-         	<!-- 
-            <pattern>[%thread] |-|%level |-|%d{yyyy-MM-dd 'T' HH:mm:ss.SSS+08:00} |-|%logger{5}[%L] |-|%msg |-|%n
-            </pattern>
-            -->
             <pattern>%d{yyyy-MM-dd 'T' HH:mm:ss.SSS+08:00} %-5level %-17thread    %logger{0}[%L] %msg %n
             </pattern>
         </encoder>
@@ -61,11 +72,9 @@
         </rollingPolicy>
     </appender>
 
-    <!-- mybatis debug sql -->
-    <logger name="org.treegraph.baas.core.dao.mapper" level="DEBUG"/>
-
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="CONSOLE_INFO"/>
+        <appender-ref ref="FILE_DEBUG"/>
         <appender-ref ref="FILE_INFO"/>
         <appender-ref ref="FILE_ERROR"/>
     </root>

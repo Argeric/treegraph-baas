@@ -25,6 +25,6 @@ public class RpcSelectorService {
 	}
 
 	public BlockchainRpcService getRpcService(){
-		return rpcStrategyMap.get(rpcType);
+		return rpcStrategyMap.get(rpcType.toLowerCase());
 	}
 }

@@ -73,7 +73,7 @@ data-scope:
 
 logging:
   level:
-    org.treegraph.baas.*: ${log.level}
+    org.treegraph.baas.*: ${logger.level}
 
 management:
   endpoints:

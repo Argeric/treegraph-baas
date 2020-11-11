@@ -17,7 +17,7 @@ public class RpcSelectorService {
 	
 	private final Map<String, BlockchainRpcService> rpcStrategyMap = Maps.newHashMap();
 
-	private RpcSelectorService(List<BlockchainRpcService> rpcServices){
+	public RpcSelectorService(List<BlockchainRpcService> rpcServices){
 		for(BlockchainRpcService rpcService:rpcServices){
 			log.info("{}.service.loaded", rpcService.getType());
 			rpcStrategyMap.put(rpcService.getType(), rpcService);

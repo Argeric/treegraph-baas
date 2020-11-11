@@ -53,7 +53,7 @@ rest:
 
 logging:
   level:
-    org.treegraph.baas.core.mapper.primary: INFO
+    org.treegraph.baas.*: DEBUG
     
 mybatis:
   configuration:

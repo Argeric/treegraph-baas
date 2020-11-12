@@ -34,6 +34,7 @@ import org.treegraph.baas.core.util.SysManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.AllArgsConstructor;
+import org.treegraph.baas.core.util.crypto.x509.KeypairCertUtil;
 
 /**
  * @author zt
@@ -49,6 +50,8 @@ public class ConsortiumController {
   private final ConsortiumService consortiumService;
 
   private final ScriptService scriptService;
+
+  private final KeypairCertUtil keypairCertUtil;
 
   @PostMapping("/list")
   @ApiOperation("联盟列表")
@@ -134,6 +137,13 @@ public class ConsortiumController {
   public BaasResult<Void> deferCert(@RequestBody DeferCertificateRequest deferCertificateRequest)
       throws Exception {
     consortiumService.deferConsortiumCert(deferCertificateRequest);
+    return BaasResult.success();
+  }
+
+  @PostMapping("/root/gene")
+  @ApiOperation("root gene")
+  public BaasResult<Void> geneRootCa() {
+    keypairCertUtil.geneRootCaByVault();
     return BaasResult.success();
   }
 

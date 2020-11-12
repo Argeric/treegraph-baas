@@ -3,7 +3,9 @@ package org.treegraph.baas.core.util.crypto.x509;
 import static org.treegraph.baas.core.constant.X509CertConstant.TTL_CONSORTIUM_CA_IN_DAY;
 import static org.treegraph.baas.core.constant.X509CertConstant.TTL_ROOT_CA_IN_DAY;
 import static org.treegraph.baas.core.constant.X509CertConstant.TTL_RPC_CERT_IN_DAY;
+import static org.treegraph.baas.core.constant.X509CertConstant.VAULT_PKI_PATH_ROOT_CA;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import java.security.KeyPair;
@@ -11,10 +13,13 @@ import java.security.PrivateKey;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -24,7 +29,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.vault.core.VaultOperations;
+import org.springframework.vault.core.VaultSysOperations;
 import org.springframework.vault.support.VaultCertificateRequest;
+import org.springframework.vault.support.VaultMount;
+import org.springframework.vault.support.VaultResponse;
 import org.springframework.vault.support.VaultSignCertificateRequestResponse;
 import org.treegraph.baas.core.constant.X509CertConstant;
 import org.treegraph.baas.core.domain.KeypairPo;
@@ -38,6 +46,7 @@ import org.treegraph.baas.core.util.DateUtils;
 @Validated
 @Service
 @AllArgsConstructor
+@Slf4j
 public class KeypairCertUtil {
 
   private final VaultOperations vaultOperations;
@@ -174,5 +183,44 @@ public class KeypairCertUtil {
       lastCrtLeftDays = Math.max(lastCrtLeftDays, 0);
     }
     return lastCrtLeftDays;
+  }
+
+  public void geneRootCaByVault(){
+    // mount pki path for root
+    mountToVault(VAULT_PKI_PATH_ROOT_CA, TTL_ROOT_CA_IN_DAY);
+
+    //pki/root/generate/internal
+    Map<String, Object> body = new HashMap<>();
+    body.put("common_name", "root.baas.conflux-chain.org");
+    body.put("ttl", TTL_ROOT_CA_IN_DAY * 24);
+    body.put("format", "pem_bundle");
+    body.put("private_key_format", "pkcs8");
+    body.put("key_type", "rsa");
+    body.put("key_bits", 2048);
+    body.put("ou", "it-dept");
+    body.put("organization", "conflux-chain");
+    body.put("locality", "SH");
+    body.put("province", "SH");
+    body.put("country", "CN");
+    VaultResponse writeResponse = vaultOperations
+        .write(VAULT_PKI_PATH_ROOT_CA + "/root/generate/exported", body);
+    log.info("geneRootCaByVault===>" + writeResponse);
+
+  }
+
+  private void mountToVault(String pkiPath, int ttlInHour) {
+    VaultSysOperations adminOperations = vaultOperations.opsForSys();
+    if (adminOperations.getMounts().containsKey(pkiPath)) {
+      return;
+    }
+
+    VaultMount mount = VaultMount.builder().type("pki")
+        .config(Collections.singletonMap("max_lease_ttl", ttlInHour + "h")).description("bass pki")
+        .build();
+    adminOperations.mount(pkiPath, mount);
+
+    Map<String, VaultMount> mounts = adminOperations.getMounts();
+    log.debug("vaultMount pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(mounts));
+    Assert.isTrue(mounts.containsKey(pkiPath + "/"), "vault mount pki path error");
   }
 }

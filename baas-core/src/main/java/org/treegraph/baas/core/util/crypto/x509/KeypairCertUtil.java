@@ -204,7 +204,7 @@ public class KeypairCertUtil {
     body.put("country", "CN");
     VaultResponse writeResponse = vaultOperations
         .write(VAULT_PKI_PATH_ROOT_CA + "/root/generate/exported", body);
-    log.info("geneRootCaByVault===>" + writeResponse);
+    log.info("geneRootCaByVault===>" + JSON.toJSONString(writeResponse));
 
   }
 

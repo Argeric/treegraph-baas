@@ -6,6 +6,7 @@ import static org.treegraph.baas.core.constant.X509CertConstant.TTL_RPC_CERT_IN_
 import static org.treegraph.baas.core.constant.X509CertConstant.VAULT_PKI_PATH_ROOT_CA;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import java.security.KeyPair;
@@ -41,6 +42,7 @@ import org.treegraph.baas.core.enums.CryptoEnum.CertSignType;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.bo.KeypairCertBo;
+import org.treegraph.baas.core.service.bo.VaultDataGeneRootBo;
 import org.treegraph.baas.core.util.DateUtils;
 
 @Validated
@@ -176,6 +178,15 @@ public class KeypairCertUtil {
     return displayNameMap;
   }
 
+  private Map<String, String> parseSubject(String subjectDisplayName) {
+    Map<String, String> displayNameMap = Maps.newHashMap();
+    Arrays.stream(StringUtils.split(subjectDisplayName, ",")).forEach(item -> {
+      String[] paras = item.split("=");
+      displayNameMap.put(paras[0], paras[1]);
+    });
+    return displayNameMap;
+  }
+
   private int getLastCrtTtlInDay(Date lastCrtExpire) {
     int lastCrtLeftDays = 0;
     if (lastCrtExpire != null) {
@@ -185,28 +196,42 @@ public class KeypairCertUtil {
     return lastCrtLeftDays;
   }
 
-  public void geneRootCaByVault(){
-    // mount pki path for root
+  public VaultDataGeneRootBo geneRootCaFromVault() {
     mountToVault(VAULT_PKI_PATH_ROOT_CA, TTL_ROOT_CA_IN_DAY);
 
-    //pki/root/generate/internal
+    Map<String, String> displayNameMap = parseSubject(KeyType.ROOT_CA.getSubject().getCode());
+    String cn = displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.CN));
     Map<String, Object> body = new HashMap<>();
-    body.put("common_name", "root.baas.conflux-chain.org");
+    body.put("common_name", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.CN)));
+    body.put("ou", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.OU)));
+    body.put("organization", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.O)));
+    body.put("locality", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.L)));
+    body.put("province", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.ST)));
+    body.put("country", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.C)));
     body.put("ttl", TTL_ROOT_CA_IN_DAY * 24);
-    body.put("format", "pem_bundle");
-    body.put("private_key_format", "pkcs8");
+    body.put("format", "pem");
+    body.put("private_key_format", "der");
     body.put("key_type", "rsa");
     body.put("key_bits", 2048);
-    body.put("ou", "it-dept");
-    body.put("organization", "conflux-chain");
-    body.put("locality", "SH");
-    body.put("province", "SH");
-    body.put("country", "CN");
     VaultResponse writeResponse = vaultOperations
         .write(VAULT_PKI_PATH_ROOT_CA + "/root/generate/exported", body);
-    log.info("geneRootCaByVault===>" + JSON.toJSONString(writeResponse));
+    Assert.notNull(writeResponse, "gene.root.ca.not.response");
 
+    Map<String, Object> dataMap = writeResponse.getData();
+    return VaultDataGeneRootBo.builder().certificate((String) dataMap.get("certificate"))
+        .private_key((String) dataMap.get("private_key"))
+        .serial_number((String) dataMap.get("serial_number"))
+        .build();
   }
+
+  public void deleteRootCaFromVault() {
+    vaultOperations.opsForPki().revoke("");
+
+    VaultSysOperations adminOperations = vaultOperations.opsForSys();
+    Map<String, VaultMount> mounts = adminOperations.getMounts();
+    log.debug("vaultMount pkiPath:{},resp:{}", VAULT_PKI_PATH_ROOT_CA, JSON.toJSONString(mounts));
+  }
+
 
   private void mountToVault(String pkiPath, int ttlInHour) {
     VaultSysOperations adminOperations = vaultOperations.opsForSys();

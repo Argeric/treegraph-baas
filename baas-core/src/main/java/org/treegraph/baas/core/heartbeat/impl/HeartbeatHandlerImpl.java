@@ -34,7 +34,7 @@ public class HeartbeatHandlerImpl implements HeartbeatHandler {
 
   private final NodeDas nodeDas;
 
-  @Scheduled(cron = "0 0/1 * * * ?")
+  @Scheduled(cron = "0 0/30 * * * ?")
   public void sendHeartBeat() {
     HeartbeatListener listener = HeartbeatListener.getInstance();
     Map<String, Map<String, Heartbeat>> consortiums = listener.getNodes();

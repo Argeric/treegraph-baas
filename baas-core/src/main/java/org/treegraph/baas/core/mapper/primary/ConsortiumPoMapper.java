@@ -8,31 +8,34 @@ import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.ConsortiumPoExample;
 
 public interface ConsortiumPoMapper {
-    long countByExample(ConsortiumPoExample example);
 
-    int deleteByExample(ConsortiumPoExample example);
+  long countByExample(ConsortiumPoExample example);
 
-    int deleteByPrimaryKey(String consortiumId);
+  int deleteByExample(ConsortiumPoExample example);
 
-    int insert(ConsortiumPo record);
+  int deleteByPrimaryKey(String consortiumId);
 
-    int insertSelective(ConsortiumPo record);
+  int insert(ConsortiumPo record);
 
-    List<ConsortiumPo> selectByExampleWithBLOBs(ConsortiumPoExample example);
+  int insertSelective(ConsortiumPo record);
 
-    List<ConsortiumPo> selectByExample(ConsortiumPoExample example);
+  List<ConsortiumPo> selectByExampleWithBLOBs(ConsortiumPoExample example);
 
-    Optional<ConsortiumPo> selectByPrimaryKey(String consortiumId);
+  List<ConsortiumPo> selectByExample(ConsortiumPoExample example);
 
-    int updateByExampleSelective(@Param("record") ConsortiumPo record, @Param("example") ConsortiumPoExample example);
+  Optional<ConsortiumPo> selectByPrimaryKey(String consortiumId);
 
-    //int updateByExampleWithBLOBs(@Param("record") ConsortiumPo record, @Param("example") ConsortiumPoExample example);
+  int updateByExampleSelective(@Param("record") ConsortiumPo record,
+      @Param("example") ConsortiumPoExample example);
 
-    int updateByExample(@Param("record") ConsortiumPo record, @Param("example") ConsortiumPoExample example);
+  //int updateByExampleWithBLOBs(@Param("record") ConsortiumPo record, @Param("example") ConsortiumPoExample example);
 
-    int updateByPrimaryKeySelective(ConsortiumPo record);
+  int updateByExample(@Param("record") ConsortiumPo record,
+      @Param("example") ConsortiumPoExample example);
 
-    //int updateByPrimaryKeyWithBLOBs(ConsortiumPo record);
+  int updateByPrimaryKeySelective(ConsortiumPo record);
 
-    int updateByPrimaryKey(ConsortiumPo record);
+  //int updateByPrimaryKeyWithBLOBs(ConsortiumPo record);
+
+  int updateByPrimaryKey(ConsortiumPo record);
 }

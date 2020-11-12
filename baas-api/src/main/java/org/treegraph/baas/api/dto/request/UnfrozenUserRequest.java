@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class UnfrozenUserRequest {
 
-	private String accountNo;
+  private String accountNo;
 }

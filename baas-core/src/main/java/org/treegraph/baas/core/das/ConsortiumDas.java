@@ -7,22 +7,23 @@ import org.treegraph.baas.core.domain.ConsortiumPo;
 
 /**
  * @author zt
- * @date May 11, 2020
  * @version 1.0
+ * @date May 11, 2020
  */
 public interface ConsortiumDas {
-	Optional<ConsortiumPo> findById(String id);
 
-	List<ConsortiumPo> findByIds(List<String> ids);
-	
-	List<ConsortiumPo> findByName(String name);
-	
-	List<ConsortiumPo> findAll(String id);
-	
-	long count();
-	
-	void createConsortium(ConsortiumPo cons);
+  Optional<ConsortiumPo> findById(String id);
 
-	int modifyCons(ConsortiumPo cons);
+  List<ConsortiumPo> findByIds(List<String> ids);
+
+  List<ConsortiumPo> findByName(String name);
+
+  List<ConsortiumPo> findAll(String id);
+
+  long count();
+
+  void createConsortium(ConsortiumPo cons);
+
+  int modifyCons(ConsortiumPo cons);
 
 }

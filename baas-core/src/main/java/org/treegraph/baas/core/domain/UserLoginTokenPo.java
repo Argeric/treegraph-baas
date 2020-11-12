@@ -12,35 +12,36 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserLoginTokenPo implements Serializable {
-    /**
-     * 
-     */
-    private Long id;
 
-    /**
-     * id
-     */
-    private String userId;
+  /**
+   *
+   */
+  private Long id;
 
-    /**
-     * token
-     */
-    private String token;
+  /**
+   * id
+   */
+  private String userId;
 
-    /**
-     * 
-     */
-    private Integer expire;
+  /**
+   * token
+   */
+  private String token;
 
-    /**
-     * 
-     */
-    private LocalDateTime createTime;
+  /**
+   *
+   */
+  private Integer expire;
 
-    /**
-     * 
-     */
-    private LocalDateTime updateTime;
+  /**
+   *
+   */
+  private LocalDateTime createTime;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   *
+   */
+  private LocalDateTime updateTime;
+
+  private static final long serialVersionUID = 1L;
 }

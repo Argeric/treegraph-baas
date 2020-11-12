@@ -14,39 +14,40 @@ import java.util.regex.Pattern;
 
 public class WebUtils extends org.springframework.web.util.WebUtils {
 
-	/**
-	 * 获取IP
-	 */
-	public static String getIpAddress(HttpServletRequest request) {
-		List<String> ipList = Lists.newArrayList();
-		String ip = request.getHeader("x-forwarded-for");
+  /**
+   * 获取IP
+   */
+  public static String getIpAddress(HttpServletRequest request) {
+    List<String> ipList = Lists.newArrayList();
+    String ip = request.getHeader("x-forwarded-for");
 
-		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-			ip = request.getHeader("Proxy-Client-IP");
-		}
-		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-			ip = request.getHeader("WL-Proxy-Client-IP");
-		}
-		if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-			ip = request.getRemoteAddr();
-		}
-		if (ip == null) {
-			return null;
-		}
-		if (ip.contains(":")) { // 判断是否为IPV6地址
-			ip = "127.0.0.1";
-		}
-		//log.info("ip is :{}", ip);
-		Matcher matcher = Pattern
-				.compile("(25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)" + "(\\.(25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)){3}")
-				.matcher(ip);
-		while (matcher.find()) {
-			String tmp = matcher.group();
-			ipList.add(tmp);
-		}
+    if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+      ip = request.getHeader("Proxy-Client-IP");
+    }
+    if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+      ip = request.getHeader("WL-Proxy-Client-IP");
+    }
+    if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+      ip = request.getRemoteAddr();
+    }
+    if (ip == null) {
+      return null;
+    }
+    if (ip.contains(":")) { // 判断是否为IPV6地址
+      ip = "127.0.0.1";
+    }
+    //log.info("ip is :{}", ip);
+    Matcher matcher = Pattern
+        .compile("(25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)"
+            + "(\\.(25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]?\\d)){3}")
+        .matcher(ip);
+    while (matcher.find()) {
+      String tmp = matcher.group();
+      ipList.add(tmp);
+    }
 
-		return CollectionUtils.isEmpty(ipList) ? StringUtils.EMPTY : ipList.get(0);
-	}
+    return CollectionUtils.isEmpty(ipList) ? StringUtils.EMPTY : ipList.get(0);
+  }
 
 //	/**
 //	 * 判断该请求是否是AJAX请求
@@ -83,23 +84,23 @@ public class WebUtils extends org.springframework.web.util.WebUtils {
 //		return url.replace(uri, "");
 //	}
 
-	/**
-	 * 获取登录设备信息
-	 *
-	 * @param request HttpServletRequest
-	 * @return device info
-	 */
-	public static String getDeviceInfo(HttpServletRequest request) {
-		String userAgent = request.getHeader("User-Agent");
-		if (StringUtils.isBlank(userAgent)) {
-			return "无法获取userAgent";
-		}
-		UserAgent ua = UserAgent.parseUserAgentString(userAgent);
-		Browser browser = ua.getBrowser();
-		OperatingSystem operatingSystem = ua.getOperatingSystem();
-		if (browser == Browser.UNKNOWN || operatingSystem == OperatingSystem.UNKNOWN) {
-			return userAgent;
-		}
-		return browser.getName() + "," + operatingSystem.getName();
-	}
+  /**
+   * 获取登录设备信息
+   *
+   * @param request HttpServletRequest
+   * @return device info
+   */
+  public static String getDeviceInfo(HttpServletRequest request) {
+    String userAgent = request.getHeader("User-Agent");
+    if (StringUtils.isBlank(userAgent)) {
+      return "无法获取userAgent";
+    }
+    UserAgent ua = UserAgent.parseUserAgentString(userAgent);
+    Browser browser = ua.getBrowser();
+    OperatingSystem operatingSystem = ua.getOperatingSystem();
+    if (browser == Browser.UNKNOWN || operatingSystem == OperatingSystem.UNKNOWN) {
+      return userAgent;
+    }
+    return browser.getName() + "," + operatingSystem.getName();
+  }
 }

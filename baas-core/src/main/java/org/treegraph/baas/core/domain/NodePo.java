@@ -12,75 +12,76 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NodePo implements Serializable {
-    /**
-     * 主键
-     */
-    private String id;
 
-    /**
-     * 联盟id
-     */
-    private String consortiumId;
+  /**
+   * 主键
+   */
+  private String id;
 
-    /**
-     * 区块链id
-     */
-    private String blockchainId;
+  /**
+   * 联盟id
+   */
+  private String consortiumId;
 
-    /**
-     * 节点ip
-     */
-    private String nodeIp;
+  /**
+   * 区块链id
+   */
+  private String blockchainId;
 
-    /**
-     * 节点端口
-     */
-    private Integer nodePort;
+  /**
+   * 节点ip
+   */
+  private String nodeIp;
 
-    /**
-     * 机构名称
-     */
-    private String organizationName;
+  /**
+   * 节点端口
+   */
+  private Integer nodePort;
 
-    /**
-     * 0-未启动，1-运行中，2-异常
-     */
-    private Integer status;
+  /**
+   * 机构名称
+   */
+  private String organizationName;
 
-    /**
-     * 
-     */
-    private Integer membershipFinalStatus;
+  /**
+   * 0-未启动，1-运行中，2-异常
+   */
+  private Integer status;
 
-    /**
-     * 20-待首次启动，21-添加进行中，22-添加成功，23-添加失败，31-删除进行中，32-删除成功，33-删除失败
-     */
-    private Integer membershipStatus;
+  /**
+   *
+   */
+  private Integer membershipFinalStatus;
 
-    /**
-     * 0-未删除，1-已删除
-     */
-    private Integer deleteFlag;
+  /**
+   * 20-待首次启动，21-添加进行中，22-添加成功，23-添加失败，31-删除进行中，32-删除成功，33-删除失败
+   */
+  private Integer membershipStatus;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+  /**
+   * 0-未删除，1-已删除
+   */
+  private Integer deleteFlag;
 
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
+  /**
+   * 创建时间
+   */
+  private LocalDateTime createTime;
 
-    /**
-     * 创建人
-     */
-    private String createBy;
+  /**
+   * 更新时间
+   */
+  private LocalDateTime updateTime;
 
-    /**
-     * 更新人
-     */
-    private String updateBy;
+  /**
+   * 创建人
+   */
+  private String createBy;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   * 更新人
+   */
+  private String updateBy;
+
+  private static final long serialVersionUID = 1L;
 }

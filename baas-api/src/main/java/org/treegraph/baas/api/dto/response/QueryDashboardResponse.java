@@ -7,11 +7,11 @@ import lombok.Data;
 @Builder
 public class QueryDashboardResponse {
 
-	private Long consCount;
-	
-	private Long blockchainCount;
-	
-	private Long nodeCount;
-	
-	private Long userCount;
+  private Long consCount;
+
+  private Long blockchainCount;
+
+  private Long nodeCount;
+
+  private Long userCount;
 }

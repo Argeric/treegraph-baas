@@ -13,21 +13,21 @@ import lombok.AllArgsConstructor;
 
 /**
  * @author zt
- * @date May 11, 2020
  * @version 1.0
+ * @date May 11, 2020
  */
 @RestController
 @Api(tags = "统计模块")
 @RequestMapping("/stat")
 @AllArgsConstructor
 public class StatController {
-	
-	private final StatService statService;
 
-	@PostMapping("/dashboard")
-	@ApiOperation("综合数据统计")
-	public BaasResult<QueryDashboardResponse> queryDashboardInfo() {
-		QueryDashboardResponse data = statService.queryDashboardInfo();
-		return BaasResult.success(data);
-	}
+  private final StatService statService;
+
+  @PostMapping("/dashboard")
+  @ApiOperation("综合数据统计")
+  public BaasResult<QueryDashboardResponse> queryDashboardInfo() {
+    QueryDashboardResponse data = statService.queryDashboardInfo();
+    return BaasResult.success(data);
+  }
 }

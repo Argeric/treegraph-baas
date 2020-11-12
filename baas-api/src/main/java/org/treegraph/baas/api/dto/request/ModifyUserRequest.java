@@ -8,16 +8,16 @@ import lombok.Data;
 
 @Data
 public class ModifyUserRequest {
-	
-	private String id;
-	
-	private String account;
-	
-	private String pwd;
-	
-	private String name;
-	
-	private String phone;
-	
-	private List<RoleInfo> roles;
+
+  private String id;
+
+  private String account;
+
+  private String pwd;
+
+  private String name;
+
+  private String phone;
+
+  private List<RoleInfo> roles;
 }

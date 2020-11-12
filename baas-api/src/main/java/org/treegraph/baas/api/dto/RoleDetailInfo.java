@@ -7,18 +7,18 @@ import lombok.Data;
 
 /**
  * @author zt
- * @date May 11, 2020
  * @version 1.0
+ * @date May 11, 2020
  */
 @Data
 @Builder
 public class RoleDetailInfo {
 
-	private String consId;
-	
-	private String consName;
-	
-	private String orgName;
-	
-	private List<Role> roles;
+  private String consId;
+
+  private String consName;
+
+  private String orgName;
+
+  private List<Role> roles;
 }

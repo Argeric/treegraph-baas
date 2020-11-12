@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class QueryNodeLogRequest {
 
-	private String id;
-	
-	private String type;
-	
-	private String query;
+  private String id;
+
+  private String type;
+
+  private String query;
 }

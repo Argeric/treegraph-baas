@@ -8,16 +8,16 @@ import lombok.Data;
 @Data
 @Builder
 public class Token {
-	
-	private String name;
 
-	private String symbol;
-	
-	private BigDecimal decimals;
-	
-	private String totalSupply;
-	
-	private Long granularity;
-	
-	private Boolean isERC721;
+  private String name;
+
+  private String symbol;
+
+  private BigDecimal decimals;
+
+  private String totalSupply;
+
+  private Long granularity;
+
+  private Boolean isERC721;
 }

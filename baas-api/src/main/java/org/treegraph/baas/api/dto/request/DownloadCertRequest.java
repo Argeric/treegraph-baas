@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class DownloadCertRequest {
-	
-	private String blockchainId	;
+
+  private String blockchainId;
 }

@@ -19,7 +19,9 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public final class RSAUtils {
-  private RSAUtils() {}
+
+  private RSAUtils() {
+  }
 
   //加密算法RSA
   public static final String KEY_ALGORITHM = "RSA";
@@ -39,7 +41,7 @@ public final class RSAUtils {
 //  private static final int MAX_ENCRYPT_BLOCK = 117;
 
 
-   //RSA最大解密密文大小
+  //RSA最大解密密文大小
   private static final int MAX_DECRYPT_BLOCK = 128;
 
   /**
@@ -65,9 +67,8 @@ public final class RSAUtils {
   /**
    * 用私钥对信息生成数字签名
    *
-   * @param data 已加密数据
+   * @param data       已加密数据
    * @param privateKey 私钥(BASE64编码)
-   *
    * @return String
    * @throws Exception Exception
    */
@@ -107,7 +108,7 @@ public final class RSAUtils {
    * 私钥解密
    *
    * @param encryptedData 已加密数据
-   * @param privateKey 私钥(BASE64编码)
+   * @param privateKey    私钥(BASE64编码)
    * @return byte
    * @throws Exception Exception
    */
@@ -143,7 +144,7 @@ public final class RSAUtils {
   /**
    * 解密加密后的字符串
    *
-   * @param data data
+   * @param data      data
    * @param privetKey privetKey
    * @return plain
    */
@@ -164,7 +165,7 @@ public final class RSAUtils {
    * 公钥解密
    *
    * @param encryptedData 已加密数据
-   * @param publicKey 公钥(BASE64编码)
+   * @param publicKey     公钥(BASE64编码)
    * @return byte
    * @throws Exception Exception
    */

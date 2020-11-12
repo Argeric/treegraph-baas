@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class QueryBlockchainRequest {
 
-	private String id;
-	
-	private String consId;
+  private String id;
+
+  private String consId;
 }

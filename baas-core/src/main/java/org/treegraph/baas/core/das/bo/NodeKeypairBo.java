@@ -13,19 +13,20 @@ import lombok.NoArgsConstructor;
 
 /**
  * @author zt
- * @date June 20, 2020
  * @version 1.0
+ * @date June 20, 2020
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class NodeKeypairBo implements Serializable {
-	private KeypairPo keypair;
-	
-	private NodeKeyPo nodeKey;
-	
-	private NodePo node;
-	
-    private static final long serialVersionUID = 1L;
+
+  private KeypairPo keypair;
+
+  private NodeKeyPo nodeKey;
+
+  private NodePo node;
+
+  private static final long serialVersionUID = 1L;
 }

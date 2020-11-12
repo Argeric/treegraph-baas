@@ -8,9 +8,10 @@ import org.treegraph.baas.core.enums.LogEnum.Login;
 
 public interface LogService {
 
-	void addLoginLog(String userId, String userName, Login login, HttpServletRequest request);
+  void addLoginLog(String userId, String userName, Login login, HttpServletRequest request);
 
-	void addOperLog(String userId, String userName, String ip, String device, String operCode, String operInfo);
+  void addOperLog(String userId, String userName, String ip, String device, String operCode,
+      String operInfo);
 
-	ListOperLogResponse listOperLog(ListOperLogRequest req);
+  ListOperLogResponse listOperLog(ListOperLogRequest req);
 }

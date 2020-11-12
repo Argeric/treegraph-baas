@@ -6,7 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class GRpcKeypairCertBo {
-	private String consId;
-	private String cert;
-	private String privateKey;
+
+  private String consId;
+  private String cert;
+  private String privateKey;
 }

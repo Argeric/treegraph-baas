@@ -10,8 +10,8 @@ public class PasswordService {
 //	@Value("${password.rasPrivateKey}")
 //	private String passwordRsaPrivateKey;
 
-	@Value("${password.default}")
-	private String defaultPassword;
+  @Value("${password.default}")
+  private String defaultPassword;
 
 //	/**
 //	 * 解密传输过来的密码
@@ -23,28 +23,28 @@ public class PasswordService {
 //		return RSAUtils.decryptByPrivateKey(password, passwordRsaPrivateKey);
 //	}
 
-	/**
-	 * 加密
-	 * 
-	 * @param password password
-	 * @return crypt text
-	 */
-	public String bcryptEncoder(String password) {
-		return BCryptPasswordEncoder.create().encode(password);
-	}
+  /**
+   * 加密
+   *
+   * @param password password
+   * @return crypt text
+   */
+  public String bcryptEncoder(String password) {
+    return BCryptPasswordEncoder.create().encode(password);
+  }
 
-	/**
-	 * 匹配
-	 * 
-	 * @param password password
-	 * @param encodePassword encodePassword
-	 * @return match result
-	 */
-	public boolean matches(String password, String encodePassword) {
-		return BCryptPasswordEncoder.create().matches(password, encodePassword);
-	}
+  /**
+   * 匹配
+   *
+   * @param password       password
+   * @param encodePassword encodePassword
+   * @return match result
+   */
+  public boolean matches(String password, String encodePassword) {
+    return BCryptPasswordEncoder.create().matches(password, encodePassword);
+  }
 
-	public String getDefaultPwd() {
-		return bcryptEncoder(defaultPassword);
-	}
+  public String getDefaultPwd() {
+    return bcryptEncoder(defaultPassword);
+  }
 }

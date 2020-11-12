@@ -25,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
  * passwords. The default value is 10.
  *
  * @author Dave Syer
- *
  */
 @Slf4j
 public class BCryptPasswordEncoder {
@@ -53,8 +52,7 @@ public class BCryptPasswordEncoder {
 
   /**
    * @param strength the log rounds to use, between 4 and 31
-   * @param random the secure random instance to use
-   *
+   * @param random   the secure random instance to use
    */
   public BCryptPasswordEncoder(int strength, SecureRandom random) {
     if (strength != -1 && (strength < BCrypt.MIN_LOG_ROUNDS || strength > BCrypt.MAX_LOG_ROUNDS)) {
@@ -102,10 +100,10 @@ public class BCryptPasswordEncoder {
 
     boolean success1 = encoder.matches(pwd, endPwd);
 
-    System.out.println("pwd="+pwd+",endPwd="+endPwd.length()+",success1="+success1);
+    System.out.println("pwd=" + pwd + ",endPwd=" + endPwd.length() + ",success1=" + success1);
 
     boolean success2 = encoder.matches(pwd + "d", endPwd);
 
-    System.out.println("pwd+d="+pwd+"d,endPwd="+endPwd+",success2="+success2);
+    System.out.println("pwd+d=" + pwd + "d,endPwd=" + endPwd + ",success2=" + success2);
   }
 }

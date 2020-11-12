@@ -44,278 +44,288 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class NodeDasImpl implements NodeDas {
 
-	private NodePoMapper nodePoMapper;
-	
-	private KeypairPoMapper keypairPoMapper;
-	
-	private NodeKeyPoMapper nodeKeyPoMapper;
-	
-	private ConsortiumPoMapper consortiumPoMapper;
-	
-	private NodeCustomizedConfigDas nodeCustomizedConfigDas;
+  private NodePoMapper nodePoMapper;
 
-	private MembershipChangeDas membershipDas;
-	
-	public Optional<NodePo> findById(String id) {
-		return nodePoMapper.selectByPrimaryKey(id);
-	}
-	
-	public List<NodePo> findByIds(List<String> ids){
-		NodePoExample example = new NodePoExample();
-		Criteria criteria = example.createCriteria();
-		if (CollectionUtils.isNotEmpty(ids)) {
-			criteria.andIdIn(ids);
-		}
-		criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-		example.setOrderByClause("create_time desc");
-		return nodePoMapper.selectByExample(example);
-	}
-	
-	public List<NodePo> findAll(String consId, String ip) {
-		NodePoExample example = new NodePoExample();
-		Criteria criteria = example.createCriteria();
-		if (StringUtils.isNotBlank(consId)) {
-			criteria.andConsortiumIdEqualTo(consId);
-		}
-		if (StringUtils.isNotBlank(ip)) {
-			criteria.andNodeIpEqualTo(ip);
-		}
-		criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-		example.setOrderByClause("create_time desc");
-		return nodePoMapper.selectByExample(example);
-	}
+  private KeypairPoMapper keypairPoMapper;
 
-	public List<NodePo> findByConsIdAndChainId(String consId, String chainId) {
-		NodePoExample example = new NodePoExample();
-		Criteria criteria = example.createCriteria();
-		if (StringUtils.isNotBlank(consId)) {
-			criteria.andConsortiumIdEqualTo(consId);
-		}
-		if (StringUtils.isNotBlank(chainId)) {
-			criteria.andBlockchainIdEqualTo(chainId);
-		}
-		criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-		example.setOrderByClause("create_time desc");
-		return nodePoMapper.selectByExample(example);
-	}
+  private NodeKeyPoMapper nodeKeyPoMapper;
 
-	public List<NodePo> findByChainIds(List<String> chainIds) {
-		if(CollectionUtils.isEmpty(chainIds)) {
-			return Lists.newArrayList();
-		}
-		NodePoExample example = new NodePoExample();
-		example.createCriteria().andBlockchainIdIn(chainIds).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-		example.setOrderByClause("create_time desc");
-		return nodePoMapper.selectByExample(example);
-	}
-	
-	public NodePo findByIpPort(String ip, Integer port) {
-		NodePoExample example = new NodePoExample();
-		example.createCriteria().andNodeIpEqualTo(ip).andNodePortEqualTo(port);
-		List<NodePo> list = nodePoMapper.selectByExample(example);
-		return CollectionUtils.isNotEmpty(list) ? list.get(0) : null;
-	}
-	
-	public long count() {
-		NodePoExample example = new NodePoExample();
-		example.createCriteria().andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-		return nodePoMapper.countByExample(example);
-	}
+  private ConsortiumPoMapper consortiumPoMapper;
 
-	public boolean addNodes(List<NodePo> nodes, ConsortiumPo cons, List<NodeCustomizedConfigPo> stepFactorConfigList,
-			List<NodeCustomizedConfigPo> configList) {
-		boolean succFlag =  Boolean.TRUE;
-		// add nodes
-		succFlag = succFlag && nodePoMapper.bulkInsert(nodes) == nodes.size();
-		// update consortium step
-		if(cons != null) {
-			succFlag = succFlag && consortiumPoMapper.updateByPrimaryKeySelective(cons) > 0;
-		}
-		// add or update stepFactorConfig
-		if(CollectionUtils.isNotEmpty(stepFactorConfigList)) {
-			for(NodeCustomizedConfigPo stepFactorConfig:stepFactorConfigList) {
-				NodeCustomizedConfigPo config = nodeCustomizedConfigDas.findConfigByPropertyName(
-						stepFactorConfig.getConsortiumId(), null, stepFactorConfig.getPropertyName());
-				if(config != null) {
-					stepFactorConfig.setId(config.getId());
-					succFlag = succFlag && nodeCustomizedConfigDas.modify(stepFactorConfig);
-				} else {
-					succFlag = succFlag && nodeCustomizedConfigDas.add(stepFactorConfig);
-				}
-			}
-		}
-		// add config
-		if(CollectionUtils.isNotEmpty(configList)) {
-			succFlag = succFlag && nodeCustomizedConfigDas.batchAdd(configList);
-		}
-		// add heartbeat listener
-		addHeartbeatListener(nodes, configList);
-		
-		return succFlag;
-	}
-	
-	public boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList, NodeCustomizedConfigPo stepFactorConfig,
-			List<NodeCustomizedConfigPo> customizedConfigList) {
-		boolean succFlag =  Boolean.TRUE;
-		// add nodes
-		List<NodePo> nodes = nodeKeypairBoList.stream().map(NodeKeypairBo::getNode).collect(Collectors.toList());
-		succFlag = succFlag && nodePoMapper.bulkInsert(nodes) == nodes.size();
-		// add keypairs and nodekeys
-		for(NodeKeypairBo nodeKeypairBo : nodeKeypairBoList){
-			if(nodeKeypairBo.getKeypair().getId() == null){
-				KeypairPo keypair = nodeKeypairBo.getKeypair();
-				NodeKeyPo nodeKey = nodeKeypairBo.getNodeKey();
-				succFlag = succFlag && keypairPoMapper.insert(keypair) > 0;
-				nodeKey.setKeypairId(keypair.getId());
-				succFlag = succFlag && nodeKeyPoMapper.insert(nodeKey) > 0;
-			}
-		}
-		// add or update stepFactorCustomizedConfig
-		if(stepFactorConfig != null) {
-			NodeCustomizedConfigPo customizedConfig = nodeCustomizedConfigDas.findConfigByPropertyName(
-					stepFactorConfig.getConsortiumId(), null, stepFactorConfig.getPropertyName());
-			if(customizedConfig != null) {
-				stepFactorConfig.setId(customizedConfig.getId());
-				nodeCustomizedConfigDas.modify(stepFactorConfig);
-			} else {
-				nodeCustomizedConfigDas.add(stepFactorConfig);
-			}
-		}
-		// add customized configration
-		if(CollectionUtils.isNotEmpty(customizedConfigList)) {
-			succFlag = succFlag && nodeCustomizedConfigDas.batchAdd(customizedConfigList);
-		}
-		// add heartbeat listener
-		addHeartbeatListener(nodes, customizedConfigList);
-		
-		return succFlag;
-	}
-	
-	public void addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList,
-								List<NodeCustomizedConfigPo> stepFactorConfigList, List<NodeCustomizedConfigPo> customizedConfigList,
-								MembershipChangePo membershipChange,
-								List<MembershipPo> memberships) {
-		boolean succFlag =  Boolean.TRUE;
-		// add nodes
-		List<NodePo> nodes = nodeKeypairBoList.stream().map(NodeKeypairBo::getNode).collect(Collectors.toList());
-		succFlag = succFlag && nodePoMapper.bulkInsert(nodes) == nodes.size();
-		// add keypairs and nodekeys
-		for(NodeKeypairBo nodeKeypairBo : nodeKeypairBoList){
-			if(nodeKeypairBo.getKeypair().getId() == null){
-				KeypairPo keypair = nodeKeypairBo.getKeypair();
-				NodeKeyPo nodeKey = nodeKeypairBo.getNodeKey();
-				succFlag = succFlag && keypairPoMapper.insert(keypair) > 0;
-				nodeKey.setKeypairId(keypair.getId());
-				succFlag = succFlag && nodeKeyPoMapper.insert(nodeKey) > 0;
-			}
-		}
-		// add or update stepFactorCustomizedConfig
-		if(CollectionUtils.isNotEmpty(stepFactorConfigList)) {
-			for(NodeCustomizedConfigPo stepFactorConfig:stepFactorConfigList) {
-				NodeCustomizedConfigPo config = nodeCustomizedConfigDas.findConfigByPropertyName(
-						stepFactorConfig.getConsortiumId(), null, stepFactorConfig.getPropertyName());
-				if(config != null) {
-					stepFactorConfig.setId(config.getId());
-					succFlag = succFlag && nodeCustomizedConfigDas.modify(stepFactorConfig);
-				} else {
-					succFlag = succFlag && nodeCustomizedConfigDas.add(stepFactorConfig);
-				}
-			}
-		}
-		// add customized configration
-		if(CollectionUtils.isNotEmpty(customizedConfigList)) {
-			succFlag = succFlag && nodeCustomizedConfigDas.batchAdd(customizedConfigList);
-		}
-		// add membership change and memberships
-		succFlag = succFlag && membershipDas.addMembershipChange(membershipChange, memberships);
-		// add heartbeat listener
-		addHeartbeatListener(nodes, customizedConfigList);
+  private NodeCustomizedConfigDas nodeCustomizedConfigDas;
 
-	}
-	
-	public void addNodesMembershipChange(List<String> nodeIds, MembershipStatus membershipStatus,
-                                         MembershipChangePo membershipChange, List<MembershipPo> memberships) {
-		boolean succFlag =  Boolean.TRUE;
-		// update node membership status
-		NodePo record = NodePo.builder().membershipStatus(membershipStatus.getCode()).build();
-		NodePoExample example = new NodePoExample();
-		Criteria criteria = example.createCriteria();
-		criteria.andIdIn(nodeIds);
-		succFlag = succFlag &&  nodePoMapper.updateByExampleSelective(record, example) == nodeIds.size();
-		// add membershipChange and memberships
-		succFlag = succFlag && membershipDas.addMembershipChange(membershipChange, memberships);
+  private MembershipChangeDas membershipDas;
 
+  public Optional<NodePo> findById(String id) {
+    return nodePoMapper.selectByPrimaryKey(id);
+  }
+
+  public List<NodePo> findByIds(List<String> ids) {
+    NodePoExample example = new NodePoExample();
+    Criteria criteria = example.createCriteria();
+    if (CollectionUtils.isNotEmpty(ids)) {
+      criteria.andIdIn(ids);
     }
+    criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    example.setOrderByClause("create_time desc");
+    return nodePoMapper.selectByExample(example);
+  }
 
-	public boolean modifyNode(NodePo node) {
-		return nodePoMapper.updateByPrimaryKeySelective(node) > 0;
-	}
+  public List<NodePo> findAll(String consId, String ip) {
+    NodePoExample example = new NodePoExample();
+    Criteria criteria = example.createCriteria();
+    if (StringUtils.isNotBlank(consId)) {
+      criteria.andConsortiumIdEqualTo(consId);
+    }
+    if (StringUtils.isNotBlank(ip)) {
+      criteria.andNodeIpEqualTo(ip);
+    }
+    criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    example.setOrderByClause("create_time desc");
+    return nodePoMapper.selectByExample(example);
+  }
 
-	@LogSkip
-	public boolean modifyNodesStatus(List<String> nodeIds, NodeEnum.Status status) {
-		NodePo record = NodePo.builder().status(status.getCode()).build();
-		NodePoExample example = new NodePoExample();
-		Criteria criteria = example.createCriteria();
-		criteria.andIdIn(nodeIds);
-		return nodePoMapper.updateByExampleSelective(record, example) == nodeIds.size();
-	}
-	
-	public void modifyNodesMembershipStatus(List<String> nodeIds, MembershipStatus membershipStatus,
-											Long membershipChangeId, MembershipEnum.Status membershipChangeStatus) {
-		boolean succFlag = Boolean.TRUE;
-		// update node membership status
-		NodePo record = NodePo.builder().membershipStatus(membershipStatus.getCode()).build();
-		if (membershipStatus == MembershipStatus.ADD_SUCCESS 
-				|| membershipStatus == MembershipStatus.ADD_FAILURE
-				|| membershipStatus == MembershipStatus.REMOVE_SUCCESS
-				|| membershipStatus == MembershipStatus.REMOVE_FAILURE) {
-			record.setMembershipFinalStatus(record.getMembershipStatus());/*set membership final state*/
-		}
-		NodePoExample example = new NodePoExample();
-		Criteria criteria = example.createCriteria();
-		criteria.andIdIn(nodeIds);
-		succFlag = succFlag &&  nodePoMapper.updateByExampleSelective(record, example) == nodeIds.size();
-		// update membership change status
-		List<Long> membershipChangeIds = Lists.newArrayList(membershipChangeId);
-		succFlag = succFlag &&  membershipDas.modifyMembershipChangeStatus(membershipChangeIds, membershipChangeStatus);
-	}
-	
-	public boolean deleteNodes(NodePo node, ConsortiumPo cons) {
-		boolean succFlag =  Boolean.TRUE;
-		NodePo updateNode = NodePo.builder()
-				.id(node.getId())
-				.deleteFlag(IntTypeEnum.TRUE.getValue())
-				.updateTime(LocalDateTime.now())
-				.updateBy(WebHelper.getUserId())
-				.build();
-		succFlag = succFlag && nodePoMapper.updateByPrimaryKeySelective(updateNode) > 0;
-		//succFlag = succFlag && nodePoMapper.deleteByPrimaryKey(node.getId()) > 0;
-		if(cons != null) {
-			succFlag = succFlag && consortiumPoMapper.updateByPrimaryKeySelective(cons) > 0;
-		}
-		return succFlag;
-	}
-	
-	public Integer deleteByIpPort(String ip, Integer port) {
-		NodePoExample example = new NodePoExample();
-		example.createCriteria().andNodeIpEqualTo(ip).andNodePortEqualTo(port);
-		return nodePoMapper.deleteByExample(example);
-	}
+  public List<NodePo> findByConsIdAndChainId(String consId, String chainId) {
+    NodePoExample example = new NodePoExample();
+    Criteria criteria = example.createCriteria();
+    if (StringUtils.isNotBlank(consId)) {
+      criteria.andConsortiumIdEqualTo(consId);
+    }
+    if (StringUtils.isNotBlank(chainId)) {
+      criteria.andBlockchainIdEqualTo(chainId);
+    }
+    criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    example.setOrderByClause("create_time desc");
+    return nodePoMapper.selectByExample(example);
+  }
 
-	private void addHeartbeatListener(List<NodePo> nodes, List<NodeCustomizedConfigPo> customizedConfigList) {
-		HeartbeatListener heartbeatListener = HeartbeatListener.getInstance();
-		Map<String, Integer> rpcHttpPortMap = customizedConfigList.stream()
-				.filter(item -> item.getPropertyName().equalsIgnoreCase(ConfluxConstant.PROPERTY_JSONRPC_PORT))
-				.collect(Collectors.toMap(NodeCustomizedConfigPo::getNodeId, item -> Integer.parseInt(item.getPropertyValue())));
-		nodes.stream().forEach(node -> {
-			if(heartbeatListener.isNodeValid(node.getConsortiumId(), node.getId())){
-				Heartbeat nodeInfo = Heartbeat.builder()
-						.id(node.getId())
-						.groupId(node.getConsortiumId())
-						.ip(node.getNodeIp())
-						.port(rpcHttpPortMap.get(node.getId())).build();
-				heartbeatListener.registerNode(node.getConsortiumId(), node.getId(), nodeInfo);
-			}
-		});
-	}
+  public List<NodePo> findByChainIds(List<String> chainIds) {
+    if (CollectionUtils.isEmpty(chainIds)) {
+      return Lists.newArrayList();
+    }
+    NodePoExample example = new NodePoExample();
+    example.createCriteria().andBlockchainIdIn(chainIds)
+        .andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    example.setOrderByClause("create_time desc");
+    return nodePoMapper.selectByExample(example);
+  }
+
+  public NodePo findByIpPort(String ip, Integer port) {
+    NodePoExample example = new NodePoExample();
+    example.createCriteria().andNodeIpEqualTo(ip).andNodePortEqualTo(port);
+    List<NodePo> list = nodePoMapper.selectByExample(example);
+    return CollectionUtils.isNotEmpty(list) ? list.get(0) : null;
+  }
+
+  public long count() {
+    NodePoExample example = new NodePoExample();
+    example.createCriteria().andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    return nodePoMapper.countByExample(example);
+  }
+
+  public boolean addNodes(List<NodePo> nodes, ConsortiumPo cons,
+      List<NodeCustomizedConfigPo> stepFactorConfigList,
+      List<NodeCustomizedConfigPo> configList) {
+    boolean succFlag = Boolean.TRUE;
+    // add nodes
+    succFlag = succFlag && nodePoMapper.bulkInsert(nodes) == nodes.size();
+    // update consortium step
+    if (cons != null) {
+      succFlag = succFlag && consortiumPoMapper.updateByPrimaryKeySelective(cons) > 0;
+    }
+    // add or update stepFactorConfig
+    if (CollectionUtils.isNotEmpty(stepFactorConfigList)) {
+      for (NodeCustomizedConfigPo stepFactorConfig : stepFactorConfigList) {
+        NodeCustomizedConfigPo config = nodeCustomizedConfigDas.findConfigByPropertyName(
+            stepFactorConfig.getConsortiumId(), null, stepFactorConfig.getPropertyName());
+        if (config != null) {
+          stepFactorConfig.setId(config.getId());
+          succFlag = succFlag && nodeCustomizedConfigDas.modify(stepFactorConfig);
+        } else {
+          succFlag = succFlag && nodeCustomizedConfigDas.add(stepFactorConfig);
+        }
+      }
+    }
+    // add config
+    if (CollectionUtils.isNotEmpty(configList)) {
+      succFlag = succFlag && nodeCustomizedConfigDas.batchAdd(configList);
+    }
+    // add heartbeat listener
+    addHeartbeatListener(nodes, configList);
+
+    return succFlag;
+  }
+
+  public boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList,
+      NodeCustomizedConfigPo stepFactorConfig,
+      List<NodeCustomizedConfigPo> customizedConfigList) {
+    boolean succFlag = Boolean.TRUE;
+    // add nodes
+    List<NodePo> nodes = nodeKeypairBoList.stream().map(NodeKeypairBo::getNode)
+        .collect(Collectors.toList());
+    succFlag = succFlag && nodePoMapper.bulkInsert(nodes) == nodes.size();
+    // add keypairs and nodekeys
+    for (NodeKeypairBo nodeKeypairBo : nodeKeypairBoList) {
+      if (nodeKeypairBo.getKeypair().getId() == null) {
+        KeypairPo keypair = nodeKeypairBo.getKeypair();
+        NodeKeyPo nodeKey = nodeKeypairBo.getNodeKey();
+        succFlag = succFlag && keypairPoMapper.insert(keypair) > 0;
+        nodeKey.setKeypairId(keypair.getId());
+        succFlag = succFlag && nodeKeyPoMapper.insert(nodeKey) > 0;
+      }
+    }
+    // add or update stepFactorCustomizedConfig
+    if (stepFactorConfig != null) {
+      NodeCustomizedConfigPo customizedConfig = nodeCustomizedConfigDas.findConfigByPropertyName(
+          stepFactorConfig.getConsortiumId(), null, stepFactorConfig.getPropertyName());
+      if (customizedConfig != null) {
+        stepFactorConfig.setId(customizedConfig.getId());
+        nodeCustomizedConfigDas.modify(stepFactorConfig);
+      } else {
+        nodeCustomizedConfigDas.add(stepFactorConfig);
+      }
+    }
+    // add customized configration
+    if (CollectionUtils.isNotEmpty(customizedConfigList)) {
+      succFlag = succFlag && nodeCustomizedConfigDas.batchAdd(customizedConfigList);
+    }
+    // add heartbeat listener
+    addHeartbeatListener(nodes, customizedConfigList);
+
+    return succFlag;
+  }
+
+  public void addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList,
+      List<NodeCustomizedConfigPo> stepFactorConfigList,
+      List<NodeCustomizedConfigPo> customizedConfigList,
+      MembershipChangePo membershipChange,
+      List<MembershipPo> memberships) {
+    boolean succFlag = Boolean.TRUE;
+    // add nodes
+    List<NodePo> nodes = nodeKeypairBoList.stream().map(NodeKeypairBo::getNode)
+        .collect(Collectors.toList());
+    succFlag = succFlag && nodePoMapper.bulkInsert(nodes) == nodes.size();
+    // add keypairs and nodekeys
+    for (NodeKeypairBo nodeKeypairBo : nodeKeypairBoList) {
+      if (nodeKeypairBo.getKeypair().getId() == null) {
+        KeypairPo keypair = nodeKeypairBo.getKeypair();
+        NodeKeyPo nodeKey = nodeKeypairBo.getNodeKey();
+        succFlag = succFlag && keypairPoMapper.insert(keypair) > 0;
+        nodeKey.setKeypairId(keypair.getId());
+        succFlag = succFlag && nodeKeyPoMapper.insert(nodeKey) > 0;
+      }
+    }
+    // add or update stepFactorCustomizedConfig
+    if (CollectionUtils.isNotEmpty(stepFactorConfigList)) {
+      for (NodeCustomizedConfigPo stepFactorConfig : stepFactorConfigList) {
+        NodeCustomizedConfigPo config = nodeCustomizedConfigDas.findConfigByPropertyName(
+            stepFactorConfig.getConsortiumId(), null, stepFactorConfig.getPropertyName());
+        if (config != null) {
+          stepFactorConfig.setId(config.getId());
+          succFlag = succFlag && nodeCustomizedConfigDas.modify(stepFactorConfig);
+        } else {
+          succFlag = succFlag && nodeCustomizedConfigDas.add(stepFactorConfig);
+        }
+      }
+    }
+    // add customized configration
+    if (CollectionUtils.isNotEmpty(customizedConfigList)) {
+      succFlag = succFlag && nodeCustomizedConfigDas.batchAdd(customizedConfigList);
+    }
+    // add membership change and memberships
+    succFlag = succFlag && membershipDas.addMembershipChange(membershipChange, memberships);
+    // add heartbeat listener
+    addHeartbeatListener(nodes, customizedConfigList);
+
+  }
+
+  public void addNodesMembershipChange(List<String> nodeIds, MembershipStatus membershipStatus,
+      MembershipChangePo membershipChange, List<MembershipPo> memberships) {
+    boolean succFlag = Boolean.TRUE;
+    // update node membership status
+    NodePo record = NodePo.builder().membershipStatus(membershipStatus.getCode()).build();
+    NodePoExample example = new NodePoExample();
+    Criteria criteria = example.createCriteria();
+    criteria.andIdIn(nodeIds);
+    succFlag = succFlag && nodePoMapper.updateByExampleSelective(record, example) == nodeIds.size();
+    // add membershipChange and memberships
+    succFlag = succFlag && membershipDas.addMembershipChange(membershipChange, memberships);
+
+  }
+
+  public boolean modifyNode(NodePo node) {
+    return nodePoMapper.updateByPrimaryKeySelective(node) > 0;
+  }
+
+  @LogSkip
+  public boolean modifyNodesStatus(List<String> nodeIds, NodeEnum.Status status) {
+    NodePo record = NodePo.builder().status(status.getCode()).build();
+    NodePoExample example = new NodePoExample();
+    Criteria criteria = example.createCriteria();
+    criteria.andIdIn(nodeIds);
+    return nodePoMapper.updateByExampleSelective(record, example) == nodeIds.size();
+  }
+
+  public void modifyNodesMembershipStatus(List<String> nodeIds, MembershipStatus membershipStatus,
+      Long membershipChangeId, MembershipEnum.Status membershipChangeStatus) {
+    boolean succFlag = Boolean.TRUE;
+    // update node membership status
+    NodePo record = NodePo.builder().membershipStatus(membershipStatus.getCode()).build();
+    if (membershipStatus == MembershipStatus.ADD_SUCCESS
+        || membershipStatus == MembershipStatus.ADD_FAILURE
+        || membershipStatus == MembershipStatus.REMOVE_SUCCESS
+        || membershipStatus == MembershipStatus.REMOVE_FAILURE) {
+      record.setMembershipFinalStatus(record.getMembershipStatus());/*set membership final state*/
+    }
+    NodePoExample example = new NodePoExample();
+    Criteria criteria = example.createCriteria();
+    criteria.andIdIn(nodeIds);
+    succFlag = succFlag && nodePoMapper.updateByExampleSelective(record, example) == nodeIds.size();
+    // update membership change status
+    List<Long> membershipChangeIds = Lists.newArrayList(membershipChangeId);
+    succFlag = succFlag && membershipDas
+        .modifyMembershipChangeStatus(membershipChangeIds, membershipChangeStatus);
+  }
+
+  public boolean deleteNodes(NodePo node, ConsortiumPo cons) {
+    boolean succFlag = Boolean.TRUE;
+    NodePo updateNode = NodePo.builder()
+        .id(node.getId())
+        .deleteFlag(IntTypeEnum.TRUE.getValue())
+        .updateTime(LocalDateTime.now())
+        .updateBy(WebHelper.getUserId())
+        .build();
+    succFlag = succFlag && nodePoMapper.updateByPrimaryKeySelective(updateNode) > 0;
+    //succFlag = succFlag && nodePoMapper.deleteByPrimaryKey(node.getId()) > 0;
+    if (cons != null) {
+      succFlag = succFlag && consortiumPoMapper.updateByPrimaryKeySelective(cons) > 0;
+    }
+    return succFlag;
+  }
+
+  public Integer deleteByIpPort(String ip, Integer port) {
+    NodePoExample example = new NodePoExample();
+    example.createCriteria().andNodeIpEqualTo(ip).andNodePortEqualTo(port);
+    return nodePoMapper.deleteByExample(example);
+  }
+
+  private void addHeartbeatListener(List<NodePo> nodes,
+      List<NodeCustomizedConfigPo> customizedConfigList) {
+    HeartbeatListener heartbeatListener = HeartbeatListener.getInstance();
+    Map<String, Integer> rpcHttpPortMap = customizedConfigList.stream()
+        .filter(
+            item -> item.getPropertyName().equalsIgnoreCase(ConfluxConstant.PROPERTY_JSONRPC_PORT))
+        .collect(Collectors.toMap(NodeCustomizedConfigPo::getNodeId,
+            item -> Integer.parseInt(item.getPropertyValue())));
+    nodes.stream().forEach(node -> {
+      if (heartbeatListener.isNodeValid(node.getConsortiumId(), node.getId())) {
+        Heartbeat nodeInfo = Heartbeat.builder()
+            .id(node.getId())
+            .groupId(node.getConsortiumId())
+            .ip(node.getNodeIp())
+            .port(rpcHttpPortMap.get(node.getId())).build();
+        heartbeatListener.registerNode(node.getConsortiumId(), node.getId(), nodeInfo);
+      }
+    });
+  }
 }

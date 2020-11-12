@@ -15,23 +15,24 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @Configuration
 public class SwaggerConfig {
-    @Bean
-    public Docket createRestApi() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("treegraph-baas")
-                .apiInfo(apiInfo())
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("org.treegraph.baas.web.rest"))
-                .paths(PathSelectors.any())
-                .build();
-    }
 
-    private ApiInfo apiInfo() {
-        return new ApiInfoBuilder()
-                .title("树图Baas系统")
-                .description("树图Baas系统-Alpha")
-                .version("0.0.1")
-                .build();
-    }
+  @Bean
+  public Docket createRestApi() {
+    return new Docket(DocumentationType.SWAGGER_2)
+        .groupName("treegraph-baas")
+        .apiInfo(apiInfo())
+        .select()
+        .apis(RequestHandlerSelectors.basePackage("org.treegraph.baas.web.rest"))
+        .paths(PathSelectors.any())
+        .build();
+  }
+
+  private ApiInfo apiInfo() {
+    return new ApiInfoBuilder()
+        .title("树图Baas系统")
+        .description("树图Baas系统-Alpha")
+        .version("0.0.1")
+        .build();
+  }
 
 }

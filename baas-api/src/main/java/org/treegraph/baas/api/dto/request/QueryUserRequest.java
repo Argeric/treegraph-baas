@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class QueryUserRequest {
 
-	private String account;
+  private String account;
 }

@@ -12,31 +12,31 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class KeypairCertBo implements Serializable {
-	
-	/**
-	 * 加密算法，支持ecc，sm2， rsa
-	 */
-	private String algorithm;
 
-    /**
-     * 公钥
-     */
-    private String publicKey;
+  /**
+   * 加密算法，支持ecc，sm2， rsa
+   */
+  private String algorithm;
 
-    /**
-     * 私钥
-     */
-    private String privateKey;
+  /**
+   * 公钥
+   */
+  private String publicKey;
 
-    /**
-     * 证书签名请求字符串
-     */
-    private String csrStr;
+  /**
+   * 私钥
+   */
+  private String privateKey;
 
-    /**
-     * 证书字符串
-     */
-    private String certStr;
+  /**
+   * 证书签名请求字符串
+   */
+  private String csrStr;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   * 证书字符串
+   */
+  private String certStr;
+
+  private static final long serialVersionUID = 1L;
 }

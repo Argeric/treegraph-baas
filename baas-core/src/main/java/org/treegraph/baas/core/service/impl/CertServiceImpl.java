@@ -35,60 +35,63 @@ import org.treegraph.baas.core.util.LogSkip;
 @Slf4j
 public class CertServiceImpl implements CertService {
 
-	private final NodeDas nodeDas;
+  private final NodeDas nodeDas;
 
-	private final CertDas certDas;
-    
-	private final VaultKeypairBuildService vaultKeypairBuildService;
+  private final CertDas certDas;
 
-	private final BuildService buildService;
+  private final VaultKeypairBuildService vaultKeypairBuildService;
 
-	@LogSkip
-	public void downloadRpcCert(DownloadRpcCertRequest req, HttpServletResponse resp) throws Exception {
-		// check and build
-		String blockchainId = req.getBlockchainId();
-		Assert.notNull(blockchainId, "blockchainId.not.found");
-		List<NodePo> nodes = nodeDas.findByChainIds(Lists.newArrayList(blockchainId));
-		Assert.notEmpty(nodes, "node.not.found");
-		String consId = nodes.get(0).getConsortiumId();
+  private final BuildService buildService;
 
-		// get to support nodes
-		List<String> toDownloadNodeIpList = Lists.newArrayList();
-		List<String> toDownloadNodeIdList = req.getNodeId();
-		if(CollectionUtils.isNotEmpty(toDownloadNodeIdList)) {
-			Set<String>	toDownloadNodeIdSet = new HashSet<>(toDownloadNodeIdList);
-			nodes.stream().filter(item -> toDownloadNodeIdSet.contains(item.getId()))
-					.forEach(item -> toDownloadNodeIpList.add(item.getNodeIp()));
-		} else{
-			nodes.forEach(item -> toDownloadNodeIpList.add(item.getNodeIp()));
-		}
+  @LogSkip
+  public void downloadRpcCert(DownloadRpcCertRequest req, HttpServletResponse resp)
+      throws Exception {
+    // check and build
+    String blockchainId = req.getBlockchainId();
+    Assert.notNull(blockchainId, "blockchainId.not.found");
+    List<NodePo> nodes = nodeDas.findByChainIds(Lists.newArrayList(blockchainId));
+    Assert.notEmpty(nodes, "node.not.found");
+    String consId = nodes.get(0).getConsortiumId();
 
-		// get certs
-		KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consId, null);
-		String serverCertFile = consKeypair.getCertStr();
-		GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.geneNewRpcKeypair(consId, consKeypair, null,
-				toDownloadNodeIpList);
-		Map<String, String> certPathContentMap = Maps.newHashMap();
-		certPathContentMap.put(SERVER_CERT_FILE, serverCertFile);
-		certPathContentMap.put(RPC_CERT_CHAIN_FILE, gRpcKeypair.getCert());
-		certPathContentMap.put(RPC_KEY_FILE, gRpcKeypair.getPrivateKey());
+    // get to support nodes
+    List<String> toDownloadNodeIpList = Lists.newArrayList();
+    List<String> toDownloadNodeIdList = req.getNodeId();
+    if (CollectionUtils.isNotEmpty(toDownloadNodeIdList)) {
+      Set<String> toDownloadNodeIdSet = new HashSet<>(toDownloadNodeIdList);
+      nodes.stream().filter(item -> toDownloadNodeIdSet.contains(item.getId()))
+          .forEach(item -> toDownloadNodeIpList.add(item.getNodeIp()));
+    } else {
+      nodes.forEach(item -> toDownloadNodeIpList.add(item.getNodeIp()));
+    }
 
-		// record request
-		CertificateRequestPo certificateRequest= buildService.buildCertificateRequest(nodes.get(0), toDownloadNodeIpList);
-		certDas.add(certificateRequest);
+    // get certs
+    KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consId, null);
+    String serverCertFile = consKeypair.getCertStr();
+    GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService
+        .geneNewRpcKeypair(consId, consKeypair, null,
+            toDownloadNodeIpList);
+    Map<String, String> certPathContentMap = Maps.newHashMap();
+    certPathContentMap.put(SERVER_CERT_FILE, serverCertFile);
+    certPathContentMap.put(RPC_CERT_CHAIN_FILE, gRpcKeypair.getCert());
+    certPathContentMap.put(RPC_KEY_FILE, gRpcKeypair.getPrivateKey());
 
-		// download file
-		resp.setContentType("application/zip");
-		resp.setHeader("Content-disposition", "attachment; filename=\"rpc-cert.zip\"");
-		ZipOutputStream zipOutputStream = new ZipOutputStream(resp.getOutputStream());
-		Set<String> keySet = certPathContentMap.keySet();
-		for (String key : keySet) {
-			String value = certPathContentMap.get(key);
-			zipOutputStream.putNextEntry(new ZipEntry(key));
-			zipOutputStream.write(value.getBytes());
-			zipOutputStream.closeEntry();
-		}
-		zipOutputStream.close();
-		log.debug("write rpc cert finished[{}]", consId);
-	}
+    // record request
+    CertificateRequestPo certificateRequest = buildService
+        .buildCertificateRequest(nodes.get(0), toDownloadNodeIpList);
+    certDas.add(certificateRequest);
+
+    // download file
+    resp.setContentType("application/zip");
+    resp.setHeader("Content-disposition", "attachment; filename=\"rpc-cert.zip\"");
+    ZipOutputStream zipOutputStream = new ZipOutputStream(resp.getOutputStream());
+    Set<String> keySet = certPathContentMap.keySet();
+    for (String key : keySet) {
+      String value = certPathContentMap.get(key);
+      zipOutputStream.putNextEntry(new ZipEntry(key));
+      zipOutputStream.write(value.getBytes());
+      zipOutputStream.closeEntry();
+    }
+    zipOutputStream.close();
+    log.debug("write rpc cert finished[{}]", consId);
+  }
 }

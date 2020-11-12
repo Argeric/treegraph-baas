@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class ListCertRequest {
-	
-	private String blockchainId	;
+
+  private String blockchainId;
 }

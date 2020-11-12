@@ -10,10 +10,10 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 public class AuthInfo {
-	
-	private String consId;
 
-	private List<String> roles;
-	
-	private List<String> permissions;
+  private String consId;
+
+  private List<String> roles;
+
+  private List<String> permissions;
 }

@@ -19,43 +19,45 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class CertificateDeferDasImpl implements CertificateDeferDas {
-	
-	private CertificateDeferPoMapper certificateDeferPoMapper;
-	
-	private KeypairPoMapper keypairPoMapper;
-	
-	public List<CertificateDeferPo> findByConsortiumId(String consId, List<Integer> statusList){
-		CertificateDeferPoExample example = new CertificateDeferPoExample();
-		Criteria criteria = example.createCriteria();
-		
-		criteria.andConsortiumIdEqualTo(consId);
-		if(CollectionUtils.isNotEmpty(statusList)) {
-			criteria.andStatusIn(statusList);
-		}
-		
-		return certificateDeferPoMapper.selectByExample(example);
-	}
-	
-	public void createCertificateDefer(CertificateDeferPo defer) {
-        certificateDeferPoMapper.insert(defer);
+
+  private CertificateDeferPoMapper certificateDeferPoMapper;
+
+  private KeypairPoMapper keypairPoMapper;
+
+  public List<CertificateDeferPo> findByConsortiumId(String consId, List<Integer> statusList) {
+    CertificateDeferPoExample example = new CertificateDeferPoExample();
+    Criteria criteria = example.createCriteria();
+
+    criteria.andConsortiumIdEqualTo(consId);
+    if (CollectionUtils.isNotEmpty(statusList)) {
+      criteria.andStatusIn(statusList);
     }
-	
-	public void modifyCertificateDefer(CertificateDeferPo defer){
-		certificateDeferPoMapper.updateByPrimaryKeySelective(defer);
-	}
-	
-	public void modifyCertificateDefer(CertificateDeferPo defer, List<Long> oldKeypairIds,
-									   KeypairPo newKeypair) {
-		boolean isSuccess = Boolean.TRUE;
-		isSuccess = isSuccess && certificateDeferPoMapper.updateByPrimaryKeySelective(defer) > 0;
-		
-		if(CollectionUtils.isNotEmpty(oldKeypairIds)) {
-			KeypairPo record = KeypairPo.builder().deleteFlag(IntTypeEnum.TRUE.getValue()).build();
-			KeypairPoExample example = new KeypairPoExample();
-			example.createCriteria().andIdIn(oldKeypairIds);
-			isSuccess = isSuccess && keypairPoMapper.updateByExampleSelective(record, example) == oldKeypairIds.size();
-		}
-		
-		isSuccess = isSuccess && keypairPoMapper.insert(newKeypair) > 0;
-	}
+
+    return certificateDeferPoMapper.selectByExample(example);
+  }
+
+  public void createCertificateDefer(CertificateDeferPo defer) {
+    certificateDeferPoMapper.insert(defer);
+  }
+
+  public void modifyCertificateDefer(CertificateDeferPo defer) {
+    certificateDeferPoMapper.updateByPrimaryKeySelective(defer);
+  }
+
+  public void modifyCertificateDefer(CertificateDeferPo defer, List<Long> oldKeypairIds,
+      KeypairPo newKeypair) {
+    boolean isSuccess = Boolean.TRUE;
+    isSuccess = isSuccess && certificateDeferPoMapper.updateByPrimaryKeySelective(defer) > 0;
+
+    if (CollectionUtils.isNotEmpty(oldKeypairIds)) {
+      KeypairPo record = KeypairPo.builder().deleteFlag(IntTypeEnum.TRUE.getValue()).build();
+      KeypairPoExample example = new KeypairPoExample();
+      example.createCriteria().andIdIn(oldKeypairIds);
+      isSuccess =
+          isSuccess && keypairPoMapper.updateByExampleSelective(record, example) == oldKeypairIds
+              .size();
+    }
+
+    isSuccess = isSuccess && keypairPoMapper.insert(newKeypair) > 0;
+  }
 }

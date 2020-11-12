@@ -6,25 +6,28 @@ import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.domain.NodeKeyPoExample;
 
 public interface NodeKeyPoMapper {
-    long countByExample(NodeKeyPoExample example);
 
-    int deleteByExample(NodeKeyPoExample example);
+  long countByExample(NodeKeyPoExample example);
 
-    int deleteByPrimaryKey(Long id);
+  int deleteByExample(NodeKeyPoExample example);
 
-    int insert(NodeKeyPo record);
+  int deleteByPrimaryKey(Long id);
 
-    int insertSelective(NodeKeyPo record);
+  int insert(NodeKeyPo record);
 
-    List<NodeKeyPo> selectByExample(NodeKeyPoExample example);
+  int insertSelective(NodeKeyPo record);
 
-    NodeKeyPo selectByPrimaryKey(Long id);
+  List<NodeKeyPo> selectByExample(NodeKeyPoExample example);
 
-    int updateByExampleSelective(@Param("record") NodeKeyPo record, @Param("example") NodeKeyPoExample example);
+  NodeKeyPo selectByPrimaryKey(Long id);
 
-    int updateByExample(@Param("record") NodeKeyPo record, @Param("example") NodeKeyPoExample example);
+  int updateByExampleSelective(@Param("record") NodeKeyPo record,
+      @Param("example") NodeKeyPoExample example);
 
-    int updateByPrimaryKeySelective(NodeKeyPo record);
+  int updateByExample(@Param("record") NodeKeyPo record,
+      @Param("example") NodeKeyPoExample example);
 
-    int updateByPrimaryKey(NodeKeyPo record);
+  int updateByPrimaryKeySelective(NodeKeyPo record);
+
+  int updateByPrimaryKey(NodeKeyPo record);
 }

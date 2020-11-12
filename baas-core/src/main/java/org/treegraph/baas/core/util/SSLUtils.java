@@ -8,40 +8,42 @@ import java.security.cert.X509Certificate;
 
 @Slf4j
 public class SSLUtils {
-	
-	public static void initSSL(){
-		try {
-			trustAllHttpsCertificates();
-			setDefaultHostnameVerifier();
-		} catch (Exception e) {
-			log.error("SSLUtils", e);
-		}
-	}
 
-	private static void trustAllHttpsCertificates() throws Exception {
-		TrustManager[] allTrustCerts = Lists.newArrayList(new MyTrustManager()).toArray(new TrustManager[] {});
-		SSLContext sc = SSLContext.getInstance("SSL");
-		sc.init(null, allTrustCerts, new java.security.SecureRandom());
-		HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-	}
-	
-	private static void setDefaultHostnameVerifier() {
-		HostnameVerifier hv = (urlHostName, session) -> {
-			log.debug("SSLUtils, URL Host: " + urlHostName + " vs. " + session.getPeerHost());
-			return true;
-		};
-		HttpsURLConnection.setDefaultHostnameVerifier(hv);
-	}
+  public static void initSSL() {
+    try {
+      trustAllHttpsCertificates();
+      setDefaultHostnameVerifier();
+    } catch (Exception e) {
+      log.error("SSLUtils", e);
+    }
+  }
 
-	static class MyTrustManager implements TrustManager, X509TrustManager {
-		public X509Certificate[] getAcceptedIssuers() {
-			return null;
-		}
+  private static void trustAllHttpsCertificates() throws Exception {
+    TrustManager[] allTrustCerts = Lists.newArrayList(new MyTrustManager())
+        .toArray(new TrustManager[]{});
+    SSLContext sc = SSLContext.getInstance("SSL");
+    sc.init(null, allTrustCerts, new java.security.SecureRandom());
+    HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+  }
 
-		public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-		}
+  private static void setDefaultHostnameVerifier() {
+    HostnameVerifier hv = (urlHostName, session) -> {
+      log.debug("SSLUtils, URL Host: " + urlHostName + " vs. " + session.getPeerHost());
+      return true;
+    };
+    HttpsURLConnection.setDefaultHostnameVerifier(hv);
+  }
 
-		public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-		}
-	}
+  static class MyTrustManager implements TrustManager, X509TrustManager {
+
+    public X509Certificate[] getAcceptedIssuers() {
+      return null;
+    }
+
+    public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+    }
+
+    public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+    }
+  }
 }

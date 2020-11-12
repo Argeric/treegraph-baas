@@ -11,35 +11,36 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MembershipPo implements Serializable {
-    /**
-     * 主键
-     */
-    private String id;
 
-    /**
-     * 变更请求id
-     */
-    private Long membershipChangeId;
+  /**
+   * 主键
+   */
+  private String id;
 
-    /**
-     * 联盟id
-     */
-    private String consortiumId;
+  /**
+   * 变更请求id
+   */
+  private Long membershipChangeId;
 
-    /**
-     * 节点id
-     */
-    private String nodeId;
+  /**
+   * 联盟id
+   */
+  private String consortiumId;
 
-    /**
-     * 节点ip
-     */
-    private String nodeIp;
+  /**
+   * 节点id
+   */
+  private String nodeId;
 
-    /**
-     * 节点端口
-     */
-    private Integer nodePort;
+  /**
+   * 节点ip
+   */
+  private String nodeIp;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   * 节点端口
+   */
+  private Integer nodePort;
+
+  private static final long serialVersionUID = 1L;
 }

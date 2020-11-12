@@ -22,7 +22,7 @@ public class CacheTimeUtil {
 
   /**
    * 获取当前时间到当天二十四点之间的剩余秒数
-   * 
+   *
    * @return left seconds
    */
   public static int getSecondToMorning() {

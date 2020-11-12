@@ -23,23 +23,26 @@ import org.treegraph.baas.core.util.LogSkip;
 @AllArgsConstructor
 public class SysController {
 
-	private final LoginService loginService;
-	
-	private final LogService logService;
+  private final LoginService loginService;
 
-	@PostMapping("/login")
-	@ApiOperation("用户登陆接口")
-	public BaasResult<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
-		LoginResponse userDetailInfo = loginService.login(loginRequest.getAccount(), loginRequest.getPassword(),
-				request);
-		return BaasResult.success(userDetailInfo);
-	}
+  private final LogService logService;
 
-	@PostMapping("/log/list")
-	@ApiOperation("操作日志")
-	@LogSkip
-	public BaasResult<ListOperLogResponse> listOperLog(@RequestBody ListOperLogRequest listOperLogRequest) {
-		ListOperLogResponse data = logService.listOperLog(listOperLogRequest);
-		return BaasResult.success(data);
-	}
+  @PostMapping("/login")
+  @ApiOperation("用户登陆接口")
+  public BaasResult<LoginResponse> login(@RequestBody LoginRequest loginRequest,
+      HttpServletRequest request) {
+    LoginResponse userDetailInfo = loginService
+        .login(loginRequest.getAccount(), loginRequest.getPassword(),
+            request);
+    return BaasResult.success(userDetailInfo);
+  }
+
+  @PostMapping("/log/list")
+  @ApiOperation("操作日志")
+  @LogSkip
+  public BaasResult<ListOperLogResponse> listOperLog(
+      @RequestBody ListOperLogRequest listOperLogRequest) {
+    ListOperLogResponse data = logService.listOperLog(listOperLogRequest);
+    return BaasResult.success(data);
+  }
 }

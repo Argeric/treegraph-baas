@@ -5,51 +5,51 @@ package org.treegraph.baas.core.exception;
  */
 public class AlertException extends RuntimeException {
 
-	private static final long serialVersionUID = -5510302775986800261L;
-	
-	  int code = 400;
-    String error;
+  private static final long serialVersionUID = -5510302775986800261L;
 
-    public AlertException(int code, String message) {
-        super(message);
-        this.code = code;
-    }
+  int code = 400;
+  String error;
 
-    public AlertException(int code, String message, String error) {
-        super(message);
-        this.code = code;
-        this.error = error;
-    }
+  public AlertException(int code, String message) {
+    super(message);
+    this.code = code;
+  }
 
-    public AlertException() {
-        super();
-    }
+  public AlertException(int code, String message, String error) {
+    super(message);
+    this.code = code;
+    this.error = error;
+  }
 
-    public AlertException(String message) {
-        super(message);
-    }
+  public AlertException() {
+    super();
+  }
 
-    public AlertException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  public AlertException(String message) {
+    super(message);
+  }
 
-    public AlertException(Throwable cause) {
-        super(cause);
-    }
+  public AlertException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    public int getCode() {
-        return code;
-    }
+  public AlertException(Throwable cause) {
+    super(cause);
+  }
 
-    public void setCode(int code) {
-        this.code = code;
-    }
+  public int getCode() {
+    return code;
+  }
 
-    public String getError() {
-        return error;
-    }
+  public void setCode(int code) {
+    this.code = code;
+  }
 
-    public void setError(String error) {
-        this.error = error;
-    }
+  public String getError() {
+    return error;
+  }
+
+  public void setError(String error) {
+    this.error = error;
+  }
 }

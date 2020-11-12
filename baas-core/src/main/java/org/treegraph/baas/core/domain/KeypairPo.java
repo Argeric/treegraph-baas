@@ -13,70 +13,71 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class KeypairPo implements Serializable {
-    /**
-     * 主键
-     */
-    private Long id;
 
-    /**
-     * 公钥
-     */
-    private String publicKey;
+  /**
+   * 主键
+   */
+  private Long id;
 
-    /**
-     * 私钥
-     */
-    private String privateKey;
+  /**
+   * 公钥
+   */
+  private String publicKey;
 
-    /**
-     * 证书签名请求字符串
-     */
-    private String csrStr;
+  /**
+   * 私钥
+   */
+  private String privateKey;
 
-    /**
-     * 证书字符串
-     */
-    private String certStr;
+  /**
+   * 证书签名请求字符串
+   */
+  private String csrStr;
 
-    /**
-     * 加密算法，支持ecc，sm2， rsa
-     */
-    private String algorithm;
+  /**
+   * 证书字符串
+   */
+  private String certStr;
 
-    /**
-     * 联盟id，根证书该字段为0
-     */
-    private String consortiumId;
+  /**
+   * 加密算法，支持ecc，sm2， rsa
+   */
+  private String algorithm;
 
-    /**
-     * 0-联盟密钥，1-节点密钥
-     */
-    private Integer keyType;
+  /**
+   * 联盟id，根证书该字段为0
+   */
+  private String consortiumId;
 
-    /**
-     * 0-未删除，1-已删除
-     */
-    private Integer deleteFlag;
+  /**
+   * 0-联盟密钥，1-节点密钥
+   */
+  private Integer keyType;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+  /**
+   * 0-未删除，1-已删除
+   */
+  private Integer deleteFlag;
 
-    /**
-     * 创建者
-     */
-    private String createBy;
+  /**
+   * 创建时间
+   */
+  private LocalDateTime createTime;
 
-    /**
-     * 修改时间
-     */
-    private LocalDateTime updateTime;
+  /**
+   * 创建者
+   */
+  private String createBy;
 
-    /**
-     * 修改者
-     */
-    private String updateBy;
+  /**
+   * 修改时间
+   */
+  private LocalDateTime updateTime;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   * 修改者
+   */
+  private String updateBy;
+
+  private static final long serialVersionUID = 1L;
 }

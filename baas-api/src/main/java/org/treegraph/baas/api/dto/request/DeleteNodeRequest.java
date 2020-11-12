@@ -6,15 +6,15 @@ import lombok.Data;
 @Data
 @Builder
 public class DeleteNodeRequest {
-	
-	private String id;
 
-	private String ip;
-	
-	private String port;
-	
-	private String org;
-	
-	@Builder.Default
-	private Boolean force = false;
+  private String id;
+
+  private String ip;
+
+  private String port;
+
+  private String org;
+
+  @Builder.Default
+  private Boolean force = false;
 }

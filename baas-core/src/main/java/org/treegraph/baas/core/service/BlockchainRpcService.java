@@ -11,16 +11,17 @@ import java.util.List;
 
 public interface BlockchainRpcService {
 
-	MembershipEnum.Status sendMembershipChangeTransactionPlus(long membershipChangeId,
-			List<NodeKeypairBo> committeeNodeKeypairs, List<NodeKeypairBo> validatorNodeKeypairs) throws IOException;
+  MembershipEnum.Status sendMembershipChangeTransactionPlus(long membershipChangeId,
+      List<NodeKeypairBo> committeeNodeKeypairs, List<NodeKeypairBo> validatorNodeKeypairs)
+      throws IOException;
 
-	BigInteger getBftEpochNumber(String consId, String nodeId);
+  BigInteger getBftEpochNumber(String consId, String nodeId);
 
-	boolean updateCert(String consId, String consCertPem, List<String> membershipNodeIds);
-	
-	String sendRawTransaction(String consId, String nodeId, String hexEncoded);
+  boolean updateCert(String consId, String consCertPem, List<String> membershipNodeIds);
 
-	StatusBo getStatus(Heartbeat heartbeat);
+  String sendRawTransaction(String consId, String nodeId, String hexEncoded);
 
-	String getType();
+  StatusBo getStatus(Heartbeat heartbeat);
+
+  String getType();
 }

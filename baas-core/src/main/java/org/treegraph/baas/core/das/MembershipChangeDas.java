@@ -8,11 +8,13 @@ import org.treegraph.baas.core.domain.MembershipPo;
 import org.treegraph.baas.core.enums.MembershipEnum;
 
 public interface MembershipChangeDas {
-	Optional<MembershipChangePo> findById(long id);
-	
-	boolean addMembershipChange(MembershipChangePo membershipChange, List<MembershipPo> membershipList);
-	
-	boolean modifyMembershipChangeStatus(List<Long> ids, MembershipEnum.Status status);
-	
-	List<MembershipChangePo> getMembershipChangeByStatus(List<Integer> statusList);
+
+  Optional<MembershipChangePo> findById(long id);
+
+  boolean addMembershipChange(MembershipChangePo membershipChange,
+      List<MembershipPo> membershipList);
+
+  boolean modifyMembershipChangeStatus(List<Long> ids, MembershipEnum.Status status);
+
+  List<MembershipChangePo> getMembershipChangeByStatus(List<Integer> statusList);
 }

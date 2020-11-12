@@ -6,12 +6,12 @@ import lombok.Data;
 @Data
 @Builder
 public class Contract {
-	
-	private String transactionHash;
-	
-	private String address;
-	
-	private String from;
-	
-	private Long timestamp;
+
+  private String transactionHash;
+
+  private String address;
+
+  private String from;
+
+  private Long timestamp;
 }

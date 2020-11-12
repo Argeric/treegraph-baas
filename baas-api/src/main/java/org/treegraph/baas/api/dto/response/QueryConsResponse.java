@@ -11,6 +11,6 @@ import lombok.Data;
 @Builder
 public class QueryConsResponse {
 
-	private List<ConsInfo> list;
-	
+  private List<ConsInfo> list;
+
 }

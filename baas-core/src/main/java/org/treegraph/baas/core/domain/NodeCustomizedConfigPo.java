@@ -12,55 +12,56 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NodeCustomizedConfigPo implements Serializable {
-    /**
-     * 
-     */
-    private Long id;
 
-    /**
-     * 联盟id
-     */
-    private String consortiumId;
+  /**
+   *
+   */
+  private Long id;
 
-    /**
-     * 节点id
-     */
-    private String nodeId;
+  /**
+   * 联盟id
+   */
+  private String consortiumId;
 
-    /**
-     * 属性名
-     */
-    private String propertyName;
+  /**
+   * 节点id
+   */
+  private String nodeId;
 
-    /**
-     * 0-未删除1-已删除
-     */
-    private Integer deleteFlag;
+  /**
+   * 属性名
+   */
+  private String propertyName;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+  /**
+   * 0-未删除1-已删除
+   */
+  private Integer deleteFlag;
 
-    /**
-     * 创建者
-     */
-    private String createBy;
+  /**
+   * 创建时间
+   */
+  private LocalDateTime createTime;
 
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
+  /**
+   * 创建者
+   */
+  private String createBy;
 
-    /**
-     * 更新者
-     */
-    private String updateBy;
+  /**
+   * 更新时间
+   */
+  private LocalDateTime updateTime;
 
-    /**
-     * 属性值
-     */
-    private String propertyValue;
+  /**
+   * 更新者
+   */
+  private String updateBy;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   * 属性值
+   */
+  private String propertyValue;
+
+  private static final long serialVersionUID = 1L;
 }

@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class DeferCertificateRequest {
 
-	private String consId;
-	
-	private String blockchainId;
+  private String consId;
+
+  private String blockchainId;
 }

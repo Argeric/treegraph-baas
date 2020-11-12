@@ -12,31 +12,35 @@ import org.treegraph.baas.core.util.LogSkip;
 
 @GlobalLevel
 public interface KeypairPoMapper {
-    long countByExample(KeypairPoExample example);
 
-    int deleteByExample(KeypairPoExample example);
+  long countByExample(KeypairPoExample example);
 
-    int deleteByPrimaryKey(Long id);
+  int deleteByExample(KeypairPoExample example);
 
-    int insert(KeypairPo record);
+  int deleteByPrimaryKey(Long id);
 
-    int insertSelective(KeypairPo record);
+  int insert(KeypairPo record);
 
-    @LogSkip
-    List<KeypairPo> selectByExample(KeypairPoExample example);
+  int insertSelective(KeypairPo record);
 
-    Optional<KeypairPo> selectByPrimaryKey(Long id);
+  @LogSkip
+  List<KeypairPo> selectByExample(KeypairPoExample example);
 
-    int updateByExampleSelective(@Param("record") KeypairPo record, @Param("example") KeypairPoExample example);
+  Optional<KeypairPo> selectByPrimaryKey(Long id);
 
-    int updateByExample(@Param("record") KeypairPo record, @Param("example") KeypairPoExample example);
+  int updateByExampleSelective(@Param("record") KeypairPo record,
+      @Param("example") KeypairPoExample example);
 
-    int updateByPrimaryKeySelective(KeypairPo record);
+  int updateByExample(@Param("record") KeypairPo record,
+      @Param("example") KeypairPoExample example);
 
-    int updateByPrimaryKey(KeypairPo record);
-    
-    int bulkInsert(List<KeypairPo> list);
-    
-	List<NodeKeypairInfoBo> selectAllByNodeIds(@Param("consortiumId") String consortiumId, @Param("keyType") int keyType,
-			@Param("algo") String algo, @Param("nodeIds") List<String> nodeIds);
+  int updateByPrimaryKeySelective(KeypairPo record);
+
+  int updateByPrimaryKey(KeypairPo record);
+
+  int bulkInsert(List<KeypairPo> list);
+
+  List<NodeKeypairInfoBo> selectAllByNodeIds(@Param("consortiumId") String consortiumId,
+      @Param("keyType") int keyType,
+      @Param("algo") String algo, @Param("nodeIds") List<String> nodeIds);
 }

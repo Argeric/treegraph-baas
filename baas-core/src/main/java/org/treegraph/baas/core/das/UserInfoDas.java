@@ -13,35 +13,39 @@ import org.treegraph.baas.core.domain.UserOrganizationPo;
 import org.treegraph.baas.core.domain.UserRolePo;
 
 public interface UserInfoDas {
-	Optional<UserInfoPo> findById(String userId);
-	
-	List<UserInfoPo> findByIds(List<String> userIds);
 
-	Optional<UserInfoPo> findByAccount(String account);
-	
-	List<UserInfoPo> findByAccountLike(String account);
-	
-	List<UserOrganizationPo> findUserOrgsByUserIds(List<String> userIds);
-	
-	long count();
+  Optional<UserInfoPo> findById(String userId);
 
-	boolean createUser(UserInfoPo user, List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs);
-	
-	boolean createUserRoles(List<UserRolePo> userRoles);
-	
-	void inviteUser(UserInvitePo userInvite, List<UserRoleInvitePo> userRoleInvites);
-	
-	void updateInviteUserById(UserInvitePo userInvite);
+  List<UserInfoPo> findByIds(List<String> userIds);
 
-	boolean delUser(UserInfoPo user, List<Long> userRoleIds);
+  Optional<UserInfoPo> findByAccount(String account);
 
-	List<UserInfoPo> findAll(String account, String name, String email, String phone, Integer status);
-	
-	boolean updateUser(UserInfoPo user);
+  List<UserInfoPo> findByAccountLike(String account);
 
-	boolean modifyUser(String userId, UserInfoPo user, List<Long> toDelUserRoleIds, List<UserRolePo> toAddUserRoles,
-			List<Long> toDelUserOrgIds, List<UserOrganizationPo> toAddUserOrgs);
+  List<UserOrganizationPo> findUserOrgsByUserIds(List<String> userIds);
 
-	boolean createConsAdmin(RolePo consAdminRole, List<RolePermissionPo> rolePermissions, List<UserInfoPo> users,
-			List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs, ConsortiumPo cons);
+  long count();
+
+  boolean createUser(UserInfoPo user, List<UserRolePo> userRoles,
+      List<UserOrganizationPo> userOrgs);
+
+  boolean createUserRoles(List<UserRolePo> userRoles);
+
+  void inviteUser(UserInvitePo userInvite, List<UserRoleInvitePo> userRoleInvites);
+
+  void updateInviteUserById(UserInvitePo userInvite);
+
+  boolean delUser(UserInfoPo user, List<Long> userRoleIds);
+
+  List<UserInfoPo> findAll(String account, String name, String email, String phone, Integer status);
+
+  boolean updateUser(UserInfoPo user);
+
+  boolean modifyUser(String userId, UserInfoPo user, List<Long> toDelUserRoleIds,
+      List<UserRolePo> toAddUserRoles,
+      List<Long> toDelUserOrgIds, List<UserOrganizationPo> toAddUserOrgs);
+
+  boolean createConsAdmin(RolePo consAdminRole, List<RolePermissionPo> rolePermissions,
+      List<UserInfoPo> users,
+      List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs, ConsortiumPo cons);
 }

@@ -7,9 +7,9 @@ import lombok.Data;
 @AllArgsConstructor
 public class ListResponse {
 
-	public long total;
-	
-	public int current;
+  public long total;
 
-	public int pageSize;
+  public int current;
+
+  public int pageSize;
 }

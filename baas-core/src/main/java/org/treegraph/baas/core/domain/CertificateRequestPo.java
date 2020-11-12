@@ -12,55 +12,56 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CertificateRequestPo implements Serializable {
-    /**
-     * 
-     */
-    private Long id;
 
-    /**
-     * 
-     */
-    private String consortiumId;
+  /**
+   *
+   */
+  private Long id;
 
-    /**
-     * 
-     */
-    private String blockchainId;
+  /**
+   *
+   */
+  private String consortiumId;
 
-    /**
-     * 
-     */
-    private String applyUserId;
+  /**
+   *
+   */
+  private String blockchainId;
 
-    /**
-     * 
-     */
-    private String san;
+  /**
+   *
+   */
+  private String applyUserId;
 
-    /**
-     * 
-     */
-    private Integer deleteFlag;
+  /**
+   *
+   */
+  private String san;
 
-    /**
-     * 
-     */
-    private LocalDateTime createTime;
+  /**
+   *
+   */
+  private Integer deleteFlag;
 
-    /**
-     * 
-     */
-    private LocalDateTime updateTime;
+  /**
+   *
+   */
+  private LocalDateTime createTime;
 
-    /**
-     * 
-     */
-    private String createBy;
+  /**
+   *
+   */
+  private LocalDateTime updateTime;
 
-    /**
-     * 
-     */
-    private String updateBy;
+  /**
+   *
+   */
+  private String createBy;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   *
+   */
+  private String updateBy;
+
+  private static final long serialVersionUID = 1L;
 }

@@ -6,27 +6,30 @@ import org.treegraph.baas.core.domain.UserRoleInvitePo;
 import org.treegraph.baas.core.domain.UserRoleInvitePoExample;
 
 public interface UserRoleInvitePoMapper {
-    long countByExample(UserRoleInvitePoExample example);
 
-    int deleteByExample(UserRoleInvitePoExample example);
+  long countByExample(UserRoleInvitePoExample example);
 
-    int deleteByPrimaryKey(Long id);
+  int deleteByExample(UserRoleInvitePoExample example);
 
-    int insert(UserRoleInvitePo record);
+  int deleteByPrimaryKey(Long id);
 
-    int insertSelective(UserRoleInvitePo record);
+  int insert(UserRoleInvitePo record);
 
-    List<UserRoleInvitePo> selectByExample(UserRoleInvitePoExample example);
+  int insertSelective(UserRoleInvitePo record);
 
-    UserRoleInvitePo selectByPrimaryKey(Long id);
+  List<UserRoleInvitePo> selectByExample(UserRoleInvitePoExample example);
 
-    int updateByExampleSelective(@Param("record") UserRoleInvitePo record, @Param("example") UserRoleInvitePoExample example);
+  UserRoleInvitePo selectByPrimaryKey(Long id);
 
-    int updateByExample(@Param("record") UserRoleInvitePo record, @Param("example") UserRoleInvitePoExample example);
+  int updateByExampleSelective(@Param("record") UserRoleInvitePo record,
+      @Param("example") UserRoleInvitePoExample example);
 
-    int updateByPrimaryKeySelective(UserRoleInvitePo record);
+  int updateByExample(@Param("record") UserRoleInvitePo record,
+      @Param("example") UserRoleInvitePoExample example);
 
-    int updateByPrimaryKey(UserRoleInvitePo record);
-    
-    int bulkInsert(List<UserRoleInvitePo> list);
+  int updateByPrimaryKeySelective(UserRoleInvitePo record);
+
+  int updateByPrimaryKey(UserRoleInvitePo record);
+
+  int bulkInsert(List<UserRoleInvitePo> list);
 }

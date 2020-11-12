@@ -8,31 +8,35 @@ import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.domain.UserInfoPoExample;
 
 public interface UserInfoPoMapper {
-    long countByExample(UserInfoPoExample example);
 
-    int deleteByExample(UserInfoPoExample example);
+  long countByExample(UserInfoPoExample example);
 
-    int deleteByPrimaryKey(String id);
+  int deleteByExample(UserInfoPoExample example);
 
-    int insert(UserInfoPo record);
+  int deleteByPrimaryKey(String id);
 
-    int insertSelective(UserInfoPo record);
+  int insert(UserInfoPo record);
 
-    List<UserInfoPo> selectByExample(UserInfoPoExample example);
+  int insertSelective(UserInfoPo record);
 
-    Optional<UserInfoPo> selectByPrimaryKey(String id);
+  List<UserInfoPo> selectByExample(UserInfoPoExample example);
 
-    int updateByExampleSelective(@Param("record") UserInfoPo record, @Param("example") UserInfoPoExample example);
+  Optional<UserInfoPo> selectByPrimaryKey(String id);
 
-    int updateByExample(@Param("record") UserInfoPo record, @Param("example") UserInfoPoExample example);
+  int updateByExampleSelective(@Param("record") UserInfoPo record,
+      @Param("example") UserInfoPoExample example);
 
-    int updateByPrimaryKeySelective(UserInfoPo record);
+  int updateByExample(@Param("record") UserInfoPo record,
+      @Param("example") UserInfoPoExample example);
 
-    int updateByPrimaryKey(UserInfoPo record);
-    
-    int bulkInsert(List<UserInfoPo> list);
-    
-	List<UserInfoPo> selectUserList(@Param("account") String account, @Param("name") String name,
-			@Param("email") String email, @Param("phone") String phone, @Param("consIds") List<String> consIds,
-			@Param("createBy") String createBy);
+  int updateByPrimaryKeySelective(UserInfoPo record);
+
+  int updateByPrimaryKey(UserInfoPo record);
+
+  int bulkInsert(List<UserInfoPo> list);
+
+  List<UserInfoPo> selectUserList(@Param("account") String account, @Param("name") String name,
+      @Param("email") String email, @Param("phone") String phone,
+      @Param("consIds") List<String> consIds,
+      @Param("createBy") String createBy);
 }

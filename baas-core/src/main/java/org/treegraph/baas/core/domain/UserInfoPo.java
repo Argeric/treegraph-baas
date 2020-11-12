@@ -12,70 +12,71 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserInfoPo implements Serializable {
-    /**
-     * 主键
-     */
-    private String id;
 
-    /**
-     * 账号
-     */
-    private String account;
+  /**
+   * 主键
+   */
+  private String id;
 
-    /**
-     * 邮箱
-     */
-    private String email;
+  /**
+   * 账号
+   */
+  private String account;
 
-    /**
-     * 姓名
-     */
-    private String name;
+  /**
+   * 邮箱
+   */
+  private String email;
 
-    /**
-     * 手机号
-     */
-    private String phone;
+  /**
+   * 姓名
+   */
+  private String name;
 
-    /**
-     * 加密后的登陆密码
-     */
-    private String password;
+  /**
+   * 手机号
+   */
+  private String phone;
 
-    /**
-     * 尝试登陆次数
-     */
-    private Integer tryTimes;
+  /**
+   * 加密后的登陆密码
+   */
+  private String password;
 
-    /**
-     * 1-启用，2-禁用
-     */
-    private Integer status;
+  /**
+   * 尝试登陆次数
+   */
+  private Integer tryTimes;
 
-    /**
-     * 0-未删除，1-已删除
-     */
-    private Integer deleteFlag;
+  /**
+   * 1-启用，2-禁用
+   */
+  private Integer status;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+  /**
+   * 0-未删除，1-已删除
+   */
+  private Integer deleteFlag;
 
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
+  /**
+   * 创建时间
+   */
+  private LocalDateTime createTime;
 
-    /**
-     * 创建人
-     */
-    private String createBy;
+  /**
+   * 更新时间
+   */
+  private LocalDateTime updateTime;
 
-    /**
-     * 更新人
-     */
-    private String updateBy;
+  /**
+   * 创建人
+   */
+  private String createBy;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   * 更新人
+   */
+  private String updateBy;
+
+  private static final long serialVersionUID = 1L;
 }

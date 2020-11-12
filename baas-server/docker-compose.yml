@@ -14,7 +14,7 @@ services:
       - "./data/mysql:/var/lib/mysql:rw"
     networks:
       - backend_net
-      
+
   vault:
     restart: always
     image: vault:1.4.3
@@ -22,14 +22,14 @@ services:
     ports:
       - "18200:8200"
     environment:
-       VAULT_API_ADDR: "http://0.0.0.0:8200"
+      VAULT_API_ADDR: "http://0.0.0.0:8200"
     volumes:
       - ./config/vault:/vault/config:rw
       - ./data/vault:/vault/file:rw
       - ./log/vault:/vault/logs
     networks:
       - backend_net
-    entrypoint: vault server -config=/vault/config/vault.hcl      
+    entrypoint: vault server -config=/vault/config/vault.hcl
 
   backend_web:
     restart: always

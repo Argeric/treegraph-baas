@@ -9,22 +9,23 @@ import lombok.Getter;
  */
 @Getter
 public class BusinessException extends RuntimeException {
-	private static final long serialVersionUID = 1L;
-	private final int               code;
-    private final String            message;
 
-    
-    public BusinessException(ErrorCodeEnum code) {
-        this(code.getCode(), code.getMessage());
-    }
-    
-    public BusinessException(ErrorCodeEnum code, String message) {
-    	this(code.getCode(), message);
-    }
-    
-    public BusinessException(int code, String message) {
-        super(message);
-        this.code = code;
-        this.message = message;
-    }
+  private static final long serialVersionUID = 1L;
+  private final int code;
+  private final String message;
+
+
+  public BusinessException(ErrorCodeEnum code) {
+    this(code.getCode(), code.getMessage());
+  }
+
+  public BusinessException(ErrorCodeEnum code, String message) {
+    this(code.getCode(), message);
+  }
+
+  public BusinessException(int code, String message) {
+    super(message);
+    this.code = code;
+    this.message = message;
+  }
 }

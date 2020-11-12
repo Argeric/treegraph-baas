@@ -12,55 +12,56 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RolePo implements Serializable {
-    /**
-     * 主键
-     */
-    private String id;
 
-    /**
-     * 联盟id，系统管理员角色，联盟id为0
-     */
-    private String consortiumId;
+  /**
+   * 主键
+   */
+  private String id;
 
-    /**
-     * 角色类型,1-系统管理员，2-联盟管理员，3-普通用户
-     */
-    private Integer roleType;
+  /**
+   * 联盟id，系统管理员角色，联盟id为0
+   */
+  private String consortiumId;
 
-    /**
-     * 角色名称
-     */
-    private String roleName;
+  /**
+   * 角色类型,1-系统管理员，2-联盟管理员，3-普通用户
+   */
+  private Integer roleType;
 
-    /**
-     * 描述
-     */
-    private String description;
+  /**
+   * 角色名称
+   */
+  private String roleName;
 
-    /**
-     * 0-未删除，1-已删除
-     */
-    private Integer deleteFlag;
+  /**
+   * 描述
+   */
+  private String description;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+  /**
+   * 0-未删除，1-已删除
+   */
+  private Integer deleteFlag;
 
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
+  /**
+   * 创建时间
+   */
+  private LocalDateTime createTime;
 
-    /**
-     * 创建人
-     */
-    private String createBy;
+  /**
+   * 更新时间
+   */
+  private LocalDateTime updateTime;
 
-    /**
-     * 更新人
-     */
-    private String updateBy;
+  /**
+   * 创建人
+   */
+  private String createBy;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   * 更新人
+   */
+  private String updateBy;
+
+  private static final long serialVersionUID = 1L;
 }

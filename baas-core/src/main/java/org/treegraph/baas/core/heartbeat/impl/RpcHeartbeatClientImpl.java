@@ -15,10 +15,10 @@ import org.treegraph.baas.core.util.ConfluxUtils;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class RpcHeartbeatClientImpl implements HeartbeatClient{
+public class RpcHeartbeatClientImpl implements HeartbeatClient {
 
-	private final RpcSelectorService rpcSelectorService;
-	
+  private final RpcSelectorService rpcSelectorService;
+
 //	public Heartbeat send0(Heartbeat heartbeat) {
 //		long pingTime = System.currentTimeMillis();
 //		String uri;
@@ -69,40 +69,41 @@ public class RpcHeartbeatClientImpl implements HeartbeatClient{
 //				.build();
 //	}
 
-	public Heartbeat send(Heartbeat heartbeat) {
-		long pingTime = System.currentTimeMillis();
-		StatusBo statusBo = rpcSelectorService.getRpcService().getStatus(heartbeat);
-		String pong = JSON.toJSONString(statusBo.getStatusResponse());
-		String pongMd5 = MD5.encode(pong);
-		String lastPongMd5 = heartbeat.getPongMd5();
+  public Heartbeat send(Heartbeat heartbeat) {
+    long pingTime = System.currentTimeMillis();
+    StatusBo statusBo = rpcSelectorService.getRpcService().getStatus(heartbeat);
+    String pong = JSON.toJSONString(statusBo.getStatusResponse());
+    String pongMd5 = MD5.encode(pong);
+    String lastPongMd5 = heartbeat.getPongMd5();
 
-		HeartbeatEnum.Status status;
-		if(statusBo.getError() != null){
-			status = HeartbeatEnum.Status.RED;
-		} else{
-			if(pongMd5 != null && lastPongMd5 != null && !pongMd5.equalsIgnoreCase(lastPongMd5)){
-				status = HeartbeatEnum.Status.GREEN;
-			} else{
-				status = HeartbeatEnum.Status.YELLOW;
-			}
-		}
-		log.debug("\n\t heartbeat:{}--->\n\t ping--->{}\n\t pong--->{}\n\t error--->{}",
-				ConfluxUtils.toIpAtPortForLog(heartbeat.getIp(), heartbeat.getPort()), statusBo.getStatusRequest(),
-				pong, statusBo.getError());
+    HeartbeatEnum.Status status;
+    if (statusBo.getError() != null) {
+      status = HeartbeatEnum.Status.RED;
+    } else {
+      if (pongMd5 != null && lastPongMd5 != null && !pongMd5.equalsIgnoreCase(lastPongMd5)) {
+        status = HeartbeatEnum.Status.GREEN;
+      } else {
+        status = HeartbeatEnum.Status.YELLOW;
+      }
+    }
+    log.debug("\n\t heartbeat:{}--->\n\t ping--->{}\n\t pong--->{}\n\t error--->{}",
+        ConfluxUtils.toIpAtPortForLog(heartbeat.getIp(), heartbeat.getPort()),
+        statusBo.getStatusRequest(),
+        pong, statusBo.getError());
 
-		return Heartbeat.builder().id(heartbeat.getId())
-				.groupId(heartbeat.getGroupId())
-				.ip(heartbeat.getIp())
-				.port(heartbeat.getPort())
-				.lastPong(heartbeat.getPong())
-				.lastPongMd5(lastPongMd5)
-				.ping(statusBo.getStatusRequest())
-				.pong(pong)
-				.pingTime(pingTime)
-				.pongTime(System.currentTimeMillis())
-				.pongMd5(pongMd5)
-				.error(statusBo.getError())
-				.status(status)
-				.build();
-	}
+    return Heartbeat.builder().id(heartbeat.getId())
+        .groupId(heartbeat.getGroupId())
+        .ip(heartbeat.getIp())
+        .port(heartbeat.getPort())
+        .lastPong(heartbeat.getPong())
+        .lastPongMd5(lastPongMd5)
+        .ping(statusBo.getStatusRequest())
+        .pong(pong)
+        .pingTime(pingTime)
+        .pongTime(System.currentTimeMillis())
+        .pongMd5(pongMd5)
+        .error(statusBo.getError())
+        .status(status)
+        .build();
+  }
 }

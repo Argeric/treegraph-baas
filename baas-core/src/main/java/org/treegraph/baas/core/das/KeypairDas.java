@@ -8,21 +8,24 @@ import java.util.List;
 import java.util.Optional;
 
 public interface KeypairDas {
-	Optional<KeypairPo> findById(Long id);
-	
-	List<KeypairPo> findByIds(List<Long> ids);
 
-	List<KeypairPo> findAll(String consId, Integer keyType, String algo);
-	
-	List<NodeKeypairInfoBo> findAll(String consId, Integer keyType, String algo, List<String> nodeIds);
-	
-	List<KeypairPo> findAll(List<String> consIds, Integer keyType, String algo);
-	
-	boolean save(KeypairPo keypair);
-	
-	boolean addKeypairs(List<KeypairPo> list);
+  Optional<KeypairPo> findById(Long id);
 
-	//boolean modifyKeypair(KeypairPo keypair);
-	
-	boolean addKeyPairInfo(KeypairPo rootKeypair, KeypairPo consortiumKeypair, List<NodeKeypairBo> nodeKeypairBoList);
+  List<KeypairPo> findByIds(List<Long> ids);
+
+  List<KeypairPo> findAll(String consId, Integer keyType, String algo);
+
+  List<NodeKeypairInfoBo> findAll(String consId, Integer keyType, String algo,
+      List<String> nodeIds);
+
+  List<KeypairPo> findAll(List<String> consIds, Integer keyType, String algo);
+
+  boolean save(KeypairPo keypair);
+
+  boolean addKeypairs(List<KeypairPo> list);
+
+  //boolean modifyKeypair(KeypairPo keypair);
+
+  boolean addKeyPairInfo(KeypairPo rootKeypair, KeypairPo consortiumKeypair,
+      List<NodeKeypairBo> nodeKeypairBoList);
 }

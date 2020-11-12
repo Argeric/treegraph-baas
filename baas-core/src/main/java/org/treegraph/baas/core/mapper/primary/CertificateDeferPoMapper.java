@@ -6,25 +6,28 @@ import org.treegraph.baas.core.domain.CertificateDeferPo;
 import org.treegraph.baas.core.domain.CertificateDeferPoExample;
 
 public interface CertificateDeferPoMapper {
-    long countByExample(CertificateDeferPoExample example);
 
-    int deleteByExample(CertificateDeferPoExample example);
+  long countByExample(CertificateDeferPoExample example);
 
-    int deleteByPrimaryKey(Long id);
+  int deleteByExample(CertificateDeferPoExample example);
 
-    int insert(CertificateDeferPo record);
+  int deleteByPrimaryKey(Long id);
 
-    int insertSelective(CertificateDeferPo record);
+  int insert(CertificateDeferPo record);
 
-    List<CertificateDeferPo> selectByExample(CertificateDeferPoExample example);
+  int insertSelective(CertificateDeferPo record);
 
-    CertificateDeferPo selectByPrimaryKey(Long id);
+  List<CertificateDeferPo> selectByExample(CertificateDeferPoExample example);
 
-    int updateByExampleSelective(@Param("record") CertificateDeferPo record, @Param("example") CertificateDeferPoExample example);
+  CertificateDeferPo selectByPrimaryKey(Long id);
 
-    int updateByExample(@Param("record") CertificateDeferPo record, @Param("example") CertificateDeferPoExample example);
+  int updateByExampleSelective(@Param("record") CertificateDeferPo record,
+      @Param("example") CertificateDeferPoExample example);
 
-    int updateByPrimaryKeySelective(CertificateDeferPo record);
+  int updateByExample(@Param("record") CertificateDeferPo record,
+      @Param("example") CertificateDeferPoExample example);
 
-    int updateByPrimaryKey(CertificateDeferPo record);
+  int updateByPrimaryKeySelective(CertificateDeferPo record);
+
+  int updateByPrimaryKey(CertificateDeferPo record);
 }

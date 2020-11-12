@@ -31,61 +31,66 @@ import lombok.extern.slf4j.Slf4j;
 @Order(0)
 @AllArgsConstructor
 public class LogAspect {
-	
-	private final LogService logService;
 
-	@Pointcut("execution(* org.treegraph.baas.web.rest..*.*(..)) || execution(* org.treegraph.baas.core.service.impl..*.*(..)) || execution(* org.treegraph.baas.core.das.impl..*.*(..))")
-    public void logPointCut() {
+  private final LogService logService;
+
+  @Pointcut("execution(* org.treegraph.baas.web.rest..*.*(..)) || execution(* org.treegraph.baas.core.service.impl..*.*(..)) || execution(* org.treegraph.baas.core.das.impl..*.*(..))")
+  public void logPointCut() {
+  }
+
+  @Around(value = "logPointCut() && !@annotation(LogSkip)")
+  public Object logOperate(ProceedingJoinPoint joinPoint) throws Throwable {
+    StopWatch stopWatch = new StopWatch();
+    stopWatch.start();
+
+    Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
+    String methodName = method.getDeclaringClass().getSimpleName() + "." + method.getName();
+
+    String userId = null;
+    try {
+      userId = WebHelper.getUserId();
+    } catch (Exception e) {
+      log.error("[userId=null]not login, cannot get userId");
     }
 
-    @Around(value = "logPointCut() && !@annotation(LogSkip)")
-    public Object logOperate(ProceedingJoinPoint joinPoint) throws Throwable {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
-        Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
-        String methodName = method.getDeclaringClass().getSimpleName() + "." + method.getName();
-
-        String userId = null; 
-        try{
-        	userId = WebHelper.getUserId(); 
-        } catch(Exception e){
-			log.error("[userId=null]not login, cannot get userId");
-        }
-        
-		Object[] argArrays = null;
-		Object[] originalArrays = joinPoint.getArgs();
-		if (originalArrays != null && originalArrays.length > 0) {
-			List<Object> argList = Lists.newArrayList(originalArrays).stream()
-					.filter(this::isShowArg).collect(Collectors.toList());
-			argArrays = CollectionUtils.isNotEmpty(argList) ? argList.toArray() : null;
-		}
-
-        log.debug("[userId={}]{} req:{}", userId, methodName, JSON.toJSONString(argArrays));
-		Object result;
-        try {
-            result = joinPoint.proceed();
-        } catch (Throwable e) {
-        	addOperLog(methodName, JSON.toJSONString(argArrays), StringUtils.substring(e.getMessage(), 0, 100));
-			log.error("[userId={}]{} resp:null,elapsed:{},err:", userId, methodName, stopWatch.getTime(), e);
-            throw e;
-        }
-        addOperLog(methodName, JSON.toJSONString(argArrays), JSON.toJSONString(result));
-        log.debug("[userId={}]{} resp:{},elapsed:{}", userId, methodName, JSON.toJSONString(result), stopWatch.getTime());
-        
-        return result;
+    Object[] argArrays = null;
+    Object[] originalArrays = joinPoint.getArgs();
+    if (originalArrays != null && originalArrays.length > 0) {
+      List<Object> argList = Lists.newArrayList(originalArrays).stream()
+          .filter(this::isShowArg).collect(Collectors.toList());
+      argArrays = CollectionUtils.isNotEmpty(argList) ? argList.toArray() : null;
     }
 
-	private boolean isShowArg(Object item) {
-		return !(item instanceof HttpServletRequest);
-	}
-	
-	private void addOperLog(String methodName, String req, String resp) {
-		String[] paras = StringUtils.split(methodName, ".");
-		if (!paras[0].endsWith("Controller") || WebHelper.getUserId() == null) {
-			return;
-		}
-		logService.addOperLog(WebHelper.getUserId(), WebHelper.getUserName(), WebHelper.getUserIp(), null, paras[1],
-				"req=" + req + ",resp=" + resp);
-	}
+    log.debug("[userId={}]{} req:{}", userId, methodName, JSON.toJSONString(argArrays));
+    Object result;
+    try {
+      result = joinPoint.proceed();
+    } catch (Throwable e) {
+      addOperLog(methodName, JSON.toJSONString(argArrays),
+          StringUtils.substring(e.getMessage(), 0, 100));
+      log.error("[userId={}]{} resp:null,elapsed:{},err:", userId, methodName, stopWatch.getTime(),
+          e);
+      throw e;
+    }
+    addOperLog(methodName, JSON.toJSONString(argArrays), JSON.toJSONString(result));
+    log.debug("[userId={}]{} resp:{},elapsed:{}", userId, methodName, JSON.toJSONString(result),
+        stopWatch.getTime());
+
+    return result;
+  }
+
+  private boolean isShowArg(Object item) {
+    return !(item instanceof HttpServletRequest);
+  }
+
+  private void addOperLog(String methodName, String req, String resp) {
+    String[] paras = StringUtils.split(methodName, ".");
+    if (!paras[0].endsWith("Controller") || WebHelper.getUserId() == null) {
+      return;
+    }
+    logService
+        .addOperLog(WebHelper.getUserId(), WebHelper.getUserName(), WebHelper.getUserIp(), null,
+            paras[1],
+            "req=" + req + ",resp=" + resp);
+  }
 }

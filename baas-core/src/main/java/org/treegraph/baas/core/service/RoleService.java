@@ -11,14 +11,14 @@ import org.treegraph.baas.api.dto.request.QueryRoleRequest;
 import org.treegraph.baas.api.dto.response.ListRoleResponse;
 
 public interface RoleService {
-	
-	ListRoleResponse listRole(ListRoleRequest req);
-	
-	List<RolePermissionInfo> queryRole(QueryRoleRequest req);
 
-	boolean createRole(CreateRoleRequest req);
-	
-	boolean modifyRole(ModifyRoleRequest req);
-	
-	boolean deleteRole(DeleteRoleRequest req);
+  ListRoleResponse listRole(ListRoleRequest req);
+
+  List<RolePermissionInfo> queryRole(QueryRoleRequest req);
+
+  boolean createRole(CreateRoleRequest req);
+
+  boolean modifyRole(ModifyRoleRequest req);
+
+  boolean deleteRole(DeleteRoleRequest req);
 }

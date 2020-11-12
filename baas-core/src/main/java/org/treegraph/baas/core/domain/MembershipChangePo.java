@@ -12,60 +12,61 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MembershipChangePo implements Serializable {
-    /**
-     * 主键
-     */
-    private Long id;
 
-    /**
-     * 联盟id
-     */
-    private String consortiumId;
+  /**
+   * 主键
+   */
+  private Long id;
 
-    /**
-     * 区块链id
-     */
-    private String blockchainId;
+  /**
+   * 联盟id
+   */
+  private String consortiumId;
 
-    /**
-     * 0-删除节点，1-添加节点
-     */
-    private Integer changeType;
+  /**
+   * 区块链id
+   */
+  private String blockchainId;
 
-    /**
-     * 变更状态
-     */
-    private Integer status;
+  /**
+   * 0-删除节点，1-添加节点
+   */
+  private Integer changeType;
 
-    /**
-     * 参与校验的节点
-     */
-    private String committeeNodes;
+  /**
+   * 变更状态
+   */
+  private Integer status;
 
-    /**
-     * 变更前bftEpochNumber
-     */
-    private Long preBftEpochNumber;
+  /**
+   * 参与校验的节点
+   */
+  private String committeeNodes;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+  /**
+   * 变更前bftEpochNumber
+   */
+  private Long preBftEpochNumber;
 
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
+  /**
+   * 创建时间
+   */
+  private LocalDateTime createTime;
 
-    /**
-     * 创建人
-     */
-    private String createBy;
+  /**
+   * 更新时间
+   */
+  private LocalDateTime updateTime;
 
-    /**
-     * 更新人
-     */
-    private String updateBy;
+  /**
+   * 创建人
+   */
+  private String createBy;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   * 更新人
+   */
+  private String updateBy;
+
+  private static final long serialVersionUID = 1L;
 }

@@ -1,7 +1,8 @@
 package org.treegraph.baas.common.util;
 
 public class SignatureException extends RuntimeException {
-	private static final long serialVersionUID = 1L;
+
+  private static final long serialVersionUID = 1L;
 
 //	public SignatureException() {
 //	}
@@ -14,9 +15,9 @@ public class SignatureException extends RuntimeException {
 //		super(message, cause);
 //	}
 
-	public SignatureException(Throwable cause) {
-		super(cause);
-	}
+  public SignatureException(Throwable cause) {
+    super(cause);
+  }
 
 //	protected SignatureException(String message, Throwable cause, boolean enableSuppression,
 //			boolean writableStackTrace) {

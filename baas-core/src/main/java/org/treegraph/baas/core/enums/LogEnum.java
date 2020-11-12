@@ -5,7 +5,6 @@ import lombok.Getter;
 public class LogEnum {
 
 
-
   @Getter
   public enum Login {
 
@@ -18,7 +17,7 @@ public class LogEnum {
     ;
 
     private final int code;
-    
+
     private final String desc;
 
     Login(int code, String desc) {

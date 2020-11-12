@@ -98,440 +98,469 @@ import org.treegraph.baas.core.util.crypto.x509.CertUtil;
 @Service
 @AllArgsConstructor
 public class ConsortiumServiceImpl implements ConsortiumService {
-    
-    private final ConsortiumDas consortiumDas;
-    
-    private final UserInfoDas userInfoDas;
-    
-    private final RoleDas roleDas;
-    
-    private final BlockchainDas blockchainDas;
-    
-    private final NodeDas nodeDas;
-    
-    private final KeypairDas keypairDas;
-    
-    private final NodeCustomizedConfigDas nodeCustomizedConfigDas;
-    
-    private final CertificateDeferDas certificateDeferDas;
-    
-    private final BuildService buildService;
-    
-    private final VaultKeypairBuildService vaultKeypairBuildService;
-    
-    private final RpcSelectorService rpcSelectorService;
-    
-	public ListConsResponse listCons(ListRequest req) {
-		PageHelper.startPage(req.getCurrent(), req.getPageSize());
-		List<ConsortiumPo> consList = consortiumDas.findAll(null);
-		PageInfo<ConsortiumPo> pageInfo = new PageInfo<>(consList);
-		
-		List<ConsortiumPo> conses = pageInfo.getList();
-		List<ConsInfo> consInfoList = conses.stream().map(item -> ConsInfo.builder()
-				.id(item.getConsortiumId())
-				.name(item.getName())
-				.remark(item.getDescription())
-				.contact(item.getContactName())
-				.phone(item.getContactPhone())
-				.email(item.getContactEmail())
-				.avatar(item.getAvatar() != null ? new String(item.getAvatar()) : null)
-				.createUser(item.getCreateBy())
-				.createTime(DateTimeUtils.formatTime(item.getCreateTime(), FORMAT_yyyyMMddHHmmss))
-				.status(item.getStatus())
-				.step(item.getEstablishStep())
-				.build()).collect(Collectors.toList());
 
-		return ListConsResponse.builder()
-				.current(req.getCurrent())
-				.pageSize(req.getPageSize())
-				.total(pageInfo.getTotal())
-				.list(consInfoList)
-				.build();
-	}
-	
-	public List<ConsInfo> queryCons(QueryConsRequest req) {
-		List<ConsortiumPo> consList = consortiumDas.findAll(req.getId());
-		return consList.stream().map(item -> ConsInfo.builder()
-				.id(item.getConsortiumId())
-				.name(item.getName())
-				.status(item.getStatus())
-				.step(item.getEstablishStep())
-				.remark(item.getDescription())
-				.build()).collect(Collectors.toList());
-	}
-	
-	public List<ConsDetailInfo> queryConsDetail(QueryConsDetailRequest req){
-		List<ConsortiumPo> consList = consortiumDas.findAll(req.getId());
-		List<String> consIds = consList.stream().map(ConsortiumPo::getConsortiumId).collect(Collectors.toList());
-		
-		List<BlockChainPo> blockchains = blockchainDas.findByConsIds(consIds);
-		Map<String, BlockChainPo> blockchainMap = blockchains.stream()
-				.collect(Collectors.toMap(BlockChainPo::getConsortiumId, Functions.identity()));
-		
-		List<String> chainIds = blockchains.stream().map(BlockChainPo::getId).collect(Collectors.toList());
-		List<NodePo> nodes = nodeDas.findByChainIds(chainIds);
-		Map<String, List<NodePo>> nodeMap = nodes.stream().collect(Collectors.groupingBy(NodePo::getBlockchainId));
-		
-		return consList.stream().map(item -> {
-			BlockChainPo blockChain = blockchainMap.get(item.getConsortiumId());
-			String blockchainId = blockChain != null ? blockChain.getId() : null;
-			String blockchainName = blockChain != null ? blockChain.getBlockchainName() : null;
-			List<NodeInfo> nodeInfoList = Lists.newArrayList();
-			Optional.ofNullable(nodeMap.get(blockchainId)).ifPresent(nodeList -> nodeList
-					.forEach(node -> nodeInfoList.add(NodeInfo.builder().ip(node.getNodeIp())
-							.port(node.getNodePort() + "").org(node.getOrganizationName()).status(node.getStatus())
-							.createTime(DateTimeUtils.formatTime(node.getCreateTime(), FORMAT_yyyyMMddHHmmss))
-							.build())));
+  private final ConsortiumDas consortiumDas;
 
-			return ConsDetailInfo.builder()
-					.id(item.getConsortiumId())
-					.name(item.getName())
-					.blockchainId(blockchainId)
-					.blockchainName(blockchainName)
-					.nodes(nodeInfoList)
-					.build();
-		}).collect(Collectors.toList());
-	}
-	
-	public String createCons(CreateConsRequest req) {
-		List<ConsortiumPo> consList = consortiumDas.findByName(req.getName());
-		Assert.isTrue(CollectionUtils.isEmpty(consList), "新创建联盟名称已被使用["+req.getName()+"]");
-		
-		LocalDateTime now = LocalDateTime.now();
-		String oper = WebHelper.getUserId();
-		ConsortiumPo cons = ConsortiumPo.builder()
-				.consortiumId(UUID.randomUUID().toString())
-				.name(req.getName())
-				.avatar(req.getAvatar() != null ? req.getAvatar().getBytes() : null)
-				.description(req.getRemark())
-				.contactName(req.getContact())
-				.contactEmail(req.getEmail())
-				.contactPhone(req.getPhone())
-				.status(ConsortiumEnum.Status.ESTABLISHING.getCode())
-				.establishStep(ConsortiumEnum.EstablishStep.TO_ESTABLISH_CONS_ADMIN.getCode())
-				.deleteFlag(IntTypeEnum.FALSE.getValue())
-				.createTime(now)
-				.createBy(oper)
-				.updateTime(now)
-				.updateBy(oper)
-				.build();
-		consortiumDas.createConsortium(cons);
-		
-		return cons.getConsortiumId();
-	}
+  private final UserInfoDas userInfoDas;
 
-	public void modifyCons(ModifyConsRequest req) {
-		List<ConsortiumPo> consList = consortiumDas.findByName(req.getName());
-		List<ConsortiumPo> repeatNameConsList = consList.stream()
-				.filter(item -> !item.getConsortiumId().equals(req.getId())).collect(Collectors.toList());
-		Assert.isTrue(CollectionUtils.isEmpty(repeatNameConsList), "新创建联盟名称已被使用["+req.getName()+"]");
-		
-		ConsortiumPo cons = ConsortiumPo.builder()
-				.consortiumId(req.getId())
-				.name(req.getName())
-				.description(req.getRemark())
-				.contactName(req.getContact())
-				.contactPhone(req.getPhone())
-				.contactEmail(req.getEmail())
-				.avatar(req.getAvatar() != null ? req.getAvatar().getBytes() : null)
-				.updateTime(LocalDateTime.now())
-				.updateBy(WebHelper.getUserId())
-				.build();
+  private final RoleDas roleDas;
 
-        consortiumDas.modifyCons(cons);
+  private final BlockchainDas blockchainDas;
+
+  private final NodeDas nodeDas;
+
+  private final KeypairDas keypairDas;
+
+  private final NodeCustomizedConfigDas nodeCustomizedConfigDas;
+
+  private final CertificateDeferDas certificateDeferDas;
+
+  private final BuildService buildService;
+
+  private final VaultKeypairBuildService vaultKeypairBuildService;
+
+  private final RpcSelectorService rpcSelectorService;
+
+  public ListConsResponse listCons(ListRequest req) {
+    PageHelper.startPage(req.getCurrent(), req.getPageSize());
+    List<ConsortiumPo> consList = consortiumDas.findAll(null);
+    PageInfo<ConsortiumPo> pageInfo = new PageInfo<>(consList);
+
+    List<ConsortiumPo> conses = pageInfo.getList();
+    List<ConsInfo> consInfoList = conses.stream().map(item -> ConsInfo.builder()
+        .id(item.getConsortiumId())
+        .name(item.getName())
+        .remark(item.getDescription())
+        .contact(item.getContactName())
+        .phone(item.getContactPhone())
+        .email(item.getContactEmail())
+        .avatar(item.getAvatar() != null ? new String(item.getAvatar()) : null)
+        .createUser(item.getCreateBy())
+        .createTime(DateTimeUtils.formatTime(item.getCreateTime(), FORMAT_yyyyMMddHHmmss))
+        .status(item.getStatus())
+        .step(item.getEstablishStep())
+        .build()).collect(Collectors.toList());
+
+    return ListConsResponse.builder()
+        .current(req.getCurrent())
+        .pageSize(req.getPageSize())
+        .total(pageInfo.getTotal())
+        .list(consInfoList)
+        .build();
+  }
+
+  public List<ConsInfo> queryCons(QueryConsRequest req) {
+    List<ConsortiumPo> consList = consortiumDas.findAll(req.getId());
+    return consList.stream().map(item -> ConsInfo.builder()
+        .id(item.getConsortiumId())
+        .name(item.getName())
+        .status(item.getStatus())
+        .step(item.getEstablishStep())
+        .remark(item.getDescription())
+        .build()).collect(Collectors.toList());
+  }
+
+  public List<ConsDetailInfo> queryConsDetail(QueryConsDetailRequest req) {
+    List<ConsortiumPo> consList = consortiumDas.findAll(req.getId());
+    List<String> consIds = consList.stream().map(ConsortiumPo::getConsortiumId)
+        .collect(Collectors.toList());
+
+    List<BlockChainPo> blockchains = blockchainDas.findByConsIds(consIds);
+    Map<String, BlockChainPo> blockchainMap = blockchains.stream()
+        .collect(Collectors.toMap(BlockChainPo::getConsortiumId, Functions.identity()));
+
+    List<String> chainIds = blockchains.stream().map(BlockChainPo::getId)
+        .collect(Collectors.toList());
+    List<NodePo> nodes = nodeDas.findByChainIds(chainIds);
+    Map<String, List<NodePo>> nodeMap = nodes.stream()
+        .collect(Collectors.groupingBy(NodePo::getBlockchainId));
+
+    return consList.stream().map(item -> {
+      BlockChainPo blockChain = blockchainMap.get(item.getConsortiumId());
+      String blockchainId = blockChain != null ? blockChain.getId() : null;
+      String blockchainName = blockChain != null ? blockChain.getBlockchainName() : null;
+      List<NodeInfo> nodeInfoList = Lists.newArrayList();
+      Optional.ofNullable(nodeMap.get(blockchainId)).ifPresent(nodeList -> nodeList
+          .forEach(node -> nodeInfoList.add(NodeInfo.builder().ip(node.getNodeIp())
+              .port(node.getNodePort() + "").org(node.getOrganizationName())
+              .status(node.getStatus())
+              .createTime(DateTimeUtils.formatTime(node.getCreateTime(), FORMAT_yyyyMMddHHmmss))
+              .build())));
+
+      return ConsDetailInfo.builder()
+          .id(item.getConsortiumId())
+          .name(item.getName())
+          .blockchainId(blockchainId)
+          .blockchainName(blockchainName)
+          .nodes(nodeInfoList)
+          .build();
+    }).collect(Collectors.toList());
+  }
+
+  public String createCons(CreateConsRequest req) {
+    List<ConsortiumPo> consList = consortiumDas.findByName(req.getName());
+    Assert.isTrue(CollectionUtils.isEmpty(consList), "新创建联盟名称已被使用[" + req.getName() + "]");
+
+    LocalDateTime now = LocalDateTime.now();
+    String oper = WebHelper.getUserId();
+    ConsortiumPo cons = ConsortiumPo.builder()
+        .consortiumId(UUID.randomUUID().toString())
+        .name(req.getName())
+        .avatar(req.getAvatar() != null ? req.getAvatar().getBytes() : null)
+        .description(req.getRemark())
+        .contactName(req.getContact())
+        .contactEmail(req.getEmail())
+        .contactPhone(req.getPhone())
+        .status(ConsortiumEnum.Status.ESTABLISHING.getCode())
+        .establishStep(ConsortiumEnum.EstablishStep.TO_ESTABLISH_CONS_ADMIN.getCode())
+        .deleteFlag(IntTypeEnum.FALSE.getValue())
+        .createTime(now)
+        .createBy(oper)
+        .updateTime(now)
+        .updateBy(oper)
+        .build();
+    consortiumDas.createConsortium(cons);
+
+    return cons.getConsortiumId();
+  }
+
+  public void modifyCons(ModifyConsRequest req) {
+    List<ConsortiumPo> consList = consortiumDas.findByName(req.getName());
+    List<ConsortiumPo> repeatNameConsList = consList.stream()
+        .filter(item -> !item.getConsortiumId().equals(req.getId())).collect(Collectors.toList());
+    Assert
+        .isTrue(CollectionUtils.isEmpty(repeatNameConsList), "新创建联盟名称已被使用[" + req.getName() + "]");
+
+    ConsortiumPo cons = ConsortiumPo.builder()
+        .consortiumId(req.getId())
+        .name(req.getName())
+        .description(req.getRemark())
+        .contactName(req.getContact())
+        .contactPhone(req.getPhone())
+        .contactEmail(req.getEmail())
+        .avatar(req.getAvatar() != null ? req.getAvatar().getBytes() : null)
+        .updateTime(LocalDateTime.now())
+        .updateBy(WebHelper.getUserId())
+        .build();
+
+    consortiumDas.modifyCons(cons);
+  }
+
+  public boolean deleteCons(DeleteConsRequest req) {
+    ConsortiumPo cons = ConsortiumPo.builder()
+        .consortiumId(req.getId())
+        .deleteFlag(IntTypeEnum.TRUE.getValue())
+        .updateTime(LocalDateTime.now())
+        .updateBy(WebHelper.getUserId())
+        .build();
+    return consortiumDas.modifyCons(cons) > 0;
+  }
+
+  public boolean createConsAdmin(CreateConsAdminRequest req) {
+    RoleInfoBo roleBo = null;
+    Optional<RolePo> roleOp = roleDas.findConsAdminRole(req.getConsId());
+    if (roleOp.isEmpty()) {
+      List<String> reqPermissions = UserEnum.PermissionPoint.getForConsAdmin().stream()
+          .map(UserEnum.PermissionPoint::getCode).collect(Collectors.toList());
+      roleBo = buildService.buildRole(UserEnum.Role.CONSORTIUM_ADMIN.getCode(),
+          UserEnum.Role.CONSORTIUM_ADMIN.getDesc(), req.getConsId(), reqPermissions);
     }
 
-	public boolean deleteCons(DeleteConsRequest req) {
-		ConsortiumPo cons = ConsortiumPo.builder()
-				.consortiumId(req.getId())
-				.deleteFlag(IntTypeEnum.TRUE.getValue())
-				.updateTime(LocalDateTime.now())
-				.updateBy( WebHelper.getUserId())
-				.build();
-		return consortiumDas.modifyCons(cons) > 0;
-	}
-	
-	public boolean createConsAdmin(CreateConsAdminRequest req) {
-		RoleInfoBo roleBo = null;
-		Optional<RolePo> roleOp = roleDas.findConsAdminRole(req.getConsId());
-		if (roleOp.isEmpty()) {
-			List<String> reqPermissions = UserEnum.PermissionPoint.getForConsAdmin().stream()
-					.map(UserEnum.PermissionPoint::getCode).collect(Collectors.toList());
-			roleBo = buildService.buildRole(UserEnum.Role.CONSORTIUM_ADMIN.getCode(),
-					UserEnum.Role.CONSORTIUM_ADMIN.getDesc(), req.getConsId(), reqPermissions);
-		}
-		
-		String roleId = roleBo != null ? roleBo.getRole().getId() : (roleOp.map(RolePo::getId).orElse(null));
-		List<UserInfoBo> userBos = req.getUsers().stream().filter(item -> item.getUserId() == null).map(item -> {
-			OrgBo orgBo = OrgBo.builder().consortiumId(req.getConsId()).organizationName(item.getOrg()).build();
-			return buildService.buildUser(item.getAccount(), item.getName(), item.getPhone(), item.getEmail(),
-					item.getPwd(), Lists.newArrayList(Role.builder().consId(req.getConsId()).roleId(roleId).build()),
-					Lists.newArrayList(orgBo));
-		}).collect(Collectors.toList());
-		
-		List<UserInfoPo> users = Lists.newArrayList();
-		List<UserRolePo> userRoles = Lists.newArrayList();
-		List<UserOrganizationPo> userOrgs = Lists.newArrayList();
-		if(CollectionUtils.isNotEmpty(userBos)) {
-			userBos.forEach(item -> {
-				users.add(item.getUser());
-				userRoles.addAll(item.getUserRoles());
-				userOrgs.addAll(item.getUserOrgs());
-			});
-		}
-		
-		List<String> existUserIds = req.getUsers().stream().filter(item -> item.getUserId() != null)
-				.map(ConsAdminInfo::getUserId).collect(Collectors.toList());
-		List<UserRolePo> dbUserRoles = roleDas.findUserRolesForConsAdmin(existUserIds, roleId);
-		Set<String> dbUserIdSet = dbUserRoles.stream().map(UserRolePo::getUserId).collect(Collectors.toSet());
-		existUserIds.stream().filter(item -> !dbUserIdSet.contains(item))
-				.forEach(item -> userRoles.addAll(buildService.buildUserRoles(item,
-						Lists.newArrayList(Role.builder().consId(req.getConsId()).roleId(roleId).build()))));
-		
-		ConsortiumPo cons = buildService.buildToUpdateCons(req.getConsId(), EstablishStep.TO_ESTABLISH_BLOCKCHAIN);
-		
-		return userInfoDas.createConsAdmin(roleBo != null ? roleBo.getRole() : null,
-				roleBo != null ? roleBo.getRolePermissionList() : null, users, userRoles, userOrgs, cons);
-	}
+    String roleId =
+        roleBo != null ? roleBo.getRole().getId() : (roleOp.map(RolePo::getId).orElse(null));
+    List<UserInfoBo> userBos = req.getUsers().stream().filter(item -> item.getUserId() == null)
+        .map(item -> {
+          OrgBo orgBo = OrgBo.builder().consortiumId(req.getConsId())
+              .organizationName(item.getOrg()).build();
+          return buildService
+              .buildUser(item.getAccount(), item.getName(), item.getPhone(), item.getEmail(),
+                  item.getPwd(),
+                  Lists.newArrayList(Role.builder().consId(req.getConsId()).roleId(roleId).build()),
+                  Lists.newArrayList(orgBo));
+        }).collect(Collectors.toList());
 
-	public String createBlockchain(CreateBlockchainRequest req) {
-		List<BlockChainPo> blockchains = blockchainDas.findByConsId(req.getConsId());
-		Assert.isTrue(CollectionUtils.isEmpty(blockchains), "联盟["+req.getConsId()+"]下已创建区块链");
-		
-		LocalDateTime now = LocalDateTime.now();
-		String operUser = WebHelper.getUserId();
-		String blockchainId = UUID.randomUUID().toString();
-		BlockChainPo blockchain = BlockChainPo.builder()
-				.id(blockchainId)
-				.blockchainName(req.getName())
-				.consortiumId(req.getConsId())
-				.alarmEmail(req.getAlertEmail())
-				.consensusAlgorithm(BlockchainEnum.Consensus.TREE_GRAPH.getCode())
-				.encryptAlgorithm(BlockchainEnum.Algorithm.TREE_GRAPH.getCode())
-				.status(BlockchainEnum.Status.TO_DEPLOY.getCode())
-				.deleteFlag(IntTypeEnum.FALSE.getValue())
-				.createTime(now)
-				.createBy(operUser)
-				.updateTime(now)
-				.updateBy(operUser)
-				.build();
-		
-		ConsortiumPo cons = buildService.buildToUpdateCons(req.getConsId(), EstablishStep.TO_ADD_NODE);
-		blockchainDas.createBlockchain(blockchain, cons);
-		
-		return blockchainId;
-	}
+    List<UserInfoPo> users = Lists.newArrayList();
+    List<UserRolePo> userRoles = Lists.newArrayList();
+    List<UserOrganizationPo> userOrgs = Lists.newArrayList();
+    if (CollectionUtils.isNotEmpty(userBos)) {
+      userBos.forEach(item -> {
+        users.add(item.getUser());
+        userRoles.addAll(item.getUserRoles());
+        userOrgs.addAll(item.getUserOrgs());
+      });
+    }
 
-	/**
-	 * field membership_final_status records final state
-	 * field membership_status records processing state
-	 * 
-	 * --->membership status change
-	 * --->add
-	 * ADD_START -> ADD_FAILURE
-	 * ADD_START -> ADD_CHECK_THREAD_LAUNCH -> ADD_SUCCESS
-	 * ADD_START -> ADD_CHECK_THREAD_LAUNCH -> ADD_FAILURE
-	 * --->remove
-	 * REMOVE_START -> REMOVE_FAILURE
-	 * REMOVE_START -> REMOVE_CHECK_THREAD_LAUNCH -> REMOVE_SUCCESS
-	 * REMOVE_START -> REMOVE_CHECK_THREAD_LAUNCH -> REMOVE_FAILURE
-	 */
-	public boolean addNodes(AddNodesRequest req) throws Exception {
-		//check
-		String consId = req.getConsId();
-		String blockchainId = req.getBlockchainId();
-		List<NodePo> existNodes = nodeDas.findByConsIdAndChainId(consId, blockchainId);
-		existNodes.forEach(this::checkExistNode);
-		Map<String, NodePo> existNodeMap = existNodes.stream().collect(
-				Collectors.toMap(item -> toIpAtPort(item.getNodeIp(), item.getNodePort()), Functions.identity()));
-		Map<String, NodePo> finalStateNodeMap = Maps.newHashMap();
-		List<NodeInfo> reqNodes = req.getNodes();
-		reqNodes.forEach(item -> checkToAddNode(item, existNodeMap, finalStateNodeMap));
-		
-		// build
-		LocalDateTime now = LocalDateTime.now();
-		List<NodePo> toAddNodes = reqNodes.stream()
-				.map(item -> buildService.buildToAddNode(consId, blockchainId, item, now)).collect(Collectors.toList());
-		List<NodePo> toInsertDbNodes = toAddNodes.stream().filter(
-				item -> !existNodeMap.containsKey(toIpAtPort(item.getNodeIp(), item.getNodePort())))
-				.collect(Collectors.toList());
-		CustomizedConfigBo config = buildCustomizedConfig(consId, toInsertDbNodes/*exclude exist nodes*/);
-		
-		// before download deploy scripts
-		boolean addNodeResult = Boolean.FALSE;
-		Optional<ConsortiumPo> consortiumOp = consortiumDas.findById(consId);
-		int establishStep = consortiumOp.isPresent() ? consortiumOp.get().getEstablishStep()
-				: EstablishStep.TO_ESTABLISH_CONS.getCode();
-		if(establishStep < EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
-			ConsortiumPo cons = buildService.buildToUpdateCons(consId, EstablishStep.TO_DEPLOY);
-			addNodeResult = nodeDas.addNodes(toInsertDbNodes/* exclude exist nodes */, cons,
-					config.getStepFactorConfigList(), config.getConfigList());
-		}
-		
-		// after download deploy scripts, need check chain is launched already
-		if(establishStep == EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
-			MembershipChangeBo changeBo = buildService.preMembershipChange(consId, blockchainId,
-					existNodes, toAddNodes, null, finalStateNodeMap/*exclude exist final state nodes*/);
-			nodeDas.addNodeKeypairs(changeBo.getToInsertDbNodeKeypairs(), config.getStepFactorConfigList(),
-					config.getConfigList(), changeBo.getMembershipChange(), changeBo.getNodeMemberships());
-			
-			MembershipEnum.Status membershipChangeStatus = rpcSelectorService.getRpcService()
-					.sendMembershipChangeTransactionPlus(changeBo.getMembershipChange().getId(),
-							changeBo.getCommitteeNodeKeypairs(), changeBo.getValidatorNodeKeypairs());
-			List<String> toAddNodeIds = toAddNodes.stream().map(NodePo::getId).collect(Collectors.toList());
-			MembershipStatus nodeMembershipStatus = membershipChangeStatus.isFail()
-					? MembershipStatus.ADD_FAILURE : MembershipStatus.ADD_CHECK_THREAD_LAUNCH;
-			nodeDas.modifyNodesMembershipStatus(toAddNodeIds, nodeMembershipStatus,
-					changeBo.getMembershipChange().getId(), membershipChangeStatus);
-		}
-		
-		return addNodeResult;
-	}
+    List<String> existUserIds = req.getUsers().stream().filter(item -> item.getUserId() != null)
+        .map(ConsAdminInfo::getUserId).collect(Collectors.toList());
+    List<UserRolePo> dbUserRoles = roleDas.findUserRolesForConsAdmin(existUserIds, roleId);
+    Set<String> dbUserIdSet = dbUserRoles.stream().map(UserRolePo::getUserId)
+        .collect(Collectors.toSet());
+    existUserIds.stream().filter(item -> !dbUserIdSet.contains(item))
+        .forEach(item -> userRoles.addAll(buildService.buildUserRoles(item,
+            Lists.newArrayList(Role.builder().consId(req.getConsId()).roleId(roleId).build()))));
 
-	private void checkExistNode(NodePo node) {
-		int membershipStatus = node.getMembershipStatus();
-		if (membershipStatus == MembershipStatus.ADD_START.getCode()
-				|| membershipStatus == MembershipStatus.ADD_CHECK_THREAD_LAUNCH.getCode()
-				|| membershipStatus == MembershipStatus.REMOVE_START.getCode()
-				|| membershipStatus == MembershipStatus.REMOVE_CHECK_THREAD_LAUNCH.getCode()) {
-			throw new AlertException(9999, "待添加节点处理中["+membershipStatus+"]，请稍候！");
-		}
-	}
-	
-	/**
-	 * case 1. not added/delete ever can be added/deleted
-	 * case 2. nodes which are added/deleted success or fail can be repeatly added/deleted
-	 * @param item node to check
-	 * @param existNodeMap put exist nodes
-	 * @param finalStateNodeMap put final state nodes
-	 */
-	private void checkToAddNode(NodeInfo item, Map<String, NodePo> existNodeMap,
-			Map<String, NodePo> finalStateNodeMap) {
-		String ipPortPair = toIpAtPort(item.getIp(), Integer.parseInt(item.getPort()));
-		NodePo node = existNodeMap.get(ipPortPair);
-		if (node == null) {
-			return;
-		}
-		checkExistNode(node);
-		
-		Integer membershipFinalStatus = node.getMembershipFinalStatus();
-		if(membershipFinalStatus != null) {
-			if (membershipFinalStatus == MembershipStatus.ADD_SUCCESS.getCode()
-					|| membershipFinalStatus == MembershipStatus.ADD_FAILURE.getCode()
-					|| membershipFinalStatus == MembershipStatus.REMOVE_SUCCESS.getCode()
-					|| membershipFinalStatus == MembershipStatus.REMOVE_FAILURE.getCode()) {
-				finalStateNodeMap.put(ipPortPair, node);
-			}
-		}
-	}
-	
-	private CustomizedConfigBo buildCustomizedConfig(String consortiumId, List<NodePo> nodes) {
-		String jsonRpcPortStepFactorDb = nodeCustomizedConfigDas.findPropertyValueByName(consortiumId, null,
-				PROPERTY_JSONRPC_PORT_STEP_FACTOR);
-		int stepFactor = jsonRpcPortStepFactorDb != null ? Integer.parseInt(jsonRpcPortStepFactorDb) : 0;
-		
-		List<NodeCustomizedConfigPo> configList = Lists.newArrayList();
-		for(NodePo node:nodes){
-			int jsonRpcHttpPort = TEST_SWITCH
-					? DEFAULT_JSONRPC_PORT + (stepFactor++) * TEST_JSONRPC_PORT_STEP
-					: DEFAULT_JSONRPC_PORT;
-			int jsonRpcLocHttpPort = TEST_SWITCH
-					? jsonRpcHttpPort + TEST_RPC_PORT_INTERVAL
-					: DEFAULT_JSONRPC_LOCAL_PORT;
-			configList.add(buildService.buildNodeConfig(node, PROPERTY_JSONRPC_PORT, jsonRpcHttpPort + ""));
-			configList.add(buildService.buildNodeConfig(node, PROPERTY_JSONRPC_LOC_PORT, jsonRpcLocHttpPort + ""));
-		}
-		
-		NodeCustomizedConfigPo jsonRpcStepFactorConfig = buildService.buildNodeConfig(
-				NodePo.builder().id(IntTypeEnum.FALSE.getValue() + "").consortiumId(consortiumId).build(),
-				PROPERTY_JSONRPC_PORT_STEP_FACTOR, stepFactor + "");
-		List<NodeCustomizedConfigPo> stepFactorConfigList = Lists.newArrayList(jsonRpcStepFactorConfig);
-		
-		CustomizedConfigBo logMonitorConfig = buildCustomizedConfigLogMonitor(consortiumId, nodes);
-		configList.addAll(logMonitorConfig.getConfigList());
-		stepFactorConfigList.addAll(logMonitorConfig.getStepFactorConfigList());
-		
-		return CustomizedConfigBo.builder().configList(configList).stepFactorConfigList(stepFactorConfigList).build();
-	}
-	
-	private CustomizedConfigBo buildCustomizedConfigLogMonitor(String consortiumId, List<NodePo> nodes) {
-		String webPortStepFactorDb = nodeCustomizedConfigDas.findPropertyValueByName(consortiumId, null,
-				PROPERTY_LOG_MONITOR_WEB_PORT_STEP_FACTOR);
-		String contNetworkStepFactorDb = nodeCustomizedConfigDas.findPropertyValueByName(consortiumId, null,
-				PROPERTY_LOG_MONITOR_CONTAINER_NETWORK_STEP_FACTOR);
-		int webPortStepFactor = webPortStepFactorDb != null ? Integer.parseInt(webPortStepFactorDb) : 0;
-		int networkStepFactor = contNetworkStepFactorDb != null ? Integer.parseInt(contNetworkStepFactorDb) : 18;
-		
-		List<NodeCustomizedConfigPo> configList = Lists.newArrayList();
-		for(NodePo node:nodes){
-			int webPort = TEST_SWITCH
-					? DEFAULT_HOST_WEB_PORT + (webPortStepFactor++) * TEST_LOG_MONITOR_WEB_PORT_STEP
-					: DEFAULT_HOST_WEB_PORT;
-			configList.add(buildService.buildNodeConfig(node, PROPERTY_LOG_MONITOR_WEB_PORT, webPort + ""));
-			
-			int newNetworkSegment = (networkStepFactor++) * TEST_LOG_MONITOR_CONTAINER_NETWORK_STEP;
-			String contNetwork = TEST_SWITCH
-					? MessageFormat.format(MonitorConstant.PLACEHOLDER_CONTAINER_NETWORK, newNetworkSegment)
-					: DEFAULT_CONTAINER_NETWORK;
-			configList.add(buildService.buildNodeConfig(node, PROPERTY_LOG_MONITOR_CONTAINER_NETWORK, contNetwork));
-		}
-		
-		NodeCustomizedConfigPo webPortStepFactorConfig = buildService.buildNodeConfig(
-				NodePo.builder().id(IntTypeEnum.FALSE.getValue() + "").consortiumId(consortiumId).build(),
-				PROPERTY_LOG_MONITOR_WEB_PORT_STEP_FACTOR, webPortStepFactor + "");
-		NodeCustomizedConfigPo networkStepFactorConfig = buildService.buildNodeConfig(
-				NodePo.builder().id(IntTypeEnum.FALSE.getValue() + "").consortiumId(consortiumId).build(),
-				PROPERTY_LOG_MONITOR_CONTAINER_NETWORK_STEP_FACTOR, networkStepFactor + "");
-		List<NodeCustomizedConfigPo> stepFactorConfigList = Lists.newArrayList(webPortStepFactorConfig,
-				networkStepFactorConfig);
-		
-		return CustomizedConfigBo.builder().configList(configList).stepFactorConfigList(stepFactorConfigList).build();
-	}
-	
-	public void deferConsortiumCert(DeferCertificateRequest req) throws Exception {
-		// check
-		String consId = req.getConsId();
-		consortiumDas.findById(consId).orElseThrow(() -> new AlertException("consortium.not.found"));
-		List<CertificateDeferPo> deferRequests = certificateDeferDas.findByConsortiumId(consId,
-				Lists.newArrayList(DeferStatus.INITIAL.getCode(), DeferStatus.PROCESSING.getCode()));
-		if(CollectionUtils.isNotEmpty(deferRequests)) {
-			throw new AlertException("processing.defer.exist");
-		}
-		
-		// get not after of last certificate
-		List<KeypairPo> consKeypairs = keypairDas.findAll(consId, KeyType.CONSORTIUM.getCode(), KeyType.CONSORTIUM.getAlgo().getCode());
-		Date notAfter = null;
-		if(CollectionUtils.isNotEmpty(consKeypairs)) {
-			KeypairPo consKeypairDb = consKeypairs.get(0);
-			X509Certificate cert = CertUtil.certFromPem(consKeypairDb.getCertStr());
-			notAfter = cert.getNotAfter();
-		}
-		
-		// build defer request
-		KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair();
-		KeypairPo consKeypair = vaultKeypairBuildService.geneNewConsortiumKeyPair(consId, rootKeypair, notAfter);
-		CertificateDeferPo defer = buildService.buildCertificateDefer(consKeypair);
-		certificateDeferDas.createCertificateDefer(defer);
-		
-		// get membership nodes and send request
-		List<NodePo> existNodes = nodeDas.findByConsIdAndChainId(consId, req.getBlockchainId());
-		List<String> membershipNodeIds = existNodes.stream().filter(buildService::isMembershipNode)
-				.map(NodePo::getId).collect(Collectors.toList());
-		String certStr = consKeypair.getCertStr();
-		boolean isSuccess = rpcSelectorService.getRpcService().updateCert(consId, certStr, membershipNodeIds);
-		
-		// response failure
-		CertificateDeferPo deferUpdate = buildService.buildCertificateDeferUpdate(defer.getId());
-		if(!isSuccess) {
-			deferUpdate.setStatus(DeferStatus.FAILURE.getCode());
-			certificateDeferDas.modifyCertificateDefer(deferUpdate);
-			return;
-		}
-		
-		// response success
-		deferUpdate.setStatus(DeferStatus.SUCCESS.getCode());
-		List<Long> oldKeypairIds = consKeypairs.stream().map(KeypairPo::getId).collect(Collectors.toList());
-		KeypairPo newKeypair = buildService.buildConsortiumKeypairPoFromDefer(defer);
-		certificateDeferDas.modifyCertificateDefer(deferUpdate, oldKeypairIds, newKeypair);
-	}
+    ConsortiumPo cons = buildService
+        .buildToUpdateCons(req.getConsId(), EstablishStep.TO_ESTABLISH_BLOCKCHAIN);
+
+    return userInfoDas.createConsAdmin(roleBo != null ? roleBo.getRole() : null,
+        roleBo != null ? roleBo.getRolePermissionList() : null, users, userRoles, userOrgs, cons);
+  }
+
+  public String createBlockchain(CreateBlockchainRequest req) {
+    List<BlockChainPo> blockchains = blockchainDas.findByConsId(req.getConsId());
+    Assert.isTrue(CollectionUtils.isEmpty(blockchains), "联盟[" + req.getConsId() + "]下已创建区块链");
+
+    LocalDateTime now = LocalDateTime.now();
+    String operUser = WebHelper.getUserId();
+    String blockchainId = UUID.randomUUID().toString();
+    BlockChainPo blockchain = BlockChainPo.builder()
+        .id(blockchainId)
+        .blockchainName(req.getName())
+        .consortiumId(req.getConsId())
+        .alarmEmail(req.getAlertEmail())
+        .consensusAlgorithm(BlockchainEnum.Consensus.TREE_GRAPH.getCode())
+        .encryptAlgorithm(BlockchainEnum.Algorithm.TREE_GRAPH.getCode())
+        .status(BlockchainEnum.Status.TO_DEPLOY.getCode())
+        .deleteFlag(IntTypeEnum.FALSE.getValue())
+        .createTime(now)
+        .createBy(operUser)
+        .updateTime(now)
+        .updateBy(operUser)
+        .build();
+
+    ConsortiumPo cons = buildService.buildToUpdateCons(req.getConsId(), EstablishStep.TO_ADD_NODE);
+    blockchainDas.createBlockchain(blockchain, cons);
+
+    return blockchainId;
+  }
+
+  /**
+   * field membership_final_status records final state field membership_status records processing
+   * state
+   * <p>
+   * --->membership status change --->add ADD_START -> ADD_FAILURE ADD_START ->
+   * ADD_CHECK_THREAD_LAUNCH -> ADD_SUCCESS ADD_START -> ADD_CHECK_THREAD_LAUNCH -> ADD_FAILURE
+   * --->remove REMOVE_START -> REMOVE_FAILURE REMOVE_START -> REMOVE_CHECK_THREAD_LAUNCH ->
+   * REMOVE_SUCCESS REMOVE_START -> REMOVE_CHECK_THREAD_LAUNCH -> REMOVE_FAILURE
+   */
+  public boolean addNodes(AddNodesRequest req) throws Exception {
+    //check
+    String consId = req.getConsId();
+    String blockchainId = req.getBlockchainId();
+    List<NodePo> existNodes = nodeDas.findByConsIdAndChainId(consId, blockchainId);
+    existNodes.forEach(this::checkExistNode);
+    Map<String, NodePo> existNodeMap = existNodes.stream().collect(
+        Collectors
+            .toMap(item -> toIpAtPort(item.getNodeIp(), item.getNodePort()), Functions.identity()));
+    Map<String, NodePo> finalStateNodeMap = Maps.newHashMap();
+    List<NodeInfo> reqNodes = req.getNodes();
+    reqNodes.forEach(item -> checkToAddNode(item, existNodeMap, finalStateNodeMap));
+
+    // build
+    LocalDateTime now = LocalDateTime.now();
+    List<NodePo> toAddNodes = reqNodes.stream()
+        .map(item -> buildService.buildToAddNode(consId, blockchainId, item, now))
+        .collect(Collectors.toList());
+    List<NodePo> toInsertDbNodes = toAddNodes.stream().filter(
+        item -> !existNodeMap.containsKey(toIpAtPort(item.getNodeIp(), item.getNodePort())))
+        .collect(Collectors.toList());
+    CustomizedConfigBo config = buildCustomizedConfig(consId,
+        toInsertDbNodes/*exclude exist nodes*/);
+
+    // before download deploy scripts
+    boolean addNodeResult = Boolean.FALSE;
+    Optional<ConsortiumPo> consortiumOp = consortiumDas.findById(consId);
+    int establishStep = consortiumOp.isPresent() ? consortiumOp.get().getEstablishStep()
+        : EstablishStep.TO_ESTABLISH_CONS.getCode();
+    if (establishStep < EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
+      ConsortiumPo cons = buildService.buildToUpdateCons(consId, EstablishStep.TO_DEPLOY);
+      addNodeResult = nodeDas.addNodes(toInsertDbNodes/* exclude exist nodes */, cons,
+          config.getStepFactorConfigList(), config.getConfigList());
+    }
+
+    // after download deploy scripts, need check chain is launched already
+    if (establishStep == EstablishStep.DOWNLOADED_SCRIPTS.getCode()) {
+      MembershipChangeBo changeBo = buildService.preMembershipChange(consId, blockchainId,
+          existNodes, toAddNodes, null, finalStateNodeMap/*exclude exist final state nodes*/);
+      nodeDas
+          .addNodeKeypairs(changeBo.getToInsertDbNodeKeypairs(), config.getStepFactorConfigList(),
+              config.getConfigList(), changeBo.getMembershipChange(),
+              changeBo.getNodeMemberships());
+
+      MembershipEnum.Status membershipChangeStatus = rpcSelectorService.getRpcService()
+          .sendMembershipChangeTransactionPlus(changeBo.getMembershipChange().getId(),
+              changeBo.getCommitteeNodeKeypairs(), changeBo.getValidatorNodeKeypairs());
+      List<String> toAddNodeIds = toAddNodes.stream().map(NodePo::getId)
+          .collect(Collectors.toList());
+      MembershipStatus nodeMembershipStatus = membershipChangeStatus.isFail()
+          ? MembershipStatus.ADD_FAILURE : MembershipStatus.ADD_CHECK_THREAD_LAUNCH;
+      nodeDas.modifyNodesMembershipStatus(toAddNodeIds, nodeMembershipStatus,
+          changeBo.getMembershipChange().getId(), membershipChangeStatus);
+    }
+
+    return addNodeResult;
+  }
+
+  private void checkExistNode(NodePo node) {
+    int membershipStatus = node.getMembershipStatus();
+    if (membershipStatus == MembershipStatus.ADD_START.getCode()
+        || membershipStatus == MembershipStatus.ADD_CHECK_THREAD_LAUNCH.getCode()
+        || membershipStatus == MembershipStatus.REMOVE_START.getCode()
+        || membershipStatus == MembershipStatus.REMOVE_CHECK_THREAD_LAUNCH.getCode()) {
+      throw new AlertException(9999, "待添加节点处理中[" + membershipStatus + "]，请稍候！");
+    }
+  }
+
+  /**
+   * case 1. not added/delete ever can be added/deleted case 2. nodes which are added/deleted
+   * success or fail can be repeatly added/deleted
+   *
+   * @param item              node to check
+   * @param existNodeMap      put exist nodes
+   * @param finalStateNodeMap put final state nodes
+   */
+  private void checkToAddNode(NodeInfo item, Map<String, NodePo> existNodeMap,
+      Map<String, NodePo> finalStateNodeMap) {
+    String ipPortPair = toIpAtPort(item.getIp(), Integer.parseInt(item.getPort()));
+    NodePo node = existNodeMap.get(ipPortPair);
+    if (node == null) {
+      return;
+    }
+    checkExistNode(node);
+
+    Integer membershipFinalStatus = node.getMembershipFinalStatus();
+    if (membershipFinalStatus != null) {
+      if (membershipFinalStatus == MembershipStatus.ADD_SUCCESS.getCode()
+          || membershipFinalStatus == MembershipStatus.ADD_FAILURE.getCode()
+          || membershipFinalStatus == MembershipStatus.REMOVE_SUCCESS.getCode()
+          || membershipFinalStatus == MembershipStatus.REMOVE_FAILURE.getCode()) {
+        finalStateNodeMap.put(ipPortPair, node);
+      }
+    }
+  }
+
+  private CustomizedConfigBo buildCustomizedConfig(String consortiumId, List<NodePo> nodes) {
+    String jsonRpcPortStepFactorDb = nodeCustomizedConfigDas
+        .findPropertyValueByName(consortiumId, null,
+            PROPERTY_JSONRPC_PORT_STEP_FACTOR);
+    int stepFactor =
+        jsonRpcPortStepFactorDb != null ? Integer.parseInt(jsonRpcPortStepFactorDb) : 0;
+
+    List<NodeCustomizedConfigPo> configList = Lists.newArrayList();
+    for (NodePo node : nodes) {
+      int jsonRpcHttpPort = TEST_SWITCH
+          ? DEFAULT_JSONRPC_PORT + (stepFactor++) * TEST_JSONRPC_PORT_STEP
+          : DEFAULT_JSONRPC_PORT;
+      int jsonRpcLocHttpPort = TEST_SWITCH
+          ? jsonRpcHttpPort + TEST_RPC_PORT_INTERVAL
+          : DEFAULT_JSONRPC_LOCAL_PORT;
+      configList
+          .add(buildService.buildNodeConfig(node, PROPERTY_JSONRPC_PORT, jsonRpcHttpPort + ""));
+      configList.add(
+          buildService.buildNodeConfig(node, PROPERTY_JSONRPC_LOC_PORT, jsonRpcLocHttpPort + ""));
+    }
+
+    NodeCustomizedConfigPo jsonRpcStepFactorConfig = buildService.buildNodeConfig(
+        NodePo.builder().id(IntTypeEnum.FALSE.getValue() + "").consortiumId(consortiumId).build(),
+        PROPERTY_JSONRPC_PORT_STEP_FACTOR, stepFactor + "");
+    List<NodeCustomizedConfigPo> stepFactorConfigList = Lists.newArrayList(jsonRpcStepFactorConfig);
+
+    CustomizedConfigBo logMonitorConfig = buildCustomizedConfigLogMonitor(consortiumId, nodes);
+    configList.addAll(logMonitorConfig.getConfigList());
+    stepFactorConfigList.addAll(logMonitorConfig.getStepFactorConfigList());
+
+    return CustomizedConfigBo.builder().configList(configList)
+        .stepFactorConfigList(stepFactorConfigList).build();
+  }
+
+  private CustomizedConfigBo buildCustomizedConfigLogMonitor(String consortiumId,
+      List<NodePo> nodes) {
+    String webPortStepFactorDb = nodeCustomizedConfigDas.findPropertyValueByName(consortiumId, null,
+        PROPERTY_LOG_MONITOR_WEB_PORT_STEP_FACTOR);
+    String contNetworkStepFactorDb = nodeCustomizedConfigDas
+        .findPropertyValueByName(consortiumId, null,
+            PROPERTY_LOG_MONITOR_CONTAINER_NETWORK_STEP_FACTOR);
+    int webPortStepFactor = webPortStepFactorDb != null ? Integer.parseInt(webPortStepFactorDb) : 0;
+    int networkStepFactor =
+        contNetworkStepFactorDb != null ? Integer.parseInt(contNetworkStepFactorDb) : 18;
+
+    List<NodeCustomizedConfigPo> configList = Lists.newArrayList();
+    for (NodePo node : nodes) {
+      int webPort = TEST_SWITCH
+          ? DEFAULT_HOST_WEB_PORT + (webPortStepFactor++) * TEST_LOG_MONITOR_WEB_PORT_STEP
+          : DEFAULT_HOST_WEB_PORT;
+      configList
+          .add(buildService.buildNodeConfig(node, PROPERTY_LOG_MONITOR_WEB_PORT, webPort + ""));
+
+      int newNetworkSegment = (networkStepFactor++) * TEST_LOG_MONITOR_CONTAINER_NETWORK_STEP;
+      String contNetwork = TEST_SWITCH
+          ? MessageFormat.format(MonitorConstant.PLACEHOLDER_CONTAINER_NETWORK, newNetworkSegment)
+          : DEFAULT_CONTAINER_NETWORK;
+      configList.add(
+          buildService.buildNodeConfig(node, PROPERTY_LOG_MONITOR_CONTAINER_NETWORK, contNetwork));
+    }
+
+    NodeCustomizedConfigPo webPortStepFactorConfig = buildService.buildNodeConfig(
+        NodePo.builder().id(IntTypeEnum.FALSE.getValue() + "").consortiumId(consortiumId).build(),
+        PROPERTY_LOG_MONITOR_WEB_PORT_STEP_FACTOR, webPortStepFactor + "");
+    NodeCustomizedConfigPo networkStepFactorConfig = buildService.buildNodeConfig(
+        NodePo.builder().id(IntTypeEnum.FALSE.getValue() + "").consortiumId(consortiumId).build(),
+        PROPERTY_LOG_MONITOR_CONTAINER_NETWORK_STEP_FACTOR, networkStepFactor + "");
+    List<NodeCustomizedConfigPo> stepFactorConfigList = Lists.newArrayList(webPortStepFactorConfig,
+        networkStepFactorConfig);
+
+    return CustomizedConfigBo.builder().configList(configList)
+        .stepFactorConfigList(stepFactorConfigList).build();
+  }
+
+  public void deferConsortiumCert(DeferCertificateRequest req) throws Exception {
+    // check
+    String consId = req.getConsId();
+    consortiumDas.findById(consId).orElseThrow(() -> new AlertException("consortium.not.found"));
+    List<CertificateDeferPo> deferRequests = certificateDeferDas.findByConsortiumId(consId,
+        Lists.newArrayList(DeferStatus.INITIAL.getCode(), DeferStatus.PROCESSING.getCode()));
+    if (CollectionUtils.isNotEmpty(deferRequests)) {
+      throw new AlertException("processing.defer.exist");
+    }
+
+    // get not after of last certificate
+    List<KeypairPo> consKeypairs = keypairDas
+        .findAll(consId, KeyType.CONSORTIUM.getCode(), KeyType.CONSORTIUM.getAlgo().getCode());
+    Date notAfter = null;
+    if (CollectionUtils.isNotEmpty(consKeypairs)) {
+      KeypairPo consKeypairDb = consKeypairs.get(0);
+      X509Certificate cert = CertUtil.certFromPem(consKeypairDb.getCertStr());
+      notAfter = cert.getNotAfter();
+    }
+
+    // build defer request
+    KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair();
+    KeypairPo consKeypair = vaultKeypairBuildService
+        .geneNewConsortiumKeyPair(consId, rootKeypair, notAfter);
+    CertificateDeferPo defer = buildService.buildCertificateDefer(consKeypair);
+    certificateDeferDas.createCertificateDefer(defer);
+
+    // get membership nodes and send request
+    List<NodePo> existNodes = nodeDas.findByConsIdAndChainId(consId, req.getBlockchainId());
+    List<String> membershipNodeIds = existNodes.stream().filter(buildService::isMembershipNode)
+        .map(NodePo::getId).collect(Collectors.toList());
+    String certStr = consKeypair.getCertStr();
+    boolean isSuccess = rpcSelectorService.getRpcService()
+        .updateCert(consId, certStr, membershipNodeIds);
+
+    // response failure
+    CertificateDeferPo deferUpdate = buildService.buildCertificateDeferUpdate(defer.getId());
+    if (!isSuccess) {
+      deferUpdate.setStatus(DeferStatus.FAILURE.getCode());
+      certificateDeferDas.modifyCertificateDefer(deferUpdate);
+      return;
+    }
+
+    // response success
+    deferUpdate.setStatus(DeferStatus.SUCCESS.getCode());
+    List<Long> oldKeypairIds = consKeypairs.stream().map(KeypairPo::getId)
+        .collect(Collectors.toList());
+    KeypairPo newKeypair = buildService.buildConsortiumKeypairPoFromDefer(defer);
+    certificateDeferDas.modifyCertificateDefer(deferUpdate, oldKeypairIds, newKeypair);
+  }
 }

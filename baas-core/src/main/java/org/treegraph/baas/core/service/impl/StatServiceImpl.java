@@ -15,27 +15,27 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class StatServiceImpl implements StatService {
-	
-	private final ConsortiumDas consortiumDas;
 
-	private final BlockchainDas blockchainDas;
-	
-	private final NodeDas nodeDas;
-	
-	private final UserInfoDas userInfoDas;
-	
-	public QueryDashboardResponse queryDashboardInfo() {
-		
-		long countCons = consortiumDas.count();
-		long countBlockchains = blockchainDas.count();
-		long countNodes = nodeDas.count();
-		long countUsers = userInfoDas.count();
-		
-		return QueryDashboardResponse.builder()
-				.consCount(countCons)
-				.blockchainCount(countBlockchains)
-				.nodeCount(countNodes)
-				.userCount(countUsers)
-				.build();
-	}
+  private final ConsortiumDas consortiumDas;
+
+  private final BlockchainDas blockchainDas;
+
+  private final NodeDas nodeDas;
+
+  private final UserInfoDas userInfoDas;
+
+  public QueryDashboardResponse queryDashboardInfo() {
+
+    long countCons = consortiumDas.count();
+    long countBlockchains = blockchainDas.count();
+    long countNodes = nodeDas.count();
+    long countUsers = userInfoDas.count();
+
+    return QueryDashboardResponse.builder()
+        .consCount(countCons)
+        .blockchainCount(countBlockchains)
+        .nodeCount(countNodes)
+        .userCount(countUsers)
+        .build();
+  }
 }

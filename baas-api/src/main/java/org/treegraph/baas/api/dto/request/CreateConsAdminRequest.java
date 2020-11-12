@@ -11,7 +11,7 @@ import lombok.Data;
 @Builder
 public class CreateConsAdminRequest {
 
-	private String consId;
-	
-	private List<ConsAdminInfo> users;
+  private String consId;
+
+  private List<ConsAdminInfo> users;
 }

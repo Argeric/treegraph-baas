@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class DeleteRoleRequest {
-	private String id;
+
+  private String id;
 }

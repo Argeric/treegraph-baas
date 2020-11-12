@@ -26,50 +26,54 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class LoginAuthInterceptor extends HandlerInterceptorAdapter {
-	
-    @Resource
-    private TokenService tokenService;
-    
-    @Override
-    public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler)
-            throws Exception {
-    	
-        String token = request.getHeader(JwtUtils.HEADER_TOKEN);
 
-        UserInfoPo user;
-        try {
-        	user = tokenService.checkToken(token);
-        } catch(Exception e) {
-        	outputAuthFailResult(response, ErrorCodeEnum.AUTH_TOKEN_ERROR.getCode(), e.getMessage());
-        	return false;
-        }
-        
-        try {
-        	tokenService.authPermission(user.getId(), request.getRequestURI());
-        } catch(Exception e) {
-        	outputAuthFailResult(response, ErrorCodeEnum.AUTH_PERMISSION_ERROR.getCode(), e.getMessage());
-        	return false;
-        }
-    	
-        String userIp = WebUtils.getIpAddress(request);
-        String device = WebUtils.getDeviceInfo(request);
-		WebHelper.init(user.getId(), user.getAccount(), user.getName(), userIp, device);
-		
-        return true;
+  @Resource
+  private TokenService tokenService;
+
+  @Override
+  public boolean preHandle(@NotNull HttpServletRequest request,
+      @NotNull HttpServletResponse response, @NotNull Object handler)
+      throws Exception {
+
+    String token = request.getHeader(JwtUtils.HEADER_TOKEN);
+
+    UserInfoPo user;
+    try {
+      user = tokenService.checkToken(token);
+    } catch (Exception e) {
+      outputAuthFailResult(response, ErrorCodeEnum.AUTH_TOKEN_ERROR.getCode(), e.getMessage());
+      return false;
     }
 
-    @Override
-    public void afterCompletion(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler, Exception ex) {
-        if (ex != null) {
-            log.error("[userId={}]LoginAuthInterceptor uri:{},err:", WebHelper.getUserId(), request.getRequestURI(), ex);
-        }
-        WebHelper.destroy();
+    try {
+      tokenService.authPermission(user.getId(), request.getRequestURI());
+    } catch (Exception e) {
+      outputAuthFailResult(response, ErrorCodeEnum.AUTH_PERMISSION_ERROR.getCode(), e.getMessage());
+      return false;
     }
 
-    private void outputAuthFailResult(HttpServletResponse response, int errCode, String errMsg) throws IOException {
-        BaasResult<Void> result = BaasResult.fail(errCode, errMsg);
-        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-        response.getWriter().print(new ObjectMapper().writeValueAsString(result));
+    String userIp = WebUtils.getIpAddress(request);
+    String device = WebUtils.getDeviceInfo(request);
+    WebHelper.init(user.getId(), user.getAccount(), user.getName(), userIp, device);
+
+    return true;
+  }
+
+  @Override
+  public void afterCompletion(@NotNull HttpServletRequest request,
+      @NotNull HttpServletResponse response, @NotNull Object handler, Exception ex) {
+    if (ex != null) {
+      log.error("[userId={}]LoginAuthInterceptor uri:{},err:", WebHelper.getUserId(),
+          request.getRequestURI(), ex);
     }
+    WebHelper.destroy();
+  }
+
+  private void outputAuthFailResult(HttpServletResponse response, int errCode, String errMsg)
+      throws IOException {
+    BaasResult<Void> result = BaasResult.fail(errCode, errMsg);
+    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+    response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+    response.getWriter().print(new ObjectMapper().writeValueAsString(result));
+  }
 }

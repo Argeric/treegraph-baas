@@ -7,15 +7,15 @@ import org.treegraph.baas.api.dto.response.ListNodeResponse;
 
 public interface NodeService {
 
-	ListNodeResponse listNodes(ListNodeRequest req);
+  ListNodeResponse listNodes(ListNodeRequest req);
 
-	ListNodeBriefResponse listNodeBriefs(ListNodeBriefRequest req);
+  ListNodeBriefResponse listNodeBriefs(ListNodeBriefRequest req);
 
-	NodeInfo getNodeDetail(QueryNodeDetailRequest req);
+  NodeInfo getNodeDetail(QueryNodeDetailRequest req);
 
-	String getNodeLog(QueryNodeLogRequest req);
+  String getNodeLog(QueryNodeLogRequest req);
 
-	boolean modifyNode(ModifyNodeRequest req);
-	
-	boolean deleteNode(DeleteNodeRequest req) throws Exception;
+  boolean modifyNode(ModifyNodeRequest req);
+
+  boolean deleteNode(DeleteNodeRequest req) throws Exception;
 }

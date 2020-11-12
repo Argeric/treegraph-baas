@@ -11,40 +11,41 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserRoleInvitePo implements Serializable {
-    /**
-     * 主键
-     */
-    private Long id;
 
-    /**
-     * 邀请id
-     */
-    private Long inviteId;
+  /**
+   * 主键
+   */
+  private Long id;
 
-    /**
-     * 用户id
-     */
-    private String userId;
+  /**
+   * 邀请id
+   */
+  private Long inviteId;
 
-    /**
-     * 角色id
-     */
-    private String roleId;
+  /**
+   * 用户id
+   */
+  private String userId;
 
-    /**
-     * 联盟id
-     */
-    private String consortiumId;
+  /**
+   * 角色id
+   */
+  private String roleId;
 
-    /**
-     * 组织名称
-     */
-    private String organizationName;
+  /**
+   * 联盟id
+   */
+  private String consortiumId;
 
-    /**
-     * 邀请状态，0-未授角色，1-已授角色
-     */
-    private Integer status;
+  /**
+   * 组织名称
+   */
+  private String organizationName;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   * 邀请状态，0-未授角色，1-已授角色
+   */
+  private Integer status;
+
+  private static final long serialVersionUID = 1L;
 }

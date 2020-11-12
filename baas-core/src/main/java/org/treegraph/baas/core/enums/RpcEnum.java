@@ -5,25 +5,25 @@ import lombok.Getter;
 
 public class RpcEnum {
 
-    @Getter
-    @AllArgsConstructor
-    public enum Type {
+  @Getter
+  @AllArgsConstructor
+  public enum Type {
 
-        JSONRPC("jsonrpc"),
+    JSONRPC("jsonrpc"),
 
-        GRPC("grpc"),
+    GRPC("grpc"),
 
-        ;
+    ;
 
-        private final String code;
+    private final String code;
 
-        public static Type getByCode(String code) {
-            for (Type s : Type.values()) {
-                if (s.code.equals(code)) {
-                    return s;
-                }
-            }
-            return null;
+    public static Type getByCode(String code) {
+      for (Type s : Type.values()) {
+        if (s.code.equals(code)) {
+          return s;
         }
+      }
+      return null;
     }
+  }
 }

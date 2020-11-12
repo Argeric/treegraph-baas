@@ -16,21 +16,21 @@ import org.treegraph.baas.api.dto.response.ListUserResponse;
 
 public interface UserService {
 
-	void createUser(CreateUserRequest req);
-	
-	String inviteUser(InviteUserRequest req);
-	
-	boolean acceptInvite(AcceptInviteRequest req);
-	
-	boolean deleteUser(DeleteUserRequest req);
-	
-	List<UserInfo> queryUser(QueryUserRequest queryUserRequest);
-	
-	ListUserResponse listUser(ListUserRequest listUserRequest);
-	
-	boolean modifyPwd(ModifyPwdRequest modifyPwdRequest);
-	
-	void modifyUser(ModifyUserRequest modifyUserRequest);
-	
-	void unfrozenUser(UnfrozenUserRequest unfrozenUserRequest);
+  void createUser(CreateUserRequest req);
+
+  String inviteUser(InviteUserRequest req);
+
+  boolean acceptInvite(AcceptInviteRequest req);
+
+  boolean deleteUser(DeleteUserRequest req);
+
+  List<UserInfo> queryUser(QueryUserRequest queryUserRequest);
+
+  ListUserResponse listUser(ListUserRequest listUserRequest);
+
+  boolean modifyPwd(ModifyPwdRequest modifyPwdRequest);
+
+  void modifyUser(ModifyUserRequest modifyUserRequest);
+
+  void unfrozenUser(UnfrozenUserRequest unfrozenUserRequest);
 }

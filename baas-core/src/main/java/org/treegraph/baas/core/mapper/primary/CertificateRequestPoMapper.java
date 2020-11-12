@@ -6,25 +6,28 @@ import org.treegraph.baas.core.domain.CertificateRequestPo;
 import org.treegraph.baas.core.domain.CertificateRequestPoExample;
 
 public interface CertificateRequestPoMapper {
-    long countByExample(CertificateRequestPoExample example);
 
-    int deleteByExample(CertificateRequestPoExample example);
+  long countByExample(CertificateRequestPoExample example);
 
-    int deleteByPrimaryKey(Long id);
+  int deleteByExample(CertificateRequestPoExample example);
 
-    int insert(CertificateRequestPo record);
+  int deleteByPrimaryKey(Long id);
 
-    int insertSelective(CertificateRequestPo record);
+  int insert(CertificateRequestPo record);
 
-    List<CertificateRequestPo> selectByExample(CertificateRequestPoExample example);
+  int insertSelective(CertificateRequestPo record);
 
-    CertificateRequestPo selectByPrimaryKey(Long id);
+  List<CertificateRequestPo> selectByExample(CertificateRequestPoExample example);
 
-    int updateByExampleSelective(@Param("record") CertificateRequestPo record, @Param("example") CertificateRequestPoExample example);
+  CertificateRequestPo selectByPrimaryKey(Long id);
 
-    int updateByExample(@Param("record") CertificateRequestPo record, @Param("example") CertificateRequestPoExample example);
+  int updateByExampleSelective(@Param("record") CertificateRequestPo record,
+      @Param("example") CertificateRequestPoExample example);
 
-    int updateByPrimaryKeySelective(CertificateRequestPo record);
+  int updateByExample(@Param("record") CertificateRequestPo record,
+      @Param("example") CertificateRequestPoExample example);
 
-    int updateByPrimaryKey(CertificateRequestPo record);
+  int updateByPrimaryKeySelective(CertificateRequestPo record);
+
+  int updateByPrimaryKey(CertificateRequestPo record);
 }

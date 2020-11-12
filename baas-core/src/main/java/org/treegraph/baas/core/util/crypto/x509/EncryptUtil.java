@@ -37,30 +37,31 @@ public class EncryptUtil {
 //			throw new Exception("明文数据已损坏");
 //		}
 //	}
-	
-	/**
-	 * 私钥加密/解密
-	 */
-	public static byte[] codecByPrivateKey(String algo, boolean encryptMode, PrivateKey privateKey, byte[] data)
-			throws Exception {
-		Cipher cipher;
-		try {
-			if(algo.equalsIgnoreCase(CryptoEnum.Algo.ECC.getCode()) ||
-					algo.equalsIgnoreCase(CryptoEnum.Algo.SM2.getCode())){
-				cipher = new NullCipher();
-			} else if(algo.equalsIgnoreCase(CryptoEnum.Algo.RSA.getCode())){
-				cipher = Cipher.getInstance("RSA");
-			} else{
-				throw new Exception("无此算法");
-			}
-			cipher.init(encryptMode ? Cipher.ENCRYPT_MODE : Cipher.DECRYPT_MODE, privateKey);
-			return cipher.doFinal(data);
-		} catch (InvalidKeyException e) {
-			throw new Exception("加密私钥非法,请检查");
-		} catch (IllegalBlockSizeException e) {
-			throw new Exception("明文长度非法");
-		} catch (BadPaddingException e) {
-			throw new Exception("明文数据已损坏");
-		}
-	}
+
+  /**
+   * 私钥加密/解密
+   */
+  public static byte[] codecByPrivateKey(String algo, boolean encryptMode, PrivateKey privateKey,
+      byte[] data)
+      throws Exception {
+    Cipher cipher;
+    try {
+      if (algo.equalsIgnoreCase(CryptoEnum.Algo.ECC.getCode()) ||
+          algo.equalsIgnoreCase(CryptoEnum.Algo.SM2.getCode())) {
+        cipher = new NullCipher();
+      } else if (algo.equalsIgnoreCase(CryptoEnum.Algo.RSA.getCode())) {
+        cipher = Cipher.getInstance("RSA");
+      } else {
+        throw new Exception("无此算法");
+      }
+      cipher.init(encryptMode ? Cipher.ENCRYPT_MODE : Cipher.DECRYPT_MODE, privateKey);
+      return cipher.doFinal(data);
+    } catch (InvalidKeyException e) {
+      throw new Exception("加密私钥非法,请检查");
+    } catch (IllegalBlockSizeException e) {
+      throw new Exception("明文长度非法");
+    } catch (BadPaddingException e) {
+      throw new Exception("明文数据已损坏");
+    }
+  }
 }

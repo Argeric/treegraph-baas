@@ -4,44 +4,45 @@ import java.io.Serializable;
 
 public class ClientSession implements Serializable {
 
-	private static final long serialVersionUID = -7014239157443767275L;
-	
-	private Long clientId;
-	
-    private String idCardName;
-    
-    private String idCardNo;
+  private static final long serialVersionUID = -7014239157443767275L;
 
-    public ClientSession() {}
+  private Long clientId;
 
-    public ClientSession(Long clientId, String idCardName, String idCardNo) {
-        this.clientId = clientId;
-        this.idCardName = idCardName;
-        this.idCardNo = idCardNo;
-    }
+  private String idCardName;
 
-	public Long getClientId() {
-		return clientId;
-	}
+  private String idCardNo;
 
-	public void setClientId(Long clientId) {
-		this.clientId = clientId;
-	}
+  public ClientSession() {
+  }
 
-	public String getIdCardName() {
-		return idCardName;
-	}
+  public ClientSession(Long clientId, String idCardName, String idCardNo) {
+    this.clientId = clientId;
+    this.idCardName = idCardName;
+    this.idCardNo = idCardNo;
+  }
 
-	public void setIdCardName(String idCardName) {
-		this.idCardName = idCardName;
-	}
+  public Long getClientId() {
+    return clientId;
+  }
 
-	public String getIdCardNo() {
-		return idCardNo;
-	}
+  public void setClientId(Long clientId) {
+    this.clientId = clientId;
+  }
 
-	public void setIdCardNo(String idCardNo) {
-		this.idCardNo = idCardNo;
-	}
+  public String getIdCardName() {
+    return idCardName;
+  }
+
+  public void setIdCardName(String idCardName) {
+    this.idCardName = idCardName;
+  }
+
+  public String getIdCardNo() {
+    return idCardNo;
+  }
+
+  public void setIdCardNo(String idCardNo) {
+    this.idCardNo = idCardNo;
+  }
 }
 

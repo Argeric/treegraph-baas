@@ -8,25 +8,27 @@ import org.treegraph.baas.core.domain.RolePo;
 import org.treegraph.baas.core.domain.RolePoExample;
 
 public interface RolePoMapper {
-    long countByExample(RolePoExample example);
 
-    int deleteByExample(RolePoExample example);
+  long countByExample(RolePoExample example);
 
-    int deleteByPrimaryKey(String id);
+  int deleteByExample(RolePoExample example);
 
-    int insert(RolePo record);
+  int deleteByPrimaryKey(String id);
 
-    int insertSelective(RolePo record);
+  int insert(RolePo record);
 
-    List<RolePo> selectByExample(RolePoExample example);
+  int insertSelective(RolePo record);
 
-    Optional<RolePo> selectByPrimaryKey(String id);
+  List<RolePo> selectByExample(RolePoExample example);
 
-    int updateByExampleSelective(@Param("record") RolePo record, @Param("example") RolePoExample example);
+  Optional<RolePo> selectByPrimaryKey(String id);
 
-    int updateByExample(@Param("record") RolePo record, @Param("example") RolePoExample example);
+  int updateByExampleSelective(@Param("record") RolePo record,
+      @Param("example") RolePoExample example);
 
-    int updateByPrimaryKeySelective(RolePo record);
+  int updateByExample(@Param("record") RolePo record, @Param("example") RolePoExample example);
 
-    int updateByPrimaryKey(RolePo record);
+  int updateByPrimaryKeySelective(RolePo record);
+
+  int updateByPrimaryKey(RolePo record);
 }

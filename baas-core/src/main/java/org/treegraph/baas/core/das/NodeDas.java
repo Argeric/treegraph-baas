@@ -14,42 +14,46 @@ import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.util.LogSkip;
 
 public interface NodeDas {
-	Optional<NodePo> findById(String id);
-	
-	List<NodePo> findByIds(List<String> id);
-	/**/
-	List<NodePo> findAll(String consId, String ip);
-	
-	List<NodePo> findByConsIdAndChainId(String consId, String chainId);
-	
-	List<NodePo> findByChainIds(List<String> chainIds);
-	
-	//NodePo findByIpPort(String ip, Integer port);
-	
-	long count();
-	
-	void addNodesMembershipChange(List<String> nodeIds, NodeEnum.MembershipStatus membershipStatus,
-								  MembershipChangePo membershipChange, List<MembershipPo> memberships);
-	
-	boolean addNodes(List<NodePo> nodes, ConsortiumPo cons, List<NodeCustomizedConfigPo> stepFactorConfigList,
-			List<NodeCustomizedConfigPo> configList);
-	
-	//boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList, NodeCustomizedConfigPo stepFactorConfig,
-	//		List<NodeCustomizedConfigPo> customizedConfigList);
-	
-	void addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList, List<NodeCustomizedConfigPo> stepFactorConfigList,
-						 List<NodeCustomizedConfigPo> customizedConfigList, MembershipChangePo membershipChange,
-						 List<MembershipPo> memberships);
 
-	boolean modifyNode(NodePo node);
+  Optional<NodePo> findById(String id);
 
-	@LogSkip
-	boolean modifyNodesStatus(List<String> nodeIds, NodeEnum.Status status);
-	
-	void modifyNodesMembershipStatus(List<String> nodeIds, NodeEnum.MembershipStatus membershipStatus,
-									 Long membershipChangeId, MembershipEnum.Status membershipChangeStatus);
-	
-	boolean deleteNodes(NodePo node, ConsortiumPo cons);
-	
-	//Integer deleteByIpPort(String ip, Integer port);
+  List<NodePo> findByIds(List<String> id);
+
+  /**/
+  List<NodePo> findAll(String consId, String ip);
+
+  List<NodePo> findByConsIdAndChainId(String consId, String chainId);
+
+  List<NodePo> findByChainIds(List<String> chainIds);
+
+  //NodePo findByIpPort(String ip, Integer port);
+
+  long count();
+
+  void addNodesMembershipChange(List<String> nodeIds, NodeEnum.MembershipStatus membershipStatus,
+      MembershipChangePo membershipChange, List<MembershipPo> memberships);
+
+  boolean addNodes(List<NodePo> nodes, ConsortiumPo cons,
+      List<NodeCustomizedConfigPo> stepFactorConfigList,
+      List<NodeCustomizedConfigPo> configList);
+
+  //boolean addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList, NodeCustomizedConfigPo stepFactorConfig,
+  //		List<NodeCustomizedConfigPo> customizedConfigList);
+
+  void addNodeKeypairs(List<NodeKeypairBo> nodeKeypairBoList,
+      List<NodeCustomizedConfigPo> stepFactorConfigList,
+      List<NodeCustomizedConfigPo> customizedConfigList, MembershipChangePo membershipChange,
+      List<MembershipPo> memberships);
+
+  boolean modifyNode(NodePo node);
+
+  @LogSkip
+  boolean modifyNodesStatus(List<String> nodeIds, NodeEnum.Status status);
+
+  void modifyNodesMembershipStatus(List<String> nodeIds, NodeEnum.MembershipStatus membershipStatus,
+      Long membershipChangeId, MembershipEnum.Status membershipChangeStatus);
+
+  boolean deleteNodes(NodePo node, ConsortiumPo cons);
+
+  //Integer deleteByIpPort(String ip, Integer port);
 }

@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class InviteUserRequest {
 
-	private String account;
-	
-	private List<RoleInfo> roles;
+  private String account;
+
+  private List<RoleInfo> roles;
 }

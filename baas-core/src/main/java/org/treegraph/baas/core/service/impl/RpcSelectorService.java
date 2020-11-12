@@ -12,19 +12,19 @@ import org.treegraph.baas.core.service.BlockchainRpcService;
 @Slf4j
 public class RpcSelectorService {
 
-	@Value("${rpc.type}")
-	private String rpcType;
-	
-	private final Map<String, BlockchainRpcService> rpcStrategyMap = Maps.newHashMap();
+  @Value("${rpc.type}")
+  private String rpcType;
 
-	public RpcSelectorService(List<BlockchainRpcService> rpcServices){
-		for(BlockchainRpcService rpcService:rpcServices){
-			log.debug("{}.service.loaded", rpcService.getType());
-			rpcStrategyMap.put(rpcService.getType(), rpcService);
-		}
-	}
+  private final Map<String, BlockchainRpcService> rpcStrategyMap = Maps.newHashMap();
 
-	public BlockchainRpcService getRpcService(){
-		return rpcStrategyMap.get(rpcType.toLowerCase());
-	}
+  public RpcSelectorService(List<BlockchainRpcService> rpcServices) {
+    for (BlockchainRpcService rpcService : rpcServices) {
+      log.debug("{}.service.loaded", rpcService.getType());
+      rpcStrategyMap.put(rpcService.getType(), rpcService);
+    }
+  }
+
+  public BlockchainRpcService getRpcService() {
+    return rpcStrategyMap.get(rpcType.toLowerCase());
+  }
 }

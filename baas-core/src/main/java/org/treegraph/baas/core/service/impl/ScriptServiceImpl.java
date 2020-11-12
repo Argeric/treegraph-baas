@@ -69,231 +69,245 @@ import org.web3j.crypto.ECKeyPair;
 @AllArgsConstructor
 @Slf4j
 public class ScriptServiceImpl implements ScriptService {
-    
-    private final ConsortiumDas consortiumDas;
-    
-    private final NodeDas nodeDas;
-    
-    private final KeypairDas keypairDas;
-    
-    private final NodeCustomizedConfigDas nodeCustomizedConfigDas;
 
-    private final BuildService buildService;
-    
-    private final VaultKeypairBuildService vaultKeypairBuildService;
+  private final ConsortiumDas consortiumDas;
 
-	@LogSkip
-	public void downloadDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp) throws Exception {
-		// check and build
-		String consortiumId = req.getConsId();
-		Assert.notNull(consortiumId, "consortiumId.not.found");
-		List<NodePo> nodes = nodeDas.findAll(consortiumId, null);
-		Assert.notEmpty(nodes, "node.not.found");
-		Map<String, Map<String, String>> nodeScriptMap = buildDeployScript(consortiumId, nodes);
-		
-		// filter to download script
-		Map<String, Map<String, String>> toDownloadNodeScriptMap = Maps.newHashMap();
-		List<String> toDownloadNodeIdList = req.getNodeId();
-		if(CollectionUtils.isNotEmpty(toDownloadNodeIdList)) {
-			Set<String>	toDownloadNodeIdSet = new HashSet<>(toDownloadNodeIdList);
-			Set<String> toDownloadNodeKeySet = nodes.stream().filter(item -> toDownloadNodeIdSet.contains(item.getId()))
-					.map(item -> item.getNodeIp() + AT + item.getNodePort()).collect(Collectors.toSet());
-			nodeScriptMap.keySet().forEach(item -> {
-				if(toDownloadNodeKeySet.contains(item)) {
-					toDownloadNodeScriptMap.put(item, nodeScriptMap.get(item));
-				}
-			});
-		} else {
-			toDownloadNodeScriptMap.putAll(nodeScriptMap);
-		}
-		
-		// download deploy.zip file
-		resp.setContentType("application/zip");
-		resp.setHeader("Content-disposition", "attachment; filename=\"deploy.zip\"");
-		ZipOutputStream zipOutputStream = new ZipOutputStream(resp.getOutputStream());
-		for(Map.Entry<String, Map<String, String>> item : toDownloadNodeScriptMap.entrySet()){
-			String basePath = item.getKey();
-			Map<String, String> scripts = item.getValue();
-			for (String path : scripts.keySet()) {
-				String content = scripts.get(path);
-				zipOutputStream.putNextEntry(new ZipEntry(basePath + FILE_SEP + path));
-				zipOutputStream.write(content.getBytes());
-				zipOutputStream.closeEntry();
-			}
-		}
-		zipOutputStream.close();
-		log.debug("write deploy script finished[{}]", consortiumId);
-		
-		// update consortium establish step
-		ConsortiumPo cons = buildService.buildToUpdateCons(consortiumId, EstablishStep.DOWNLOADED_SCRIPTS);
-		consortiumDas.modifyCons(cons);
-		log.debug("update consortium status finished[{}]", consortiumId);
-	}
+  private final NodeDas nodeDas;
 
-	private Map<String, Map<String, String>> buildDeployScript(String consortiumId, List<NodePo> nodes)
-			throws Exception {
-		// certificate info
-		KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair();
-		KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consortiumId, rootKeypair);
-		PrivateKey privateKey = KeyUtil.privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(), consKeypair.getPrivateKey());
-		
-		// nodes info
-		StringBuilder consortiumNodes = new StringBuilder();
-		List<NodeKeypairBo> nodeKeypairBoList = new ArrayList<>();
-		List<String> toDownloadNodeIpList = Lists.newArrayList();
-		for(NodePo node:nodes){
-			NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypairBo(consortiumId,
-					node);
-			nodeKeypairBoList.add(nodeKeypairBo);
-			ECKeyPair ecKeypair = loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
-					nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
-			consortiumNodes.append("cfxnode://")
-					.append(StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0'))
-					.append(AT)
-					.append(nodeKeypairBo.getNode().getNodeIp())
-					.append(COLON)
-					.append(nodeKeypairBo.getNode().getNodePort());
-			if(!node.getId().equalsIgnoreCase(nodes.get(nodes.size()-1).getId())) {
-				consortiumNodes.append(COMMA);
-			}
-			nodes.forEach(item -> toDownloadNodeIpList.add(item.getNodeIp()));
-		}
-		
-		// nodes info digest
-		byte[] consNodesSHA3 = SignUtil.SHA256Digest(consortiumNodes.toString().getBytes());
-		byte[] consNodesDigestCipher = EncryptUtil.codecByPrivateKey(KeyType.CONSORTIUM.getAlgo().getCode(), true, privateKey, consNodesSHA3);
-		String consNodesDigest = Base64.toBase64String(consNodesDigestCipher);
-		
-		// node config
-		List<NodeCustomizedConfigPo> configList = nodeCustomizedConfigDas.findAll(consortiumId, null);
-		Map<String, Map<String, String>> configMap = Maps.newHashMap();
-		configList.stream().filter(item -> !item.getNodeId().equals(IntTypeEnum.FALSE.getValue().toString()))
-				.collect(Collectors.groupingBy(NodeCustomizedConfigPo::getNodeId))
-				.forEach((nodeId, nodeConfigs) -> {
-					Map<String, String> nodeConfigMap = nodeConfigs.stream().collect(Collectors
-							.toMap(NodeCustomizedConfigPo::getPropertyName, NodeCustomizedConfigPo::getPropertyValue));
-					configMap.put(nodeId, nodeConfigMap);
-				});
-		
-		// script content
-		Map<String, Map<String, String>> nodeScriptContentMap = new HashMap<>();
-		for (NodeKeypairBo nodeKeypair : nodeKeypairBoList) {
-			KeypairPo keypair = nodeKeypair.getKeypair();
-			ECKeyPair ecKeypair = loadECKeyPairFromBase64(keypair.getPublicKey(), keypair.getPrivateKey(),
-					keypair.getAlgorithm());
-			String ecPub = StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0');
-			String ecPri = StringUtils.leftPad(ecKeypair.getPrivateKey().toString(16), 64, '0');
-			NodePo node = nodeKeypair.getNode();
-			String consId = node.getConsortiumId();
-			GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService.geneNewRpcKeypair(consId, consKeypair, null,
-					toDownloadNodeIpList);
-			StringBuffer scriptContent = new StringBuffer();
-			append(scriptContent, "consortium_cert = \"\"\"" + consKeypair.getCertStr() + "\"\"\"");
-			append(scriptContent, "consortium_nodes = \"\"\"" + consortiumNodes.toString() + "\"\"\"");
-			append(scriptContent, "consortium_nodes_digest = \"" + consNodesDigest + "\"");
-			append(scriptContent, "consortium_keypair = \"" + ecPub + COMMA + ecPri + "\"");
-			append(scriptContent, "grpc_server_cert = \"\"\"" + gRpcKeypair.getCert() + "\"\"\"");
-			append(scriptContent, "grpc_server_key = \"\"\"" + gRpcKeypair.getPrivateKey() + "\"\"\"");
-			Map<String, String> configs = configMap.get(node.getId());
-			StringBuffer customizedScriptContent = buildCustomizedDeployScript(ecKeypair, configs);
-			Map<String, String> logMonitorScripts = buildLogMonitorScript(configs);
-			Map<String, String> sysMonitorScripts = buildSysMonitorScript(configs);
-			
-			// build script map
-			Map<String, String> scripts = Maps.newHashMap();
-			scripts.put("config.toml", scriptContent.toString());
-			scripts.put("customized_config.toml", customizedScriptContent.toString());
-			scripts.putAll(logMonitorScripts);
-			scripts.putAll(sysMonitorScripts);
-			nodeScriptContentMap.put(node.getNodeIp() + AT + node.getNodePort(), scripts);
-		}
-		
-		// save key pair
-		keypairDas.addKeyPairInfo(rootKeypair, consKeypair, nodeKeypairBoList);
-		log.debug("build deploy script finished[{}]", consortiumId);
-		return nodeScriptContentMap;
-	}
+  private final KeypairDas keypairDas;
 
-	private StringBuffer buildCustomizedDeployScript(ECKeyPair ecKeypair, Map<String, String> configs) {
-		// node customized script content
-		StringBuffer customizedScriptContent = new StringBuffer();
-		String jsonRpcHttpPort = configs.get(PROPERTY_JSONRPC_PORT);
-		String jsonRpcLocalHttpPort = configs.get(PROPERTY_JSONRPC_LOC_PORT);
-		customizedScriptContent.append(PROPERTY_JSONRPC_PORT + " = ").append(jsonRpcHttpPort)
-				.append(LINE_SEP).append(LINE_SEP);
-		customizedScriptContent.append(PROPERTY_JSONRPC_LOC_PORT + " = ").append(jsonRpcLocalHttpPort)
-				.append(LINE_SEP).append(LINE_SEP);
-		customizedScriptContent.append(PROPERTY_GRPC_PORT + "=").append(TEST_SWITCH
-				? (Integer.parseInt(jsonRpcLocalHttpPort) + TEST_RPC_PORT_INTERVAL) : DEFAULT_GRPC_PORT)
-				.append(LINE_SEP).append(LINE_SEP);
-		customizedScriptContent.append("mining_author = \"").append(ConfluxUtils.toAddress(ecKeypair)).append("\"")
-				.append(LINE_SEP).append(LINE_SEP);
-		customizedScriptContent.append("log_file = './conflux.log'")
-				.append(LINE_SEP).append(LINE_SEP);
-		customizedScriptContent.append("log_level = \"info\"")
-				.append(LINE_SEP).append(LINE_SEP);
-		return customizedScriptContent;
-	}
+  private final NodeCustomizedConfigDas nodeCustomizedConfigDas;
 
-	private Map<String, String> buildLogMonitorScript(Map<String, String> configs) {
-		Map<String, String> scripts = Maps.newHashMap();
-		List<String> files = Lists.newArrayList(
-				"log_monitor/start_log_monitor.sh", 
-				"log_monitor/stop_log_monitor.sh", 
-				"log_monitor/docker-compose.yml", 
-				"log_monitor/.env"//from string with placeholder
-				);
-		files.forEach(item -> {
-			String content;
-			if(item.endsWith(".env")) {
-				String webPort = configs.get(PROPERTY_LOG_MONITOR_WEB_PORT);
-				String network = configs.get(PROPERTY_LOG_MONITOR_CONTAINER_NETWORK);
-				content = MessageFormat.format(MonitorConstant.LOG_MONITOR_ENV_FILE, webPort,
-						MonitorConstant.DEFAULT_HOST_LOG_PATH, webPort, network);
-			} else {
-				content = FileUtils.readFile(new ClassPathResource("scripts/" + item));
-				
-			}
-			scripts.put(item, content);
-		});
-		return scripts;
-	}
-	
-	private Map<String, String> buildSysMonitorScript(Map<String, String> configs){
-		Map<String, String> scripts = Maps.newHashMap();
-		List<String> files = Lists.newArrayList(
-				"sys_monitor/start_sys_monitor.sh",
-				"sys_monitor/stop_sys_monitor.sh",
-				"sys_monitor/docker-compose.yml",
-				"sys_monitor/.env",//from string with placeholder
-				"sys_monitor/grafana/dashboard/home.json",
-				"sys_monitor/grafana/datasource/home.yaml",//from string with placeholder
-				"sys_monitor/grafana/data/readme.md",
-				"sys_monitor/prometheus/prometheus.yml"//from string with placeholder
-				);
-		files.forEach(item -> {
-			String content;
-			String logMonitorWebPort = configs.get(PROPERTY_LOG_MONITOR_WEB_PORT);
-			String logMonitorNetwork = configs.get(PROPERTY_LOG_MONITOR_CONTAINER_NETWORK);
-			String webPort = (Integer.parseInt(logMonitorWebPort) + TEST_MONITOR_PORT_INTERVAL) + "";
-			String highestNetSeg = StringUtils.substringBefore(logMonitorNetwork, DOT);
-			String leftNetSeg = StringUtils.substringAfter(logMonitorNetwork, DOT);
-			String network = (Integer.parseInt(highestNetSeg) + 1) + DOT + leftNetSeg;
-			if(item.endsWith(".env")) {
-				content = MessageFormat.format(MonitorConstant.SYS_MONITOR_ENV_FILE, webPort, webPort, network);
-			} else if(item.endsWith("home.yaml")) {
-				content = MessageFormat.format(MonitorConstant.SYS_MONITOR_GRAFANA_DATASOURCE_FILE, webPort);
-			} else if(item.endsWith("prometheus.yml")) {
-				content = MessageFormat.format(MonitorConstant.SYS_MONITOR_PROMETHEUS_CONFIG_FILE, webPort);
-			} else {
-				content = FileUtils.readFile(new ClassPathResource("scripts/" + item));
-			}
-			scripts.put(item, content);
-		});
-		return scripts;
-	}
-	
-	private void append(StringBuffer strBuf, String str) {
-		strBuf.append(str).append(LINE_SEP).append(LINE_SEP);
-	}
+  private final BuildService buildService;
+
+  private final VaultKeypairBuildService vaultKeypairBuildService;
+
+  @LogSkip
+  public void downloadDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp)
+      throws Exception {
+    // check and build
+    String consortiumId = req.getConsId();
+    Assert.notNull(consortiumId, "consortiumId.not.found");
+    List<NodePo> nodes = nodeDas.findAll(consortiumId, null);
+    Assert.notEmpty(nodes, "node.not.found");
+    Map<String, Map<String, String>> nodeScriptMap = buildDeployScript(consortiumId, nodes);
+
+    // filter to download script
+    Map<String, Map<String, String>> toDownloadNodeScriptMap = Maps.newHashMap();
+    List<String> toDownloadNodeIdList = req.getNodeId();
+    if (CollectionUtils.isNotEmpty(toDownloadNodeIdList)) {
+      Set<String> toDownloadNodeIdSet = new HashSet<>(toDownloadNodeIdList);
+      Set<String> toDownloadNodeKeySet = nodes.stream()
+          .filter(item -> toDownloadNodeIdSet.contains(item.getId()))
+          .map(item -> item.getNodeIp() + AT + item.getNodePort()).collect(Collectors.toSet());
+      nodeScriptMap.keySet().forEach(item -> {
+        if (toDownloadNodeKeySet.contains(item)) {
+          toDownloadNodeScriptMap.put(item, nodeScriptMap.get(item));
+        }
+      });
+    } else {
+      toDownloadNodeScriptMap.putAll(nodeScriptMap);
+    }
+
+    // download deploy.zip file
+    resp.setContentType("application/zip");
+    resp.setHeader("Content-disposition", "attachment; filename=\"deploy.zip\"");
+    ZipOutputStream zipOutputStream = new ZipOutputStream(resp.getOutputStream());
+    for (Map.Entry<String, Map<String, String>> item : toDownloadNodeScriptMap.entrySet()) {
+      String basePath = item.getKey();
+      Map<String, String> scripts = item.getValue();
+      for (String path : scripts.keySet()) {
+        String content = scripts.get(path);
+        zipOutputStream.putNextEntry(new ZipEntry(basePath + FILE_SEP + path));
+        zipOutputStream.write(content.getBytes());
+        zipOutputStream.closeEntry();
+      }
+    }
+    zipOutputStream.close();
+    log.debug("write deploy script finished[{}]", consortiumId);
+
+    // update consortium establish step
+    ConsortiumPo cons = buildService
+        .buildToUpdateCons(consortiumId, EstablishStep.DOWNLOADED_SCRIPTS);
+    consortiumDas.modifyCons(cons);
+    log.debug("update consortium status finished[{}]", consortiumId);
+  }
+
+  private Map<String, Map<String, String>> buildDeployScript(String consortiumId,
+      List<NodePo> nodes)
+      throws Exception {
+    // certificate info
+    KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair();
+    KeypairPo consKeypair = vaultKeypairBuildService
+        .getConsortiumKeyPair(consortiumId, rootKeypair);
+    PrivateKey privateKey = KeyUtil
+        .privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(), consKeypair.getPrivateKey());
+
+    // nodes info
+    StringBuilder consortiumNodes = new StringBuilder();
+    List<NodeKeypairBo> nodeKeypairBoList = new ArrayList<>();
+    List<String> toDownloadNodeIpList = Lists.newArrayList();
+    for (NodePo node : nodes) {
+      NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypairBo(consortiumId,
+          node);
+      nodeKeypairBoList.add(nodeKeypairBo);
+      ECKeyPair ecKeypair = loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
+          nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
+      consortiumNodes.append("cfxnode://")
+          .append(StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0'))
+          .append(AT)
+          .append(nodeKeypairBo.getNode().getNodeIp())
+          .append(COLON)
+          .append(nodeKeypairBo.getNode().getNodePort());
+      if (!node.getId().equalsIgnoreCase(nodes.get(nodes.size() - 1).getId())) {
+        consortiumNodes.append(COMMA);
+      }
+      nodes.forEach(item -> toDownloadNodeIpList.add(item.getNodeIp()));
+    }
+
+    // nodes info digest
+    byte[] consNodesSHA3 = SignUtil.SHA256Digest(consortiumNodes.toString().getBytes());
+    byte[] consNodesDigestCipher = EncryptUtil
+        .codecByPrivateKey(KeyType.CONSORTIUM.getAlgo().getCode(), true, privateKey, consNodesSHA3);
+    String consNodesDigest = Base64.toBase64String(consNodesDigestCipher);
+
+    // node config
+    List<NodeCustomizedConfigPo> configList = nodeCustomizedConfigDas.findAll(consortiumId, null);
+    Map<String, Map<String, String>> configMap = Maps.newHashMap();
+    configList.stream()
+        .filter(item -> !item.getNodeId().equals(IntTypeEnum.FALSE.getValue().toString()))
+        .collect(Collectors.groupingBy(NodeCustomizedConfigPo::getNodeId))
+        .forEach((nodeId, nodeConfigs) -> {
+          Map<String, String> nodeConfigMap = nodeConfigs.stream().collect(Collectors
+              .toMap(NodeCustomizedConfigPo::getPropertyName,
+                  NodeCustomizedConfigPo::getPropertyValue));
+          configMap.put(nodeId, nodeConfigMap);
+        });
+
+    // script content
+    Map<String, Map<String, String>> nodeScriptContentMap = new HashMap<>();
+    for (NodeKeypairBo nodeKeypair : nodeKeypairBoList) {
+      KeypairPo keypair = nodeKeypair.getKeypair();
+      ECKeyPair ecKeypair = loadECKeyPairFromBase64(keypair.getPublicKey(), keypair.getPrivateKey(),
+          keypair.getAlgorithm());
+      String ecPub = StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0');
+      String ecPri = StringUtils.leftPad(ecKeypair.getPrivateKey().toString(16), 64, '0');
+      NodePo node = nodeKeypair.getNode();
+      String consId = node.getConsortiumId();
+      GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService
+          .geneNewRpcKeypair(consId, consKeypair, null,
+              toDownloadNodeIpList);
+      StringBuffer scriptContent = new StringBuffer();
+      append(scriptContent, "consortium_cert = \"\"\"" + consKeypair.getCertStr() + "\"\"\"");
+      append(scriptContent, "consortium_nodes = \"\"\"" + consortiumNodes.toString() + "\"\"\"");
+      append(scriptContent, "consortium_nodes_digest = \"" + consNodesDigest + "\"");
+      append(scriptContent, "consortium_keypair = \"" + ecPub + COMMA + ecPri + "\"");
+      append(scriptContent, "grpc_server_cert = \"\"\"" + gRpcKeypair.getCert() + "\"\"\"");
+      append(scriptContent, "grpc_server_key = \"\"\"" + gRpcKeypair.getPrivateKey() + "\"\"\"");
+      Map<String, String> configs = configMap.get(node.getId());
+      StringBuffer customizedScriptContent = buildCustomizedDeployScript(ecKeypair, configs);
+      Map<String, String> logMonitorScripts = buildLogMonitorScript(configs);
+      Map<String, String> sysMonitorScripts = buildSysMonitorScript(configs);
+
+      // build script map
+      Map<String, String> scripts = Maps.newHashMap();
+      scripts.put("config.toml", scriptContent.toString());
+      scripts.put("customized_config.toml", customizedScriptContent.toString());
+      scripts.putAll(logMonitorScripts);
+      scripts.putAll(sysMonitorScripts);
+      nodeScriptContentMap.put(node.getNodeIp() + AT + node.getNodePort(), scripts);
+    }
+
+    // save key pair
+    keypairDas.addKeyPairInfo(rootKeypair, consKeypair, nodeKeypairBoList);
+    log.debug("build deploy script finished[{}]", consortiumId);
+    return nodeScriptContentMap;
+  }
+
+  private StringBuffer buildCustomizedDeployScript(ECKeyPair ecKeypair,
+      Map<String, String> configs) {
+    // node customized script content
+    StringBuffer customizedScriptContent = new StringBuffer();
+    String jsonRpcHttpPort = configs.get(PROPERTY_JSONRPC_PORT);
+    String jsonRpcLocalHttpPort = configs.get(PROPERTY_JSONRPC_LOC_PORT);
+    customizedScriptContent.append(PROPERTY_JSONRPC_PORT + " = ").append(jsonRpcHttpPort)
+        .append(LINE_SEP).append(LINE_SEP);
+    customizedScriptContent.append(PROPERTY_JSONRPC_LOC_PORT + " = ").append(jsonRpcLocalHttpPort)
+        .append(LINE_SEP).append(LINE_SEP);
+    customizedScriptContent.append(PROPERTY_GRPC_PORT + "=").append(TEST_SWITCH
+        ? (Integer.parseInt(jsonRpcLocalHttpPort) + TEST_RPC_PORT_INTERVAL) : DEFAULT_GRPC_PORT)
+        .append(LINE_SEP).append(LINE_SEP);
+    customizedScriptContent.append("mining_author = \"").append(ConfluxUtils.toAddress(ecKeypair))
+        .append("\"")
+        .append(LINE_SEP).append(LINE_SEP);
+    customizedScriptContent.append("log_file = './conflux.log'")
+        .append(LINE_SEP).append(LINE_SEP);
+    customizedScriptContent.append("log_level = \"info\"")
+        .append(LINE_SEP).append(LINE_SEP);
+    return customizedScriptContent;
+  }
+
+  private Map<String, String> buildLogMonitorScript(Map<String, String> configs) {
+    Map<String, String> scripts = Maps.newHashMap();
+    List<String> files = Lists.newArrayList(
+        "log_monitor/start_log_monitor.sh",
+        "log_monitor/stop_log_monitor.sh",
+        "log_monitor/docker-compose.yml",
+        "log_monitor/.env"//from string with placeholder
+    );
+    files.forEach(item -> {
+      String content;
+      if (item.endsWith(".env")) {
+        String webPort = configs.get(PROPERTY_LOG_MONITOR_WEB_PORT);
+        String network = configs.get(PROPERTY_LOG_MONITOR_CONTAINER_NETWORK);
+        content = MessageFormat.format(MonitorConstant.LOG_MONITOR_ENV_FILE, webPort,
+            MonitorConstant.DEFAULT_HOST_LOG_PATH, webPort, network);
+      } else {
+        content = FileUtils.readFile(new ClassPathResource("scripts/" + item));
+
+      }
+      scripts.put(item, content);
+    });
+    return scripts;
+  }
+
+  private Map<String, String> buildSysMonitorScript(Map<String, String> configs) {
+    Map<String, String> scripts = Maps.newHashMap();
+    List<String> files = Lists.newArrayList(
+        "sys_monitor/start_sys_monitor.sh",
+        "sys_monitor/stop_sys_monitor.sh",
+        "sys_monitor/docker-compose.yml",
+        "sys_monitor/.env",//from string with placeholder
+        "sys_monitor/grafana/dashboard/home.json",
+        "sys_monitor/grafana/datasource/home.yaml",//from string with placeholder
+        "sys_monitor/grafana/data/readme.md",
+        "sys_monitor/prometheus/prometheus.yml"//from string with placeholder
+    );
+    files.forEach(item -> {
+      String content;
+      String logMonitorWebPort = configs.get(PROPERTY_LOG_MONITOR_WEB_PORT);
+      String logMonitorNetwork = configs.get(PROPERTY_LOG_MONITOR_CONTAINER_NETWORK);
+      String webPort = (Integer.parseInt(logMonitorWebPort) + TEST_MONITOR_PORT_INTERVAL) + "";
+      String highestNetSeg = StringUtils.substringBefore(logMonitorNetwork, DOT);
+      String leftNetSeg = StringUtils.substringAfter(logMonitorNetwork, DOT);
+      String network = (Integer.parseInt(highestNetSeg) + 1) + DOT + leftNetSeg;
+      if (item.endsWith(".env")) {
+        content = MessageFormat
+            .format(MonitorConstant.SYS_MONITOR_ENV_FILE, webPort, webPort, network);
+      } else if (item.endsWith("home.yaml")) {
+        content = MessageFormat
+            .format(MonitorConstant.SYS_MONITOR_GRAFANA_DATASOURCE_FILE, webPort);
+      } else if (item.endsWith("prometheus.yml")) {
+        content = MessageFormat.format(MonitorConstant.SYS_MONITOR_PROMETHEUS_CONFIG_FILE, webPort);
+      } else {
+        content = FileUtils.readFile(new ClassPathResource("scripts/" + item));
+      }
+      scripts.put(item, content);
+    });
+    return scripts;
+  }
+
+  private void append(StringBuffer strBuf, String str) {
+    strBuf.append(str).append(LINE_SEP).append(LINE_SEP);
+  }
 }

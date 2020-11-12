@@ -8,12 +8,12 @@ import java.util.List;
 @Data
 @Builder
 public class DownloadRpcCertRequest {
-	
-	private String consId;
 
-	private String blockchainId;
-	
-	private List<String> nodeId;
+  private String consId;
+
+  private String blockchainId;
+
+  private List<String> nodeId;
 }
 
 

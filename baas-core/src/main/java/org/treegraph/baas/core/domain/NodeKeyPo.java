@@ -13,50 +13,51 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NodeKeyPo implements Serializable {
-    /**
-     * 主键
-     */
-    private Long id;
 
-    /**
-     * 节点id
-     */
-    private String nodeId;
+  /**
+   * 主键
+   */
+  private Long id;
 
-    /**
-     * 公钥
-     */
-    private Long keypairId;
+  /**
+   * 节点id
+   */
+  private String nodeId;
 
-    /**
-     * 联盟id，根证书该字段为0
-     */
-    private String consortiumId;
+  /**
+   * 公钥
+   */
+  private Long keypairId;
 
-    /**
-     * 0-未删除，1-已删除
-     */
-    private Integer deleteFlag;
+  /**
+   * 联盟id，根证书该字段为0
+   */
+  private String consortiumId;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+  /**
+   * 0-未删除，1-已删除
+   */
+  private Integer deleteFlag;
 
-    /**
-     * 创建者
-     */
-    private String createBy;
+  /**
+   * 创建时间
+   */
+  private LocalDateTime createTime;
 
-    /**
-     * 修改时间
-     */
-    private LocalDateTime updateTime;
+  /**
+   * 创建者
+   */
+  private String createBy;
 
-    /**
-     * 修改者
-     */
-    private String updateBy;
+  /**
+   * 修改时间
+   */
+  private LocalDateTime updateTime;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   * 修改者
+   */
+  private String updateBy;
+
+  private static final long serialVersionUID = 1L;
 }

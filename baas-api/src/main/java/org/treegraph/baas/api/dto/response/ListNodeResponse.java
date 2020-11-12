@@ -11,13 +11,13 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ListNodeResponse extends ListResponse{
+public class ListNodeResponse extends ListResponse {
 
-	private List<NodeInfo> list;
-	
-	@Builder
-	public ListNodeResponse(long total, int current, int pageSize, List<NodeInfo> list) {
-		super(total, current, pageSize);
-		this.list = list;
-	}
+  private List<NodeInfo> list;
+
+  @Builder
+  public ListNodeResponse(long total, int current, int pageSize, List<NodeInfo> list) {
+    super(total, current, pageSize);
+    this.list = list;
+  }
 }

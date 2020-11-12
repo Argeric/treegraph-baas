@@ -8,14 +8,14 @@ import lombok.Data;
 @Data
 @Builder
 public class ConsDetailInfo {
-	
-	private String id;
 
-	private String name;
-	
-	private String blockchainId;
-	
-	private String blockchainName;
-	
-	private List<NodeInfo> nodes;
+  private String id;
+
+  private String name;
+
+  private String blockchainId;
+
+  private String blockchainName;
+
+  private List<NodeInfo> nodes;
 }

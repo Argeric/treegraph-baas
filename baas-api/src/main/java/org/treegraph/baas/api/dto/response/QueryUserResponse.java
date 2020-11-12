@@ -7,9 +7,9 @@ import lombok.Data;
 @Builder
 public class QueryUserResponse {
 
-	private String id;
-	
-	private String account;
-	
-	private String name;
+  private String id;
+
+  private String account;
+
+  private String name;
 }

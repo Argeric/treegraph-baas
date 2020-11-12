@@ -8,6 +8,7 @@ import java.util.List;
 
 @Data
 @Builder
-public class ListNodeBriefResponse{
-	private List<NodeInfo> list;
+public class ListNodeBriefResponse {
+
+  private List<NodeInfo> list;
 }

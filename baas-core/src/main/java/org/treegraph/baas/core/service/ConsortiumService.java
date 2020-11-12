@@ -21,23 +21,23 @@ import org.treegraph.baas.api.dto.response.ListConsResponse;
 
 public interface ConsortiumService {
 
-	ListConsResponse listCons(ListRequest listRequest);
-	
-	List<ConsInfo> queryCons(QueryConsRequest req);
-	
-	List<ConsDetailInfo> queryConsDetail(QueryConsDetailRequest req);
+  ListConsResponse listCons(ListRequest listRequest);
 
-	String createCons(CreateConsRequest createConsRequest);
+  List<ConsInfo> queryCons(QueryConsRequest req);
 
-	void modifyCons(ModifyConsRequest modifyConsRequest);
+  List<ConsDetailInfo> queryConsDetail(QueryConsDetailRequest req);
 
-	boolean deleteCons(DeleteConsRequest deleteConsRequest);
+  String createCons(CreateConsRequest createConsRequest);
 
-	boolean createConsAdmin(CreateConsAdminRequest createConsAdminRequest);
+  void modifyCons(ModifyConsRequest modifyConsRequest);
 
-	String createBlockchain(CreateBlockchainRequest createBlockchainRequest);
+  boolean deleteCons(DeleteConsRequest deleteConsRequest);
 
-	boolean addNodes(AddNodesRequest addNodesRequest) throws Exception;
+  boolean createConsAdmin(CreateConsAdminRequest createConsAdminRequest);
 
-	void deferConsortiumCert(DeferCertificateRequest req) throws Exception;
+  String createBlockchain(CreateBlockchainRequest createBlockchainRequest);
+
+  boolean addNodes(AddNodesRequest addNodesRequest) throws Exception;
+
+  void deferConsortiumCert(DeferCertificateRequest req) throws Exception;
 }

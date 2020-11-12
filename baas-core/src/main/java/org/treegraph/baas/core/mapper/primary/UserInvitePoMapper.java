@@ -8,25 +8,28 @@ import org.treegraph.baas.core.domain.UserInvitePo;
 import org.treegraph.baas.core.domain.UserInvitePoExample;
 
 public interface UserInvitePoMapper {
-    long countByExample(UserInvitePoExample example);
 
-    int deleteByExample(UserInvitePoExample example);
+  long countByExample(UserInvitePoExample example);
 
-    int deleteByPrimaryKey(Long id);
+  int deleteByExample(UserInvitePoExample example);
 
-    int insert(UserInvitePo record);
+  int deleteByPrimaryKey(Long id);
 
-    int insertSelective(UserInvitePo record);
+  int insert(UserInvitePo record);
 
-    List<UserInvitePo> selectByExample(UserInvitePoExample example);
+  int insertSelective(UserInvitePo record);
 
-    Optional<UserInvitePo> selectByPrimaryKey(Long id);
+  List<UserInvitePo> selectByExample(UserInvitePoExample example);
 
-    int updateByExampleSelective(@Param("record") UserInvitePo record, @Param("example") UserInvitePoExample example);
+  Optional<UserInvitePo> selectByPrimaryKey(Long id);
 
-    int updateByExample(@Param("record") UserInvitePo record, @Param("example") UserInvitePoExample example);
+  int updateByExampleSelective(@Param("record") UserInvitePo record,
+      @Param("example") UserInvitePoExample example);
 
-    int updateByPrimaryKeySelective(UserInvitePo record);
+  int updateByExample(@Param("record") UserInvitePo record,
+      @Param("example") UserInvitePoExample example);
 
-    int updateByPrimaryKey(UserInvitePo record);
+  int updateByPrimaryKeySelective(UserInvitePo record);
+
+  int updateByPrimaryKey(UserInvitePo record);
 }

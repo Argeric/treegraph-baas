@@ -6,22 +6,23 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(callSuper=true)
-public class ListOperLogRequest extends ListRequest{
-	
-	private String account;
-	
-	private String name;
-	
-	private String type;
-	
-	private String ip;
+@EqualsAndHashCode(callSuper = true)
+public class ListOperLogRequest extends ListRequest {
 
-	public ListOperLogRequest(int current, int pageSize, String account, String name, String type, String ip) {
-		super(current, pageSize);
-		this.account = account;
-		this.name = name;
-		this.type = type;
-		this.ip = ip;
-	}
+  private String account;
+
+  private String name;
+
+  private String type;
+
+  private String ip;
+
+  public ListOperLogRequest(int current, int pageSize, String account, String name, String type,
+      String ip) {
+    super(current, pageSize);
+    this.account = account;
+    this.name = name;
+    this.type = type;
+    this.ip = ip;
+  }
 }

@@ -16,21 +16,21 @@ import org.springframework.vault.config.AbstractVaultConfiguration;
 @Configuration
 public class VaultConfig extends AbstractVaultConfiguration {
 
-	@Value("${vault.token}")
-	String token;
+  @Value("${vault.token}")
+  String token;
 
-	@Value("${vault.uri}")
-	URI vaultUri;
+  @Value("${vault.uri}")
+  URI vaultUri;
 
-	@NotNull
-	@Override
-	public VaultEndpoint vaultEndpoint() {
-		return VaultEndpoint.from(vaultUri);
-	}
+  @NotNull
+  @Override
+  public VaultEndpoint vaultEndpoint() {
+    return VaultEndpoint.from(vaultUri);
+  }
 
-	@NotNull
-	@Override
-	public ClientAuthentication clientAuthentication() {
-		return new TokenAuthentication(token);
-	}
+  @NotNull
+  @Override
+  public ClientAuthentication clientAuthentication() {
+    return new TokenAuthentication(token);
+  }
 }

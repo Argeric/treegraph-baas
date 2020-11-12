@@ -32,8 +32,8 @@ import lombok.AllArgsConstructor;
 
 /**
  * @author zt
- * @date May 11, 2020
  * @version 1.0
+ * @date May 11, 2020
  */
 @RestController
 @Api(tags = "用户模块")
@@ -41,87 +41,88 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class UserController {
 
-	private final UserService userService;
-	
-	private final LoginService loginService;
+  private final UserService userService;
 
-	@PostMapping("/list")
-	@ApiOperation("用户列表")
-	public BaasResult<ListUserResponse> listUser(@RequestBody ListUserRequest listUserRequest) {
-		ListUserResponse data = userService.listUser(listUserRequest);
-		return BaasResult.success(data);
-	}
-	
-	@PostMapping("/query")
-	@ApiOperation("用户查询")
-	public BaasResult<List<UserInfo>> queryUser(@RequestBody QueryUserRequest queryUserRequest) {
-		List<UserInfo> data = userService.queryUser(queryUserRequest);
-		return BaasResult.success(data);
-	}
+  private final LoginService loginService;
 
-	@PostMapping("/create")
-	@ApiOperation("创建用户")
-	public BaasResult<Void> createUser(@RequestBody CreateUserRequest createUserRequest) {
-		checkCreateUser(createUserRequest.getRoles());
-		userService.createUser(createUserRequest);
-		return BaasResult.success();
-	}
-	
-	@PostMapping("/modify")
-	@ApiOperation("修改用户")
-	public BaasResult<Void> modifyUser(@RequestBody ModifyUserRequest modifyUserRequest) {
-		userService.modifyUser(modifyUserRequest);
-		return BaasResult.success();
-	}
-	
-	@PostMapping("/invite")
-	@ApiOperation("邀请用户")
-	public BaasResult<String> inviteUser(@RequestBody InviteUserRequest inviteUserRequest) {
-		String inviteToken = userService.inviteUser(inviteUserRequest);
-		return BaasResult.success(inviteToken);
-	}
-	
-	@PostMapping("/invite/accept")
-	@ApiOperation("邀请用户")
-	public BaasResult<Void> acceptInvite(@RequestBody AcceptInviteRequest acceptInviteRequest) {
-		userService.acceptInvite(acceptInviteRequest);
-		return BaasResult.success();
-	}
-	
-	@PostMapping("/pwd/modify")
-	@ApiOperation("修改密码")
-	public BaasResult<Void> modifyPwd(@RequestBody ModifyPwdRequest modifyPwdRequest) {
-		userService.modifyPwd(modifyPwdRequest);
-		return BaasResult.success();
-	}
-	
-	@PostMapping("/del")
-	@ApiOperation("删除用户")
-	public BaasResult<Boolean> deleteUser(@RequestBody DeleteUserRequest deleteUserRequest) {
-		checkDelUser(deleteUserRequest);
-		boolean successFlag = userService.deleteUser(deleteUserRequest);
-		return BaasResult.success(successFlag);
-	}
-	
-	@PostMapping("/unfrozen")
-	@ApiOperation("解冻用户")
-	public BaasResult<Void> unfrozenUser(@RequestBody UnfrozenUserRequest unfrozenUserRequest) {
-		userService.unfrozenUser(unfrozenUserRequest);
-		return BaasResult.success();
-	}
-	
-	private void checkCreateUser(List<RoleInfo> roles) {
-		if(CollectionUtils.isNotEmpty(roles)) {
-			List<String> consIds = roles.stream().map(RoleInfo::getConsId).collect(Collectors.toList());
-			SysManager.checkOwnCons(consIds);
-		}
-	}
+  @PostMapping("/list")
+  @ApiOperation("用户列表")
+  public BaasResult<ListUserResponse> listUser(@RequestBody ListUserRequest listUserRequest) {
+    ListUserResponse data = userService.listUser(listUserRequest);
+    return BaasResult.success(data);
+  }
 
-	private void checkDelUser(DeleteUserRequest deleteUserRequest) {
-		List<AuthInfo> authInfoList = loginService.getAuthInfo(deleteUserRequest.getId());
-		if(CollectionUtils.isNotEmpty(authInfoList)) {
-			List<String> consIds = authInfoList.stream().map(AuthInfo::getConsId).collect(Collectors.toList());
-			SysManager.checkOwnCons(consIds);
-		}
-	}
+  @PostMapping("/query")
+  @ApiOperation("用户查询")
+  public BaasResult<List<UserInfo>> queryUser(@RequestBody QueryUserRequest queryUserRequest) {
+    List<UserInfo> data = userService.queryUser(queryUserRequest);
+    return BaasResult.success(data);
+  }
+
+  @PostMapping("/create")
+  @ApiOperation("创建用户")
+  public BaasResult<Void> createUser(@RequestBody CreateUserRequest createUserRequest) {
+    checkCreateUser(createUserRequest.getRoles());
+    userService.createUser(createUserRequest);
+    return BaasResult.success();
+  }
+
+  @PostMapping("/modify")
+  @ApiOperation("修改用户")
+  public BaasResult<Void> modifyUser(@RequestBody ModifyUserRequest modifyUserRequest) {
+    userService.modifyUser(modifyUserRequest);
+    return BaasResult.success();
+  }
+
+  @PostMapping("/invite")
+  @ApiOperation("邀请用户")
+  public BaasResult<String> inviteUser(@RequestBody InviteUserRequest inviteUserRequest) {
+    String inviteToken = userService.inviteUser(inviteUserRequest);
+    return BaasResult.success(inviteToken);
+  }
+
+  @PostMapping("/invite/accept")
+  @ApiOperation("邀请用户")
+  public BaasResult<Void> acceptInvite(@RequestBody AcceptInviteRequest acceptInviteRequest) {
+    userService.acceptInvite(acceptInviteRequest);
+    return BaasResult.success();
+  }
+
+  @PostMapping("/pwd/modify")
+  @ApiOperation("修改密码")
+  public BaasResult<Void> modifyPwd(@RequestBody ModifyPwdRequest modifyPwdRequest) {
+    userService.modifyPwd(modifyPwdRequest);
+    return BaasResult.success();
+  }
+
+  @PostMapping("/del")
+  @ApiOperation("删除用户")
+  public BaasResult<Boolean> deleteUser(@RequestBody DeleteUserRequest deleteUserRequest) {
+    checkDelUser(deleteUserRequest);
+    boolean successFlag = userService.deleteUser(deleteUserRequest);
+    return BaasResult.success(successFlag);
+  }
+
+  @PostMapping("/unfrozen")
+  @ApiOperation("解冻用户")
+  public BaasResult<Void> unfrozenUser(@RequestBody UnfrozenUserRequest unfrozenUserRequest) {
+    userService.unfrozenUser(unfrozenUserRequest);
+    return BaasResult.success();
+  }
+
+  private void checkCreateUser(List<RoleInfo> roles) {
+    if (CollectionUtils.isNotEmpty(roles)) {
+      List<String> consIds = roles.stream().map(RoleInfo::getConsId).collect(Collectors.toList());
+      SysManager.checkOwnCons(consIds);
+    }
+  }
+
+  private void checkDelUser(DeleteUserRequest deleteUserRequest) {
+    List<AuthInfo> authInfoList = loginService.getAuthInfo(deleteUserRequest.getId());
+    if (CollectionUtils.isNotEmpty(authInfoList)) {
+      List<String> consIds = authInfoList.stream().map(AuthInfo::getConsId)
+          .collect(Collectors.toList());
+      SysManager.checkOwnCons(consIds);
+    }
+  }
 }

@@ -17,12 +17,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserInfoBo implements Serializable {
-	
-	private UserInfoPo user;
-   
-	private List<UserRolePo> userRoles;
-	
-	private List<UserOrganizationPo> userOrgs;
 
-    private static final long serialVersionUID = 1L;
+  private UserInfoPo user;
+
+  private List<UserRolePo> userRoles;
+
+  private List<UserOrganizationPo> userOrgs;
+
+  private static final long serialVersionUID = 1L;
 }

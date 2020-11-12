@@ -18,59 +18,59 @@ import lombok.AllArgsConstructor;
 
 /**
  * @author zt
- * @date May 11, 2020
  * @version 1.0
+ * @date May 11, 2020
  */
 @Service
 @AllArgsConstructor
-public class ConsortiumDasImpl implements ConsortiumDas{
+public class ConsortiumDasImpl implements ConsortiumDas {
 
-	private ConsortiumPoMapper consortiumPoMapper;
-	
-	public Optional<ConsortiumPo> findById(String id) {
-		return consortiumPoMapper.selectByPrimaryKey(id);
-	}
-	
-	public List<ConsortiumPo> findByName(String name){
-		ConsortiumPoExample example = new ConsortiumPoExample();
-		example.createCriteria().andNameEqualTo(name)
-		.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-		return consortiumPoMapper.selectByExample(example);
-	}
-	
-	public List<ConsortiumPo> findByIds(List<String> ids) {
-		if(CollectionUtils.isEmpty(ids)) {
-			return Lists.newArrayList();
-		}
-		ConsortiumPoExample example = new ConsortiumPoExample();
-		example.createCriteria().andConsortiumIdIn(ids);
-		example.setOrderByClause("create_time desc");
-		return consortiumPoMapper.selectByExampleWithBLOBs(example);
-	}
-	
-	public List<ConsortiumPo> findAll(String id){
-		ConsortiumPoExample example = new ConsortiumPoExample();
-		Criteria criteria = example.createCriteria();
-		criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-		if(id != null) {
-			criteria.andConsortiumIdEqualTo(id);
-		}
-		example.setOrderByClause("create_time desc");
-		return consortiumPoMapper.selectByExampleWithBLOBs(example);
-	}
-	
-	public long count() {
-		ConsortiumPoExample example = new ConsortiumPoExample();
-		example.createCriteria().andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-		return consortiumPoMapper.countByExample(example);
-	}
-	
-	public void createConsortium(ConsortiumPo cons) {
-        consortiumPoMapper.insert(cons);
+  private ConsortiumPoMapper consortiumPoMapper;
+
+  public Optional<ConsortiumPo> findById(String id) {
+    return consortiumPoMapper.selectByPrimaryKey(id);
+  }
+
+  public List<ConsortiumPo> findByName(String name) {
+    ConsortiumPoExample example = new ConsortiumPoExample();
+    example.createCriteria().andNameEqualTo(name)
+        .andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    return consortiumPoMapper.selectByExample(example);
+  }
+
+  public List<ConsortiumPo> findByIds(List<String> ids) {
+    if (CollectionUtils.isEmpty(ids)) {
+      return Lists.newArrayList();
     }
-	
-	public int modifyCons(ConsortiumPo cons){
-		return consortiumPoMapper.updateByPrimaryKeySelective(cons);
-	}
+    ConsortiumPoExample example = new ConsortiumPoExample();
+    example.createCriteria().andConsortiumIdIn(ids);
+    example.setOrderByClause("create_time desc");
+    return consortiumPoMapper.selectByExampleWithBLOBs(example);
+  }
+
+  public List<ConsortiumPo> findAll(String id) {
+    ConsortiumPoExample example = new ConsortiumPoExample();
+    Criteria criteria = example.createCriteria();
+    criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    if (id != null) {
+      criteria.andConsortiumIdEqualTo(id);
+    }
+    example.setOrderByClause("create_time desc");
+    return consortiumPoMapper.selectByExampleWithBLOBs(example);
+  }
+
+  public long count() {
+    ConsortiumPoExample example = new ConsortiumPoExample();
+    example.createCriteria().andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    return consortiumPoMapper.countByExample(example);
+  }
+
+  public void createConsortium(ConsortiumPo cons) {
+    consortiumPoMapper.insert(cons);
+  }
+
+  public int modifyCons(ConsortiumPo cons) {
+    return consortiumPoMapper.updateByPrimaryKeySelective(cons);
+  }
 
 }

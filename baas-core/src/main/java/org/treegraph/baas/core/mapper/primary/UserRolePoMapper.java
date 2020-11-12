@@ -6,27 +6,30 @@ import org.treegraph.baas.core.domain.UserRolePo;
 import org.treegraph.baas.core.domain.UserRolePoExample;
 
 public interface UserRolePoMapper {
-    long countByExample(UserRolePoExample example);
 
-    int deleteByExample(UserRolePoExample example);
+  long countByExample(UserRolePoExample example);
 
-    int deleteByPrimaryKey(Long id);
+  int deleteByExample(UserRolePoExample example);
 
-    int insert(UserRolePo record);
+  int deleteByPrimaryKey(Long id);
 
-    int insertSelective(UserRolePo record);
+  int insert(UserRolePo record);
 
-    List<UserRolePo> selectByExample(UserRolePoExample example);
+  int insertSelective(UserRolePo record);
 
-    UserRolePo selectByPrimaryKey(Long id);
+  List<UserRolePo> selectByExample(UserRolePoExample example);
 
-    int updateByExampleSelective(@Param("record") UserRolePo record, @Param("example") UserRolePoExample example);
+  UserRolePo selectByPrimaryKey(Long id);
 
-    int updateByExample(@Param("record") UserRolePo record, @Param("example") UserRolePoExample example);
+  int updateByExampleSelective(@Param("record") UserRolePo record,
+      @Param("example") UserRolePoExample example);
 
-    int updateByPrimaryKeySelective(UserRolePo record);
+  int updateByExample(@Param("record") UserRolePo record,
+      @Param("example") UserRolePoExample example);
 
-    int updateByPrimaryKey(UserRolePo record);
-    
-    int bulkInsert(List<UserRolePo> list);
+  int updateByPrimaryKeySelective(UserRolePo record);
+
+  int updateByPrimaryKey(UserRolePo record);
+
+  int bulkInsert(List<UserRolePo> list);
 }

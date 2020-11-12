@@ -9,15 +9,15 @@ import lombok.Data;
 @Data
 public class CreateUserRequest {
 
-	private String account;
-	
-	private String pwd;
-	
-	private String name;
-	
-	private String phone;
-	
-	private String email;
-	
-	private List<RoleInfo> roles;
+  private String account;
+
+  private String pwd;
+
+  private String name;
+
+  private String phone;
+
+  private String email;
+
+  private List<RoleInfo> roles;
 }

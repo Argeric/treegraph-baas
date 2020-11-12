@@ -19,33 +19,34 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class UserTokenDasImpl implements UserTokenDas {
 
-	private UserLoginTokenPoMapper userLoginTokenPoMapper;
+  private UserLoginTokenPoMapper userLoginTokenPoMapper;
 
-	/**
-	 * token的过期时间 到凌晨00:00
-	 */
-	@Override
-	public String createToken(UserInfoPo user) {
+  /**
+   * token的过期时间 到凌晨00:00
+   */
+  @Override
+  public String createToken(UserInfoPo user) {
 
-		long expireSecs = CacheTimeUtil.getSecondToMorning();
-		String token = JwtUtils.generateToken(user.getId(), user.getAccount(), user.getName(), expireSecs);
+    long expireSecs = CacheTimeUtil.getSecondToMorning();
+    String token = JwtUtils
+        .generateToken(user.getId(), user.getAccount(), user.getName(), expireSecs);
 
-		UserLoginTokenPo userToken = new UserLoginTokenPo();
-		userToken.setUserId(user.getId());
-		userToken.setExpire((int) (expireSecs));
-		userToken.setToken(token);
-		userToken.setCreateTime(LocalDateTime.now());
+    UserLoginTokenPo userToken = new UserLoginTokenPo();
+    userToken.setUserId(user.getId());
+    userToken.setExpire((int) (expireSecs));
+    userToken.setToken(token);
+    userToken.setCreateTime(LocalDateTime.now());
 
-		UserLoginTokenPo existToken = findByUserId(user.getId());
-		if (Objects.isNull(existToken)) {
-			userLoginTokenPoMapper.insertSelective(userToken);
-		} else {
-			userToken.setId(existToken.getId());
-			userLoginTokenPoMapper.updateByPrimaryKeySelective(userToken);
-		}
+    UserLoginTokenPo existToken = findByUserId(user.getId());
+    if (Objects.isNull(existToken)) {
+      userLoginTokenPoMapper.insertSelective(userToken);
+    } else {
+      userToken.setId(existToken.getId());
+      userLoginTokenPoMapper.updateByPrimaryKeySelective(userToken);
+    }
 
-		return token;
-	}
+    return token;
+  }
 
 //	@Override
 //	public String updateByUserId(String token, String userId) {
@@ -59,11 +60,11 @@ public class UserTokenDasImpl implements UserTokenDas {
 //		return userLoginTokenPoMapper.deleteByExample(userTokenPoExample) > 0;
 //	}
 
-	@Override
-	public UserLoginTokenPo findByUserId(String userId) {
-		UserLoginTokenPoExample userTokenPoExample = new UserLoginTokenPoExample();
-		userTokenPoExample.createCriteria().andUserIdEqualTo(userId);
-		List<UserLoginTokenPo> userTokens = userLoginTokenPoMapper.selectByExample(userTokenPoExample);
-		return userTokens.size() > 0 ? userTokens.get(0) : null;
-	}
+  @Override
+  public UserLoginTokenPo findByUserId(String userId) {
+    UserLoginTokenPoExample userTokenPoExample = new UserLoginTokenPoExample();
+    userTokenPoExample.createCriteria().andUserIdEqualTo(userId);
+    List<UserLoginTokenPo> userTokens = userLoginTokenPoMapper.selectByExample(userTokenPoExample);
+    return userTokens.size() > 0 ? userTokens.get(0) : null;
+  }
 }

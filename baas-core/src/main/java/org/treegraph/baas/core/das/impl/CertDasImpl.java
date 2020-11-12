@@ -14,17 +14,17 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class CertDasImpl implements CertDas {
-	
-	private CertificateRequestPoMapper certificateRequestPoMapper;
-	
-	public List<CertificateRequestPo> findByBlockchainId(String blockchainId){
-		CertificateRequestPoExample example = new CertificateRequestPoExample();
-		example.createCriteria().andBlockchainIdEqualTo(blockchainId);
-		example.setOrderByClause("create_time desc");
-		return certificateRequestPoMapper.selectByExample(example);
-	}
 
-	public boolean add(CertificateRequestPo certificateRequest){
-		return certificateRequestPoMapper.insert(certificateRequest) > 0;
-	}
+  private CertificateRequestPoMapper certificateRequestPoMapper;
+
+  public List<CertificateRequestPo> findByBlockchainId(String blockchainId) {
+    CertificateRequestPoExample example = new CertificateRequestPoExample();
+    example.createCriteria().andBlockchainIdEqualTo(blockchainId);
+    example.setOrderByClause("create_time desc");
+    return certificateRequestPoMapper.selectByExample(example);
+  }
+
+  public boolean add(CertificateRequestPo certificateRequest) {
+    return certificateRequestPoMapper.insert(certificateRequest) > 0;
+  }
 }

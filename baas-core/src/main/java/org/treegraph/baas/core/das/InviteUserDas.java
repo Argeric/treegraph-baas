@@ -7,7 +7,8 @@ import org.treegraph.baas.core.domain.UserInvitePo;
 import org.treegraph.baas.core.domain.UserRoleInvitePo;
 
 public interface InviteUserDas {
-	Optional<UserInvitePo> findById(Long inviteId);
-	
-	List<UserRoleInvitePo> findByInviteId(Long inviteId);
+
+  Optional<UserInvitePo> findById(Long inviteId);
+
+  List<UserRoleInvitePo> findByInviteId(Long inviteId);
 }

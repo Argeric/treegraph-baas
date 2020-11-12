@@ -54,162 +54,172 @@ import org.treegraph.baas.core.util.crypto.x509.CertUtil;
 @Slf4j
 public class BlockchainServiceImpl implements BlockchainService {
 
-	private final BlockchainDas blockchainDas;
-	
-	private final ConsortiumDas consortiumDas;
-	
-	private final NodeDas nodeDas;
-	
-	private final UserInfoDas userInfoDas;
-	
-	private final CertDas certDas;
-	
-	private final KeypairDas keypairDas;
+  private final BlockchainDas blockchainDas;
 
-	public ListBlockchainResponse listBlockchain(ListRequest req) {
-		PageHelper.startPage(req.getCurrent(), req.getPageSize());
-		List<BlockChainPo> chains = blockchainDas.findAll(null, null);
-		PageInfo<BlockChainPo> pageInfo = new PageInfo<>(chains);
-		
-		List<BlockChainPo> blockchains = pageInfo.getList();
-		List<String> consIdList = blockchains.stream().map(BlockChainPo::getConsortiumId).collect(Collectors.toList());
-		List<ConsortiumPo> consList = consortiumDas.findByIds(consIdList);
-		Map<String, ConsortiumPo> consMap = consList.stream()
-				.collect(Collectors.toMap(ConsortiumPo::getConsortiumId, Function.identity()));
-		
-		List<String> creatorIds = blockchains.stream().map(BlockChainPo::getCreateBy).collect(Collectors.toList());
-		List<UserInfoPo> users = userInfoDas.findByIds(creatorIds);
-		Map<String, UserInfoPo> userMap = users.stream()
-				.collect(Collectors.toMap(UserInfoPo::getId, Function.identity()));
-		
-		List<String> chainIdList = blockchains.stream().map(BlockChainPo::getId).collect(Collectors.toList());
-		List<NodePo> nodes = nodeDas.findByChainIds(chainIdList);
-		Map<String, Long> chainCountMap = nodes.stream()
-				.collect(Collectors.groupingBy(NodePo::getBlockchainId, Collectors.counting()));
-		
-		List<KeypairPo> consKeypairs = keypairDas.findAll(consIdList, CryptoEnum.KeyType.CONSORTIUM.getCode(),
-				CryptoEnum.Algo.RSA.getCode());
-		Map<String, List<String>> expireDateMap = Maps.newHashMap();
-		consKeypairs.forEach(item -> {
-			try {
-				X509Certificate cert = CertUtil.certFromPem(item.getCertStr());
-				List<String> expireDates = Lists.newArrayList();
-				expireDates.add(DateUtils.format(cert.getNotBefore(), DateUtils.SYSTEM_DATE_FORMAT));
-				expireDates.add(DateUtils.format(cert.getNotAfter(), DateUtils.SYSTEM_DATE_FORMAT));
-				expireDateMap.put(item.getConsortiumId(), expireDates);
-			} catch (Exception e) {
-				log.error("get expireDates err", e);
-			}
-		});
-		
-		List<BlockchainInfo> list = blockchains.stream().map(item ->{
-				BlockchainEnum.Status status = BlockchainEnum.Status.getByCode(item.getStatus());
-				List<String> expireDates = expireDateMap.get(item.getConsortiumId());
-				return BlockchainInfo.builder()
-				.id(item.getId())
-				.name(item.getBlockchainName())
-				.consId(item.getConsortiumId())
-				.consName(consMap.get(item.getConsortiumId()).getName())
-				.consAvatar(consMap.get(item.getConsortiumId()).getAvatar() != null
-						? new String(consMap.get(item.getConsortiumId()).getAvatar())
-						: null)
-				.createUser(userMap.get(item.getCreateBy()).getName())
-				.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
-				.status(status != null ? status.getCode() : null)
-				.nodeCount(chainCountMap.get(item.getId()) == null ? "0" : chainCountMap.get(item.getId()) + "")
-				.tps(null)
-				.contractCount(null)
-				.txCount(null)
-				.alertEmail(item.getAlarmEmail())
-				.certNotBefore(expireDates != null ? expireDates.get(0) : "")
-				.certNotAfter(expireDates != null ? expireDates.get(1) : "")
-				.build();
-		}).collect(Collectors.toList());
+  private final ConsortiumDas consortiumDas;
 
-		return ListBlockchainResponse.builder()
-				.current(req.getCurrent())
-				.pageSize(req.getPageSize())
-				.list(list)
-				.total(pageInfo.getTotal())
-				.build();
-	}
-	
-	public List<BlockchainInfo> queryBlockchain(QueryBlockchainRequest req){
-		List<BlockChainPo> blockchains = blockchainDas.findAll(req.getId(), req.getConsId());
-		return blockchains.stream().map(item -> {
-			BlockchainEnum.Status status = BlockchainEnum.Status.getByCode(item.getStatus());
-			return BlockchainInfo.builder()
-					.id(item.getId())
-					.name(item.getBlockchainName())
-					.status(status != null ? status.getCode() : null)
-					.alertEmail(item.getAlarmEmail())
-					.build();
-		}).collect(Collectors.toList());
-	}
+  private final NodeDas nodeDas;
 
-	public QueryBlockchainDetailResponse getBlockchainDetail(QueryBlockchainDetailRequest req) {
-		BlockChainPo chain = blockchainDas.findById(req.getId())
-				.orElseThrow(() -> new AlertException("blockchain.not.found"));
-		ConsortiumPo cons = consortiumDas.findById(chain.getConsortiumId())
-				.orElseThrow(() -> new AlertException("consortium.not.found"));
-		List<NodePo> nodes = nodeDas.findByConsIdAndChainId(cons.getConsortiumId(), chain.getId());
-		List<NodeInfo> nodeInfoList = nodes.stream().map(item -> NodeInfo.builder()
-				.ip(item.getNodeIp())
-				.port(item.getNodePort()+"")
-				.org(item.getOrganizationName())
-				.build()).collect(Collectors.toList());
+  private final UserInfoDas userInfoDas;
 
-		BlockchainEnum.Consensus consensus = BlockchainEnum.Consensus.getByCode(chain.getConsensusAlgorithm());
-		BlockchainEnum.Algorithm algorithm = BlockchainEnum.Algorithm.getByCode(chain.getEncryptAlgorithm());
-		return QueryBlockchainDetailResponse.builder()
-				.id(chain.getId())
-				.name(chain.getBlockchainName())
-				.alertEmail(chain.getAlarmEmail())
-				.nodes(nodeInfoList)
-				.consId(chain.getConsortiumId())
-				.consName(cons.getName())
-				.consAvatar(cons.getAvatar() != null ? new String(cons.getAvatar()) : null)
-				.consContact(cons.getContactName())
-				.consEmail(cons.getContactEmail())
-				.consPhone(cons.getContactPhone())
-				.consensus(consensus != null ? consensus.getName() : null)
-				.algorithm(algorithm != null ? algorithm.getName() : null)
-				.tps(null)
-				.txCount(null)
-				.build();
-	}
+  private final CertDas certDas;
 
-	public ListCertResponse listCert(ListCertRequest req) {
-		List<CertificateRequestPo> certReqList = certDas.findByBlockchainId(req.getBlockchainId());
-		List<String> applyUserIdList = certReqList.stream().map(CertificateRequestPo::getApplyUserId)
-				.collect(Collectors.toList());
-		List<UserInfoPo> users = userInfoDas.findByIds(applyUserIdList);
-		Map<String, UserInfoPo> userMap = users.stream()
-				.collect(Collectors.toMap(UserInfoPo::getId, Function.identity()));
+  private final KeypairDas keypairDas;
 
-		List<CertInfo> list = certReqList.stream().map(item -> CertInfo.builder()
-				.id(req.getBlockchainId())
-				.name(userMap.get(item.getApplyUserId()).getName())
-				.account(userMap.get(item.getApplyUserId()).getAccount())
-				.ipList(item.getSan() != null ? JSONObject.parseArray(item.getSan(), String.class) : null)
-				.createTime(DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
-				.build()).collect(Collectors.toList());
-		
-		return ListCertResponse.builder()
-				.list(list)
-				.build();
-	}
+  public ListBlockchainResponse listBlockchain(ListRequest req) {
+    PageHelper.startPage(req.getCurrent(), req.getPageSize());
+    List<BlockChainPo> chains = blockchainDas.findAll(null, null);
+    PageInfo<BlockChainPo> pageInfo = new PageInfo<>(chains);
 
-	public void downloadCert(DownloadCertRequest downloadCertRequest) {
-	}
-	
-	public boolean switchBlockchainStatus(SwitchBlockchainStatusRequest req, BlockchainEnum.Status status) {
-		BlockChainPo blockChainPo = BlockChainPo.builder()
-				.id(req.getBlockchainId())
-				.status(status.getCode())
-				.updateTime(LocalDateTime.now())
-				.updateBy(WebHelper.getUserId())
-				.build();
-		return blockchainDas.modify(blockChainPo);
-	}
+    List<BlockChainPo> blockchains = pageInfo.getList();
+    List<String> consIdList = blockchains.stream().map(BlockChainPo::getConsortiumId)
+        .collect(Collectors.toList());
+    List<ConsortiumPo> consList = consortiumDas.findByIds(consIdList);
+    Map<String, ConsortiumPo> consMap = consList.stream()
+        .collect(Collectors.toMap(ConsortiumPo::getConsortiumId, Function.identity()));
+
+    List<String> creatorIds = blockchains.stream().map(BlockChainPo::getCreateBy)
+        .collect(Collectors.toList());
+    List<UserInfoPo> users = userInfoDas.findByIds(creatorIds);
+    Map<String, UserInfoPo> userMap = users.stream()
+        .collect(Collectors.toMap(UserInfoPo::getId, Function.identity()));
+
+    List<String> chainIdList = blockchains.stream().map(BlockChainPo::getId)
+        .collect(Collectors.toList());
+    List<NodePo> nodes = nodeDas.findByChainIds(chainIdList);
+    Map<String, Long> chainCountMap = nodes.stream()
+        .collect(Collectors.groupingBy(NodePo::getBlockchainId, Collectors.counting()));
+
+    List<KeypairPo> consKeypairs = keypairDas
+        .findAll(consIdList, CryptoEnum.KeyType.CONSORTIUM.getCode(),
+            CryptoEnum.Algo.RSA.getCode());
+    Map<String, List<String>> expireDateMap = Maps.newHashMap();
+    consKeypairs.forEach(item -> {
+      try {
+        X509Certificate cert = CertUtil.certFromPem(item.getCertStr());
+        List<String> expireDates = Lists.newArrayList();
+        expireDates.add(DateUtils.format(cert.getNotBefore(), DateUtils.SYSTEM_DATE_FORMAT));
+        expireDates.add(DateUtils.format(cert.getNotAfter(), DateUtils.SYSTEM_DATE_FORMAT));
+        expireDateMap.put(item.getConsortiumId(), expireDates);
+      } catch (Exception e) {
+        log.error("get expireDates err", e);
+      }
+    });
+
+    List<BlockchainInfo> list = blockchains.stream().map(item -> {
+      BlockchainEnum.Status status = BlockchainEnum.Status.getByCode(item.getStatus());
+      List<String> expireDates = expireDateMap.get(item.getConsortiumId());
+      return BlockchainInfo.builder()
+          .id(item.getId())
+          .name(item.getBlockchainName())
+          .consId(item.getConsortiumId())
+          .consName(consMap.get(item.getConsortiumId()).getName())
+          .consAvatar(consMap.get(item.getConsortiumId()).getAvatar() != null
+              ? new String(consMap.get(item.getConsortiumId()).getAvatar())
+              : null)
+          .createUser(userMap.get(item.getCreateBy()).getName())
+          .createTime(
+              DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
+          .status(status != null ? status.getCode() : null)
+          .nodeCount(
+              chainCountMap.get(item.getId()) == null ? "0" : chainCountMap.get(item.getId()) + "")
+          .tps(null)
+          .contractCount(null)
+          .txCount(null)
+          .alertEmail(item.getAlarmEmail())
+          .certNotBefore(expireDates != null ? expireDates.get(0) : "")
+          .certNotAfter(expireDates != null ? expireDates.get(1) : "")
+          .build();
+    }).collect(Collectors.toList());
+
+    return ListBlockchainResponse.builder()
+        .current(req.getCurrent())
+        .pageSize(req.getPageSize())
+        .list(list)
+        .total(pageInfo.getTotal())
+        .build();
+  }
+
+  public List<BlockchainInfo> queryBlockchain(QueryBlockchainRequest req) {
+    List<BlockChainPo> blockchains = blockchainDas.findAll(req.getId(), req.getConsId());
+    return blockchains.stream().map(item -> {
+      BlockchainEnum.Status status = BlockchainEnum.Status.getByCode(item.getStatus());
+      return BlockchainInfo.builder()
+          .id(item.getId())
+          .name(item.getBlockchainName())
+          .status(status != null ? status.getCode() : null)
+          .alertEmail(item.getAlarmEmail())
+          .build();
+    }).collect(Collectors.toList());
+  }
+
+  public QueryBlockchainDetailResponse getBlockchainDetail(QueryBlockchainDetailRequest req) {
+    BlockChainPo chain = blockchainDas.findById(req.getId())
+        .orElseThrow(() -> new AlertException("blockchain.not.found"));
+    ConsortiumPo cons = consortiumDas.findById(chain.getConsortiumId())
+        .orElseThrow(() -> new AlertException("consortium.not.found"));
+    List<NodePo> nodes = nodeDas.findByConsIdAndChainId(cons.getConsortiumId(), chain.getId());
+    List<NodeInfo> nodeInfoList = nodes.stream().map(item -> NodeInfo.builder()
+        .ip(item.getNodeIp())
+        .port(item.getNodePort() + "")
+        .org(item.getOrganizationName())
+        .build()).collect(Collectors.toList());
+
+    BlockchainEnum.Consensus consensus = BlockchainEnum.Consensus
+        .getByCode(chain.getConsensusAlgorithm());
+    BlockchainEnum.Algorithm algorithm = BlockchainEnum.Algorithm
+        .getByCode(chain.getEncryptAlgorithm());
+    return QueryBlockchainDetailResponse.builder()
+        .id(chain.getId())
+        .name(chain.getBlockchainName())
+        .alertEmail(chain.getAlarmEmail())
+        .nodes(nodeInfoList)
+        .consId(chain.getConsortiumId())
+        .consName(cons.getName())
+        .consAvatar(cons.getAvatar() != null ? new String(cons.getAvatar()) : null)
+        .consContact(cons.getContactName())
+        .consEmail(cons.getContactEmail())
+        .consPhone(cons.getContactPhone())
+        .consensus(consensus != null ? consensus.getName() : null)
+        .algorithm(algorithm != null ? algorithm.getName() : null)
+        .tps(null)
+        .txCount(null)
+        .build();
+  }
+
+  public ListCertResponse listCert(ListCertRequest req) {
+    List<CertificateRequestPo> certReqList = certDas.findByBlockchainId(req.getBlockchainId());
+    List<String> applyUserIdList = certReqList.stream().map(CertificateRequestPo::getApplyUserId)
+        .collect(Collectors.toList());
+    List<UserInfoPo> users = userInfoDas.findByIds(applyUserIdList);
+    Map<String, UserInfoPo> userMap = users.stream()
+        .collect(Collectors.toMap(UserInfoPo::getId, Function.identity()));
+
+    List<CertInfo> list = certReqList.stream().map(item -> CertInfo.builder()
+        .id(req.getBlockchainId())
+        .name(userMap.get(item.getApplyUserId()).getName())
+        .account(userMap.get(item.getApplyUserId()).getAccount())
+        .ipList(item.getSan() != null ? JSONObject.parseArray(item.getSan(), String.class) : null)
+        .createTime(
+            DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
+        .build()).collect(Collectors.toList());
+
+    return ListCertResponse.builder()
+        .list(list)
+        .build();
+  }
+
+  public void downloadCert(DownloadCertRequest downloadCertRequest) {
+  }
+
+  public boolean switchBlockchainStatus(SwitchBlockchainStatusRequest req,
+      BlockchainEnum.Status status) {
+    BlockChainPo blockChainPo = BlockChainPo.builder()
+        .id(req.getBlockchainId())
+        .status(status.getCode())
+        .updateTime(LocalDateTime.now())
+        .updateBy(WebHelper.getUserId())
+        .build();
+    return blockchainDas.modify(blockChainPo);
+  }
 }

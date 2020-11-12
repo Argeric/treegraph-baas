@@ -40,220 +40,234 @@ import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
-public class UserInfoDasImpl implements UserInfoDas{
-	
-    private UserInfoPoMapper userInfoPoMapper;
-    
-    private UserRolePoMapper userRolePoMapper;
-    
-    private UserOrganizationPoMapper userOrganizationPoMapper;
-    
-    private RolePoMapper rolePoMapper;
-    
-    private RolePermissionPoMapper rolePermissionPoMapper;
-    
-    private UserInvitePoMapper userInvitePoMapper;
-    
-    private UserRoleInvitePoMapper userRoleInvitePoMapper;
-    
-    private ConsortiumPoMapper consortiumPoMapper;
-    
-    public Optional<UserInfoPo> findById(String userId) {
-        return userInfoPoMapper.selectByPrimaryKey(userId);
-    }
-    
-    public Optional<UserInfoPo> findByAccount(String account) {
-    	UserInfoPoExample example = new UserInfoPoExample();
-    	example.createCriteria().andAccountEqualTo(account)
-    	.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-    	List<UserInfoPo> users = userInfoPoMapper.selectByExample(example);
-    	return Optional.ofNullable(users.size() > 0 ? users.get(0) : null);
-    }
-    
-    public List<UserInfoPo> findByIds(List<String> userIds) {
-    	if(CollectionUtils.isEmpty(userIds)) {
-			return Lists.newArrayList();
-		}
-    	UserInfoPoExample example = new UserInfoPoExample();
-    	example.createCriteria().andIdIn(userIds);
-    	example.setOrderByClause("create_time desc");
-        return userInfoPoMapper.selectByExample(example);
-    }
-    
-    public List<UserInfoPo> findByAccountLike(String account) {
-    	UserInfoPoExample example = new UserInfoPoExample();
-    	example.createCriteria().andAccountLike("%"+account+"%")
-    	.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-    	example.setOrderByClause("create_time desc");
-        return userInfoPoMapper.selectByExample(example);
-    }
-    
-    public List<UserInfoPo> findAll(String account, String name, String email, String phone, Integer status) {
-		if (!PermHelper.getSysAdminFlag()) {
-			return userInfoPoMapper.selectUserList(account, name, email, phone,
-					Lists.newArrayList(PermHelper.getConsIdSet()), WebHelper.getUserId());
-		}
-    	
-    	UserInfoPoExample example = new UserInfoPoExample();
-    	Criteria criteria = example.createCriteria();
-    	if(StringUtils.isNotBlank(account)) {
-    		criteria.andAccountEqualTo(account);
-    	}
-    	if(StringUtils.isNotBlank(name)) {
-    		criteria.andNameEqualTo(name);
-    	}
-    	if(StringUtils.isNotBlank(email)) {
-    		criteria.andEmailEqualTo(email);
-    	}
-    	if(StringUtils.isNotBlank(phone)) {
-    		criteria.andPhoneEqualTo(phone);
-    	}
-    	if(status != null) {
-    		criteria.andStatusEqualTo(status);
-    	}
-    	criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-    	example.setOrderByClause("create_time desc");
-    	return userInfoPoMapper.selectByExample(example);
-    }
-    
-	public List<UserOrganizationPo> findUserOrgsByUserIds(List<String> userIds) {
-		if(CollectionUtils.isEmpty(userIds)) {
-			return Lists.newArrayList();
-		}
-		UserOrganizationPoExample example = new UserOrganizationPoExample();
-		example.createCriteria().andUserIdIn(userIds)
-		.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-		return userOrganizationPoMapper.selectByExample(example);
-	}    
-	
-	public long count() {
-		UserInfoPoExample example = new UserInfoPoExample();
-		example.createCriteria().andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-		return userInfoPoMapper.countByExample(example);
-	}
-    
-    public boolean createUser(UserInfoPo user, List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs) {
-    	boolean succFlag = Boolean.TRUE;
-    	
-    	succFlag = succFlag && userInfoPoMapper.insert(user) > 0;
-    	if(CollectionUtils.isNotEmpty(userRoles)) {
-    		succFlag = succFlag && userRolePoMapper.bulkInsert(userRoles) == userRoles.size();
-    	}
-    	if(CollectionUtils.isNotEmpty(userOrgs)) {
-    		succFlag = succFlag && userOrganizationPoMapper.bulkInsert(userOrgs) == userOrgs.size();
-    	}
-    	
-    	return succFlag;
-    }
-    
-    public boolean createUserRoles(List<UserRolePo> userRoles) {
-    	boolean succFlag = Boolean.TRUE;
-    	
-    	if(CollectionUtils.isNotEmpty(userRoles)) {
-    		succFlag = succFlag && userRolePoMapper.bulkInsert(userRoles) == userRoles.size();
-    	}
-    	
-    	return succFlag;
-    }
-    
-    
-	public void inviteUser(UserInvitePo userInvite, List<UserRoleInvitePo> userRoleInvites) {
-		boolean succFlag = Boolean.TRUE;
+public class UserInfoDasImpl implements UserInfoDas {
 
-		succFlag = succFlag && userInvitePoMapper.insert(userInvite) > 0;
-		
-		if (CollectionUtils.isNotEmpty(userRoleInvites)) {
-			userRoleInvites.stream().forEach(item -> item.setInviteId(userInvite.getId()));
-			succFlag = succFlag && userRoleInvitePoMapper.bulkInsert(userRoleInvites) == userRoleInvites.size();
-		}
-		
-		long expireSecs = CacheTimeUtil.getSecondToMorning();
-		String token = JwtUtils.generateInviteToken(expireSecs);
-		UserInvitePo updateInviteUser = UserInvitePo.builder()
-				.id(userInvite.getId())
-				.token(token)
-				.expire((int)expireSecs)
-				.build();
-		succFlag = succFlag && userInvitePoMapper.updateByPrimaryKeySelective(updateInviteUser) > 0;
+  private UserInfoPoMapper userInfoPoMapper;
 
+  private UserRolePoMapper userRolePoMapper;
+
+  private UserOrganizationPoMapper userOrganizationPoMapper;
+
+  private RolePoMapper rolePoMapper;
+
+  private RolePermissionPoMapper rolePermissionPoMapper;
+
+  private UserInvitePoMapper userInvitePoMapper;
+
+  private UserRoleInvitePoMapper userRoleInvitePoMapper;
+
+  private ConsortiumPoMapper consortiumPoMapper;
+
+  public Optional<UserInfoPo> findById(String userId) {
+    return userInfoPoMapper.selectByPrimaryKey(userId);
+  }
+
+  public Optional<UserInfoPo> findByAccount(String account) {
+    UserInfoPoExample example = new UserInfoPoExample();
+    example.createCriteria().andAccountEqualTo(account)
+        .andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    List<UserInfoPo> users = userInfoPoMapper.selectByExample(example);
+    return Optional.ofNullable(users.size() > 0 ? users.get(0) : null);
+  }
+
+  public List<UserInfoPo> findByIds(List<String> userIds) {
+    if (CollectionUtils.isEmpty(userIds)) {
+      return Lists.newArrayList();
     }
-	
-	public void updateInviteUserById(UserInvitePo userInvite) {
-		userInvitePoMapper.updateByPrimaryKeySelective(userInvite);
-	}
-    
-    public boolean delUser(UserInfoPo user, List<Long> userRoleIds) {
-    	boolean succFlag = Boolean.TRUE;
-    	succFlag = succFlag && userInfoPoMapper.updateByPrimaryKeySelective(user) > 0;
-    	
-    	if(CollectionUtils.isNotEmpty(userRoleIds)) {
-	    	UserRolePo record = UserRolePo.builder().deleteFlag(IntTypeEnum.TRUE.getValue())
-	    			.updateTime(LocalDateTime.now()).updateBy(WebHelper.getUserId()).build();
-	    	UserRolePoExample example = new UserRolePoExample();
-	    	example.createCriteria().andIdIn(userRoleIds);
-	    	succFlag = succFlag && userRolePoMapper.updateByExampleSelective(record, example) == userRoleIds.size();
-    	}
-    	
-    	return succFlag;
+    UserInfoPoExample example = new UserInfoPoExample();
+    example.createCriteria().andIdIn(userIds);
+    example.setOrderByClause("create_time desc");
+    return userInfoPoMapper.selectByExample(example);
+  }
+
+  public List<UserInfoPo> findByAccountLike(String account) {
+    UserInfoPoExample example = new UserInfoPoExample();
+    example.createCriteria().andAccountLike("%" + account + "%")
+        .andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    example.setOrderByClause("create_time desc");
+    return userInfoPoMapper.selectByExample(example);
+  }
+
+  public List<UserInfoPo> findAll(String account, String name, String email, String phone,
+      Integer status) {
+    if (!PermHelper.getSysAdminFlag()) {
+      return userInfoPoMapper.selectUserList(account, name, email, phone,
+          Lists.newArrayList(PermHelper.getConsIdSet()), WebHelper.getUserId());
     }
-    
-    public boolean updateUser(UserInfoPo user) {
-    	return userInfoPoMapper.updateByPrimaryKeySelective(user) > 0;
+
+    UserInfoPoExample example = new UserInfoPoExample();
+    Criteria criteria = example.createCriteria();
+    if (StringUtils.isNotBlank(account)) {
+      criteria.andAccountEqualTo(account);
     }
-    
-	public boolean modifyUser(String uesrId, UserInfoPo user, List<Long> toDelUserRoleIds,
-			List<UserRolePo> toAddUserRoles, List<Long> toDelUserOrgIds, List<UserOrganizationPo> toAddUserOrgs) {
-    	boolean succFlag = Boolean.TRUE;
-    	if(user != null) {
-    		succFlag = succFlag && userInfoPoMapper.updateByPrimaryKeySelective(user) > 0;
-    	}
-    	
-    	if(CollectionUtils.isNotEmpty(toDelUserRoleIds)) {
-    		UserRolePo record = UserRolePo.builder().deleteFlag(IntTypeEnum.TRUE.getValue())
-    				.updateTime(LocalDateTime.now()).updateBy(WebHelper.getUserId()).build();
-    		UserRolePoExample example = new UserRolePoExample();
-    		example.createCriteria().andIdIn(toDelUserRoleIds);
-    		succFlag = succFlag && userRolePoMapper.updateByExampleSelective(record, example) == toDelUserRoleIds.size();
-    	}
-    	if(CollectionUtils.isNotEmpty(toAddUserRoles)) {
-    		succFlag = succFlag && userRolePoMapper.bulkInsert(toAddUserRoles) == toAddUserRoles.size();
-    	}
-    	
-    	if(CollectionUtils.isNotEmpty(toDelUserOrgIds)) {
-    		UserOrganizationPo record = UserOrganizationPo.builder().deleteFlag(IntTypeEnum.TRUE.getValue())
-    				.updateTime(LocalDateTime.now()).build();
-    		UserOrganizationPoExample example = new UserOrganizationPoExample();
-    		example.createCriteria().andIdIn(toDelUserOrgIds);
-    		succFlag = succFlag && userOrganizationPoMapper.updateByExampleSelective(record, example) == toDelUserOrgIds.size();
-    	}
-    	if(CollectionUtils.isNotEmpty(toAddUserOrgs)) {
-    		succFlag = succFlag && userOrganizationPoMapper.bulkInsert(toAddUserOrgs) == toAddUserOrgs.size();
-    	}
-    	
-    	return succFlag;
+    if (StringUtils.isNotBlank(name)) {
+      criteria.andNameEqualTo(name);
     }
-    
-	public boolean createConsAdmin(RolePo role, List<RolePermissionPo> permissionList, List<UserInfoPo> users,
-			List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs, ConsortiumPo cons) {
-		
-    	boolean succFlag =  Boolean.TRUE;
-    	if(role != null) {
-    		succFlag = succFlag && rolePoMapper.insert(role) > 0;
-    	}
-    	if(CollectionUtils.isNotEmpty(permissionList)) {
-    		succFlag = succFlag && rolePermissionPoMapper.bulkInsert(permissionList) == permissionList.size();
-    	}
-    	if(CollectionUtils.isNotEmpty(users)) {
-    		succFlag = succFlag && userInfoPoMapper.bulkInsert(users) == users.size();
-    	}
-    	if(CollectionUtils.isNotEmpty(userRoles)) {
-    		succFlag = succFlag && userRolePoMapper.bulkInsert(userRoles) == userRoles.size();
-    	}
-    	if(CollectionUtils.isNotEmpty(userOrgs)) {
-    		succFlag = succFlag && userOrganizationPoMapper.bulkInsert(userOrgs) == userOrgs.size();
-    	}
-    	succFlag = succFlag && consortiumPoMapper.updateByPrimaryKeySelective(cons) > 0;
-    	
-    	return succFlag;
-	}
+    if (StringUtils.isNotBlank(email)) {
+      criteria.andEmailEqualTo(email);
+    }
+    if (StringUtils.isNotBlank(phone)) {
+      criteria.andPhoneEqualTo(phone);
+    }
+    if (status != null) {
+      criteria.andStatusEqualTo(status);
+    }
+    criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    example.setOrderByClause("create_time desc");
+    return userInfoPoMapper.selectByExample(example);
+  }
+
+  public List<UserOrganizationPo> findUserOrgsByUserIds(List<String> userIds) {
+    if (CollectionUtils.isEmpty(userIds)) {
+      return Lists.newArrayList();
+    }
+    UserOrganizationPoExample example = new UserOrganizationPoExample();
+    example.createCriteria().andUserIdIn(userIds)
+        .andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    return userOrganizationPoMapper.selectByExample(example);
+  }
+
+  public long count() {
+    UserInfoPoExample example = new UserInfoPoExample();
+    example.createCriteria().andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    return userInfoPoMapper.countByExample(example);
+  }
+
+  public boolean createUser(UserInfoPo user, List<UserRolePo> userRoles,
+      List<UserOrganizationPo> userOrgs) {
+    boolean succFlag = Boolean.TRUE;
+
+    succFlag = succFlag && userInfoPoMapper.insert(user) > 0;
+    if (CollectionUtils.isNotEmpty(userRoles)) {
+      succFlag = succFlag && userRolePoMapper.bulkInsert(userRoles) == userRoles.size();
+    }
+    if (CollectionUtils.isNotEmpty(userOrgs)) {
+      succFlag = succFlag && userOrganizationPoMapper.bulkInsert(userOrgs) == userOrgs.size();
+    }
+
+    return succFlag;
+  }
+
+  public boolean createUserRoles(List<UserRolePo> userRoles) {
+    boolean succFlag = Boolean.TRUE;
+
+    if (CollectionUtils.isNotEmpty(userRoles)) {
+      succFlag = succFlag && userRolePoMapper.bulkInsert(userRoles) == userRoles.size();
+    }
+
+    return succFlag;
+  }
+
+
+  public void inviteUser(UserInvitePo userInvite, List<UserRoleInvitePo> userRoleInvites) {
+    boolean succFlag = Boolean.TRUE;
+
+    succFlag = succFlag && userInvitePoMapper.insert(userInvite) > 0;
+
+    if (CollectionUtils.isNotEmpty(userRoleInvites)) {
+      userRoleInvites.stream().forEach(item -> item.setInviteId(userInvite.getId()));
+      succFlag =
+          succFlag && userRoleInvitePoMapper.bulkInsert(userRoleInvites) == userRoleInvites.size();
+    }
+
+    long expireSecs = CacheTimeUtil.getSecondToMorning();
+    String token = JwtUtils.generateInviteToken(expireSecs);
+    UserInvitePo updateInviteUser = UserInvitePo.builder()
+        .id(userInvite.getId())
+        .token(token)
+        .expire((int) expireSecs)
+        .build();
+    succFlag = succFlag && userInvitePoMapper.updateByPrimaryKeySelective(updateInviteUser) > 0;
+
+  }
+
+  public void updateInviteUserById(UserInvitePo userInvite) {
+    userInvitePoMapper.updateByPrimaryKeySelective(userInvite);
+  }
+
+  public boolean delUser(UserInfoPo user, List<Long> userRoleIds) {
+    boolean succFlag = Boolean.TRUE;
+    succFlag = succFlag && userInfoPoMapper.updateByPrimaryKeySelective(user) > 0;
+
+    if (CollectionUtils.isNotEmpty(userRoleIds)) {
+      UserRolePo record = UserRolePo.builder().deleteFlag(IntTypeEnum.TRUE.getValue())
+          .updateTime(LocalDateTime.now()).updateBy(WebHelper.getUserId()).build();
+      UserRolePoExample example = new UserRolePoExample();
+      example.createCriteria().andIdIn(userRoleIds);
+      succFlag =
+          succFlag && userRolePoMapper.updateByExampleSelective(record, example) == userRoleIds
+              .size();
+    }
+
+    return succFlag;
+  }
+
+  public boolean updateUser(UserInfoPo user) {
+    return userInfoPoMapper.updateByPrimaryKeySelective(user) > 0;
+  }
+
+  public boolean modifyUser(String uesrId, UserInfoPo user, List<Long> toDelUserRoleIds,
+      List<UserRolePo> toAddUserRoles, List<Long> toDelUserOrgIds,
+      List<UserOrganizationPo> toAddUserOrgs) {
+    boolean succFlag = Boolean.TRUE;
+    if (user != null) {
+      succFlag = succFlag && userInfoPoMapper.updateByPrimaryKeySelective(user) > 0;
+    }
+
+    if (CollectionUtils.isNotEmpty(toDelUserRoleIds)) {
+      UserRolePo record = UserRolePo.builder().deleteFlag(IntTypeEnum.TRUE.getValue())
+          .updateTime(LocalDateTime.now()).updateBy(WebHelper.getUserId()).build();
+      UserRolePoExample example = new UserRolePoExample();
+      example.createCriteria().andIdIn(toDelUserRoleIds);
+      succFlag =
+          succFlag && userRolePoMapper.updateByExampleSelective(record, example) == toDelUserRoleIds
+              .size();
+    }
+    if (CollectionUtils.isNotEmpty(toAddUserRoles)) {
+      succFlag = succFlag && userRolePoMapper.bulkInsert(toAddUserRoles) == toAddUserRoles.size();
+    }
+
+    if (CollectionUtils.isNotEmpty(toDelUserOrgIds)) {
+      UserOrganizationPo record = UserOrganizationPo.builder()
+          .deleteFlag(IntTypeEnum.TRUE.getValue())
+          .updateTime(LocalDateTime.now()).build();
+      UserOrganizationPoExample example = new UserOrganizationPoExample();
+      example.createCriteria().andIdIn(toDelUserOrgIds);
+      succFlag = succFlag
+          && userOrganizationPoMapper.updateByExampleSelective(record, example) == toDelUserOrgIds
+          .size();
+    }
+    if (CollectionUtils.isNotEmpty(toAddUserOrgs)) {
+      succFlag =
+          succFlag && userOrganizationPoMapper.bulkInsert(toAddUserOrgs) == toAddUserOrgs.size();
+    }
+
+    return succFlag;
+  }
+
+  public boolean createConsAdmin(RolePo role, List<RolePermissionPo> permissionList,
+      List<UserInfoPo> users,
+      List<UserRolePo> userRoles, List<UserOrganizationPo> userOrgs, ConsortiumPo cons) {
+
+    boolean succFlag = Boolean.TRUE;
+    if (role != null) {
+      succFlag = succFlag && rolePoMapper.insert(role) > 0;
+    }
+    if (CollectionUtils.isNotEmpty(permissionList)) {
+      succFlag =
+          succFlag && rolePermissionPoMapper.bulkInsert(permissionList) == permissionList.size();
+    }
+    if (CollectionUtils.isNotEmpty(users)) {
+      succFlag = succFlag && userInfoPoMapper.bulkInsert(users) == users.size();
+    }
+    if (CollectionUtils.isNotEmpty(userRoles)) {
+      succFlag = succFlag && userRolePoMapper.bulkInsert(userRoles) == userRoles.size();
+    }
+    if (CollectionUtils.isNotEmpty(userOrgs)) {
+      succFlag = succFlag && userOrganizationPoMapper.bulkInsert(userOrgs) == userOrgs.size();
+    }
+    succFlag = succFlag && consortiumPoMapper.updateByPrimaryKeySelective(cons) > 0;
+
+    return succFlag;
+  }
 }

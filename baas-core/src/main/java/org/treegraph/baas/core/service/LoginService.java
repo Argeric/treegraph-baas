@@ -9,7 +9,7 @@ import org.treegraph.baas.api.dto.response.LoginResponse;
 
 public interface LoginService {
 
-	LoginResponse login(String accountNo, String password, HttpServletRequest request);
-	
-	List<AuthInfo> getAuthInfo(String userId);
+  LoginResponse login(String accountNo, String password, HttpServletRequest request);
+
+  List<AuthInfo> getAuthInfo(String userId);
 }

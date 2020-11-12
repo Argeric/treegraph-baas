@@ -11,5 +11,5 @@ import lombok.Data;
 @Builder
 public class QueryBlockchainResponse {
 
-	private List<BlockchainInfo> list;
+  private List<BlockchainInfo> list;
 }

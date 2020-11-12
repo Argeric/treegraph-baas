@@ -7,7 +7,8 @@ import lombok.Data;
 @Data
 @Builder
 public class StatusBo {
-    private String statusRequest;
-    private Status statusResponse;
-    private String error;
+
+  private String statusRequest;
+  private Status statusResponse;
+  private String error;
 }

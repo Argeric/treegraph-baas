@@ -10,25 +10,28 @@ import org.treegraph.baas.core.persistence.GlobalLevel;
 
 @GlobalLevel
 public interface MembershipChangePoMapper {
-    long countByExample(MembershipChangePoExample example);
 
-    int deleteByExample(MembershipChangePoExample example);
+  long countByExample(MembershipChangePoExample example);
 
-    int deleteByPrimaryKey(Long id);
+  int deleteByExample(MembershipChangePoExample example);
 
-    int insert(MembershipChangePo record);
+  int deleteByPrimaryKey(Long id);
 
-    int insertSelective(MembershipChangePo record);
+  int insert(MembershipChangePo record);
 
-    List<MembershipChangePo> selectByExample(MembershipChangePoExample example);
+  int insertSelective(MembershipChangePo record);
 
-    Optional<MembershipChangePo> selectByPrimaryKey(Long id);
+  List<MembershipChangePo> selectByExample(MembershipChangePoExample example);
 
-    int updateByExampleSelective(@Param("record") MembershipChangePo record, @Param("example") MembershipChangePoExample example);
+  Optional<MembershipChangePo> selectByPrimaryKey(Long id);
 
-    int updateByExample(@Param("record") MembershipChangePo record, @Param("example") MembershipChangePoExample example);
+  int updateByExampleSelective(@Param("record") MembershipChangePo record,
+      @Param("example") MembershipChangePoExample example);
 
-    int updateByPrimaryKeySelective(MembershipChangePo record);
+  int updateByExample(@Param("record") MembershipChangePo record,
+      @Param("example") MembershipChangePoExample example);
 
-    int updateByPrimaryKey(MembershipChangePo record);
+  int updateByPrimaryKeySelective(MembershipChangePo record);
+
+  int updateByPrimaryKey(MembershipChangePo record);
 }

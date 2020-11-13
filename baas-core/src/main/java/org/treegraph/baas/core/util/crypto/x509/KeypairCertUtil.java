@@ -4,9 +4,9 @@ import static org.treegraph.baas.core.constant.X509CertConstant.TTL_CONSORTIUM_C
 import static org.treegraph.baas.core.constant.X509CertConstant.TTL_ROOT_CA_IN_DAY;
 import static org.treegraph.baas.core.constant.X509CertConstant.TTL_RPC_CERT_IN_DAY;
 import static org.treegraph.baas.core.constant.X509CertConstant.VAULT_PKI_PATH_ROOT_CA;
+import static org.treegraph.baas.core.constant.X509CertConstant.VAULT_ROLE_CONS_CA_ISSUER;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import java.security.KeyPair;
@@ -42,7 +42,8 @@ import org.treegraph.baas.core.enums.CryptoEnum.CertSignType;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.bo.KeypairCertBo;
-import org.treegraph.baas.core.service.bo.VaultDataGeneRootBo;
+import org.treegraph.baas.core.service.bo.VaultGenerateRootBo;
+import org.treegraph.baas.core.service.bo.VaultSignIntermediateBo;
 import org.treegraph.baas.core.util.DateUtils;
 
 @Validated
@@ -112,8 +113,8 @@ public class KeypairCertUtil {
         }
         if (keyType.getSignType() == CertSignType.VAULT) {
           String issuer = keyTypeCode == KeyType.CONSORTIUM.getCode()
-              ? X509CertConstant.VAULT_ROLE_ISSUER_CONS
-              : X509CertConstant.VAULT_ROLE_ISSUER_RPC;
+              ? X509CertConstant.VAULT_ROLE_CONS_CA_ISSUER
+              : X509CertConstant.VAULT_ROLE_RPC_CERT_ISSUER;
           certStr = signCertRequestByVault(vaultCa, csr, lastCrtExpire, ttl, issuer);
         }
         csrStr = CertUtil.csrToPem(csr);
@@ -196,11 +197,10 @@ public class KeypairCertUtil {
     return lastCrtLeftDays;
   }
 
-  public VaultDataGeneRootBo geneRootCaFromVault() {
-    mountToVault(VAULT_PKI_PATH_ROOT_CA, TTL_ROOT_CA_IN_DAY);
+  public VaultGenerateRootBo generateRoot() {
+    mount(VAULT_PKI_PATH_ROOT_CA, TTL_ROOT_CA_IN_DAY);
 
     Map<String, String> displayNameMap = parseSubject(KeyType.ROOT_CA.getSubject().getCode());
-    String cn = displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.CN));
     Map<String, Object> body = new HashMap<>();
     body.put("common_name", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.CN)));
     body.put("ou", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.OU)));
@@ -213,39 +213,63 @@ public class KeypairCertUtil {
     body.put("private_key_format", "der");
     body.put("key_type", "rsa");
     body.put("key_bits", 2048);
-    VaultResponse writeResponse = vaultOperations
+    VaultResponse generateRootResponse = vaultOperations
         .write(VAULT_PKI_PATH_ROOT_CA + "/root/generate/exported", body);
-    Assert.notNull(writeResponse, "gene.root.ca.not.response");
+    Assert.notNull(generateRootResponse, "gene.root.ca.not.response");
 
-    Map<String, Object> dataMap = writeResponse.getData();
-    return VaultDataGeneRootBo.builder().certificate((String) dataMap.get("certificate"))
-        .private_key((String) dataMap.get("private_key"))
-        .serial_number((String) dataMap.get("serial_number"))
+    createRole(VAULT_PKI_PATH_ROOT_CA, VAULT_ROLE_CONS_CA_ISSUER, TTL_ROOT_CA_IN_DAY);
+
+    Map<String, Object> dataMap = generateRootResponse.getData();
+    return VaultGenerateRootBo.builder().certificate((String) dataMap.get("certificate"))
+        .privateKey((String) dataMap.get("private_key"))
+        .serialNumber((String) dataMap.get("serial_number"))
         .build();
   }
 
-  public void deleteRootCaFromVault() {
-    vaultOperations.opsForPki().revoke("");
+  public VaultSignIntermediateBo signIntermediate(String pkiPath, String csr){
+    Map<String, String> displayNameMap = parseSubject(KeyType.CONSORTIUM.getSubject().getCode());
+    String commonName = displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.CN));
 
-    VaultSysOperations adminOperations = vaultOperations.opsForSys();
-    Map<String, VaultMount> mounts = adminOperations.getMounts();
-    log.debug("vaultMount pkiPath:{},resp:{}", VAULT_PKI_PATH_ROOT_CA, JSON.toJSONString(mounts));
+    Map<String, String> body = new HashMap<>();
+    body.put("csr", csr);
+    body.put("common_name", commonName);
+    body.put("format", "pem");
+    body.put("use_csr_values", "true");
+    body.put("max_ttl", (TTL_CONSORTIUM_CA_IN_DAY * 24) + "h");
+    VaultResponse signIntermediateResponse = vaultOperations.write(
+        pkiPath + "/root/sign-intermediate", body);
+    log.debug("signIntermediate pkiPath:{},resp:{}", pkiPath,
+        JSON.toJSONString(signIntermediateResponse));
+
+    Map<String, Object> dataMap = signIntermediateResponse.getData();
+    return VaultSignIntermediateBo.builder().certificate((String) dataMap.get("certificate"))
+        .serialNumber((String) dataMap.get("serial_number")).build();
   }
 
+  private void createRole(String pkiPath, String roleName, int ttlInHour) {
+    Map<String, String> body = new HashMap<>();
+    body.put("allowed_domains", "localhost,baas.conflux-chain.org");
+    body.put("allow_subdomains", "true");
+    body.put("allow_localhost", "true");
+    body.put("allow_ip_sans", "true");
+    body.put("max_ttl", ttlInHour + "h");
+    VaultResponse createRoleResponse = vaultOperations.write(
+        pkiPath + "/roles/" + roleName, body);
+    log.debug("createRole pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(createRoleResponse));
+  }
 
-  private void mountToVault(String pkiPath, int ttlInHour) {
+  private boolean mount(String pkiPath, int ttlInHour) {
     VaultSysOperations adminOperations = vaultOperations.opsForSys();
-    if (adminOperations.getMounts().containsKey(pkiPath)) {
-      return;
+    if (!adminOperations.getMounts().containsKey(pkiPath + "/")) {
+      VaultMount mount = VaultMount.builder().type("pki")
+          .config(Collections.singletonMap("max_lease_ttl", ttlInHour + "h")).description("bass pki")
+          .build();
+      adminOperations.mount(pkiPath, mount);
+
+      Map<String, VaultMount> mounts = adminOperations.getMounts();
+      log.debug("mount pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(mounts));
+      Assert.isTrue(mounts.containsKey(pkiPath + "/"), "vault mount pki path error");
     }
-
-    VaultMount mount = VaultMount.builder().type("pki")
-        .config(Collections.singletonMap("max_lease_ttl", ttlInHour + "h")).description("bass pki")
-        .build();
-    adminOperations.mount(pkiPath, mount);
-
-    Map<String, VaultMount> mounts = adminOperations.getMounts();
-    log.debug("vaultMount pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(mounts));
-    Assert.isTrue(mounts.containsKey(pkiPath + "/"), "vault mount pki path error");
+    return true;
   }
 }

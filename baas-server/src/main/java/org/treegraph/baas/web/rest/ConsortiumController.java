@@ -143,7 +143,7 @@ public class ConsortiumController {
   @PostMapping("/root/gene")
   @ApiOperation("root gene")
   public BaasResult<Void> geneRootCa() {
-    keypairCertUtil.geneRootCaFromVault();
+    keypairCertUtil.generateRoot();
     return BaasResult.success();
   }
 

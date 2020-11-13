@@ -5,12 +5,12 @@ import lombok.Data;
 
 @Data
 @Builder
-public class VaultDataGeneRootBo {
+public class VaultGenerateRootBo {
 
   private String certificate;
   private Long expiration;
-  private String issuing_ca;
-  private String private_key;
-  private String private_key_type;
-  private String serial_number;
+  private String issuingCa;
+  private String privateKey;
+  private String privateKeyType;
+  private String serialNumber;
 }

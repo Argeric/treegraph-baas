@@ -202,7 +202,7 @@ public class VaultKeypairBuildService {
     role.put("allow_ip_sans", "true");
     role.put("max_ttl", ttlInHour + "h");
     VaultResponse writeRoleToVaultResponse = vaultOperations.write(
-        pkiPath + "/roles/" + X509CertConstant.VAULT_ROLE_ISSUER_RPC, role);
+        pkiPath + "/roles/" + X509CertConstant.VAULT_ROLE_RPC_CERT_ISSUER, role);
     log.debug("writeRoleResponse pkiPath:{},resp:{}", pkiPath,
         JSON.toJSONString(writeRoleToVaultResponse));
   }

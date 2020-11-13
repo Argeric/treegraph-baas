@@ -294,7 +294,6 @@
   </dependencies>
 
   <build>
-    <finalName>baas-core-1.0.0-SNAPSHOT-pre</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

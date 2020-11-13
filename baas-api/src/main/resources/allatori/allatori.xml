@@ -1,6 +1,6 @@
 <config>
     <input>
-        <jar in="baas-api-1.0.0-SNAPSHOT-pre.jar" out="baas-api-1.0.0-SNAPSHOT.jar"/>
+        <jar in="baas-api-1.0.0-SNAPSHOT.jar" out="baas-api-1.0.0-SNAPSHOT-allatori.jar"/>
     </input>
     <ignore-classes>
         <class template="class *springframework*" />

@@ -24,7 +24,6 @@
   </dependencies>
 
   <build>
-    <finalName>baas-common-1.0.0-SNAPSHOT-pre</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

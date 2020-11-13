@@ -76,7 +76,6 @@ public class KeypairCertUtil {
     KeyPair keyPair;
     String publicKey;
     String privateKey;
-    int keyTypeCode = keyType.getCode();
     try {
       keyPair = KeyUtil.generateKeyPair(keyType.getAlgo().getCode());
       publicKey = KeyUtil.publicKeyToBase64(keyPair.getPublic());
@@ -84,7 +83,7 @@ public class KeypairCertUtil {
     } catch (Exception e) {
       throw new AlertException("generate.keypair.error");
     }
-    if (keyTypeCode == KeyType.NODE.getCode()) {
+    if (keyType == KeyType.NODE) {
       return KeypairCertBo.builder()
           .algorithm(keyType.getAlgo().getCode())
           .publicKey(publicKey)
@@ -94,10 +93,20 @@ public class KeypairCertUtil {
 
     String certStr = null, csrStr = null;
     try {
-      if (keyTypeCode == KeyType.ROOT_CA.getCode()) {
-        Certificate rootCA = CertUtil.generateRootCA(new X500Name(keyType.getSubject().getCode()),
-            keyPair, CertUtil.getNotBefore(), CertUtil.getNotAfter(TTL_ROOT_CA_IN_DAY));
-        certStr = CertUtil.certToPem(rootCA);
+      if (keyType == KeyType.ROOT_CA) {
+        if (keyType.getSignType() == CertSignType.BC) {
+          Certificate rootCA = CertUtil.generateRootCA(new X500Name(keyType.getSubject().getCode()),
+              keyPair, CertUtil.getNotBefore(), CertUtil.getNotAfter(TTL_ROOT_CA_IN_DAY));
+          certStr = CertUtil.certToPem(rootCA);
+        }
+        // add---> vault
+        if (keyType.getSignType() == CertSignType.VAULT) {
+          VaultGenerateRootBo vaultGenerateRootBo = generateRoot();
+          publicKey = null;
+          privateKey = vaultGenerateRootBo.getPrivateKey();
+          certStr = vaultGenerateRootBo.getCertificate();
+        }
+        // add---> vault
       } else {
         CertSignType signType = keyType.getSignType();
         Assert.isTrue(signType == CertSignType.BC || signType == CertSignType.VAULT,
@@ -105,17 +114,21 @@ public class KeypairCertUtil {
         PKCS10CertificationRequest csr = CertUtil
             .generateCSR(new X500Name(keyType.getSubject().getCode()),
                 keyPair.getPublic(), keyPair.getPrivate(), sanList);
-        int ttl = keyTypeCode == KeyType.CONSORTIUM.getCode() ? TTL_CONSORTIUM_CA_IN_DAY
+        int ttl = keyType == KeyType.CONSORTIUM ? TTL_CONSORTIUM_CA_IN_DAY
             : TTL_RPC_CERT_IN_DAY;
         if (keyType.getSignType() == CertSignType.BC) {
           Assert.notNull(bcCa, "parentKeypair.not.found");
           certStr = signCertRequestByBC(bcCa, csr, lastCrtExpire, ttl);
         }
         if (keyType.getSignType() == CertSignType.VAULT) {
-          String issuer = keyTypeCode == KeyType.CONSORTIUM.getCode()
+          String issuer = keyType == KeyType.CONSORTIUM
               ? X509CertConstant.VAULT_ROLE_CONS_CA_ISSUER
               : X509CertConstant.VAULT_ROLE_RPC_CERT_ISSUER;
           certStr = signCertRequestByVault(vaultCa, csr, lastCrtExpire, ttl, issuer);
+          // add---> vault
+          VaultSignIntermediateBo vaultSignIntermediateBo = signIntermediate(VAULT_PKI_PATH_ROOT_CA, CertUtil.csrToPem(csr));
+          certStr = vaultSignIntermediateBo.getCertificate();
+          // add---> vault
         }
         csrStr = CertUtil.csrToPem(csr);
       }
@@ -170,13 +183,7 @@ public class KeypairCertUtil {
   }
 
   private Map<String, String> parseSubject(X500Name subject) {
-    String displayName = BCStyle.INSTANCE.toString(subject);
-    Map<String, String> displayNameMap = Maps.newHashMap();
-    Arrays.stream(StringUtils.split(displayName, ",")).forEach(item -> {
-      String[] paras = item.split("=");
-      displayNameMap.put(paras[0], paras[1]);
-    });
-    return displayNameMap;
+    return this.parseSubject(BCStyle.INSTANCE.toString(subject));
   }
 
   private Map<String, String> parseSubject(String subjectDisplayName) {

@@ -35,19 +35,19 @@ public class KeypairCertUtil {
 
   private final VaultService vaultService;
 
-  public KeypairCertBo buildRootKeypairCert() {
+  public KeypairCertBo buildRoot() {
     return this.buildKeypairCert(KeyType.ROOT_CA, null, null, null, null);
   }
 
-  public KeypairCertBo buildConsKeypairCert(Date lastCrtExpire, KeypairPo bcRootCa) {
+  public KeypairCertBo buildConsCA(Date lastCrtExpire, KeypairPo bcRootCa) {
     return this.buildKeypairCert(KeyType.CONSORTIUM, lastCrtExpire, null, null, bcRootCa);
   }
 
-  public KeypairCertBo buildNodeKeypairCert() {
+  public KeypairCertBo buildNodeKeypair() {
     return this.buildKeypairCert(KeyType.NODE, null, null, null, null);
   }
 
-  public KeypairCertBo buildRpcKeypairCert(Date lastCrtExpire, List<String> sanList, String vaultCa,
+  public KeypairCertBo buildRpcCert(Date lastCrtExpire, List<String> sanList, String vaultCa,
       KeypairPo bcRootCa) {
     return this.buildKeypairCert(KeyType.RPC, lastCrtExpire, sanList, vaultCa, bcRootCa);
   }

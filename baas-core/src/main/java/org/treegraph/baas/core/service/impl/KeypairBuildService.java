@@ -64,7 +64,7 @@ public class KeypairBuildService {
       return rootKeypairList.get(0);
     }
 
-    KeypairCertBo keypairCert = keypairCertUtil.buildRootKeypairCert();
+    KeypairCertBo keypairCert = keypairCertUtil.buildRoot();
     String rootPublicKey = keypairCert.getPublicKey();
     String rootPrivateKey = keypairCert.getPrivateKey();
     String rootCa = keypairCert.getCertStr();
@@ -102,7 +102,7 @@ public class KeypairBuildService {
   @LogSkip
   public KeypairPo geneNewConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair,
       Date lastCrtExpire) throws Exception {
-    KeypairCertBo keypairCert = keypairCertUtil.buildConsKeypairCert(lastCrtExpire, rootKeypair);
+    KeypairCertBo keypairCert = keypairCertUtil.buildConsCA(lastCrtExpire, rootKeypair);
     if (KeyType.RPC.getSignType() == CertSignType.VAULT) {
       PrivateKey privateKey = KeyUtil.privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(),
           keypairCert.getPrivateKey());
@@ -143,7 +143,7 @@ public class KeypairBuildService {
       }
     }
 
-    KeypairCertBo keypairCert = keypairCertUtil.buildNodeKeypairCert();
+    KeypairCertBo keypairCert = keypairCertUtil.buildNodeKeypair();
     LocalDateTime now = LocalDateTime.now();
     String operUser = WebHelper.getUserId();
     KeypairPo keypair = KeypairPo.builder()
@@ -177,7 +177,7 @@ public class KeypairBuildService {
       Date lastCrtExpire,
       List<String> sanList) throws Exception {
     KeypairCertBo keypairCert = keypairCertUtil
-        .buildRpcKeypairCert(lastCrtExpire, sanList, consortiumId, consKeypair);
+        .buildRpcCert(lastCrtExpire, sanList, consortiumId, consKeypair);
     String rpcCert = keypairCert.getCertStr();
     String rpcPrivate = privateKeyToPem(
         privateKeyFromBase64(KeyType.RPC.getAlgo().getCode(), keypairCert.getPrivateKey()));

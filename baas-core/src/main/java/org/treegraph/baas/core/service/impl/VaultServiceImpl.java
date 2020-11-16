@@ -4,6 +4,7 @@ import static org.treegraph.baas.core.constant.X509CertConstant.TTL_CONSORTIUM_C
 import static org.treegraph.baas.core.constant.X509CertConstant.TTL_ROOT_CA_IN_DAY;
 import static org.treegraph.baas.core.constant.X509CertConstant.VAULT_PKI_PATH_ROOT_CA;
 import static org.treegraph.baas.core.constant.X509CertConstant.VAULT_ROLE_CONS_CA_ISSUER;
+import static org.treegraph.baas.core.constant.X509CertConstant.VAULT_ROLE_RPC_CERT_ISSUER;
 
 import com.alibaba.fastjson.JSON;
 import java.time.Duration;
@@ -27,6 +28,7 @@ import org.springframework.vault.support.VaultSignCertificateRequestResponse;
 import org.treegraph.baas.core.constant.X509CertConstant;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.service.VaultService;
+import org.treegraph.baas.core.service.bo.VaultGenerateIntermediateBo;
 import org.treegraph.baas.core.service.bo.VaultGenerateRootBo;
 import org.treegraph.baas.core.service.bo.VaultSignIntermediateBo;
 import org.treegraph.baas.core.util.crypto.x509.CertUtil;
@@ -85,7 +87,7 @@ public class VaultServiceImpl implements VaultService {
     body.put("key_bits", 2048);
     VaultResponse generateRootResponse = vaultOperations
         .write(VAULT_PKI_PATH_ROOT_CA + "/root/generate/exported", body);
-    Assert.notNull(generateRootResponse, "gene.root.ca.not.response");
+    Assert.notNull(generateRootResponse, "generateRoot.no.response");
 
     createRole(VAULT_PKI_PATH_ROOT_CA, VAULT_ROLE_CONS_CA_ISSUER, TTL_ROOT_CA_IN_DAY);
 
@@ -119,6 +121,37 @@ public class VaultServiceImpl implements VaultService {
         JSON.toJSONString(writeRoleToVaultResponse));
   }
 
+  public VaultGenerateIntermediateBo generateIntermediate(String consPkiPath){
+    boolean mountFlag = mount(consPkiPath, TTL_CONSORTIUM_CA_IN_DAY);
+    if(mountFlag) return VaultGenerateIntermediateBo.builder().build();
+
+    Map<String, String> displayNameMap = CertUtil.parseSubject(KeyType.CONSORTIUM.getSubject().getCode());
+    Map<String, Object> body = new HashMap<>();
+    body.put("common_name", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.CN)));
+    body.put("ou", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.OU)));
+    body.put("organization", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.O)));
+    body.put("locality", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.L)));
+    body.put("province", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.ST)));
+    body.put("country", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.C)));
+    body.put("ttl", TTL_CONSORTIUM_CA_IN_DAY * 24);
+    body.put("format", "pem");
+    body.put("private_key_format", "der");
+    body.put("key_type", "rsa");
+    body.put("key_bits", 2048);
+    VaultResponse generateIntermediateResponse = vaultOperations
+        .write(consPkiPath + "/intermediate/generate/exported", body);
+    Assert.notNull(generateIntermediateResponse, "generateIntermediate.ca.not.response");
+
+    createRole(consPkiPath, VAULT_ROLE_RPC_CERT_ISSUER, TTL_CONSORTIUM_CA_IN_DAY);
+
+    Map<String, Object> dataMap = generateIntermediateResponse.getData();
+    Assert.notNull(dataMap, "generateIntermediate.dataMap.is.null");
+    return VaultGenerateIntermediateBo.builder().csr((String) dataMap.get("csr"))
+        .privateKey((String) dataMap.get("private_key"))
+        .serialNumber((String) dataMap.get("serial_number"))
+        .build();
+  }
+
   public VaultSignIntermediateBo signIntermediate(String pkiPath, String csr){
     Map<String, String> displayNameMap = CertUtil.parseSubject(KeyType.CONSORTIUM.getSubject().getCode());
     String commonName = displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.CN));
@@ -139,6 +172,15 @@ public class VaultServiceImpl implements VaultService {
     Assert.notNull(dataMap, "signIntermediate.dataMap.is.null");
     return VaultSignIntermediateBo.builder().certificate((String) dataMap.get("certificate"))
         .serialNumber((String) dataMap.get("serial_number")).build();
+  }
+
+  public void setSignedIntermediate(String consPkiPath, String certPem){
+    Map<String, String> body = new HashMap<>();
+    body.put("certificate", certPem);
+    VaultResponse setSignedIntermediateResponse = vaultOperations.write(
+        consPkiPath + "/intermediate/set-signed", body);
+    log.debug("setSignedIntermediateResponse pkiPath:{},resp:{}", consPkiPath,
+        JSON.toJSONString(setSignedIntermediateResponse));
   }
 
   public String signCertificate(String pkiPath, PKCS10CertificationRequest csr,

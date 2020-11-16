@@ -4,11 +4,9 @@ import static org.treegraph.baas.core.constant.X509CertConstant.TTL_CONSORTIUM_C
 import static org.treegraph.baas.core.constant.X509CertConstant.TTL_ROOT_CA_IN_DAY;
 import static org.treegraph.baas.core.constant.X509CertConstant.TTL_RPC_CERT_IN_DAY;
 import static org.treegraph.baas.core.constant.X509CertConstant.VAULT_PKI_PATH_ROOT_CA;
-import static org.treegraph.baas.core.constant.X509CertConstant.VAULT_ROLE_CONS_CA_ISSUER;
 import static org.treegraph.baas.core.constant.X509CertConstant.VAULT_ROLE_RPC_CERT_ISSUER;
 
 import java.security.KeyPair;
-import java.security.PrivateKey;
 import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -28,6 +26,7 @@ import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.service.VaultService;
 import org.treegraph.baas.core.service.bo.KeypairBo;
 import org.treegraph.baas.core.service.bo.KeypairCertBo;
+import org.treegraph.baas.core.service.bo.VaultGenerateIntermediateBo;
 import org.treegraph.baas.core.service.bo.VaultGenerateRootBo;
 import org.treegraph.baas.core.service.bo.VaultSignIntermediateBo;
 
@@ -79,30 +78,36 @@ public class KeypairCertUtil {
     KeyType keyType = KeyType.CONSORTIUM;
     KeypairBo keypair = getKeypairByKeyType(keyType);
 
-    PKCS10CertificationRequest csr = CertUtil
-        .generateCSR(new X500Name(keyType.getSubject().getCode()),
-            keypair.getKeypair().getPublic(), keypair.getKeypair().getPrivate(), null);
-    String certStr = null;
+    String csrPem = null;
+    String certPem = null;
     if (keyType.getSignType() == CertSignType.BC) {
       Assert.notNull(bcRootCa, "parentKeypair.not.found");
-      certStr = CertUtil.signCertificate(bcRootCa, csr, lastCrtExpire, TTL_CONSORTIUM_CA_IN_DAY);
+      PKCS10CertificationRequest csr = CertUtil
+          .generateCSR(new X500Name(keyType.getSubject().getCode()),
+              keypair.getKeypair().getPublic(), keypair.getKeypair().getPrivate(), null);
+      csrPem = CertUtil.csrToPem(csr);
+      certPem = CertUtil.signCertificate(bcRootCa, csr, lastCrtExpire, TTL_CONSORTIUM_CA_IN_DAY);
       String privatePem = KeyUtil.privateKeyToPem(keypair.getKeypair().getPrivate());
-      vaultService.submitCAInformation(consId, certStr, privatePem, TTL_CONSORTIUM_CA_IN_DAY);
+      vaultService.submitCAInformation(consId, certPem, privatePem, TTL_CONSORTIUM_CA_IN_DAY);
     }
     if (keyType.getSignType() == CertSignType.VAULT) {
-      //Generate Intermediate
+      //generate intermediate
+      VaultGenerateIntermediateBo geneIntermediate = vaultService.generateIntermediate(consId);
+      csrPem = geneIntermediate.getCsr();
+      //sign intermediate
       VaultSignIntermediateBo vaultSignIntermediateBo = vaultService
-          .signIntermediate(VAULT_PKI_PATH_ROOT_CA, CertUtil.csrToPem(csr));
-      certStr = vaultSignIntermediateBo.getCertificate();
-      //Set Signed Intermediate
+          .signIntermediate(VAULT_PKI_PATH_ROOT_CA, csrPem);
+      certPem = vaultSignIntermediateBo.getCertificate();
+      //set signed intermediate
+      vaultService.setSignedIntermediate(consId, vaultSignIntermediateBo.getCertificate());
     }
 
     return KeypairCertBo.builder()
         .algorithm(keyType.getAlgo().getCode())
         .publicKey(keypair.getPublicKey())
         .privateKey(keypair.getPrivateKey())
-        .csrStr(CertUtil.csrToPem(csr))
-        .certStr(certStr)
+        .csrStr(csrPem)
+        .certStr(certPem)
         .build();
   }
 

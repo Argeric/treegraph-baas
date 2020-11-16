@@ -1,7 +1,6 @@
 package org.treegraph.baas.core.service.bo;
 
 import java.io.Serializable;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

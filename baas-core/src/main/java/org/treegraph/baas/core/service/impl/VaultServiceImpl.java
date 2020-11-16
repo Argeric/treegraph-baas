@@ -24,6 +24,7 @@ import org.springframework.vault.support.VaultCertificateRequest;
 import org.springframework.vault.support.VaultMount;
 import org.springframework.vault.support.VaultResponse;
 import org.springframework.vault.support.VaultSignCertificateRequestResponse;
+import org.treegraph.baas.core.constant.X509CertConstant;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.service.VaultService;
 import org.treegraph.baas.core.service.bo.VaultGenerateRootBo;
@@ -66,7 +67,8 @@ public class VaultServiceImpl implements VaultService {
   }
 
   public VaultGenerateRootBo generateRoot() {
-    mount(VAULT_PKI_PATH_ROOT_CA, TTL_ROOT_CA_IN_DAY);
+    boolean mountFlag = mount(VAULT_PKI_PATH_ROOT_CA, TTL_ROOT_CA_IN_DAY);
+    if(mountFlag) return VaultGenerateRootBo.builder().build();
 
     Map<String, String> displayNameMap = CertUtil.parseSubject(KeyType.ROOT_CA.getSubject().getCode());
     Map<String, Object> body = new HashMap<>();
@@ -93,6 +95,28 @@ public class VaultServiceImpl implements VaultService {
         .privateKey((String) dataMap.get("private_key"))
         .serialNumber((String) dataMap.get("serial_number"))
         .build();
+  }
+
+  public void submitCAInformation(String pkiPath, String certPem, String keyPem, int ttlInDay) {
+    int ttlInHour = ttlInDay * 24;
+    mount(pkiPath, ttlInHour);
+
+    Map<String, String> pemBundle = Collections.singletonMap("pem_bundle", certPem + keyPem);
+    VaultResponse writeCaToVaultResponse = vaultOperations.write(pkiPath + "/config/ca",
+        pemBundle);
+    log.debug("writeCaResponse pkiPath:{},resp:{}", pkiPath,
+        JSON.toJSONString(writeCaToVaultResponse));
+
+    Map<String, String> role = new HashMap<>();
+    role.put("allowed_domains", "localhost,baas.conflux-chain.org");
+    role.put("allow_subdomains", "true");
+    role.put("allow_localhost", "true");
+    role.put("allow_ip_sans", "true");
+    role.put("max_ttl", ttlInHour + "h");
+    VaultResponse writeRoleToVaultResponse = vaultOperations.write(
+        pkiPath + "/roles/" + X509CertConstant.VAULT_ROLE_RPC_CERT_ISSUER, role);
+    log.debug("writeRoleResponse pkiPath:{},resp:{}", pkiPath,
+        JSON.toJSONString(writeRoleToVaultResponse));
   }
 
   public VaultSignIntermediateBo signIntermediate(String pkiPath, String csr){

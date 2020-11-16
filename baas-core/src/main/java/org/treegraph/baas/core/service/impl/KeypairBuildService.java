@@ -3,30 +3,19 @@ package org.treegraph.baas.core.service.impl;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 
-import com.alibaba.fastjson.JSON;
-import java.security.PrivateKey;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.vault.core.VaultOperations;
-import org.springframework.vault.core.VaultSysOperations;
-import org.springframework.vault.support.VaultMount;
-import org.springframework.vault.support.VaultResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.constant.ConsortiumConstant;
-import org.treegraph.baas.core.constant.X509CertConstant;
 import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.das.NodeKeyDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
@@ -34,12 +23,10 @@ import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.CryptoEnum;
-import org.treegraph.baas.core.enums.CryptoEnum.CertSignType;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
 import org.treegraph.baas.core.service.bo.KeypairCertBo;
 import org.treegraph.baas.core.util.LogSkip;
-import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeypairCertUtil;
 
 @Validated
@@ -52,7 +39,7 @@ public class KeypairBuildService {
 
   private final NodeKeyDas nodeKeyDas;
 
-  private final VaultOperations vaultOperations;
+//  private final VaultOperations vaultOperations;
 
   private final KeypairCertUtil keypairCertUtil;
 
@@ -88,8 +75,7 @@ public class KeypairBuildService {
   }
 
   @LogSkip
-  public KeypairPo getConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair)
-      throws Exception {
+  public KeypairPo getConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair) {
     List<KeypairPo> consortiumKeypairList = keypairDas.findAll(consortiumId,
         CryptoEnum.KeyType.CONSORTIUM.getCode(), KeyType.CONSORTIUM.getAlgo().getCode());
     if (CollectionUtils.isNotEmpty(consortiumKeypairList)) {
@@ -101,14 +87,14 @@ public class KeypairBuildService {
 
   @LogSkip
   public KeypairPo geneNewConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair,
-      Date lastCrtExpire) throws Exception {
+      Date lastCrtExpire) {
     KeypairCertBo keypairCert = keypairCertUtil.buildConsCA(lastCrtExpire, rootKeypair);
-    if (KeyType.RPC.getSignType() == CertSignType.VAULT) {
-      PrivateKey privateKey = KeyUtil.privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(),
-          keypairCert.getPrivateKey());
-      submitCaToVault(consortiumId, keypairCert.getCertStr(), KeyUtil.privateKeyToPem(privateKey),
-          X509CertConstant.TTL_CONSORTIUM_CA_IN_DAY);
-    }
+//    if (KeyType.RPC.getSignType() == CertSignType.VAULT) {
+//      PrivateKey privateKey = KeyUtil.privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(),
+//          keypairCert.getPrivateKey());
+//      submitCaToVault(consortiumId, keypairCert.getCertStr(), KeyUtil.privateKeyToPem(privateKey),
+//          X509CertConstant.TTL_CONSORTIUM_CA_IN_DAY);
+//    }
 
     LocalDateTime now = LocalDateTime.now();
     String operUser = WebHelper.getUserId();
@@ -185,41 +171,41 @@ public class KeypairBuildService {
         .build();
   }
 
-  private void submitCaToVault(String pkiPath, String certPem, String keyPem, int ttlInDay) {
-    int ttlInHour = ttlInDay * 24;
-    mountToVault(pkiPath, ttlInHour);
-
-    Map<String, String> pemBundle = Collections.singletonMap("pem_bundle", certPem + keyPem);
-    VaultResponse writeCaToVaultResponse = vaultOperations.write(pkiPath + "/config/ca",
-        pemBundle);
-    log.debug("writeCaResponse pkiPath:{},resp:{}", pkiPath,
-        JSON.toJSONString(writeCaToVaultResponse));
-
-    Map<String, String> role = new HashMap<>();
-    role.put("allowed_domains", "localhost,baas.conflux-chain.org");
-    role.put("allow_subdomains", "true");
-    role.put("allow_localhost", "true");
-    role.put("allow_ip_sans", "true");
-    role.put("max_ttl", ttlInHour + "h");
-    VaultResponse writeRoleToVaultResponse = vaultOperations.write(
-        pkiPath + "/roles/" + X509CertConstant.VAULT_ROLE_RPC_CERT_ISSUER, role);
-    log.debug("writeRoleResponse pkiPath:{},resp:{}", pkiPath,
-        JSON.toJSONString(writeRoleToVaultResponse));
-  }
-
-  private void mountToVault(String pkiPath, int ttlInHour) {
-    VaultSysOperations adminOperations = vaultOperations.opsForSys();
-    if (adminOperations.getMounts().containsKey(pkiPath)) {
-      return;
-    }
-
-    VaultMount mount = VaultMount.builder().type("pki")
-        .config(Collections.singletonMap("max_lease_ttl", ttlInHour + "h")).description("bass pki")
-        .build();
-    adminOperations.mount(pkiPath, mount);
-
-    Map<String, VaultMount> mounts = adminOperations.getMounts();
-    log.debug("vaultMount pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(mounts));
-    Assert.isTrue(mounts.containsKey(pkiPath + "/"), "vault mount pki path error");
-  }
+//  private void submitCaToVault(String pkiPath, String certPem, String keyPem, int ttlInDay) {
+//    int ttlInHour = ttlInDay * 24;
+//    mountToVault(pkiPath, ttlInHour);
+//
+//    Map<String, String> pemBundle = Collections.singletonMap("pem_bundle", certPem + keyPem);
+//    VaultResponse writeCaToVaultResponse = vaultOperations.write(pkiPath + "/config/ca",
+//        pemBundle);
+//    log.debug("writeCaResponse pkiPath:{},resp:{}", pkiPath,
+//        JSON.toJSONString(writeCaToVaultResponse));
+//
+//    Map<String, String> role = new HashMap<>();
+//    role.put("allowed_domains", "localhost,baas.conflux-chain.org");
+//    role.put("allow_subdomains", "true");
+//    role.put("allow_localhost", "true");
+//    role.put("allow_ip_sans", "true");
+//    role.put("max_ttl", ttlInHour + "h");
+//    VaultResponse writeRoleToVaultResponse = vaultOperations.write(
+//        pkiPath + "/roles/" + X509CertConstant.VAULT_ROLE_RPC_CERT_ISSUER, role);
+//    log.debug("writeRoleResponse pkiPath:{},resp:{}", pkiPath,
+//        JSON.toJSONString(writeRoleToVaultResponse));
+//  }
+//
+//  private void mountToVault(String pkiPath, int ttlInHour) {
+//    VaultSysOperations adminOperations = vaultOperations.opsForSys();
+//    if (adminOperations.getMounts().containsKey(pkiPath)) {
+//      return;
+//    }
+//
+//    VaultMount mount = VaultMount.builder().type("pki")
+//        .config(Collections.singletonMap("max_lease_ttl", ttlInHour + "h")).description("bass pki")
+//        .build();
+//    adminOperations.mount(pkiPath, mount);
+//
+//    Map<String, VaultMount> mounts = adminOperations.getMounts();
+//    log.debug("vaultMount pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(mounts));
+//    Assert.isTrue(mounts.containsKey(pkiPath + "/"), "vault mount pki path error");
+//  }
 }

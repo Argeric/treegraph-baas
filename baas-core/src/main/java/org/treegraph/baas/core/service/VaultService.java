@@ -13,6 +13,8 @@ public interface VaultService {
 
   VaultGenerateRootBo generateRoot();
 
+  void submitCAInformation(String pkiPath, String certPem, String keyPem, int ttlInDay);
+
   VaultSignIntermediateBo signIntermediate(String pkiPath, String csr);
 
   String signCertificate(String pkiPath, PKCS10CertificationRequest csr,

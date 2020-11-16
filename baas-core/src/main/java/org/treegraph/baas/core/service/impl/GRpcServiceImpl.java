@@ -66,7 +66,7 @@ public class GRpcServiceImpl implements BlockchainRpcService {
 
   private final NodeCustomizedConfigDas nodeCustomizedConfigDas;
 
-  private final VaultKeypairBuildService vaultKeypairBuildService;
+  private final KeypairBuildService keypairBuildService;
 
   public MembershipEnum.Status sendMembershipChangeTransactionPlus(long membershipChangeId,
       List<NodeKeypairBo> committeeNodeKeypairs, List<NodeKeypairBo> validatorNodeKeypairs) {
@@ -273,11 +273,11 @@ public class GRpcServiceImpl implements BlockchainRpcService {
     int gRpcPort = TEST_SWITCH ? jsonRpcLocalHttpPort + TEST_RPC_PORT_INTERVAL : DEFAULT_GRPC_PORT;
 
     // server cert and rpc cert
-    KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consId, null);
+    KeypairPo consKeypair = keypairBuildService.getConsortiumKeyPair(consId, null);
     String serverCertFile = consKeypair.getCertStr();
     String serverKeyFile = privateKeyToPem(
         privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(), consKeypair.getPrivateKey()));
-    GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService
+    GRpcKeypairCertBo gRpcKeypair = keypairBuildService
         .geneNewRpcKeypair(consId, consKeypair, null,
             Lists.newArrayList(ip));
 

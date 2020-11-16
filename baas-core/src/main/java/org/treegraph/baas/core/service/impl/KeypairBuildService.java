@@ -46,7 +46,7 @@ import org.treegraph.baas.core.util.crypto.x509.KeypairCertUtil;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class VaultKeypairBuildService {
+public class KeypairBuildService {
 
   private final KeypairDas keypairDas;
 

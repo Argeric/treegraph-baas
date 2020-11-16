@@ -62,7 +62,7 @@ public class BuildService {
 
   private final PasswordService passwordService;
 
-  private final VaultKeypairBuildService vaultKeypairBuildService;
+  private final KeypairBuildService keypairBuildService;
 
   private final RpcSelectorService rpcSelectorService;
 
@@ -248,10 +248,10 @@ public class BuildService {
 
     // get classified node keypairs
     List<NodeKeypairBo> existDbNodeKeypairs = existNodes.stream().map(
-        item -> vaultKeypairBuildService.getNodeKeypairBo(consId, item))
+        item -> keypairBuildService.getNodeKeypairBo(consId, item))
         .collect(Collectors.toList());
     List<NodeKeypairBo> toAddNodeKeypairs = toAddNodes.stream().map(item -> {
-      NodeKeypairBo nodeKeypair = vaultKeypairBuildService.getNodeKeypairBo(consId, item);
+      NodeKeypairBo nodeKeypair = keypairBuildService.getNodeKeypairBo(consId, item);
       nodeKeypair.getNode().setMembershipStatus(MembershipStatus.ADD_START.getCode());
       return nodeKeypair;
     }).collect(Collectors.toList());
@@ -261,7 +261,7 @@ public class BuildService {
       return !finalStateNodeMap.containsKey(uri);
     }).collect(Collectors.toList());
     List<NodeKeypairBo> toRemoveNodeKeypairs = toRemoveNodes.stream().map(
-        item -> vaultKeypairBuildService.getNodeKeypairBo(consId, item))
+        item -> keypairBuildService.getNodeKeypairBo(consId, item))
         .collect(Collectors.toList());
 
     // get node keypairs for rpc of add/delete nodes

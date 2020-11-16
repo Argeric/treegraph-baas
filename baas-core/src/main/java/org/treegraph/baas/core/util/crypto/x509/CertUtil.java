@@ -1,5 +1,7 @@
 package org.treegraph.baas.core.util.crypto.x509;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Maps;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.ASN1Integer;
@@ -27,6 +30,7 @@ import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.sec.SECObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Certificate;
@@ -49,10 +53,12 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
+import org.treegraph.baas.core.domain.KeypairPo;
+import org.treegraph.baas.core.util.DateUtils;
 
 public class CertUtil {
 
-  public static Certificate generateRootCA(X500Name subject, KeyPair keyPair, Date notBefore,
+  public static Certificate generateRoot(X500Name subject, KeyPair keyPair, Date notBefore,
       Date notAfter)
       throws Exception {
     SubjectPublicKeyInfo subjectPublicKeyInfo = SubjectPublicKeyInfo
@@ -121,30 +127,18 @@ public class CertUtil {
     }
   }
 
-//	public static PKCS10CertificationRequest generateCSR(X500Name subject, PublicKey publicKey, PrivateKey privateKey) {
-//		try {
-//			SubjectPublicKeyInfo subjectPublicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
-//			CertificationRequestInfo info = new CertificationRequestInfo(subject, subjectPublicKeyInfo, new DERSet());
-//			byte[] signature;
-//			AlgorithmIdentifier signAlgo = getSignAlgo(subjectPublicKeyInfo.getAlgorithm());
-//			if (signAlgo.getAlgorithm().equals(GMObjectIdentifiers.sm2sign_with_sm3)) {
-//				signature = SignUtil.SM2Sign(info.getEncoded(ASN1Encoding.DER), privateKey);
-//			} else if (signAlgo.getAlgorithm().equals(X9ObjectIdentifiers.ecdsa_with_SHA256)) {
-//				signature = SignUtil.ECDSASign(info.getEncoded(ASN1Encoding.DER), privateKey);
-//			} else if (signAlgo.getAlgorithm().equals(PKCSObjectIdentifiers.sha256WithRSAEncryption)) {
-//				signature = SignUtil.RSASign(info.getEncoded(ASN1Encoding.DER), privateKey);
-//			} else {
-//				throw new IllegalArgumentException("密钥算法不支持");
-//			}
-//			return new PKCS10CertificationRequest(
-//					new CertificationRequest(info, signAlgo, new DERBitString(signature)));
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			throw new IllegalArgumentException("密钥结构错误");
-//		}
-//	}
+  public static String signCertificate(KeypairPo parentKeypair, PKCS10CertificationRequest csr,
+      Date lastCrtExpire, int ttl) throws Exception {
+    PrivateKey parentPrivateKey = KeyUtil.privateKeyFromBase64(parentKeypair.getAlgorithm(),
+        parentKeypair.getPrivateKey());
+    byte[] parentCertBytes = CertUtil.certFromPem(parentKeypair.getCertStr()).getEncoded();
+    int lastCertTtlInDay = CertUtil.getLastCrtTtlInDay(lastCrtExpire);
+    Certificate cert = signCertificate(csr, parentPrivateKey, parentCertBytes,
+        CertUtil.getNotBefore(), CertUtil.getNotAfter(lastCertTtlInDay + ttl), true);
+    return CertUtil.certToPem(cert);
+  }
 
-  public static Certificate generateCert(PKCS10CertificationRequest csr,
+  public static Certificate signCertificate(PKCS10CertificationRequest csr,
       PrivateKey issuerPrivateKey,
       byte[] issuerCert, Date notBefore, Date notAfter, boolean isCACert) throws Exception {
     X509CertificateHolder issuer = new X509CertificateHolder(issuerCert);
@@ -222,6 +216,16 @@ public class CertUtil {
     return bos.toString();
   }
 
+  public static String certBase64ToPem(String base64Str) {
+    Iterable<String> lines = Splitter.fixedLength(64).split(base64Str);
+    StringBuilder content = new StringBuilder();
+    for (String line : lines) {
+      content.append(line).append("\n");
+    }
+    return "-----BEGIN CERTIFICATE-----\n" + content.toString() +
+        "-----END CERTIFICATE-----";
+  }
+
   public static AlgorithmIdentifier getSignAlgo(AlgorithmIdentifier algo) { // 根据公钥算法标识返回对应签名算法标识
     if (algo.getAlgorithm().equals(X9ObjectIdentifiers.id_ecPublicKey)
         && algo.getParameters().equals(GMObjectIdentifiers.sm2p256v1)) {
@@ -237,12 +241,34 @@ public class CertUtil {
 		}
   }
 
+  public static Map<String, String> parseSubject(X500Name subject) {
+    return parseSubject(BCStyle.INSTANCE.toString(subject));
+  }
+
+  public static Map<String, String> parseSubject(String subjectDisplayName) {
+    Map<String, String> displayNameMap = Maps.newHashMap();
+    Arrays.stream(StringUtils.split(subjectDisplayName, ",")).forEach(item -> {
+      String[] paras = item.split("=");
+      displayNameMap.put(paras[0], paras[1]);
+    });
+    return displayNameMap;
+  }
+
   public static Date getNotBefore() {
     return new Date();
   }
 
   public static Date getNotAfter(int days) {
     return new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24L * days);
+  }
+
+  public static int getLastCrtTtlInDay(Date lastCrtExpire) {
+    int lastCrtLeftDays = 0;
+    if (lastCrtExpire != null) {
+      lastCrtLeftDays = DateUtils.betweenDays(Calendar.getInstance().getTime(), lastCrtExpire);
+      lastCrtLeftDays = Math.max(lastCrtLeftDays, 0);
+    }
+    return lastCrtLeftDays;
   }
 
   private static Certificate assembleCert(TBSCertificate tbsCertificate,

@@ -52,9 +52,8 @@ import org.treegraph.baas.core.domain.BlockChainPo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
-import org.treegraph.baas.core.service.BlockchainRpcService;
 import org.treegraph.baas.core.service.impl.RpcSelectorService;
-import org.treegraph.baas.core.service.impl.VaultKeypairBuildService;
+import org.treegraph.baas.core.service.impl.KeypairBuildService;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.FileUtils;
 import org.treegraph.baas.core.util.Order;
@@ -95,7 +94,7 @@ public class BlockchainCreationTests {
 	private RpcSelectorService rpcSelectorService;
 	
 	@Autowired
-	private VaultKeypairBuildService vaultKeypairBuildService;
+	private KeypairBuildService keypairBuildService;
 	
 	//=====================================================================================================================
 	// test paras
@@ -345,7 +344,7 @@ public class BlockchainCreationTests {
 		log.info("[step--->testRechargeGenesis]list nodes--->{}", JSON.toJSONString(nodeIds));
 		Assert.assertTrue("[step--->testRechargeGenesis]node not found", CollectionUtils.isNotEmpty(nodeIds));
 		
-		List<NodeKeypairBo> nodeKeypairs = nodeIds.stream().map(item -> vaultKeypairBuildService.getNodeKeypairBo(consId,
+		List<NodeKeypairBo> nodeKeypairs = nodeIds.stream().map(item -> keypairBuildService.getNodeKeypairBo(consId,
 				NodePo.builder().consortiumId(consId).id(item).build())).collect(Collectors.toList());
 		log.info("[step--->testRechargeGenesis]node keypairs--->{}", JSON.toJSONString(nodeKeypairs));
 		Assert.assertTrue("[step--->testRechargeGenesis]node keypair not found", CollectionUtils.isNotEmpty(nodeKeypairs));

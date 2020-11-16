@@ -39,7 +39,7 @@ public class CertServiceImpl implements CertService {
 
   private final CertDas certDas;
 
-  private final VaultKeypairBuildService vaultKeypairBuildService;
+  private final KeypairBuildService keypairBuildService;
 
   private final BuildService buildService;
 
@@ -65,9 +65,9 @@ public class CertServiceImpl implements CertService {
     }
 
     // get certs
-    KeypairPo consKeypair = vaultKeypairBuildService.getConsortiumKeyPair(consId, null);
+    KeypairPo consKeypair = keypairBuildService.getConsortiumKeyPair(consId, null);
     String serverCertFile = consKeypair.getCertStr();
-    GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService
+    GRpcKeypairCertBo gRpcKeypair = keypairBuildService
         .geneNewRpcKeypair(consId, consKeypair, null,
             toDownloadNodeIpList);
     Map<String, String> certPathContentMap = Maps.newHashMap();

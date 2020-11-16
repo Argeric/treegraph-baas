@@ -80,7 +80,7 @@ public class ScriptServiceImpl implements ScriptService {
 
   private final BuildService buildService;
 
-  private final VaultKeypairBuildService vaultKeypairBuildService;
+  private final KeypairBuildService keypairBuildService;
 
   @LogSkip
   public void downloadDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp)
@@ -137,8 +137,8 @@ public class ScriptServiceImpl implements ScriptService {
       List<NodePo> nodes)
       throws Exception {
     // certificate info
-    KeypairPo rootKeypair = vaultKeypairBuildService.getRootKeypair();
-    KeypairPo consKeypair = vaultKeypairBuildService
+    KeypairPo rootKeypair = keypairBuildService.getRootKeypair();
+    KeypairPo consKeypair = keypairBuildService
         .getConsortiumKeyPair(consortiumId, rootKeypair);
     PrivateKey privateKey = KeyUtil
         .privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(), consKeypair.getPrivateKey());
@@ -148,7 +148,7 @@ public class ScriptServiceImpl implements ScriptService {
     List<NodeKeypairBo> nodeKeypairBoList = new ArrayList<>();
     List<String> toDownloadNodeIpList = Lists.newArrayList();
     for (NodePo node : nodes) {
-      NodeKeypairBo nodeKeypairBo = vaultKeypairBuildService.getNodeKeypairBo(consortiumId,
+      NodeKeypairBo nodeKeypairBo = keypairBuildService.getNodeKeypairBo(consortiumId,
           node);
       nodeKeypairBoList.add(nodeKeypairBo);
       ECKeyPair ecKeypair = loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
@@ -194,7 +194,7 @@ public class ScriptServiceImpl implements ScriptService {
       String ecPri = StringUtils.leftPad(ecKeypair.getPrivateKey().toString(16), 64, '0');
       NodePo node = nodeKeypair.getNode();
       String consId = node.getConsortiumId();
-      GRpcKeypairCertBo gRpcKeypair = vaultKeypairBuildService
+      GRpcKeypairCertBo gRpcKeypair = keypairBuildService
           .geneNewRpcKeypair(consId, consKeypair, null,
               toDownloadNodeIpList);
       StringBuffer scriptContent = new StringBuffer();

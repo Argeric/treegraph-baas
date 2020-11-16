@@ -18,7 +18,7 @@ public interface VaultService {
 
   VaultGenerateIntermediateBo generateIntermediate(String consPkiPath);
 
-  VaultSignIntermediateBo signIntermediate(String pkiPath, String csr);
+  VaultSignIntermediateBo signIntermediate(String csr);
 
   void setSignedIntermediate(String consPkiPath, String certPem);
 

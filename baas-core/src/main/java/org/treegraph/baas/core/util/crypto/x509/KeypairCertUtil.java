@@ -3,21 +3,24 @@ package org.treegraph.baas.core.util.crypto.x509;
 import static org.treegraph.baas.core.constant.X509CertConstant.TTL_CONSORTIUM_CA_IN_DAY;
 import static org.treegraph.baas.core.constant.X509CertConstant.TTL_ROOT_CA_IN_DAY;
 import static org.treegraph.baas.core.constant.X509CertConstant.TTL_RPC_CERT_IN_DAY;
-import static org.treegraph.baas.core.constant.X509CertConstant.VAULT_PKI_PATH_ROOT_CA;
 import static org.treegraph.baas.core.constant.X509CertConstant.VAULT_ROLE_RPC_CERT_ISSUER;
 
 import java.security.KeyPair;
+import java.security.PrivateKey;
 import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.Certificate;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
+import org.treegraph.baas.core.constant.ConsortiumConstant;
 import org.treegraph.baas.core.constant.X509CertConstant;
+import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.enums.CryptoEnum;
 import org.treegraph.baas.core.enums.CryptoEnum.CertSignType;
@@ -35,6 +38,8 @@ import org.treegraph.baas.core.service.bo.VaultSignIntermediateBo;
 @AllArgsConstructor
 @Slf4j
 public class KeypairCertUtil {
+
+  private final KeypairDas keypairDas;
 
   private final VaultService vaultService;
 
@@ -69,43 +74,51 @@ public class KeypairCertUtil {
         .build();
   }
 
-  public KeypairCertBo buildConsCA(Date lastCrtExpire, KeypairPo bcRootCa) {
-    return this.buildKeypairCert(KeyType.CONSORTIUM, lastCrtExpire, null, null, bcRootCa);
+  public KeypairCertBo buildConsCA(String consId, Date lastCrtExpire, KeypairPo bcRootCa)
+      throws Exception {
+    KeypairCertBo keypairCert = this
+        .buildKeypairCert(KeyType.CONSORTIUM, lastCrtExpire, null, null, bcRootCa);
+    if (KeyType.RPC.getSignType() == CertSignType.VAULT) {
+      PrivateKey privateKey = KeyUtil.privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(),
+          keypairCert.getPrivateKey());
+      vaultService.submitCAInformation(consId, keypairCert.getCertStr(),
+          KeyUtil.privateKeyToPem(privateKey),
+          TTL_CONSORTIUM_CA_IN_DAY);
+    }
+    return keypairCert;
   }
 
-  public KeypairCertBo buildConsCAPlus(String consId, Date lastCrtExpire,
-      KeypairPo bcRootCa) throws Exception {
+  public KeypairCertBo buildConsCAPlus(String consId, Date lastCrtExpire)
+      throws Exception {
     KeyType keyType = KeyType.CONSORTIUM;
-    KeypairBo keypair = getKeypairByKeyType(keyType);
+    KeypairBo keypairBo = getKeypairByKeyType(keyType);
 
     String csrPem = null;
     String certPem = null;
     if (keyType.getSignType() == CertSignType.BC) {
-      Assert.notNull(bcRootCa, "parentKeypair.not.found");
+      KeypairPo bcRootCa = getCA(ConsortiumConstant.DEFAULT_CONSORTIUM_ID, KeyType.ROOT_CA);
+      Assert.notNull(bcRootCa, "bcRootCa.is.null");
       PKCS10CertificationRequest csr = CertUtil
           .generateCSR(new X500Name(keyType.getSubject().getCode()),
-              keypair.getKeypair().getPublic(), keypair.getKeypair().getPrivate(), null);
+              keypairBo.getKeypair().getPublic(),
+              keypairBo.getKeypair().getPrivate(), null);
       csrPem = CertUtil.csrToPem(csr);
       certPem = CertUtil.signCertificate(bcRootCa, csr, lastCrtExpire, TTL_CONSORTIUM_CA_IN_DAY);
-      String privatePem = KeyUtil.privateKeyToPem(keypair.getKeypair().getPrivate());
+      String privatePem = KeyUtil.privateKeyToPem(keypairBo.getKeypair().getPrivate());
       vaultService.submitCAInformation(consId, certPem, privatePem, TTL_CONSORTIUM_CA_IN_DAY);
     }
     if (keyType.getSignType() == CertSignType.VAULT) {
-      //generate intermediate
-      VaultGenerateIntermediateBo geneIntermediate = vaultService.generateIntermediate(consId);
-      csrPem = geneIntermediate.getCsr();
-      //sign intermediate
-      VaultSignIntermediateBo vaultSignIntermediateBo = vaultService
-          .signIntermediate(VAULT_PKI_PATH_ROOT_CA, csrPem);
-      certPem = vaultSignIntermediateBo.getCertificate();
-      //set signed intermediate
-      vaultService.setSignedIntermediate(consId, vaultSignIntermediateBo.getCertificate());
+      VaultGenerateIntermediateBo generateIntermediate = vaultService.generateIntermediate(consId);
+      csrPem = generateIntermediate.getCsr();
+      VaultSignIntermediateBo signIntermediate = vaultService.signIntermediate(csrPem);
+      certPem = signIntermediate.getCertificate();
+      vaultService.setSignedIntermediate(consId, certPem);
     }
 
     return KeypairCertBo.builder()
         .algorithm(keyType.getAlgo().getCode())
-        .publicKey(keypair.getPublicKey())
-        .privateKey(keypair.getPrivateKey())
+        .publicKey(keypairBo.getPublicKey())
+        .privateKey(keypairBo.getPrivateKey())
         .csrStr(csrPem)
         .certStr(certPem)
         .build();
@@ -125,13 +138,13 @@ public class KeypairCertUtil {
         .build();
   }
 
-  public KeypairCertBo buildRpcCert(Date lastCrtExpire, List<String> sanList, String vaultConsCa,
-      KeypairPo bcConsCa) {
+  public KeypairCertBo buildRpcCert(Date lastCrtExpire, List<String> sanList,
+      String vaultConsCa, KeypairPo bcConsCa) {
     return this.buildKeypairCert(KeyType.RPC, lastCrtExpire, sanList, vaultConsCa, bcConsCa);
   }
 
-  public KeypairCertBo buildRpcCertPlus(Date lastCrtExpire, List<String> sanList,
-      String vaultConsCa, KeypairPo bcConsCa) throws Exception {
+  public KeypairCertBo buildRpcCertPlus(String consId, Date lastCrtExpire, List<String> sanList)
+      throws Exception {
     KeyType keyType = KeyType.RPC;
     KeypairBo keypair = getKeypairByKeyType(keyType);
 
@@ -140,10 +153,12 @@ public class KeypairCertUtil {
             keypair.getKeypair().getPublic(), keypair.getKeypair().getPrivate(), sanList);
     String certStr = null;
     if (keyType.getSignType() == CertSignType.BC) {
+      KeypairPo bcConsCa = getCA(consId, KeyType.CONSORTIUM);
+      Assert.notNull(bcConsCa, "bcConsCa.is.null");
       certStr = CertUtil.signCertificate(bcConsCa, csr, lastCrtExpire, TTL_RPC_CERT_IN_DAY);
     }
     if (keyType.getSignType() == CertSignType.VAULT) {
-      certStr = vaultService.signCertificate(vaultConsCa, csr, lastCrtExpire, TTL_RPC_CERT_IN_DAY,
+      certStr = vaultService.signCertificate(consId, csr, lastCrtExpire, TTL_RPC_CERT_IN_DAY,
           VAULT_ROLE_RPC_CERT_ISSUER);
     }
 
@@ -184,14 +199,6 @@ public class KeypairCertUtil {
               keyPair, CertUtil.getNotBefore(), CertUtil.getNotAfter(TTL_ROOT_CA_IN_DAY));
           certStr = CertUtil.certToPem(rootCA);
         }
-        // add---> vault
-        if (keyType.getSignType() == CertSignType.VAULT) {
-          VaultGenerateRootBo vaultGenerateRootBo = vaultService.generateRoot();
-          publicKey = null;
-          privateKey = vaultGenerateRootBo.getPrivateKey();
-          certStr = vaultGenerateRootBo.getCertificate();
-        }
-        // add---> vault
       } else {
         CertSignType signType = keyType.getSignType();
         Assert.isTrue(signType == CertSignType.BC || signType == CertSignType.VAULT,
@@ -210,11 +217,6 @@ public class KeypairCertUtil {
               ? X509CertConstant.VAULT_ROLE_CONS_CA_ISSUER
               : X509CertConstant.VAULT_ROLE_RPC_CERT_ISSUER;
           certStr = vaultService.signCertificate(vaultCa, csr, lastCrtExpire, ttl, issuer);
-          // add---> vault
-          VaultSignIntermediateBo vaultSignIntermediateBo = vaultService
-              .signIntermediate(VAULT_PKI_PATH_ROOT_CA, CertUtil.csrToPem(csr));
-          certStr = vaultSignIntermediateBo.getCertificate();
-          // add---> vault
         }
         csrStr = CertUtil.csrToPem(csr);
       }
@@ -245,7 +247,12 @@ public class KeypairCertUtil {
     return KeypairBo.builder().keypair(keypair).publicKey(publicKey).privateKey(privateKey).build();
   }
 
-  public static void main(String[] args) {
-    System.out.println(1|2);
+  private KeypairPo getCA(String consId, KeyType keyType){
+    List<KeypairPo> rootKeypairList = keypairDas
+        .findAll(consId, keyType.getCode(), keyType.getAlgo().getCode());
+    if (CollectionUtils.isNotEmpty(rootKeypairList)) {
+      return rootKeypairList.get(0);
+    }
+    return null;
   }
 }

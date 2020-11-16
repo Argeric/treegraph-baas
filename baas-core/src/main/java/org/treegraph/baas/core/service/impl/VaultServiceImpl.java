@@ -152,7 +152,7 @@ public class VaultServiceImpl implements VaultService {
         .build();
   }
 
-  public VaultSignIntermediateBo signIntermediate(String pkiPath, String csr){
+  public VaultSignIntermediateBo signIntermediate(String csr){
     Map<String, String> displayNameMap = CertUtil.parseSubject(KeyType.CONSORTIUM.getSubject().getCode());
     String commonName = displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.CN));
 
@@ -163,9 +163,9 @@ public class VaultServiceImpl implements VaultService {
     body.put("use_csr_values", "true");
     body.put("max_ttl", (TTL_CONSORTIUM_CA_IN_DAY * 24) + "h");
     VaultResponse signIntermediateResponse = vaultOperations.write(
-        pkiPath + "/root/sign-intermediate", body);
+        VAULT_PKI_PATH_ROOT_CA + "/root/sign-intermediate", body);
     Assert.notNull(signIntermediateResponse, "signIntermediate.resp.is.null");
-    log.debug("signIntermediate pkiPath:{},resp:{}", pkiPath,
+    log.debug("signIntermediate pkiPath:{},resp:{}", VAULT_PKI_PATH_ROOT_CA,
         JSON.toJSONString(signIntermediateResponse));
 
     Map<String, Object> dataMap = signIntermediateResponse.getData();

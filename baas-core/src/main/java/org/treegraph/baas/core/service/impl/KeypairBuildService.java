@@ -75,7 +75,8 @@ public class KeypairBuildService {
   }
 
   @LogSkip
-  public KeypairPo getConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair) {
+  public KeypairPo getConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair)
+      throws Exception {
     List<KeypairPo> consortiumKeypairList = keypairDas.findAll(consortiumId,
         CryptoEnum.KeyType.CONSORTIUM.getCode(), KeyType.CONSORTIUM.getAlgo().getCode());
     if (CollectionUtils.isNotEmpty(consortiumKeypairList)) {
@@ -86,15 +87,9 @@ public class KeypairBuildService {
   }
 
   @LogSkip
-  public KeypairPo geneNewConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair,
-      Date lastCrtExpire) {
-    KeypairCertBo keypairCert = keypairCertUtil.buildConsCA(lastCrtExpire, rootKeypair);
-//    if (KeyType.RPC.getSignType() == CertSignType.VAULT) {
-//      PrivateKey privateKey = KeyUtil.privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(),
-//          keypairCert.getPrivateKey());
-//      submitCaToVault(consortiumId, keypairCert.getCertStr(), KeyUtil.privateKeyToPem(privateKey),
-//          X509CertConstant.TTL_CONSORTIUM_CA_IN_DAY);
-//    }
+  public KeypairPo geneNewConsortiumKeyPair(String consId, KeypairPo rootKeypair,
+      Date lastCrtExpire) throws Exception {
+    KeypairCertBo keypairCert = keypairCertUtil.buildConsCA(consId,lastCrtExpire, rootKeypair);
 
     LocalDateTime now = LocalDateTime.now();
     String operUser = WebHelper.getUserId();
@@ -104,7 +99,7 @@ public class KeypairBuildService {
         .csrStr(keypairCert.getCsrStr())
         .certStr(keypairCert.getCertStr())
         .algorithm(keypairCert.getAlgorithm())
-        .consortiumId(consortiumId)
+        .consortiumId(consId)
         .keyType(CryptoEnum.KeyType.CONSORTIUM.getCode())
         .deleteFlag(IntTypeEnum.FALSE.getValue())
         .createTime(now)

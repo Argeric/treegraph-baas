@@ -103,21 +103,10 @@ public class VaultServiceImpl implements VaultService {
     mount(pkiPath, ttlInHour);
 
     Map<String, String> pemBundle = Collections.singletonMap("pem_bundle", certPem + keyPem);
-    VaultResponse writeCaToVaultResponse = vaultOperations.write(pkiPath + "/config/ca",
-        pemBundle);
-    log.debug("writeCaResponse pkiPath:{},resp:{}", pkiPath,
-        JSON.toJSONString(writeCaToVaultResponse));
+    VaultResponse submitCAInfoResp = vaultOperations.write(pkiPath + "/config/ca", pemBundle);
+    log.debug("writeCaResponse pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(submitCAInfoResp));
 
-    Map<String, String> role = new HashMap<>();
-    role.put("allowed_domains", "localhost,baas.conflux-chain.org");
-    role.put("allow_subdomains", "true");
-    role.put("allow_localhost", "true");
-    role.put("allow_ip_sans", "true");
-    role.put("max_ttl", ttlInHour + "h");
-    VaultResponse writeRoleToVaultResponse = vaultOperations.write(
-        pkiPath + "/roles/" + X509CertConstant.VAULT_ROLE_RPC_CERT_ISSUER, role);
-    log.debug("writeRoleResponse pkiPath:{},resp:{}", pkiPath,
-        JSON.toJSONString(writeRoleToVaultResponse));
+    createRole(pkiPath, X509CertConstant.VAULT_ROLE_RPC_CERT_ISSUER, ttlInHour);
   }
 
   public VaultGenerateIntermediateBo generateIntermediate(String consPkiPath){
@@ -139,8 +128,6 @@ public class VaultServiceImpl implements VaultService {
     VaultResponse generateIntermediateResponse = vaultOperations
         .write(consPkiPath + "/intermediate/generate/exported", body);
     Assert.notNull(generateIntermediateResponse, "generateIntermediate.ca.not.response");
-
-    createRole(consPkiPath, VAULT_ROLE_RPC_CERT_ISSUER, TTL_CONSORTIUM_CA_IN_DAY);
 
     Map<String, Object> dataMap = generateIntermediateResponse.getData();
     Assert.notNull(dataMap, "generateIntermediate.dataMap.is.null");
@@ -179,6 +166,8 @@ public class VaultServiceImpl implements VaultService {
         consPkiPath + "/intermediate/set-signed", body);
     log.debug("setSignedIntermediateResponse pkiPath:{},resp:{}", consPkiPath,
         JSON.toJSONString(setSignedIntermediateResponse));
+
+    createRole(consPkiPath, VAULT_ROLE_RPC_CERT_ISSUER, TTL_CONSORTIUM_CA_IN_DAY);
   }
 
   public String signCertificate(String pkiPath, PKCS10CertificationRequest csr,

@@ -42,38 +42,38 @@ public class KeypairBuildService {
 
   private final KeypairCertUtil keypairCertUtil;
 
-  @LogSkip
-  public KeypairPo getRootKeypair() {
-    List<KeypairPo> rootKeypairList = keypairDas.findAll(ConsortiumConstant.DEFAULT_CONSORTIUM_ID,
-        KeyType.ROOT_CA.getCode(), KeyType.ROOT_CA.getAlgo().getCode());
-    if (CollectionUtils.isNotEmpty(rootKeypairList)) {
-      return rootKeypairList.get(0);
-    }
+//  @LogSkip
+//  public KeypairPo getRootKeypair() {
+//    List<KeypairPo> rootKeypairList = keypairDas.findAll(ConsortiumConstant.DEFAULT_CONSORTIUM_ID,
+//        KeyType.ROOT_CA.getCode(), KeyType.ROOT_CA.getAlgo().getCode());
+//    if (CollectionUtils.isNotEmpty(rootKeypairList)) {
+//      return rootKeypairList.get(0);
+//    }
+//
+//    KeypairCertBo keypairCert = keypairCertUtil.buildRoot();
+//    String rootPublicKey = keypairCert.getPublicKey();
+//    String rootPrivateKey = keypairCert.getPrivateKey();
+//    String rootCa = keypairCert.getCertStr();
+//
+//    LocalDateTime now = LocalDateTime.now();
+//    String operUser = WebHelper.getUserId();
+//    return KeypairPo.builder()
+//        .publicKey(rootPublicKey)
+//        .privateKey(rootPrivateKey)
+//        .csrStr(null)
+//        .certStr(rootCa)
+//        .algorithm(KeyType.ROOT_CA.getAlgo().getCode())
+//        .consortiumId(ConsortiumConstant.DEFAULT_CONSORTIUM_ID)
+//        .keyType(KeyType.ROOT_CA.getCode())
+//        .deleteFlag(IntTypeEnum.FALSE.getValue())
+//        .createTime(now)
+//        .createBy(operUser)
+//        .updateTime(now)
+//        .updateBy(operUser)
+//        .build();
+//  }
 
-    KeypairCertBo keypairCert = keypairCertUtil.buildRoot();
-    String rootPublicKey = keypairCert.getPublicKey();
-    String rootPrivateKey = keypairCert.getPrivateKey();
-    String rootCa = keypairCert.getCertStr();
-
-    LocalDateTime now = LocalDateTime.now();
-    String operUser = WebHelper.getUserId();
-    return KeypairPo.builder()
-        .publicKey(rootPublicKey)
-        .privateKey(rootPrivateKey)
-        .csrStr(null)
-        .certStr(rootCa)
-        .algorithm(KeyType.ROOT_CA.getAlgo().getCode())
-        .consortiumId(ConsortiumConstant.DEFAULT_CONSORTIUM_ID)
-        .keyType(KeyType.ROOT_CA.getCode())
-        .deleteFlag(IntTypeEnum.FALSE.getValue())
-        .createTime(now)
-        .createBy(operUser)
-        .updateTime(now)
-        .updateBy(operUser)
-        .build();
-  }
-
-  public void buildRootKeypair() {
+  public void geneRootKeypair() throws Exception{
     KeypairPo root = getCA(ConsortiumConstant.DEFAULT_CONSORTIUM_ID, KeyType.ROOT_CA);
     if(root != null) return;
 
@@ -94,13 +94,13 @@ public class KeypairBuildService {
         .updateTime(now)
         .updateBy(operator)
         .build();
+
     boolean successFlag = keypairDas.save(keypairPo);
     Assert.isTrue(successFlag, "root.ca.build.err");
   }
 
 
-  public KeypairPo getConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair)
-      throws Exception {
+  public KeypairPo getConsortiumKeyPair(String consortiumId) throws Exception {
     KeypairPo keypairPo = getCA(consortiumId, KeyType.CONSORTIUM);
     if (keypairPo != null) {
       return keypairPo;
@@ -128,8 +128,8 @@ public class KeypairBuildService {
         .updateBy(operator)
         .build();
 
-
-
+    boolean successFlag = keypairDas.save(keypairPo);
+    Assert.isTrue(successFlag, "cons.ca.build.err");
     return keypairPo;
   }
 
@@ -150,7 +150,7 @@ public class KeypairBuildService {
 
     KeypairCertBo keypairCert = keypairCertUtil.buildNodeKeypair();
     LocalDateTime now = LocalDateTime.now();
-    String operUser = WebHelper.getUserId();
+    String operator = WebHelper.getUserId();
     KeypairPo keypair = KeypairPo.builder()
         .publicKey(keypairCert.getPublicKey())
         .privateKey(keypairCert.getPrivateKey())
@@ -159,9 +159,9 @@ public class KeypairBuildService {
         .keyType(CryptoEnum.KeyType.NODE.getCode())
         .deleteFlag(IntTypeEnum.FALSE.getValue())
         .createTime(now)
-        .createBy(operUser)
+        .createBy(operator)
         .updateTime(now)
-        .updateBy(operUser)
+        .updateBy(operator)
         .build();
 
     NodeKeyPo nodeKey = NodeKeyPo.builder()
@@ -170,9 +170,9 @@ public class KeypairBuildService {
         .consortiumId(consortiumId)
         .deleteFlag(IntTypeEnum.FALSE.getValue())
         .createTime(now)
-        .createBy(operUser)
+        .createBy(operator)
         .updateTime(now)
-        .updateBy(operUser)
+        .updateBy(operator)
         .build();
     return NodeKeypairBo.builder().keypair(keypair).nodeKey(nodeKey).node(node).build();
   }

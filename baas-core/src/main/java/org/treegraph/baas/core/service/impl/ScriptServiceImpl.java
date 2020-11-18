@@ -136,8 +136,8 @@ public class ScriptServiceImpl implements ScriptService {
   private Map<String, Map<String, String>> buildDeployScript(String consortiumId,
       List<NodePo> nodes) throws Exception {
     // certificate info
-    KeypairPo rootKeypair = keypairBuildService.getRootKeypair();
-    KeypairPo consKeypair = keypairBuildService.getConsortiumKeyPair(consortiumId, rootKeypair);
+    keypairBuildService.geneRootKeypair();
+    KeypairPo consKeypair = keypairBuildService.getConsortiumKeyPair(consortiumId);
     PrivateKey privateKey = KeyUtil
         .privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(), consKeypair.getPrivateKey());
 
@@ -215,7 +215,7 @@ public class ScriptServiceImpl implements ScriptService {
     }
 
     // save key pair
-    keypairDas.addKeyPairInfo(rootKeypair, consKeypair, nodeKeypairBoList);
+    keypairDas.addKeyPairInfo(null, consKeypair, nodeKeypairBoList);
     log.debug("build deploy script finished[{}]", consortiumId);
     return nodeScriptContentMap;
   }

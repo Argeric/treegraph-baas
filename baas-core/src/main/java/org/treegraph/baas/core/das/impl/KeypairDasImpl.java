@@ -103,7 +103,7 @@ public class KeypairDasImpl implements KeypairDas {
     // add key pair of consortium
     boolean succFlag = Boolean.TRUE;
     List<KeypairPo> keypairList = new ArrayList<>();
-    if (rootKeypair.getId() == null) {
+    if (rootKeypair != null && rootKeypair.getId() == null) {
       keypairList.add(rootKeypair);
     }
     if (consortiumKeypair.getId() == null) {

@@ -40,27 +40,23 @@ public class KeypairCertUtil {
 
   private final VaultService vaultService;
 
-  public KeypairCertBo buildRoot() {
+  public KeypairCertBo buildRoot() throws Exception{
     KeyType keyType = KeyType.ROOT_CA;
     String certStr = null, publicKey = null, privateKey = null;
-    try {
-      if (keyType.getSignType() == CertSignType.BC) {
-        KeypairBo keypairBo = getKeypairByKeyType(keyType);
-        Certificate rootCA = CertUtil.generateRoot(new X500Name(keyType.getSubject().getCode()),
-            keypairBo.getKeypair(), CertUtil.getNotBefore(),
-            CertUtil.getNotAfter(TTL_ROOT_CA_IN_DAY));
-        certStr = CertUtil.certToPem(rootCA);
-        publicKey = keypairBo.getPublicKey();
-        privateKey = keypairBo.getPrivateKey();
-      }
-      if (keyType.getSignType() == CertSignType.VAULT) {
-        VaultGenerateRootBo vaultGenerateRootBo = vaultService.generateRoot();
-        certStr = vaultGenerateRootBo.getCertificate();
-        publicKey = null;
-        privateKey = vaultGenerateRootBo.getPrivateKey();
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("root.gene.err", e);
+    if (keyType.getSignType() == CertSignType.BC) {
+      KeypairBo keypairBo = getKeypairByKeyType(keyType);
+      Certificate rootCA = CertUtil.generateRoot(new X500Name(keyType.getSubject().getCode()),
+          keypairBo.getKeypair(), CertUtil.getNotBefore(),
+          CertUtil.getNotAfter(TTL_ROOT_CA_IN_DAY));
+      certStr = CertUtil.certToPem(rootCA);
+      publicKey = keypairBo.getPublicKey();
+      privateKey = keypairBo.getPrivateKey();
+    }
+    if (keyType.getSignType() == CertSignType.VAULT) {
+      VaultGenerateRootBo vaultGenerateRootBo = vaultService.generateRoot();
+      certStr = vaultGenerateRootBo.getCertificate();
+      publicKey = null;
+      privateKey = vaultGenerateRootBo.getPrivateKey();
     }
     return KeypairCertBo.builder()
         .keyType(keyType)
@@ -71,16 +67,15 @@ public class KeypairCertUtil {
         .build();
   }
 
-  public KeypairCertBo buildConsCA(String consId, Date lastCrtExpire)
-      throws Exception {
+  public KeypairCertBo buildConsCA(String consId, Date lastCrtExpire) throws Exception {
     KeyType keyType = KeyType.CONSORTIUM;
-    KeypairBo keypairBo = getKeypairByKeyType(keyType);
-
-    String csrPem = null;
-    String certPem = null;
+    String publicKey = null, privateKey = null, csrPem = null, certPem = null;
     if (keyType.getSignType() == CertSignType.BC) {
       KeypairPo bcRootCa = getCA(ConsortiumConstant.DEFAULT_CONSORTIUM_ID, KeyType.ROOT_CA);
       Assert.notNull(bcRootCa, "bcRootCa.is.null");
+      KeypairBo keypairBo = getKeypairByKeyType(keyType);
+      publicKey = keypairBo.getPublicKey();
+      privateKey = keypairBo.getPrivateKey();
       PKCS10CertificationRequest csr = CertUtil
           .generateCSR(new X500Name(keyType.getSubject().getCode()),
               keypairBo.getKeypair().getPublic(),
@@ -92,16 +87,17 @@ public class KeypairCertUtil {
     }
     if (keyType.getSignType() == CertSignType.VAULT) {
       VaultGenerateIntermediateBo generateIntermediate = vaultService.generateIntermediate(consId);
+      publicKey = null;
+      privateKey = generateIntermediate.getPrivateKey();
       csrPem = generateIntermediate.getCsr();
       VaultSignIntermediateBo signIntermediate = vaultService.signIntermediate(csrPem);
       certPem = signIntermediate.getCertificate();
       vaultService.setSignedIntermediate(consId, certPem);
     }
-
     return KeypairCertBo.builder()
         .keyType(keyType)
-        .publicKey(keypairBo.getPublicKey())
-        .privateKey(keypairBo.getPrivateKey())
+        .publicKey(publicKey)
+        .privateKey(privateKey)
         .csrStr(csrPem)
         .certStr(certPem)
         .build();
@@ -121,7 +117,6 @@ public class KeypairCertUtil {
       throws Exception {
     KeyType keyType = KeyType.RPC;
     KeypairBo keypair = getKeypairByKeyType(keyType);
-
     PKCS10CertificationRequest csr = CertUtil
         .generateCSR(new X500Name(keyType.getSubject().getCode()),
             keypair.getKeypair().getPublic(), keypair.getKeypair().getPrivate(), sanList);
@@ -135,7 +130,6 @@ public class KeypairCertUtil {
       certStr = vaultService.signCertificate(consId, csr, lastCrtExpire, TTL_RPC_CERT_IN_DAY,
           VAULT_ROLE_RPC_CERT_ISSUER);
     }
-
     return KeypairCertBo.builder()
         .keyType(keyType)
         .publicKey(keypair.getPublicKey())

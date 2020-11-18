@@ -534,9 +534,7 @@ public class ConsortiumServiceImpl implements ConsortiumService {
     }
 
     // build defer request
-    KeypairPo rootKeypair = keypairBuildService.getRootKeypair();
-    KeypairPo consKeypair = keypairBuildService
-        .geneNewConsortiumKeyPair(consId, rootKeypair, notAfter);
+    KeypairPo consKeypair = keypairBuildService.geneNewConsortiumKeyPair(consId, notAfter);
     CertificateDeferPo defer = buildService.buildCertificateDefer(consKeypair);
     certificateDeferDas.createCertificateDefer(defer);
 

@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
 
   public void createUser(CreateUserRequest req) {
     Optional<UserInfoPo> userInfoOp = userInfoDas.findByAccount(req.getAccount());
-    Assert.isTrue(!userInfoOp.isPresent(), "用户账号不可重复[" + req.getAccount() + "]");
+    Assert.isTrue(userInfoOp.isEmpty(), "用户账号不可重复[" + req.getAccount() + "]");
     List<Role> roles = validateRoleInfo(req.getRoles());
     List<OrgBo> orgs = req.getRoles().stream().map(item -> OrgBo.builder()
         .consortiumId(item.getConsId())

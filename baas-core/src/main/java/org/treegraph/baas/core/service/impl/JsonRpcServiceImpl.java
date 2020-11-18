@@ -36,7 +36,6 @@ import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.enums.MembershipEnum;
-import org.treegraph.baas.core.enums.RpcEnum;
 import org.treegraph.baas.core.enums.RpcEnum.Type;
 import org.treegraph.baas.core.exception.AlertException;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;

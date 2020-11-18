@@ -32,6 +32,7 @@ import org.treegraph.baas.core.service.bo.VaultGenerateIntermediateBo;
 import org.treegraph.baas.core.service.bo.VaultGenerateRootBo;
 import org.treegraph.baas.core.service.bo.VaultSignIntermediateBo;
 import org.treegraph.baas.core.util.crypto.x509.CertUtil;
+import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 
 @Validated
 @Service
@@ -92,8 +93,9 @@ public class VaultServiceImpl implements VaultService {
 
     Map<String, Object> dataMap = generateRootResponse.getData();
     Assert.notNull(dataMap, "generateRoot.dataMap.is.null");
+    String privateKey = KeyUtil.pemToBase64((String) dataMap.get("private_key"));
     return VaultGenerateRootBo.builder().certificate((String) dataMap.get("certificate"))
-        .privateKey((String) dataMap.get("private_key"))
+        .privateKey(privateKey)
         .serialNumber((String) dataMap.get("serial_number"))
         .build();
   }
@@ -120,7 +122,6 @@ public class VaultServiceImpl implements VaultService {
     body.put("locality", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.L)));
     body.put("province", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.ST)));
     body.put("country", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.C)));
-    body.put("ttl", TTL_CONSORTIUM_CA_IN_DAY * 24);
     body.put("format", "pem");
     body.put("private_key_format", "der");
     body.put("key_type", "rsa");
@@ -131,8 +132,9 @@ public class VaultServiceImpl implements VaultService {
 
     Map<String, Object> dataMap = generateIntermediateResponse.getData();
     Assert.notNull(dataMap, "generateIntermediate.dataMap.is.null");
+    String privateKey = KeyUtil.pemToBase64((String) dataMap.get("private_key"));
     return VaultGenerateIntermediateBo.builder().csr((String) dataMap.get("csr"))
-        .privateKey((String) dataMap.get("private_key"))
+        .privateKey(privateKey)
         .serialNumber((String) dataMap.get("serial_number"))
         .build();
   }
@@ -146,12 +148,10 @@ public class VaultServiceImpl implements VaultService {
     body.put("common_name", commonName);
     body.put("format", "pem");
     body.put("use_csr_values", "true");
-    body.put("max_ttl", (TTL_CONSORTIUM_CA_IN_DAY * 24) + "h");
+    body.put("ttl", (TTL_CONSORTIUM_CA_IN_DAY * 24) + "h");
     VaultResponse signIntermediateResponse = vaultOperations.write(
         VAULT_PKI_PATH_ROOT_CA + "/root/sign-intermediate", body);
     Assert.notNull(signIntermediateResponse, "signIntermediate.resp.is.null");
-    log.debug("signIntermediate pkiPath:{},resp:{}", VAULT_PKI_PATH_ROOT_CA,
-        JSON.toJSONString(signIntermediateResponse));
 
     Map<String, Object> dataMap = signIntermediateResponse.getData();
     Assert.notNull(dataMap, "signIntermediate.dataMap.is.null");

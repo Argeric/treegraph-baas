@@ -99,13 +99,32 @@ public class CryptoEnum {
   @AllArgsConstructor
   public enum KeyType {
 
-    ROOT_CA(0, Algo.RSA, CertSignType.BC, Subject.ROOT_CA, "root.ca.keypair"),
+    //strategy 1
+    /* ROOT_CA(0, Algo.RSA, CertSignType.BC, Subject.ROOT_CA, "root.ca.keypair"),
 
     CONSORTIUM(1, Algo.RSA, CertSignType.BC, Subject.CONSORTIUM, "consortium.keypair"),
 
     NODE(2, Algo.ECC, CertSignType.BC, null, "node.keypair"),
 
+    RPC(3, Algo.RSA, CertSignType.VAULT, Subject.RPC, "rpc.keypair"),*/
+
+    //strategy 2
+    ROOT_CA(0, Algo.RSA, CertSignType.VAULT, Subject.ROOT_CA, "root.ca.keypair"),
+
+    CONSORTIUM(1, Algo.RSA, CertSignType.VAULT, Subject.CONSORTIUM, "consortium.keypair"),
+
+    NODE(2, Algo.ECC, CertSignType.BC, null, "node.keypair"),
+
     RPC(3, Algo.RSA, CertSignType.VAULT, Subject.RPC, "rpc.keypair"),
+
+    //strategy 3
+    /* ROOT_CA(0, Algo.RSA, CertSignType.BC, Subject.ROOT_CA, "root.ca.keypair"),
+
+    CONSORTIUM(1, Algo.RSA, CertSignType.BC, Subject.CONSORTIUM, "consortium.keypair"),
+
+    NODE(2, Algo.ECC, CertSignType.BC, null, "node.keypair"),
+
+    RPC(3, Algo.RSA, CertSignType.BC, Subject.RPC, "rpc.keypair"),*/
 
     ;
 

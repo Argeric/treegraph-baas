@@ -133,11 +133,11 @@ public class ScriptServiceImpl implements ScriptService {
     log.debug("update consortium status finished[{}]", consortiumId);
   }
 
-  private Map<String, Map<String, String>> buildDeployScript(String consortiumId,
-      List<NodePo> nodes) throws Exception {
+  private Map<String, Map<String, String>> buildDeployScript(String consId, List<NodePo> nodes)
+      throws Exception {
     // certificate info
     keypairBuildService.geneRootKeypair();
-    KeypairPo consKeypair = keypairBuildService.getConsortiumKeyPair(consortiumId);
+    KeypairPo consKeypair = keypairBuildService.getConsortiumKeyPair(consId);
     PrivateKey privateKey = KeyUtil
         .privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(), consKeypair.getPrivateKey());
 
@@ -146,7 +146,7 @@ public class ScriptServiceImpl implements ScriptService {
     List<NodeKeypairBo> nodeKeypairBoList = new ArrayList<>();
     List<String> toDownloadNodeIpList = Lists.newArrayList();
     for (NodePo node : nodes) {
-      NodeKeypairBo nodeKeypairBo = keypairBuildService.getNodeKeypairBo(consortiumId, node);
+      NodeKeypairBo nodeKeypairBo = keypairBuildService.getNodeKeypairBo(consId, node);
       nodeKeypairBoList.add(nodeKeypairBo);
       ECKeyPair ecKeypair = loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
           nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
@@ -169,7 +169,7 @@ public class ScriptServiceImpl implements ScriptService {
     String consNodesDigest = Base64.toBase64String(consNodesDigestCipher);
 
     // node config
-    List<NodeCustomizedConfigPo> configList = nodeCustomizedConfigDas.findAll(consortiumId, null);
+    List<NodeCustomizedConfigPo> configList = nodeCustomizedConfigDas.findAll(consId, null);
     Map<String, Map<String, String>> configMap = Maps.newHashMap();
     configList.stream()
         .filter(item -> !item.getNodeId().equals(IntTypeEnum.FALSE.getValue().toString()))
@@ -190,7 +190,6 @@ public class ScriptServiceImpl implements ScriptService {
       String ecPub = StringUtils.leftPad(ecKeypair.getPublicKey().toString(16), 128, '0');
       String ecPri = StringUtils.leftPad(ecKeypair.getPrivateKey().toString(16), 64, '0');
       NodePo node = nodeKeypair.getNode();
-      String consId = node.getConsortiumId();
       GRpcKeypairCertBo gRpcKeypair = keypairBuildService
           .geneNewRpcKeypair(consId, null, toDownloadNodeIpList);
       StringBuffer scriptContent = new StringBuffer();
@@ -215,8 +214,8 @@ public class ScriptServiceImpl implements ScriptService {
     }
 
     // save key pair
-    keypairDas.addKeyPairInfo(null, consKeypair, nodeKeypairBoList);
-    log.debug("build deploy script finished[{}]", consortiumId);
+    keypairDas.addKeyPairInfo(null, null, nodeKeypairBoList);
+    log.debug("build deploy script finished[{}]", consId);
     return nodeScriptContentMap;
   }
 

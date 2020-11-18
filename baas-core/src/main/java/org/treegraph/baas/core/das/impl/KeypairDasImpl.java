@@ -15,6 +15,7 @@ import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.KeypairPoExample;
 import org.treegraph.baas.core.domain.KeypairPoExample.Criteria;
 import org.treegraph.baas.core.domain.NodeKeyPo;
+import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.mapper.primary.KeypairPoMapper;
 import org.treegraph.baas.core.mapper.primary.NodeKeyPoMapper;
 
@@ -86,6 +87,18 @@ public class KeypairDasImpl implements KeypairDas {
     return keypairPoMapper.selectByExample(example);
   }
 
+  public KeypairPo getCA(String consId, KeyType keyType) {
+    KeypairPoExample example = new KeypairPoExample();
+    example.createCriteria()
+        .andConsortiumIdEqualTo(consId)
+        .andAlgorithmEqualTo(keyType.getAlgo().getCode())
+        .andKeyTypeEqualTo(keyType.getCode())
+        .andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    example.setOrderByClause("create_time desc");
+    List<KeypairPo> keypairList = keypairPoMapper.selectByExample(example);
+    return CollectionUtils.isNotEmpty(keypairList) ? keypairList.get(0) : null;
+  }
+
   public boolean save(KeypairPo keypair) {
     return keypairPoMapper.insert(keypair) > 0;
   }
@@ -106,7 +119,7 @@ public class KeypairDasImpl implements KeypairDas {
     if (rootKeypair != null && rootKeypair.getId() == null) {
       keypairList.add(rootKeypair);
     }
-    if (consortiumKeypair.getId() == null) {
+    if (consortiumKeypair != null && consortiumKeypair.getId() == null) {
       keypairList.add(consortiumKeypair);
     }
     if (CollectionUtils.isNotEmpty(keypairList)) {

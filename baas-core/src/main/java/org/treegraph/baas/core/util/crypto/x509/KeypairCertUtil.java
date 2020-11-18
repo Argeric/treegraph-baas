@@ -1,5 +1,6 @@
 package org.treegraph.baas.core.util.crypto.x509;
 
+import static org.treegraph.baas.core.constant.ConsortiumConstant.DEFAULT_CONSORTIUM_ID;
 import static org.treegraph.baas.core.constant.X509CertConstant.TTL_CONSORTIUM_CA_IN_DAY;
 import static org.treegraph.baas.core.constant.X509CertConstant.TTL_ROOT_CA_IN_DAY;
 import static org.treegraph.baas.core.constant.X509CertConstant.TTL_RPC_CERT_IN_DAY;
@@ -10,14 +11,12 @@ import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.Certificate;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
-import org.treegraph.baas.core.constant.ConsortiumConstant;
 import org.treegraph.baas.core.das.KeypairDas;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.enums.CryptoEnum.CertSignType;
@@ -71,7 +70,7 @@ public class KeypairCertUtil {
     KeyType keyType = KeyType.CONSORTIUM;
     String publicKey = null, privateKey = null, csrPem = null, certPem = null;
     if (keyType.getSignType() == CertSignType.BC) {
-      KeypairPo bcRootCa = getCA(ConsortiumConstant.DEFAULT_CONSORTIUM_ID, KeyType.ROOT_CA);
+      KeypairPo bcRootCa = keypairDas.getCA(DEFAULT_CONSORTIUM_ID, KeyType.ROOT_CA);
       Assert.notNull(bcRootCa, "bcRootCa.is.null");
       KeypairBo keypairBo = getKeypairByKeyType(keyType);
       publicKey = keypairBo.getPublicKey();
@@ -122,7 +121,7 @@ public class KeypairCertUtil {
             keypair.getKeypair().getPublic(), keypair.getKeypair().getPrivate(), sanList);
     String certStr = null;
     if (keyType.getSignType() == CertSignType.BC) {
-      KeypairPo bcConsCa = getCA(consId, KeyType.CONSORTIUM);
+      KeypairPo bcConsCa = keypairDas.getCA(consId, KeyType.CONSORTIUM);
       Assert.notNull(bcConsCa, "bcConsCa.is.null");
       certStr = CertUtil.signCertificate(bcConsCa, csr, lastCrtExpire, TTL_RPC_CERT_IN_DAY);
     }
@@ -151,14 +150,5 @@ public class KeypairCertUtil {
       throw new AlertException("generate.keypair.error");
     }
     return KeypairBo.builder().keypair(keypair).publicKey(publicKey).privateKey(privateKey).build();
-  }
-
-  private KeypairPo getCA(String consId, KeyType keyType) {
-    List<KeypairPo> rootKeypairList = keypairDas
-        .findAll(consId, keyType.getCode(), keyType.getAlgo().getCode());
-    if (CollectionUtils.isNotEmpty(rootKeypairList)) {
-      return rootKeypairList.get(0);
-    }
-    return null;
   }
 }

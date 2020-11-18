@@ -42,39 +42,8 @@ public class KeypairBuildService {
 
   private final KeypairCertUtil keypairCertUtil;
 
-//  @LogSkip
-//  public KeypairPo getRootKeypair() {
-//    List<KeypairPo> rootKeypairList = keypairDas.findAll(ConsortiumConstant.DEFAULT_CONSORTIUM_ID,
-//        KeyType.ROOT_CA.getCode(), KeyType.ROOT_CA.getAlgo().getCode());
-//    if (CollectionUtils.isNotEmpty(rootKeypairList)) {
-//      return rootKeypairList.get(0);
-//    }
-//
-//    KeypairCertBo keypairCert = keypairCertUtil.buildRoot();
-//    String rootPublicKey = keypairCert.getPublicKey();
-//    String rootPrivateKey = keypairCert.getPrivateKey();
-//    String rootCa = keypairCert.getCertStr();
-//
-//    LocalDateTime now = LocalDateTime.now();
-//    String operUser = WebHelper.getUserId();
-//    return KeypairPo.builder()
-//        .publicKey(rootPublicKey)
-//        .privateKey(rootPrivateKey)
-//        .csrStr(null)
-//        .certStr(rootCa)
-//        .algorithm(KeyType.ROOT_CA.getAlgo().getCode())
-//        .consortiumId(ConsortiumConstant.DEFAULT_CONSORTIUM_ID)
-//        .keyType(KeyType.ROOT_CA.getCode())
-//        .deleteFlag(IntTypeEnum.FALSE.getValue())
-//        .createTime(now)
-//        .createBy(operUser)
-//        .updateTime(now)
-//        .updateBy(operUser)
-//        .build();
-//  }
-
   public void geneRootKeypair() throws Exception{
-    KeypairPo root = getCA(ConsortiumConstant.DEFAULT_CONSORTIUM_ID, KeyType.ROOT_CA);
+    KeypairPo root = keypairDas.getCA(ConsortiumConstant.DEFAULT_CONSORTIUM_ID, KeyType.ROOT_CA);
     if(root != null) return;
 
     KeypairCertBo keypairCert = keypairCertUtil.buildRoot();
@@ -101,7 +70,7 @@ public class KeypairBuildService {
 
 
   public KeypairPo getConsortiumKeyPair(String consortiumId) throws Exception {
-    KeypairPo keypairPo = getCA(consortiumId, KeyType.CONSORTIUM);
+    KeypairPo keypairPo = keypairDas.getCA(consortiumId, KeyType.CONSORTIUM);
     if (keypairPo != null) {
       return keypairPo;
     }
@@ -186,14 +155,5 @@ public class KeypairBuildService {
         privateKeyFromBase64(KeyType.RPC.getAlgo().getCode(), keypairCert.getPrivateKey()));
     return GRpcKeypairCertBo.builder().consId(consortiumId).cert(rpcCert).privateKey(rpcPrivate)
         .build();
-  }
-
-  private KeypairPo getCA(String consId, KeyType keyType) {
-    List<KeypairPo> rootKeypairList = keypairDas
-        .findAll(consId, keyType.getCode(), keyType.getAlgo().getCode());
-    if (CollectionUtils.isNotEmpty(rootKeypairList)) {
-      return rootKeypairList.get(0);
-    }
-    return null;
   }
 }

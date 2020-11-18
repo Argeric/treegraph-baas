@@ -6,6 +6,7 @@ import org.treegraph.baas.core.domain.KeypairPo;
 
 import java.util.List;
 import java.util.Optional;
+import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 
 public interface KeypairDas {
 
@@ -19,6 +20,8 @@ public interface KeypairDas {
       List<String> nodeIds);
 
   List<KeypairPo> findAll(List<String> consIds, Integer keyType, String algo);
+
+  KeypairPo getCA(String consId, KeyType keyType);
 
   boolean save(KeypairPo keypair);
 

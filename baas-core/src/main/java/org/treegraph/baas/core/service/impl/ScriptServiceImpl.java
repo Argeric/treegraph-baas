@@ -134,12 +134,10 @@ public class ScriptServiceImpl implements ScriptService {
   }
 
   private Map<String, Map<String, String>> buildDeployScript(String consortiumId,
-      List<NodePo> nodes)
-      throws Exception {
+      List<NodePo> nodes) throws Exception {
     // certificate info
     KeypairPo rootKeypair = keypairBuildService.getRootKeypair();
-    KeypairPo consKeypair = keypairBuildService
-        .getConsortiumKeyPair(consortiumId, rootKeypair);
+    KeypairPo consKeypair = keypairBuildService.getConsortiumKeyPair(consortiumId, rootKeypair);
     PrivateKey privateKey = KeyUtil
         .privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(), consKeypair.getPrivateKey());
 
@@ -148,8 +146,7 @@ public class ScriptServiceImpl implements ScriptService {
     List<NodeKeypairBo> nodeKeypairBoList = new ArrayList<>();
     List<String> toDownloadNodeIpList = Lists.newArrayList();
     for (NodePo node : nodes) {
-      NodeKeypairBo nodeKeypairBo = keypairBuildService.getNodeKeypairBo(consortiumId,
-          node);
+      NodeKeypairBo nodeKeypairBo = keypairBuildService.getNodeKeypairBo(consortiumId, node);
       nodeKeypairBoList.add(nodeKeypairBo);
       ECKeyPair ecKeypair = loadECKeyPairFromBase64(nodeKeypairBo.getKeypair().getPublicKey(),
           nodeKeypairBo.getKeypair().getPrivateKey(), nodeKeypairBo.getKeypair().getAlgorithm());
@@ -195,8 +192,7 @@ public class ScriptServiceImpl implements ScriptService {
       NodePo node = nodeKeypair.getNode();
       String consId = node.getConsortiumId();
       GRpcKeypairCertBo gRpcKeypair = keypairBuildService
-          .geneNewRpcKeypair(consId, consKeypair, null,
-              toDownloadNodeIpList);
+          .geneNewRpcKeypair(consId, null, toDownloadNodeIpList);
       StringBuffer scriptContent = new StringBuffer();
       append(scriptContent, "consortium_cert = \"\"\"" + consKeypair.getCertStr() + "\"\"\"");
       append(scriptContent, "consortium_nodes = \"\"\"" + consortiumNodes.toString() + "\"\"\"");

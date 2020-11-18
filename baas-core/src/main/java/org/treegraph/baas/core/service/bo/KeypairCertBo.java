@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 
 @Data
 @Builder
@@ -13,9 +14,14 @@ import lombok.NoArgsConstructor;
 public class KeypairCertBo implements Serializable {
 
   /**
-   * 加密算法，支持ecc，sm2， rsa
+   * 密钥类型
    */
-  private String algorithm;
+  private KeyType keyType;
+
+//  /**
+//   * 加密算法，支持ecc，sm2， rsa
+//   */
+//  private String algorithm;
 
   /**
    * 公钥

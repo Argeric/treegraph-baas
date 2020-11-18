@@ -8,7 +8,7 @@ import org.treegraph.baas.core.service.bo.VaultSignIntermediateBo;
 
 public interface VaultService {
 
-  boolean mount(String pkiPath, int ttlInHour);
+  void mount(String pkiPath, int ttlInHour);
 
   void createRole(String pkiPath, String roleName, int ttlInHour);
 

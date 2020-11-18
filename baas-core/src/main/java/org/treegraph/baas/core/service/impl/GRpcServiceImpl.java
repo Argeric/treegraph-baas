@@ -278,8 +278,7 @@ public class GRpcServiceImpl implements BlockchainRpcService {
     String serverKeyFile = privateKeyToPem(
         privateKeyFromBase64(KeyType.CONSORTIUM.getAlgo().getCode(), consKeypair.getPrivateKey()));
     GRpcKeypairCertBo gRpcKeypair = keypairBuildService
-        .geneNewRpcKeypair(consId, consKeypair, null,
-            Lists.newArrayList(ip));
+        .geneNewRpcKeypair(consId, null, Lists.newArrayList(ip));
 
     // write to host
     String nodeCertPath = MessageFormat.format(NODE_CERT_Path, consId, nodeId);

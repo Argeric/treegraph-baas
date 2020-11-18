@@ -41,19 +41,19 @@ public class VaultServiceImpl implements VaultService {
 
   private final VaultOperations vaultOperations;
 
-  public boolean mount(String pkiPath, int ttlInHour) {
+  public void mount(String pkiPath, int ttlInHour) {
     VaultSysOperations adminOperations = vaultOperations.opsForSys();
-    if (!adminOperations.getMounts().containsKey(pkiPath + "/")) {
-      VaultMount mount = VaultMount.builder().type("pki")
-          .config(Collections.singletonMap("max_lease_ttl", ttlInHour + "h")).description("bass pki")
-          .build();
-      adminOperations.mount(pkiPath, mount);
+    Map<String, VaultMount> mounts = adminOperations.getMounts();
+    Assert.isTrue(!mounts.containsKey(pkiPath + "/"), pkiPath + ".mount.already");
 
-      Map<String, VaultMount> mounts = adminOperations.getMounts();
-      log.debug("mount pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(mounts));
-      Assert.isTrue(mounts.containsKey(pkiPath + "/"), "vault mount pki path error");
-    }
-    return true;
+    VaultMount mount = VaultMount.builder().type("pki")
+        .config(Collections.singletonMap("max_lease_ttl", ttlInHour + "h")).description("bass pki")
+        .build();
+    adminOperations.mount(pkiPath, mount);
+
+    mounts = adminOperations.getMounts();
+    log.debug("mount pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(mounts));
+    Assert.isTrue(mounts.containsKey(pkiPath + "/"), "vault mount pki path error");
   }
 
   public void createRole(String pkiPath, String roleName, int ttlInHour) {
@@ -69,8 +69,7 @@ public class VaultServiceImpl implements VaultService {
   }
 
   public VaultGenerateRootBo generateRoot() {
-    boolean mountFlag = mount(VAULT_PKI_PATH_ROOT_CA, TTL_ROOT_CA_IN_DAY);
-    if(mountFlag) return VaultGenerateRootBo.builder().build();
+    mount(VAULT_PKI_PATH_ROOT_CA, TTL_ROOT_CA_IN_DAY);
 
     Map<String, String> displayNameMap = CertUtil.parseSubject(KeyType.ROOT_CA.getSubject().getCode());
     Map<String, Object> body = new HashMap<>();
@@ -86,7 +85,7 @@ public class VaultServiceImpl implements VaultService {
     body.put("key_type", "rsa");
     body.put("key_bits", 2048);
     VaultResponse generateRootResponse = vaultOperations
-        .write(VAULT_PKI_PATH_ROOT_CA + "/root/generate/exported", body);
+        .write("/" + VAULT_PKI_PATH_ROOT_CA + "/root/generate/exported", body);
     Assert.notNull(generateRootResponse, "generateRoot.no.response");
 
     createRole(VAULT_PKI_PATH_ROOT_CA, VAULT_ROLE_CONS_CA_ISSUER, TTL_ROOT_CA_IN_DAY);
@@ -122,8 +121,7 @@ public class VaultServiceImpl implements VaultService {
   }
 
   public VaultGenerateIntermediateBo generateIntermediate(String consPkiPath){
-    boolean mountFlag = mount(consPkiPath, TTL_CONSORTIUM_CA_IN_DAY);
-    if(mountFlag) return VaultGenerateIntermediateBo.builder().build();
+    mount(consPkiPath, TTL_CONSORTIUM_CA_IN_DAY);
 
     Map<String, String> displayNameMap = CertUtil.parseSubject(KeyType.CONSORTIUM.getSubject().getCode());
     Map<String, Object> body = new HashMap<>();

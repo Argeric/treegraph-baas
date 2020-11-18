@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
@@ -38,8 +39,6 @@ public class KeypairBuildService {
   private final KeypairDas keypairDas;
 
   private final NodeKeyDas nodeKeyDas;
-
-//  private final VaultOperations vaultOperations;
 
   private final KeypairCertUtil keypairCertUtil;
 
@@ -74,39 +73,64 @@ public class KeypairBuildService {
         .build();
   }
 
-  @LogSkip
+  public void buildRootKeypair() {
+    KeypairPo root = getCA(ConsortiumConstant.DEFAULT_CONSORTIUM_ID, KeyType.ROOT_CA);
+    if(root != null) return;
+
+    KeypairCertBo keypairCert = keypairCertUtil.buildRoot();
+    LocalDateTime now = LocalDateTime.now();
+    String operator = WebHelper.getUserId();
+    KeypairPo keypairPo = KeypairPo.builder()
+        .consortiumId(ConsortiumConstant.DEFAULT_CONSORTIUM_ID)
+        .keyType(KeyType.ROOT_CA.getCode())
+        .algorithm(KeyType.ROOT_CA.getAlgo().getCode())
+        .publicKey(keypairCert.getPublicKey())
+        .privateKey(keypairCert.getPrivateKey())
+        .csrStr(null)
+        .certStr(keypairCert.getCertStr())
+        .deleteFlag(IntTypeEnum.FALSE.getValue())
+        .createTime(now)
+        .createBy(operator)
+        .updateTime(now)
+        .updateBy(operator)
+        .build();
+    boolean successFlag = keypairDas.save(keypairPo);
+    Assert.isTrue(successFlag, "root.ca.build.err");
+  }
+
+
   public KeypairPo getConsortiumKeyPair(String consortiumId, KeypairPo rootKeypair)
       throws Exception {
-    List<KeypairPo> consortiumKeypairList = keypairDas.findAll(consortiumId,
-        CryptoEnum.KeyType.CONSORTIUM.getCode(), KeyType.CONSORTIUM.getAlgo().getCode());
-    if (CollectionUtils.isNotEmpty(consortiumKeypairList)) {
-      return consortiumKeypairList.get(0);
+    KeypairPo keypairPo = getCA(consortiumId, KeyType.CONSORTIUM);
+    if (keypairPo != null) {
+      return keypairPo;
     }
-
-    return geneNewConsortiumKeyPair(consortiumId, rootKeypair, null);
+    return geneNewConsortiumKeyPair(consortiumId, null);
   }
 
   @LogSkip
-  public KeypairPo geneNewConsortiumKeyPair(String consId, KeypairPo rootKeypair,
-      Date lastCrtExpire) throws Exception {
-    KeypairCertBo keypairCert = keypairCertUtil.buildConsCA(consId,lastCrtExpire, rootKeypair);
-
+  public KeypairPo geneNewConsortiumKeyPair(String consId, Date lastCrtExpire) throws Exception {
+    KeypairCertBo keypairCert = keypairCertUtil.buildConsCA(consId, lastCrtExpire);
     LocalDateTime now = LocalDateTime.now();
-    String operUser = WebHelper.getUserId();
-    return KeypairPo.builder()
+    String operator = WebHelper.getUserId();
+    KeypairPo keypairPo = KeypairPo.builder()
+        .consortiumId(consId)
+        .keyType(CryptoEnum.KeyType.CONSORTIUM.getCode())
+        .algorithm(keypairCert.getKeyType().getAlgo().getCode())
         .publicKey(keypairCert.getPublicKey())
         .privateKey(keypairCert.getPrivateKey())
         .csrStr(keypairCert.getCsrStr())
         .certStr(keypairCert.getCertStr())
-        .algorithm(keypairCert.getAlgorithm())
-        .consortiumId(consId)
-        .keyType(CryptoEnum.KeyType.CONSORTIUM.getCode())
         .deleteFlag(IntTypeEnum.FALSE.getValue())
         .createTime(now)
-        .createBy(operUser)
+        .createBy(operator)
         .updateTime(now)
-        .updateBy(operUser)
+        .updateBy(operator)
         .build();
+
+
+
+    return keypairPo;
   }
 
   @LogSkip
@@ -130,7 +154,7 @@ public class KeypairBuildService {
     KeypairPo keypair = KeypairPo.builder()
         .publicKey(keypairCert.getPublicKey())
         .privateKey(keypairCert.getPrivateKey())
-        .algorithm(keypairCert.getAlgorithm())
+        .algorithm(keypairCert.getKeyType().getAlgo().getCode())
         .consortiumId(consortiumId)
         .keyType(CryptoEnum.KeyType.NODE.getCode())
         .deleteFlag(IntTypeEnum.FALSE.getValue())
@@ -154,11 +178,9 @@ public class KeypairBuildService {
   }
 
   @LogSkip
-  public GRpcKeypairCertBo geneNewRpcKeypair(String consortiumId, KeypairPo consKeypair,
-      Date lastCrtExpire,
+  public GRpcKeypairCertBo geneNewRpcKeypair(String consortiumId, Date lastCrtExpire,
       List<String> sanList) throws Exception {
-    KeypairCertBo keypairCert = keypairCertUtil
-        .buildRpcCert(lastCrtExpire, sanList, consortiumId, consKeypair);
+    KeypairCertBo keypairCert = keypairCertUtil.buildRpcCert(consortiumId, lastCrtExpire, sanList);
     String rpcCert = keypairCert.getCertStr();
     String rpcPrivate = privateKeyToPem(
         privateKeyFromBase64(KeyType.RPC.getAlgo().getCode(), keypairCert.getPrivateKey()));
@@ -166,41 +188,12 @@ public class KeypairBuildService {
         .build();
   }
 
-//  private void submitCaToVault(String pkiPath, String certPem, String keyPem, int ttlInDay) {
-//    int ttlInHour = ttlInDay * 24;
-//    mountToVault(pkiPath, ttlInHour);
-//
-//    Map<String, String> pemBundle = Collections.singletonMap("pem_bundle", certPem + keyPem);
-//    VaultResponse writeCaToVaultResponse = vaultOperations.write(pkiPath + "/config/ca",
-//        pemBundle);
-//    log.debug("writeCaResponse pkiPath:{},resp:{}", pkiPath,
-//        JSON.toJSONString(writeCaToVaultResponse));
-//
-//    Map<String, String> role = new HashMap<>();
-//    role.put("allowed_domains", "localhost,baas.conflux-chain.org");
-//    role.put("allow_subdomains", "true");
-//    role.put("allow_localhost", "true");
-//    role.put("allow_ip_sans", "true");
-//    role.put("max_ttl", ttlInHour + "h");
-//    VaultResponse writeRoleToVaultResponse = vaultOperations.write(
-//        pkiPath + "/roles/" + X509CertConstant.VAULT_ROLE_RPC_CERT_ISSUER, role);
-//    log.debug("writeRoleResponse pkiPath:{},resp:{}", pkiPath,
-//        JSON.toJSONString(writeRoleToVaultResponse));
-//  }
-//
-//  private void mountToVault(String pkiPath, int ttlInHour) {
-//    VaultSysOperations adminOperations = vaultOperations.opsForSys();
-//    if (adminOperations.getMounts().containsKey(pkiPath)) {
-//      return;
-//    }
-//
-//    VaultMount mount = VaultMount.builder().type("pki")
-//        .config(Collections.singletonMap("max_lease_ttl", ttlInHour + "h")).description("bass pki")
-//        .build();
-//    adminOperations.mount(pkiPath, mount);
-//
-//    Map<String, VaultMount> mounts = adminOperations.getMounts();
-//    log.debug("vaultMount pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(mounts));
-//    Assert.isTrue(mounts.containsKey(pkiPath + "/"), "vault mount pki path error");
-//  }
+  private KeypairPo getCA(String consId, KeyType keyType) {
+    List<KeypairPo> rootKeypairList = keypairDas
+        .findAll(consId, keyType.getCode(), keyType.getAlgo().getCode());
+    if (CollectionUtils.isNotEmpty(rootKeypairList)) {
+      return rootKeypairList.get(0);
+    }
+    return null;
+  }
 }

@@ -68,8 +68,7 @@ public class CertServiceImpl implements CertService {
     KeypairPo consKeypair = keypairBuildService.getConsortiumKeyPair(consId, null);
     String serverCertFile = consKeypair.getCertStr();
     GRpcKeypairCertBo gRpcKeypair = keypairBuildService
-        .geneNewRpcKeypair(consId, consKeypair, null,
-            toDownloadNodeIpList);
+        .geneNewRpcKeypair(consId, null, toDownloadNodeIpList);
     Map<String, String> certPathContentMap = Maps.newHashMap();
     certPathContentMap.put(SERVER_CERT_FILE, serverCertFile);
     certPathContentMap.put(RPC_CERT_CHAIN_FILE, gRpcKeypair.getCert());

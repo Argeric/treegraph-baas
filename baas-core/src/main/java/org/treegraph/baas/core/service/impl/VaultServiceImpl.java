@@ -42,13 +42,13 @@ public class VaultServiceImpl implements VaultService {
 
   private final VaultOperations vaultOperations;
 
-  public void mount(String pkiPath, int ttlInHour) {
+  public void mount(String pkiPath, int ttlInDay) {
     VaultSysOperations adminOperations = vaultOperations.opsForSys();
     Map<String, VaultMount> mounts = adminOperations.getMounts();
     Assert.isTrue(!mounts.containsKey(pkiPath + "/"), pkiPath + ".mount.already");
 
     VaultMount mount = VaultMount.builder().type("pki")
-        .config(Collections.singletonMap("max_lease_ttl", ttlInHour + "h")).description("bass pki")
+        .config(Collections.singletonMap("max_lease_ttl", (ttlInDay * 24) + "h")).description("bass pki")
         .build();
     adminOperations.mount(pkiPath, mount);
 
@@ -57,13 +57,13 @@ public class VaultServiceImpl implements VaultService {
     Assert.isTrue(mounts.containsKey(pkiPath + "/"), "vault mount pki path error");
   }
 
-  public void createRole(String pkiPath, String roleName, int ttlInHour) {
+  public void createRole(String pkiPath, String roleName, int ttlInDay) {
     Map<String, String> body = new HashMap<>();
     body.put("allowed_domains", "localhost,baas.conflux-chain.org");
     body.put("allow_subdomains", "true");
     body.put("allow_localhost", "true");
     body.put("allow_ip_sans", "true");
-    body.put("max_ttl", ttlInHour + "h");
+    body.put("max_ttl",  (ttlInDay * 24) + "h");
     VaultResponse createRoleResponse = vaultOperations.write(
         pkiPath + "/roles/" + roleName, body);
     log.debug("createRole pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(createRoleResponse));
@@ -80,7 +80,7 @@ public class VaultServiceImpl implements VaultService {
     body.put("locality", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.L)));
     body.put("province", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.ST)));
     body.put("country", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.C)));
-    body.put("ttl", TTL_ROOT_CA_IN_DAY * 24);
+    body.put("ttl", (TTL_ROOT_CA_IN_DAY * 24)+ "h");
     body.put("format", "pem");
     body.put("private_key_format", "der");
     body.put("key_type", "rsa");
@@ -101,19 +101,15 @@ public class VaultServiceImpl implements VaultService {
   }
 
   public void submitCAInformation(String pkiPath, String certPem, String keyPem, int ttlInDay) {
-    int ttlInHour = ttlInDay * 24;
-    mount(pkiPath, ttlInHour);
-
+    mount(pkiPath, ttlInDay);
     Map<String, String> pemBundle = Collections.singletonMap("pem_bundle", certPem + keyPem);
     VaultResponse submitCAInfoResp = vaultOperations.write(pkiPath + "/config/ca", pemBundle);
     log.debug("writeCaResponse pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(submitCAInfoResp));
-
-    createRole(pkiPath, X509CertConstant.VAULT_ROLE_RPC_CERT_ISSUER, ttlInHour);
+    createRole(pkiPath, X509CertConstant.VAULT_ROLE_RPC_CERT_ISSUER, ttlInDay);
   }
 
   public VaultGenerateIntermediateBo generateIntermediate(String consPkiPath){
     mount(consPkiPath, TTL_CONSORTIUM_CA_IN_DAY);
-
     Map<String, String> displayNameMap = CertUtil.parseSubject(KeyType.CONSORTIUM.getSubject().getCode());
     Map<String, Object> body = new HashMap<>();
     body.put("common_name", displayNameMap.get(BCStyle.INSTANCE.oidToDisplayName(BCStyle.CN)));

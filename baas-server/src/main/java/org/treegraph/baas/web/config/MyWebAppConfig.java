@@ -22,7 +22,8 @@ public class MyWebAppConfig implements WebMvcConfigurer {
         "/role/**", "/treegraph/role/**",
         "/cons/**", "/treegraph/cons/**",
         "/blockchain/**", "/treegraph/blockchain/**",
-        "/node/**", "/treegraph/node/**"
+        "/node/**", "/treegraph/node/**",
+        "/scan/fav/**", "/treegraph/scan/fav/**"
     };
     String[] noNeedTokenAuthUrls = new String[]{
         "/sys/login", "/treegraph/sys/login",

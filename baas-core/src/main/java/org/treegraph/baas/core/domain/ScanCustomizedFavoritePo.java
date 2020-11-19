@@ -1,6 +1,7 @@
 package org.treegraph.baas.core.domain;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,17 +21,17 @@ public class ScanCustomizedFavoritePo implements Serializable {
     /**
      * 
      */
-    private String userId;
-
-    /**
-     * 
-     */
     private String consortiumId;
 
     /**
      * 
      */
     private String blockchainId;
+
+    /**
+     * 
+     */
+    private Integer type;
 
     /**
      * 
@@ -50,12 +51,12 @@ public class ScanCustomizedFavoritePo implements Serializable {
     /**
      * 
      */
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 
      */
-    private Date updateTime;
+    private LocalDateTime updateTime;
 
     /**
      * 

@@ -1,6 +1,7 @@
 package org.treegraph.baas.core.mapper.primary;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.ScanCustomizedFavoritePo;
 import org.treegraph.baas.core.domain.ScanCustomizedFavoritePoExample;
@@ -18,7 +19,7 @@ public interface ScanCustomizedFavoritePoMapper {
 
     List<ScanCustomizedFavoritePo> selectByExample(ScanCustomizedFavoritePoExample example);
 
-    ScanCustomizedFavoritePo selectByPrimaryKey(Long id);
+    Optional<ScanCustomizedFavoritePo> selectByPrimaryKey(Long id);
 
     int updateByExampleSelective(@Param("record") ScanCustomizedFavoritePo record, @Param("example") ScanCustomizedFavoritePoExample example);
 

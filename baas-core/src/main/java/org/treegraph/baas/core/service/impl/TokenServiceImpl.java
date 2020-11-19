@@ -83,7 +83,6 @@ public class TokenServiceImpl implements TokenService {
     URI_PERMISSION_MAP.put("/cons/script/download", PermissionPoint.CREATE_BLOCKCHAIN.getCode());
     URI_PERMISSION_MAP.put("/cons/cert/defer", PermissionPoint.UPDATE_CONS.getCode());
     URI_PERMISSION_MAP.put("/cons/root/gene", PermissionPoint.UPDATE_CONS.getCode());
-
     // blockchain module
     URI_PERMISSION_MAP.put("/blockchain/list", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
     URI_PERMISSION_MAP.put("/blockchain/query", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
@@ -101,6 +100,12 @@ public class TokenServiceImpl implements TokenService {
     URI_PERMISSION_MAP.put("/node/del", PermissionPoint.UPDATE_NODE.getCode());
     // dashboard
     URI_PERMISSION_MAP.put("/stat/dashboard", TAG_DATA_PERMISSION);
+    // scan favorite
+    URI_PERMISSION_MAP.put("/scan/fav/create", TAG_DATA_PERMISSION);
+    URI_PERMISSION_MAP.put("/scan/fav/modify", TAG_DATA_PERMISSION);
+    URI_PERMISSION_MAP.put("/scan/fav/delete", TAG_DATA_PERMISSION);
+    URI_PERMISSION_MAP.put("/scan/fav/list", TAG_DATA_PERMISSION);
+
   }
 
   public UserInfoPo checkToken(String token) {

@@ -1,9 +1,10 @@
 package org.treegraph.baas.web.rest;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import java.util.List;
-
 import javax.servlet.http.HttpServletResponse;
-
+import lombok.AllArgsConstructor;
 import org.assertj.core.util.Lists;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,10 +31,6 @@ import org.treegraph.baas.core.service.ConsortiumService;
 import org.treegraph.baas.core.service.ScriptService;
 import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.SysManager;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import lombok.AllArgsConstructor;
 import org.treegraph.baas.core.util.crypto.x509.KeypairCertUtil;
 
 /**
@@ -137,13 +134,6 @@ public class ConsortiumController {
   public BaasResult<Void> deferCert(@RequestBody DeferCertificateRequest deferCertificateRequest)
       throws Exception {
     consortiumService.deferConsortiumCert(deferCertificateRequest);
-    return BaasResult.success();
-  }
-
-  @PostMapping("/root/gene")
-  @ApiOperation("root gene")
-  public BaasResult<Void> geneRootCa() {
-//    keypairCertUtil.generateRoot();
     return BaasResult.success();
   }
 

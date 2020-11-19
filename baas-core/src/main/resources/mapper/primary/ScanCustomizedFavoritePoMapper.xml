@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.treegraph.baas.core.mapper.primary.ScanCustomizedFavoritePoMapper">
+  <resultMap id="BaseResultMap" type="org.treegraph.baas.core.domain.ScanCustomizedFavoritePo">
+    <id column="scanCustomizedFavorite_id" jdbcType="BIGINT" property="id" />
+    <result column="scanCustomizedFavorite_user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="scanCustomizedFavorite_consortium_id" jdbcType="VARCHAR" property="consortiumId" />
+    <result column="scanCustomizedFavorite_blockchain_id" jdbcType="VARCHAR" property="blockchainId" />
+    <result column="scanCustomizedFavorite_hash" jdbcType="VARCHAR" property="hash" />
+    <result column="scanCustomizedFavorite_remark" jdbcType="VARCHAR" property="remark" />
+    <result column="scanCustomizedFavorite_delete_flag" jdbcType="INTEGER" property="deleteFlag" />
+    <result column="scanCustomizedFavorite_create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="scanCustomizedFavorite_update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="scanCustomizedFavorite_create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="scanCustomizedFavorite_update_by" jdbcType="VARCHAR" property="updateBy" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    scanCustomizedFavorite.id as scanCustomizedFavorite_id, scanCustomizedFavorite.user_id as scanCustomizedFavorite_user_id, 
+    scanCustomizedFavorite.consortium_id as scanCustomizedFavorite_consortium_id, scanCustomizedFavorite.blockchain_id as scanCustomizedFavorite_blockchain_id, 
+    scanCustomizedFavorite.hash as scanCustomizedFavorite_hash, scanCustomizedFavorite.remark as scanCustomizedFavorite_remark, 
+    scanCustomizedFavorite.delete_flag as scanCustomizedFavorite_delete_flag, scanCustomizedFavorite.create_time as scanCustomizedFavorite_create_time, 
+    scanCustomizedFavorite.update_time as scanCustomizedFavorite_update_time, scanCustomizedFavorite.create_by as scanCustomizedFavorite_create_by, 
+    scanCustomizedFavorite.update_by as scanCustomizedFavorite_update_by
+  </sql>
+  <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.ScanCustomizedFavoritePoExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from scan_customized_favorite scanCustomizedFavorite
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from scan_customized_favorite scanCustomizedFavorite
+    where scanCustomizedFavorite.id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from scan_customized_favorite
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="org.treegraph.baas.core.domain.ScanCustomizedFavoritePoExample">
+    delete from scan_customized_favorite scanCustomizedFavorite
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.ScanCustomizedFavoritePo" useGeneratedKeys="true">
+    insert into scan_customized_favorite (user_id, consortium_id, blockchain_id, 
+      hash, remark, delete_flag, 
+      create_time, update_time, create_by, 
+      update_by)
+    values (#{userId,jdbcType=VARCHAR}, #{consortiumId,jdbcType=VARCHAR}, #{blockchainId,jdbcType=VARCHAR}, 
+      #{hash,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{deleteFlag,jdbcType=INTEGER}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.ScanCustomizedFavoritePo" useGeneratedKeys="true">
+    insert into scan_customized_favorite
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="consortiumId != null">
+        consortium_id,
+      </if>
+      <if test="blockchainId != null">
+        blockchain_id,
+      </if>
+      <if test="hash != null">
+        hash,
+      </if>
+      <if test="remark != null">
+        remark,
+      </if>
+      <if test="deleteFlag != null">
+        delete_flag,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="createBy != null">
+        create_by,
+      </if>
+      <if test="updateBy != null">
+        update_by,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="consortiumId != null">
+        #{consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="blockchainId != null">
+        #{blockchainId,jdbcType=VARCHAR},
+      </if>
+      <if test="hash != null">
+        #{hash,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteFlag != null">
+        #{deleteFlag,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null">
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateBy != null">
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="org.treegraph.baas.core.domain.ScanCustomizedFavoritePoExample" resultType="java.lang.Long">
+    select count(*) from scan_customized_favorite scanCustomizedFavorite
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update scan_customized_favorite scanCustomizedFavorite
+    <set>
+      <if test="record.id != null">
+        scanCustomizedFavorite.id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.userId != null">
+        scanCustomizedFavorite.user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.consortiumId != null">
+        scanCustomizedFavorite.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.blockchainId != null">
+        scanCustomizedFavorite.blockchain_id = #{record.blockchainId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.hash != null">
+        scanCustomizedFavorite.hash = #{record.hash,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null">
+        scanCustomizedFavorite.remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.deleteFlag != null">
+        scanCustomizedFavorite.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null">
+        scanCustomizedFavorite.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateTime != null">
+        scanCustomizedFavorite.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createBy != null">
+        scanCustomizedFavorite.create_by = #{record.createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateBy != null">
+        scanCustomizedFavorite.update_by = #{record.updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update scan_customized_favorite scanCustomizedFavorite
+    set scanCustomizedFavorite.id = #{record.id,jdbcType=BIGINT},
+      scanCustomizedFavorite.user_id = #{record.userId,jdbcType=VARCHAR},
+      scanCustomizedFavorite.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
+      scanCustomizedFavorite.blockchain_id = #{record.blockchainId,jdbcType=VARCHAR},
+      scanCustomizedFavorite.hash = #{record.hash,jdbcType=VARCHAR},
+      scanCustomizedFavorite.remark = #{record.remark,jdbcType=VARCHAR},
+      scanCustomizedFavorite.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
+      scanCustomizedFavorite.create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      scanCustomizedFavorite.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      scanCustomizedFavorite.create_by = #{record.createBy,jdbcType=VARCHAR},
+      scanCustomizedFavorite.update_by = #{record.updateBy,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="org.treegraph.baas.core.domain.ScanCustomizedFavoritePo">
+    update scan_customized_favorite
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="consortiumId != null">
+        consortium_id = #{consortiumId,jdbcType=VARCHAR},
+      </if>
+      <if test="blockchainId != null">
+        blockchain_id = #{blockchainId,jdbcType=VARCHAR},
+      </if>
+      <if test="hash != null">
+        hash = #{hash,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null">
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteFlag != null">
+        delete_flag = #{deleteFlag,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null">
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateBy != null">
+        update_by = #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.treegraph.baas.core.domain.ScanCustomizedFavoritePo">
+    update scan_customized_favorite
+    set user_id = #{userId,jdbcType=VARCHAR},
+      consortium_id = #{consortiumId,jdbcType=VARCHAR},
+      blockchain_id = #{blockchainId,jdbcType=VARCHAR},
+      hash = #{hash,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      delete_flag = #{deleteFlag,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      update_by = #{updateBy,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

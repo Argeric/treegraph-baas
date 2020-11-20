@@ -44,15 +44,17 @@ public class VaultServiceImpl implements VaultService {
 
   public void mount(String pkiPath, int ttlInDay) {
     VaultSysOperations adminOperations = vaultOperations.opsForSys();
-    Map<String, VaultMount> mounts = adminOperations.getMounts();
-    Assert.isTrue(!mounts.containsKey(pkiPath + "/"), pkiPath + ".mount.already");
+    if (adminOperations.getMounts().containsKey(pkiPath + "/")) {
+      adminOperations.unmount(pkiPath + "/");
+    }
 
     VaultMount mount = VaultMount.builder().type("pki")
-        .config(Collections.singletonMap("max_lease_ttl", (ttlInDay * 24) + "h")).description("bass pki")
+        .config(Collections.singletonMap("max_lease_ttl", (ttlInDay * 24) + "h"))
+        .description("bass pki")
         .build();
     adminOperations.mount(pkiPath, mount);
 
-    mounts = adminOperations.getMounts();
+    Map<String, VaultMount> mounts = adminOperations.getMounts();
     log.debug("mount pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(mounts));
     Assert.isTrue(mounts.containsKey(pkiPath + "/"), "vault mount pki path error");
   }
@@ -67,6 +69,11 @@ public class VaultServiceImpl implements VaultService {
     VaultResponse createRoleResponse = vaultOperations.write(
         pkiPath + "/roles/" + roleName, body);
     log.debug("createRole pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(createRoleResponse));
+  }
+
+  public void readRole(String pkiPath, String roleName) {
+    VaultResponse readRoleResponse = vaultOperations.read(pkiPath + "/roles/" + roleName);
+    log.debug("readRole pkiPath:{},resp:{}", pkiPath, JSON.toJSONString(readRoleResponse.getData()));
   }
 
   public VaultGenerateRootBo generateRoot() {

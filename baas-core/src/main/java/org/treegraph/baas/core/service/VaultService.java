@@ -8,9 +8,11 @@ import org.treegraph.baas.core.service.bo.VaultSignIntermediateBo;
 
 public interface VaultService {
 
-  void mount(String pkiPath, int ttlInHour);
+  void mount(String pkiPath, int ttlInDay);
 
-  void createRole(String pkiPath, String roleName, int ttlInHour);
+  void createRole(String pkiPath, String roleName, int ttlInDay);
+
+  void readRole(String pkiPath, String roleName);
 
   VaultGenerateRootBo generateRoot();
 
@@ -23,5 +25,5 @@ public interface VaultService {
   void setSignedIntermediate(String consPkiPath, String certPem);
 
   String signCertificate(String pkiPath, PKCS10CertificationRequest csr,
-      Date lastCrtExpire, int ttl, String issuer) throws Exception;
+      Date lastCrtExpire, int ttlInDay, String issuer) throws Exception;
 }

@@ -29,6 +29,7 @@ import org.treegraph.baas.api.dto.response.ListConsResponse;
 import org.treegraph.baas.common.util.PermHelper;
 import org.treegraph.baas.core.service.ConsortiumService;
 import org.treegraph.baas.core.service.ScriptService;
+import org.treegraph.baas.core.service.VaultService;
 import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.SysManager;
 import org.treegraph.baas.core.util.crypto.x509.KeypairCertUtil;
@@ -48,7 +49,7 @@ public class ConsortiumController {
 
   private final ScriptService scriptService;
 
-  private final KeypairCertUtil keypairCertUtil;
+  private final VaultService vaultService;
 
   @PostMapping("/list")
   @ApiOperation("联盟列表")
@@ -136,6 +137,17 @@ public class ConsortiumController {
     consortiumService.deferConsortiumCert(deferCertificateRequest);
     return BaasResult.success();
   }
+
+//  @PostMapping("/vault/role")
+//  public BaasResult<Void> vaultRole() throws Exception {
+//    String pkiPath = "test-role-pki-path";
+//    String roleName = "role887";
+//    int ttlInHour = 1;
+//    vaultService.mount(pkiPath, ttlInHour);
+//    vaultService.createRole(pkiPath, roleName, ttlInHour);
+//    vaultService.readRole(pkiPath,roleName);
+//    return BaasResult.success();
+//  }
 
   private void checkCreateConsAndAdmin() {
     Assert.isTrue(PermHelper.getSysAdminFlag(), "此操作需系统管理员权限");

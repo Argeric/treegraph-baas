@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
@@ -98,16 +99,25 @@ public class ScanService {
     Assert.notNull(req.getHash(), "hash.not.found");
     Assert.notNull(req.getType(), "type.not.found");
     FavoriteType favoriteType = FavoriteType.getByCode(req.getType());
-    Assert.notNull(req.getType(), "favorite.type.not.supported");
+    Assert.notNull(favoriteType, "favorite.type.not.supported");
     BlockChainPo blockChain = blockchainDas.findById(blockchainId)
         .orElseThrow(() -> new AlertException("blockchain.not.found"));
+
+    List<ScanCustomizedFavoritePo> favoriteList = scanCustomizedFavoriteDas
+        .findAll(WebHelper.getUserId(), req.getBlockchainId());
+    Optional<ScanCustomizedFavoritePo> existFavorite = favoriteList.stream().filter(
+        item -> (item.getType() == favoriteType.getCode() && item.getHash().equals(req.getHash())))
+        .findFirst();
+    if(existFavorite.isPresent()){
+      throw new AlertException("favorite.existed, you can edit it!");
+    }
 
     LocalDateTime now = LocalDateTime.now();
     String oper = WebHelper.getUserId();
     ScanCustomizedFavoritePo favorite = ScanCustomizedFavoritePo.builder()
         .consortiumId(blockChain.getConsortiumId())
         .blockchainId(blockchainId)
-        .type(favoriteType != null ? favoriteType.getCode() : null)
+        .type(favoriteType.getCode())
         .hash(req.getHash())
         .remark(req.getRemark())
         .deleteFlag(IntTypeEnum.FALSE.getValue())

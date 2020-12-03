@@ -1,4 +1,4 @@
-package org.treegraph.baas;
+package org.treegraph.baas.web.rest;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
@@ -28,6 +28,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import org.treegraph.baas.OrderedRunner;
+import org.treegraph.baas.TreeGraphBaasApp;
 import org.treegraph.baas.api.dto.BaasResult;
 import org.treegraph.baas.api.dto.ConsAdminInfo;
 import org.treegraph.baas.api.dto.NodeInfo;

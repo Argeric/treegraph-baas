@@ -205,9 +205,11 @@ public class ScriptServiceImpl implements ScriptService {
       Map<String, String> sysMonitorScripts = buildSysMonitorScript(configs);
 
       // build script map
+      String startScriptContent = FileUtils.readFile(new ClassPathResource("scripts/start.sh"));
       Map<String, String> scripts = Maps.newHashMap();
       scripts.put("config.toml", scriptContent.toString());
       scripts.put("customized_config.toml", customizedScriptContent.toString());
+      scripts.put("start.sh", startScriptContent);
       scripts.putAll(logMonitorScripts);
       scripts.putAll(sysMonitorScripts);
       nodeScriptContentMap.put(node.getNodeIp() + AT + node.getNodePort(), scripts);

@@ -1,5 +1,6 @@
 package org.treegraph.baas.api.dto.request;
 
+import lombok.Builder;
 import org.treegraph.baas.api.dto.ListRequest;
 
 import lombok.Data;
@@ -19,6 +20,7 @@ public class ListUserRequest extends ListRequest {
 
   private Integer status;
 
+  @Builder
   public ListUserRequest(int current, int pageSize, String account, String name, String email,
       String phone, Integer status) {
     super(current, pageSize);

@@ -62,7 +62,7 @@ public class ScanController {
       "/contract/contract/delete"
   })
   @ApiOperation("scan请求转发")
-  public Object listBlock(HttpServletRequest request,
+  public Object redirectScan(HttpServletRequest request,
       @RequestBody Map<String, Map<String, String>> requestParams) {
     Map<String, String> selfParams = requestParams.get("self");
     String chainId = selfParams.get("blockchainId");

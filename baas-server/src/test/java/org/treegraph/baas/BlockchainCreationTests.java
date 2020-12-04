@@ -1,4 +1,4 @@
-package org.treegraph.baas.web.rest;
+package org.treegraph.baas;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;

@@ -259,7 +259,7 @@ public class ConsortiumServiceImpl implements ConsortiumService {
   public boolean createConsAdmin(CreateConsAdminRequest req) {
     RoleInfoBo roleBo = null;
     Optional<RolePo> roleOp = roleDas.findConsAdminRole(req.getConsId());
-    if (roleOp.isEmpty()) {
+    if (!roleOp.isPresent()) {
       List<String> reqPermissions = UserEnum.PermissionPoint.getForConsAdmin().stream()
           .map(UserEnum.PermissionPoint::getCode).collect(Collectors.toList());
       roleBo = buildService.buildRole(UserEnum.Role.CONSORTIUM_ADMIN.getCode(),

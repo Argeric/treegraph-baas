@@ -63,7 +63,7 @@ abstract public class AbstractBaasIntegrationTests {
             .andDo(MockMvcResultHandlers.print())
             .andReturn();
     BaasResult<LoginResponse> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-            new TypeReference<>() {});
+            new TypeReference<BaasResult<LoginResponse>>() {});
     token = baasResult.getData().getToken();
     Assert.assertNotNull("testLogin error", token);
   }

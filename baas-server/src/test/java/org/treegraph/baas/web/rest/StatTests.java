@@ -25,7 +25,7 @@ public class StatTests extends AbstractBaasIntegrationTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 		BaasResult<QueryDashboardResponse> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
+				new TypeReference<BaasResult<QueryDashboardResponse>>() {
 				});
 		QueryDashboardResponse data = baasResult.getData();
 		Assert.assertNotNull("queryDashboardInfo error", data);

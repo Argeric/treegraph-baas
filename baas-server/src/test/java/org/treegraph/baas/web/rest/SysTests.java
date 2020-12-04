@@ -31,7 +31,7 @@ public class SysTests extends AbstractBaasIntegrationTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 		BaasResult<ListOperLogResponse> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
+				new TypeReference<BaasResult<ListOperLogResponse>>() {
 				});
 		ListOperLogResponse listOperLogResponse = baasResult.getData();
 		Assert.assertNotNull("listOperLog error", listOperLogResponse);

@@ -35,7 +35,7 @@ public class UserTests extends AbstractBaasIntegrationTests{
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 		BaasResult<ListUserResponse> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
+				new TypeReference<BaasResult<ListUserResponse>>() {
 				});
 		ListUserResponse listUserResponse = baasResult.getData();
 		Assert.assertNotNull("testListUser error", listUserResponse);
@@ -55,7 +55,7 @@ public class UserTests extends AbstractBaasIntegrationTests{
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 		BaasResult<List<UserInfo>> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
+				new TypeReference<BaasResult<List<UserInfo>>>() {
 				});
 		List<UserInfo> userList = baasResult.getData();
 		Assert.assertNotNull("testQueryUser error", userList);

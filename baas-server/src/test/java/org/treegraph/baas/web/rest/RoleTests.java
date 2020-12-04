@@ -35,7 +35,7 @@ public class RoleTests extends AbstractBaasIntegrationTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 		BaasResult<ListRoleResponse> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
+				new TypeReference<BaasResult<ListRoleResponse>>() {
 				});
 		ListRoleResponse listRoleResponse = baasResult.getData();
 		Assert.assertNotNull("testListRole error", listRoleResponse);
@@ -56,7 +56,7 @@ public class RoleTests extends AbstractBaasIntegrationTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 		BaasResult<List<RolePermissionInfo>> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
+				new TypeReference<BaasResult<List<RolePermissionInfo>>>() {
 				});
 		List<RolePermissionInfo> rolePermList = baasResult.getData();
 		Assert.assertNotNull("testQueryRole error", rolePermList);

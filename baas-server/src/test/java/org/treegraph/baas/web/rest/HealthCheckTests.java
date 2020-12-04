@@ -23,7 +23,7 @@ public class HealthCheckTests extends AbstractBaasIntegrationTests {
             .andDo(MockMvcResultHandlers.print())
             .andReturn();
     BaasResult<Void> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-            new TypeReference<>() {
+            new TypeReference<BaasResult<Void>>() {
             });
     int status = baasResult.getStatus();
     Assert.assertEquals("health error!", 0, status);

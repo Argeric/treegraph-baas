@@ -130,7 +130,7 @@ public class ScanTests extends AbstractBaasIntegrationTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 		BaasResult<Boolean> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
+				new TypeReference<BaasResult<Boolean>>() {
 				});
 		Boolean deleteFavoriteResp = baasResult.getData();
 		Assert.assertTrue("testDeleteFavorite error", deleteFavoriteResp);

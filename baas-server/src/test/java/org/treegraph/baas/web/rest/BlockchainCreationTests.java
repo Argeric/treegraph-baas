@@ -127,7 +127,7 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 		BaasResult<String> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
+				new TypeReference<BaasResult<String>>() {
 				});
 		consId = baasResult.getData();
 		log.info("[step--->testCreateConsortium]consId--->{}", consId);
@@ -157,7 +157,7 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 		BaasResult<Boolean> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
+				new TypeReference<BaasResult<Boolean>>() {
 				});
 		Boolean successFlag = baasResult.getData();
 		log.info("[step--->testCreateConsortiumAdmin]successFlag--->{}", successFlag);
@@ -180,7 +180,7 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 		BaasResult<String> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
+				new TypeReference<BaasResult<String>>() {
 				});
 		blockchainId = baasResult.getData();
 		log.info("[step--->testCreateBlockchain]blockchainId--->{}", blockchainId);
@@ -212,7 +212,7 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 		BaasResult<Boolean> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
+				new TypeReference<BaasResult<Boolean>>() {
 				});
 		Boolean successFlag = baasResult.getData();
 		log.info("[step--->testAddNodesBeforeLaunchBlockchain]successFlag--->{}", successFlag);
@@ -280,7 +280,7 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 		BaasResult<ListNodeResponse> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
+				new TypeReference<BaasResult<ListNodeResponse>>() {
 				});
 		nodeIds = baasResult.getData().getList().stream().map(NodeInfo::getId)
 				.collect(Collectors.toList());
@@ -353,7 +353,7 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 					.andDo(MockMvcResultHandlers.print())
 					.andReturn();
 			BaasResult<Boolean> baasResult1 = JSON.parseObject(mvcResult1.getResponse().getContentAsString(),
-					new TypeReference<>() {
+					new TypeReference<BaasResult<Boolean>>() {
 					});
 			Boolean successFlag = baasResult1.getData();
 			log.info("[step--->testRemoveNode]remove node--->{}", nodeId);
@@ -392,7 +392,7 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 		BaasResult<Boolean> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
+				new TypeReference<BaasResult<Boolean>>() {
 				});
 		Boolean successFlag = baasResult.getData();
 		log.info("[step--->testRemoveConsortiumAdmin]remove admin--->{}", userId);
@@ -412,7 +412,7 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 		BaasResult<Boolean> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
+				new TypeReference<BaasResult<Boolean>>() {
 				});
 		Boolean successFlag = baasResult.getData();
 		log.info("[step--->testRemoveConsortium]successFlag--->{}", successFlag);

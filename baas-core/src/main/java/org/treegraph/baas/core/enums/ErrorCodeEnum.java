@@ -1,7 +1,6 @@
 package org.treegraph.baas.core.enums;
 
 
-import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -27,6 +26,11 @@ public enum ErrorCodeEnum {
         break;
       }
     }
-    return Objects.requireNonNullElse(result, BUSINESS_EXCEPTION);
+
+    if (result == null) {
+      return BUSINESS_EXCEPTION;
+    } else {
+      return result;
+    }
   }
 }

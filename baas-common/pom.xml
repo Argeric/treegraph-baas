@@ -26,9 +26,5 @@
       <artifactId>mybatis-generator-core</artifactId>
       <version>${mybatis-generator.version}</version>
     </dependency>
-    <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>javax.annotation-api</artifactId>
-    </dependency>
   </dependencies>
 </project>

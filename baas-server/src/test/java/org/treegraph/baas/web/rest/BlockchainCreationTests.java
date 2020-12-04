@@ -9,12 +9,16 @@ import org.apache.commons.collections.CollectionUtils;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.treegraph.baas.OrderedRunner;
+import org.treegraph.baas.TreeGraphBaasApp;
 import org.treegraph.baas.api.dto.BaasResult;
 import org.treegraph.baas.api.dto.ConsAdminInfo;
 import org.treegraph.baas.api.dto.NodeInfo;
@@ -45,6 +49,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+@RunWith(OrderedRunner.class)
+@SpringBootTest(classes = TreeGraphBaasApp.class)
 @Slf4j
 public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 	

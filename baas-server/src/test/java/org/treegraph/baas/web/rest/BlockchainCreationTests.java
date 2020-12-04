@@ -3,27 +3,48 @@ package org.treegraph.baas.web.rest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import conflux.web3j.types.RawTransaction;
+import java.io.File;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import jodd.io.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import org.treegraph.baas.OrderedRunner;
 import org.treegraph.baas.TreeGraphBaasApp;
 import org.treegraph.baas.api.dto.BaasResult;
 import org.treegraph.baas.api.dto.ConsAdminInfo;
 import org.treegraph.baas.api.dto.NodeInfo;
-import org.treegraph.baas.api.dto.request.*;
+import org.treegraph.baas.api.dto.request.AddNodesRequest;
+import org.treegraph.baas.api.dto.request.CreateBlockchainRequest;
+import org.treegraph.baas.api.dto.request.CreateConsAdminRequest;
+import org.treegraph.baas.api.dto.request.CreateConsRequest;
+import org.treegraph.baas.api.dto.request.DeleteConsRequest;
+import org.treegraph.baas.api.dto.request.DeleteNodeRequest;
+import org.treegraph.baas.api.dto.request.DeleteUserRequest;
+import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
+import org.treegraph.baas.api.dto.request.ListNodeRequest;
+import org.treegraph.baas.api.dto.request.LoginRequest;
 import org.treegraph.baas.api.dto.response.ListNodeResponse;
+import org.treegraph.baas.api.dto.response.LoginResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.common.util.WebHelper;
 import org.treegraph.baas.core.das.BlockchainDas;
@@ -33,48 +54,56 @@ import org.treegraph.baas.core.domain.BlockChainPo;
 import org.treegraph.baas.core.domain.KeypairPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
-import org.treegraph.baas.core.service.impl.KeypairBuildService;
 import org.treegraph.baas.core.service.impl.RpcSelectorService;
+import org.treegraph.baas.core.service.impl.KeypairBuildService;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.FileUtils;
 import org.treegraph.baas.core.util.Order;
+import org.treegraph.baas.core.util.SSLUtils;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
 
-import java.io.File;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
+//@RunWith(SpringRunner.class)
+@RunWith(OrderedRunner.class)
+@SpringBootTest(classes = TreeGraphBaasApp.class)
 @Slf4j
-public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
-	
+public class BlockchainCreationTests {
+
+	private static final boolean initialized = false;
+
+	private static MockMvc mockMvc;
+
+	private static String token;
+
 	private static String consId;
-	
+
 	private static String consAdminAccount;
-	
+
 	private static String blockchainId;
-	
+
 	private static List<String> nodeIds;
-	
+
+	@Autowired
+	private WebApplicationContext context;
+
 	@Autowired
 	private BlockchainDas blockchainDas;
-	
+
 	@Autowired
 	private UserInfoDas userInfoDas;
-	
+
 	@Autowired
 	private RpcSelectorService rpcSelectorService;
-	
+
 	@Autowired
 	private KeypairBuildService keypairBuildService;
-	
+
 	//=====================================================================================================================
 	// test paras
 	//=====================================================================================================================
+	// login
+	private static final String account = "sys-admin";
+	private static final String password = "123456";
 	// create consortium
 	private static final String name = "unittest_联盟名称";
 	private static final String remark = "unittest_联盟描述";
@@ -108,10 +137,41 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 	private static final String genesisPrivateKey = "46b9e861b63d3509c88b7817275a30d22d62c8cd8fa6486ddee35ef0d8e0495f";
 	private static final String gasFee = "21000";
 	private static final String rechargeTokenPerNode = "100000000000000000000000";//genesis total token 5 * 10 ** 36
-	
+
+	//=====================================================================================================================
+	// prepare
+	//=====================================================================================================================
+	@Before
+	public void setup() {
+		if(!initialized) {
+			SSLUtils.initSSL();
+			mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		}
+	}
+
 	//=====================================================================================================================
 	// construct
 	//=====================================================================================================================
+	@Test
+	@Order(1)
+	public void testLogin() throws Exception {
+		log.info("[\nstep--->testLogin]=====================================================================================================================");
+		LoginRequest loginRequest = LoginRequest.builder()
+				.account(account)
+				.password(password).build();
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/sys/login")
+				.contentType(MediaType.APPLICATION_JSON_UTF8)
+				.content(JSON.toJSONString(loginRequest)))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
+		BaasResult<LoginResponse> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
+				new TypeReference<BaasResult<LoginResponse>>() {});
+		token = baasResult.getData().getToken();
+		log.info("[step--->testLogin]token--->{}", token);
+		Assert.assertNotNull("[step--->testLogin]", token);
+	}
+
 	@Test
 	@Order(2)
 	public void testCreateConsortium() throws Exception {
@@ -123,21 +183,20 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 				.contact(contact)
 				.email(email)
 				.phone(phone).build();
-		MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.post("/cons/create")
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/create")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header("X-Token", token)
 				.content(JSON.toJSONString(createConsRequest)))
-		.andExpect(MockMvcResultMatchers.status().isOk())
-		.andDo(MockMvcResultHandlers.print())
-		.andReturn();
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
 		BaasResult<String> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
-				});
+				new TypeReference<BaasResult<String>>() {});
 		consId = baasResult.getData();
 		log.info("[step--->testCreateConsortium]consId--->{}", consId);
 		Assert.assertNotNull("[step--->testCreateConsortium]", consId);
 	}
-	
+
 	@Test
 	@Order(3)
 	public void testCreateConsortiumAdmin() throws Exception {
@@ -153,21 +212,20 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 		CreateConsAdminRequest createConsAdminRequest = CreateConsAdminRequest.builder()
 				.consId(consId)
 				.users(Lists.newArrayList(consAdminInfo)).build();
-		MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.post("/cons/admin/create")
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/admin/create")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header("X-Token", token)
 				.content(JSON.toJSONString(createConsAdminRequest)))
-		.andExpect(MockMvcResultMatchers.status().isOk())
-		.andDo(MockMvcResultHandlers.print())
-		.andReturn();
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
 		BaasResult<Boolean> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
-				});
+				new TypeReference<BaasResult<Boolean>>() {});
 		Boolean successFlag = baasResult.getData();
 		log.info("[step--->testCreateConsortiumAdmin]successFlag--->{}", successFlag);
 		Assert.assertTrue("[step--->testCreateConsortiumAdmin]", successFlag != null && successFlag);
 	}
-	
+
 	@Test
 	@Order(4)
 	public void testCreateBlockchain() throws Exception {
@@ -176,21 +234,20 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 				.consId(consId)
 				.name(blockchainName)
 				.alertEmail(blockchainAlertEmail).build();
-		MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.post("/cons/blockchain/create")
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/blockchain/create")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header("X-Token", token)
 				.content(JSON.toJSONString(createBlockchainRequest)))
-		.andExpect(MockMvcResultMatchers.status().isOk())
-		.andDo(MockMvcResultHandlers.print())
-		.andReturn();
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
 		BaasResult<String> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
-				});
+				new TypeReference<BaasResult<String>>() {});
 		blockchainId = baasResult.getData();
 		log.info("[step--->testCreateBlockchain]blockchainId--->{}", blockchainId);
 		Assert.assertNotNull("[step--->testCreateBlockchain]", blockchainId);
 	}
-	
+
 	@Test
 	@Order(5)
 	public void testAddNodesBeforeLaunchBlockchain() throws Exception {
@@ -208,21 +265,20 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 				.blockchainId(blockchainId)
 				.nodes(Lists.newArrayList(node1, node2, node3, node4))
 				.build();
-		MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.post("/cons/node/create")
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/node/create")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header("X-Token", token)
 				.content(JSON.toJSONString(addNodesRequest)))
-		.andExpect(MockMvcResultMatchers.status().isOk())
-		.andDo(MockMvcResultHandlers.print())
-		.andReturn();
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
 		BaasResult<Boolean> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
-				});
+				new TypeReference<BaasResult<Boolean>>() {});
 		Boolean successFlag = baasResult.getData();
 		log.info("[step--->testAddNodesBeforeLaunchBlockchain]successFlag--->{}", successFlag);
 		Assert.assertTrue("[step--->testAddNodesBeforeLaunchBlockchain]", successFlag != null && successFlag);
 	}
-	
+
 	@Test
 	@Order(6)
 	public void testDownloadScript() throws Exception {
@@ -230,7 +286,7 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 		DownloadDeployScriptRequest downloadDeployScriptRequest = DownloadDeployScriptRequest.builder()
 				.consId(consId)
 				.build();
-		MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.post("/cons/script/download")
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/script/download")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header("X-Token", token)
 				.content(JSON.toJSONString(downloadDeployScriptRequest)))
@@ -248,15 +304,15 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 		log.info("[step--->testDownloadScript]len--->{}", content.length);
 		Assert.assertTrue("[step--->testDownloadScript]", content.length > 0);
 	}
-	
+
 	@Test
 	@Order(7)
 	public void testLaunchBlockchain() throws IOException, InterruptedException {
 		log.info("[\nstep--->testLaunchBlockchain]=====================================================================================================================");
-        File[] folders = new File(dirCreateBlockchain).listFiles();
+		File[] folders = new File(dirCreateBlockchain).listFiles();
 		Assert.assertNotNull("[step--->testDownloadScript]folders is null", folders);
-        for (File folder : folders){
-        	if(folder.isFile()) continue;
+		for (File folder : folders){
+			if(folder.isFile()) continue;
 			ProcessBuilder builder = new ProcessBuilder(blockchainBinaryPath, "--customized-config",
 					"customized_config.toml");
 			builder.directory(folder);
@@ -265,18 +321,18 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 			processes.add(builder.start());
 			TimeUnit.SECONDS.sleep(5);
 			log.info("[step--->testLaunchBlockchain]start node--->{}", folder.getName());
-        }
-        TimeUnit.SECONDS.sleep(60);
-        log.info("[step--->testLaunchBlockchain]start blockchain completed!");
+		}
+		TimeUnit.SECONDS.sleep(60);
+		log.info("[step--->testLaunchBlockchain]start blockchain completed!");
 	}
-	
+
 	@Test
 	@Order(8)
 	public void testRechargeGenesis() throws Exception {
 		log.info("[\nstep--->testRechargeGenesis]=====================================================================================================================");
 		ListNodeRequest listNodeRequest = ListNodeRequest.builder()
 				.consId(consId).build();
-		MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.post("/node/list")
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/node/list")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header("X-Token", token)
 				.content(JSON.toJSONString(listNodeRequest)))
@@ -284,20 +340,19 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 		BaasResult<ListNodeResponse> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
-				});
+				new TypeReference<BaasResult<ListNodeResponse>>() {});
 		nodeIds = baasResult.getData().getList().stream().map(NodeInfo::getId)
 				.collect(Collectors.toList());
 		log.info("[step--->testRechargeGenesis]list nodes--->{}", JSON.toJSONString(nodeIds));
 		Assert.assertTrue("[step--->testRechargeGenesis]node not found", CollectionUtils.isNotEmpty(nodeIds));
-		
+
 		List<NodeKeypairBo> nodeKeypairs = nodeIds.stream().map(item -> keypairBuildService.getNodeKeypairBo(consId,
 				NodePo.builder().consortiumId(consId).id(item).build())).collect(Collectors.toList());
 		log.info("[step--->testRechargeGenesis]node keypairs--->{}", JSON.toJSONString(nodeKeypairs));
 		Assert.assertTrue("[step--->testRechargeGenesis]node keypair not found", CollectionUtils.isNotEmpty(nodeKeypairs));
-		
-        BigInteger currentNonce = BigInteger.ZERO;
-        for(NodeKeypairBo nodeKeypair : nodeKeypairs) {
+
+		BigInteger currentNonce = BigInteger.ZERO;
+		for(NodeKeypairBo nodeKeypair : nodeKeypairs) {
 			KeypairPo keypair = nodeKeypair.getKeypair();
 			String address = "0x" + ConfluxUtils.toAddress(KeyUtil.loadECKeyPairFromBase64(keypair.getPublicKey(),
 					keypair.getPrivateKey(), keypair.getAlgorithm()));
@@ -306,7 +361,7 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 			ECKeyPair genesisKeyPair = ECKeyPair
 					.create(new BigInteger(genesisPrivateKey, 16));
 			String transactionSign = transaction.sign(genesisKeyPair);
-			
+
 			NodePo node = nodeKeypair.getNode();
 			String transactionResult = rpcSelectorService.getRpcService().sendRawTransaction(node.getConsortiumId(),
 					node.getId(), transactionSign);
@@ -317,9 +372,9 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 //			BigInteger epochNum = rpcService.getBftEpochNumber(node.getConsortiumId(), node.getId());
 //			currentNonce = currentNonce.add(BigInteger.ONE);
 //			log.info("[step--->testRechargeGenesis]nonce--->{}, epochNum--->{}", currentNonce, epochNum);
-        }
-    }
-	
+		}
+	}
+
 	//=====================================================================================================================
 	// deconstruct
 	//=====================================================================================================================
@@ -334,14 +389,14 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 			}
 		}
 	}
-	
+
 	@Test
 	@Order(10)
 	public void testRemoveScript() throws IOException {
 		log.info("[\nstep--->testRemoveScript]=====================================================================================================================");
 		FileUtil.cleanDir(dirCreateBlockchain);
 	}
-	
+
 	@Test
 	@Order(11)
 	public void testRemoveNode() throws Exception {
@@ -349,7 +404,7 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 		for(String nodeId:nodeIds) {
 			DeleteNodeRequest deleteNodeRequest = DeleteNodeRequest.builder()
 					.id(nodeId).force(true).build();
-			MvcResult mvcResult1 = getMockMvc().perform(MockMvcRequestBuilders.post("/node/del")
+			MvcResult mvcResult1 = mockMvc.perform(MockMvcRequestBuilders.post("/node/del")
 					.contentType(MediaType.APPLICATION_JSON_UTF8)
 					.header("X-Token", token)
 					.content(JSON.toJSONString(deleteNodeRequest)))
@@ -357,8 +412,7 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 					.andDo(MockMvcResultHandlers.print())
 					.andReturn();
 			BaasResult<Boolean> baasResult1 = JSON.parseObject(mvcResult1.getResponse().getContentAsString(),
-					new TypeReference<>() {
-					});
+					new TypeReference<BaasResult<Boolean>>() {});
 			Boolean successFlag = baasResult1.getData();
 			log.info("[step--->testRemoveNode]remove node--->{}", nodeId);
 			Assert.assertTrue("[step--->testRemoveNode]remove node--->" + nodeId, successFlag != null && successFlag);
@@ -366,7 +420,7 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 		boolean successBlockchainFlag = removeBlockchain();
 		log.info("[step--->testRemoveNode]successBlockchainFlag:{}, remove node completed!", successBlockchainFlag);
 	}
-	
+
 	public boolean removeBlockchain() {
 		log.info("[\nstep--->removeBlockchain]=====================================================================================================================");
 		BlockChainPo blockChainPo = BlockChainPo.builder()
@@ -377,7 +431,7 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 				.build();
 		return blockchainDas.modify(blockChainPo);
 	}
-	
+
 	@Test
 	@Order(12)
 	public void testRemoveConsortiumAdmin() throws Exception {
@@ -388,7 +442,7 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 		DeleteUserRequest deleteUserRequest = DeleteUserRequest.builder()
 				.id(userId).build();
 		log.info("[\nstep--->testRemoveConsortiumAdmin]deleteUserRequest:{}", JSON.toJSONString(deleteUserRequest));
-		MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.post("/user/del")
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/user/del")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header("X-Token", token)
 				.content(JSON.toJSONString(deleteUserRequest)))
@@ -396,35 +450,28 @@ public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
 		BaasResult<Boolean> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
-				});
+				new TypeReference<BaasResult<Boolean>>() {});
 		Boolean successFlag = baasResult.getData();
 		log.info("[step--->testRemoveConsortiumAdmin]remove admin--->{}", userId);
 		Assert.assertTrue("[step--->testRemoveConsortiumAdmin]remove admin--->" + userId, successFlag != null && successFlag);
 	}
-	
+
 	@Test
 	@Order(13)
 	public void testRemoveConsortium() throws Exception {
 		log.info("[\nstep--->testRemoveConsortium]=====================================================================================================================");
 		DeleteConsRequest deleteConsRequest = DeleteConsRequest.builder().id(consId).build();
-		MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.post("/cons/del")
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/cons/del")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header("X-Token", token)
 				.content(JSON.toJSONString(deleteConsRequest)))
-		.andExpect(MockMvcResultMatchers.status().isOk())
-		.andDo(MockMvcResultHandlers.print())
-		.andReturn();
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andDo(MockMvcResultHandlers.print())
+				.andReturn();
 		BaasResult<Boolean> baasResult = JSON.parseObject(mvcResult.getResponse().getContentAsString(),
-				new TypeReference<>() {
-				});
+				new TypeReference<BaasResult<Boolean>>() {});
 		Boolean successFlag = baasResult.getData();
 		log.info("[step--->testRemoveConsortium]successFlag--->{}", successFlag);
 		Assert.assertTrue("[step--->testRemoveConsortium]", successFlag != null && successFlag);
-	}
-
-	@Override
-	boolean needLogin() {
-		return true;
 	}
 }

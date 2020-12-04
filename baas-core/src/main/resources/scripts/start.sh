@@ -2,17 +2,17 @@
 
 BLOCKCHAIN_BINARY_PATH=
 
-while getopts "b:" opt; do
+while getopts "p:" opt; do
   case $opt in
-    b)
+    p)
         BLOCKCHAIN_BINARY_PATH=$OPTARG
-        echo "blockchain_binary_path is set:$BLOCKCHAIN_BINARY_PATH" ;;
+        echo "blockchain_binary_path is set:$BLOCKCHAIN_BINARY_PATH"
+        ;;
     *)
         echo "$0: invalid option -$OPTARG" >&2
-		echo "Usage: $0 [-b blockchain_binary_path] " >&2
-		exit
-		;;
-
+		    echo "Usage: $0 [-p blockchain_binary_path] " >&2
+		    exit
+		    ;;
   esac
 done
 

@@ -49,8 +49,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-@RunWith(OrderedRunner.class)
-@SpringBootTest(classes = TreeGraphBaasApp.class)
 @Slf4j
 public class BlockchainCreationTests extends AbstractBaasIntegrationTests {
 	

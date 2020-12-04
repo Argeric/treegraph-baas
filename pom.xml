@@ -335,6 +335,10 @@
           <encoding>UTF-8</encoding>
           <source>${java.version}</source>
           <target>${java.version}</target>
+          <compilerArgs>
+            <arg>--add-modules</arg>
+            <arg>java.xml.ws.annotation</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
       <plugin>

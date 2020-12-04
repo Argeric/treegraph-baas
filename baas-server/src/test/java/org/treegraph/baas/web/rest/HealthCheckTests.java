@@ -17,7 +17,7 @@ public class HealthCheckTests extends AbstractBaasIntegrationTests {
   @Test
   @Order(1)
   public void testHealthCheck() throws Exception {
-    MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.post("/health")
+    MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.get("/health")
             .contentType(MediaType.APPLICATION_JSON_UTF8))
             .andExpect(MockMvcResultMatchers.status().isOk())
             .andDo(MockMvcResultHandlers.print())

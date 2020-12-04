@@ -18,8 +18,9 @@ public class StatTests extends AbstractBaasIntegrationTests {
 	@Test
 	@Order(1)
 	public void testQueryDashboardInfo() throws Exception {
-		MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.post("/stat")
-				.contentType(MediaType.APPLICATION_JSON_UTF8))
+		MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.post("/stat/dashboard")
+				.contentType(MediaType.APPLICATION_JSON_UTF8)
+				.header("X-Token", token))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andDo(MockMvcResultHandlers.print())
 				.andReturn();
@@ -32,6 +33,6 @@ public class StatTests extends AbstractBaasIntegrationTests {
 
 	@Override
 	boolean needLogin() {
-		return false;
+		return true;
 	}
 }

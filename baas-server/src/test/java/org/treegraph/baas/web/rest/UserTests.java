@@ -45,8 +45,9 @@ public class UserTests extends AbstractBaasIntegrationTests{
 	@Order(3)
 	public void testQueryUser() throws Exception {
 		QueryUserRequest queryUserRequest = QueryUserRequest.builder()
+				.account("unittest_联盟管理员账号1607050544212")
 				.build();
-		MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.post("/role/query")
+		MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.post("/user/query")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header("X-Token", token)
 				.content(JSON.toJSONString(queryUserRequest)))

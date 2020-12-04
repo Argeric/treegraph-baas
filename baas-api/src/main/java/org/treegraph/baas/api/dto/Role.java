@@ -1,5 +1,6 @@
 package org.treegraph.baas.api.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
@@ -9,6 +10,7 @@ import lombok.Data;
  * @date May 11, 2020
  */
 @Data
+@AllArgsConstructor
 @Builder
 public class Role {
 

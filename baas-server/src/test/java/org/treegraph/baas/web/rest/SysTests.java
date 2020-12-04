@@ -23,7 +23,7 @@ public class SysTests extends AbstractBaasIntegrationTests {
 				.current(1)
 				.pageSize(10)
 				.build();
-		MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.post("/log/list")
+		MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.post("/sys/log/list")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)
 				.header("X-Token", token)
 				.content(JSON.toJSONString(listOperLogRequest)))

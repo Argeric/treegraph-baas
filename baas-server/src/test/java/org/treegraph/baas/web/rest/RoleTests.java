@@ -45,8 +45,8 @@ public class RoleTests extends AbstractBaasIntegrationTests {
 	@Order(3)
 	public void testQueryRole() throws Exception {
 		QueryRoleRequest queryRoleRequest = QueryRoleRequest.builder()
-				.id("id")
-				.consId("consId")
+				.id("93218b34-76a6-4221-92be-f6a9785ddb80")
+				.consId("00be8983-f2ad-4c2e-baf9-5b9b96f13eb3")
 				.build();
 		MvcResult mvcResult = getMockMvc().perform(MockMvcRequestBuilders.post("/role/query")
 				.contentType(MediaType.APPLICATION_JSON_UTF8)

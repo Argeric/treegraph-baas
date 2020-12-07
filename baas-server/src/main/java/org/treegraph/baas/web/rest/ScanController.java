@@ -7,6 +7,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,7 +38,7 @@ import org.treegraph.baas.core.util.LogSkip;
 @Api(tags = "scan模块")
 public class ScanController {
 
-  @Resource
+  @Autowired
   private ScanService scanService;
 
   @Value("${uri.scan.scan}")

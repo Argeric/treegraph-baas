@@ -1,5 +1,6 @@
 package org.treegraph.baas.web.advice;
 
+import org.springframework.vault.VaultException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -49,6 +50,14 @@ public class ExceptionControllerAdvice {
     log.error("[userId={}]handleIllegalStateException {}", WebHelper.getUserId(), e.getMessage(),
         e);
     return BaasResult.fail(9999, e.getMessage());
+  }
+
+  @ResponseBody
+  @ExceptionHandler(VaultException.class)
+  public BaasResult<Void> handleVaultException(VaultException e) {
+
+    log.error("[userId={}]handleException {}", WebHelper.getUserId(), e.getMessage(), e);
+    return BaasResult.fail("vault unsealed!");
   }
 
   @ResponseBody

@@ -19,6 +19,8 @@ import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFrom
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import java.io.*;
 import java.security.PrivateKey;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -31,6 +33,8 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.servlet.http.HttpServletResponse;
+
+import jodd.io.FileUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -40,6 +44,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
+import org.treegraph.baas.api.dto.request.DeployNodeRequest;
 import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.core.constant.MonitorConstant;
@@ -82,8 +87,19 @@ public class ScriptServiceImpl implements ScriptService {
 
   private final KeypairBuildService keypairBuildService;
 
+  public void deployNode(DeployNodeRequest deployNodeRequest) throws Exception {
+    DownloadDeployScriptRequest downloadDeployScriptRequest = DownloadDeployScriptRequest.builder()
+            .consId(deployNodeRequest.getConsId())
+            .nodeId(Lists.newArrayList(deployNodeRequest.getNodeId())).build();
+    byte[] content = downloadDeployScript(downloadDeployScriptRequest, null);
+    String dirDeployScript = "/opt/service/deploy/" + deployNodeRequest.getConsId() + "/" + deployNodeRequest.getNodeId();
+    FileUtil.cleanDir(dirDeployScript);
+    FileUtil.writeBytes(dirDeployScript + "/deploy.zip", content);
+  }
+
+
   @LogSkip
-  public void downloadDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp)
+  public byte[] downloadDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp)
       throws Exception {
     // check and build
     String consortiumId = req.getConsId();
@@ -110,9 +126,16 @@ public class ScriptServiceImpl implements ScriptService {
     }
 
     // download deploy.zip file
-    resp.setContentType("application/zip");
-    resp.setHeader("Content-disposition", "attachment; filename=\"deploy.zip\"");
-    ZipOutputStream zipOutputStream = new ZipOutputStream(resp.getOutputStream());
+    ZipOutputStream zipOutputStream = null;
+    ByteArrayOutputStream bout = null;
+    if(resp != null) {
+      resp.setContentType("application/zip");
+      resp.setHeader("Content-disposition", "attachment; filename=\"deploy.zip\"");
+      zipOutputStream = new ZipOutputStream(resp.getOutputStream());
+    } else{
+      bout = new ByteArrayOutputStream();
+      zipOutputStream = new ZipOutputStream(new BufferedOutputStream(bout));
+    }
     for (Map.Entry<String, Map<String, String>> item : toDownloadNodeScriptMap.entrySet()) {
       String basePath = item.getKey();
       Map<String, String> scripts = item.getValue();
@@ -131,6 +154,8 @@ public class ScriptServiceImpl implements ScriptService {
         .buildToUpdateCons(consortiumId, EstablishStep.DOWNLOADED_SCRIPTS);
     consortiumDas.modifyCons(cons);
     log.debug("update consortium status finished[{}]", consortiumId);
+
+    return bout != null ? bout.toByteArray() : null;
   }
 
   private Map<String, Map<String, String>> buildDeployScript(String consId, List<NodePo> nodes)

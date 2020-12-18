@@ -46,6 +46,7 @@ services:
       - vault
     volumes:
       - ./log/baas:/opt/service/log
+      - ./deploy/baas:/opt/service/deploy
     networks:
       - backend_net
 

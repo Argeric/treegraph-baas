@@ -93,6 +93,9 @@ public class ScriptServiceImpl implements ScriptService {
             .nodeId(Lists.newArrayList(deployNodeRequest.getNodeId())).build();
     byte[] content = downloadDeployScript(downloadDeployScriptRequest, null);
     String dirDeployScript = "/opt/service/deploy/" + deployNodeRequest.getConsId() + "/" + deployNodeRequest.getNodeId();
+    if(!FileUtil.isExistingFolder(new File(dirDeployScript))) {
+      FileUtil.mkdirs(dirDeployScript);
+    }
     FileUtil.cleanDir(dirDeployScript);
     FileUtil.writeBytes(dirDeployScript + "/deploy.zip", content);
   }

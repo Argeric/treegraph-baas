@@ -53,6 +53,20 @@ public class FileUtils {
     }
   }
 
+  public static String readFileWithNoSep(ClassPathResource resource) {
+    StringBuilder str = new StringBuilder();
+    try (BufferedReader in = new BufferedReader(
+            new InputStreamReader(resource.getInputStream(), StandardCharsets.UTF_8))) {
+      String line;
+      while ((line = in.readLine()) != null) {
+        str.append(line);
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("read file error!", e);
+    }
+    return str.toString();
+  }
+
   public static String readFile(ClassPathResource resource) {
     StringBuilder str = new StringBuilder();
     try (BufferedReader in = new BufferedReader(

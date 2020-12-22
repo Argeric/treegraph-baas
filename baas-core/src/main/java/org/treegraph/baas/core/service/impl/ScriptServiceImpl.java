@@ -107,7 +107,7 @@ public class ScriptServiceImpl implements ScriptService {
       reachableInfos.add(reachableInfo);
       hasNotReachableNode = hasNotReachableNode || !isReachable;
     }
-    String hostPublicKey = FileUtils.readFile(new ClassPathResource(HOST_PUB_KEY_PATH));
+    String hostPublicKey = FileUtils.readFileWithNoSep(new ClassPathResource(HOST_PUB_KEY_PATH));
 
     return DetectReachableResponse.builder()
             .list(reachableInfos)

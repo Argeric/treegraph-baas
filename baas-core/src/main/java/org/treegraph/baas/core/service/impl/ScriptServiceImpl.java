@@ -67,6 +67,8 @@ import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFrom
 @Slf4j
 public class ScriptServiceImpl implements ScriptService {
 
+  public static final String HOST_PUB_KEY_PATH = "host_key/id_rsa.pub";
+
   private final ConsortiumDas consortiumDas;
 
   private final NodeDas nodeDas;
@@ -103,10 +105,14 @@ public class ScriptServiceImpl implements ScriptService {
                       : NodeEnum.ReachableCode.NOT_ACCESSABLE.getCode())
               .build();
       reachableInfos.add(reachableInfo);
-      hasNotReachableNode = hasNotReachableNode || isReachable;
+      hasNotReachableNode = hasNotReachableNode || !isReachable;
     }
+    String hostPublicKey = FileUtils.readFile(new ClassPathResource(HOST_PUB_KEY_PATH));
 
-    return DetectReachableResponse.builder().list(reachableInfos).build();
+    return DetectReachableResponse.builder()
+            .list(reachableInfos)
+            .hostPublicKey(hasNotReachableNode ? hostPublicKey : null)
+            .build();
   }
 
   public void deployNode(DeployNodeRequest req) throws Exception {

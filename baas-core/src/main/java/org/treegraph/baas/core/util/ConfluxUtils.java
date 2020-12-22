@@ -35,6 +35,10 @@ public class ConfluxUtils {
     return StringUtils.rightPad(uri, 21, " ");
   }
 
+  public static String toUserAtIp(String user, String ip) {
+    return user + CharacterConstant.AT + ip;
+  }
+
   public static String signMessage(byte[] message, ECKeyPair ecKeyPair) {
     Sign.SignatureData data = Sign.signMessage(message, ecKeyPair);
     byte[] rsv = new byte[data.getR().length + data.getS().length + data.getV().length];

@@ -1,39 +1,7 @@
 package org.treegraph.baas.core.service.impl;
 
-import static org.treegraph.baas.core.constant.CharacterConstant.AT;
-import static org.treegraph.baas.core.constant.CharacterConstant.COLON;
-import static org.treegraph.baas.core.constant.CharacterConstant.COMMA;
-import static org.treegraph.baas.core.constant.CharacterConstant.DOT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_GRPC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_GRPC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_LOC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_CONTAINER_NETWORK;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_LOG_MONITOR_WEB_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_MONITOR_PORT_INTERVAL;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_RPC_PORT_INTERVAL;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_SWITCH;
-import static org.treegraph.baas.core.constant.SplitterConstant.FILE_SEP;
-import static org.treegraph.baas.core.constant.SplitterConstant.LINE_SEP;
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFromBase64;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
-import java.io.*;
-import java.security.PrivateKey;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-import javax.servlet.http.HttpServletResponse;
-
 import jodd.io.FileUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.treegraph.baas.api.dto.request.DeployNodeRequest;
 import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
 import org.treegraph.baas.common.enums.IntTypeEnum;
+import org.treegraph.baas.core.constant.DeployCmdConstant;
 import org.treegraph.baas.core.constant.MonitorConstant;
 import org.treegraph.baas.core.das.ConsortiumDas;
 import org.treegraph.baas.core.das.KeypairDas;
@@ -64,10 +33,28 @@ import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
 import org.treegraph.baas.core.util.ConfluxUtils;
 import org.treegraph.baas.core.util.FileUtils;
 import org.treegraph.baas.core.util.LogSkip;
+import org.treegraph.baas.core.util.ShellExecutor;
 import org.treegraph.baas.core.util.crypto.x509.EncryptUtil;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.treegraph.baas.core.util.crypto.x509.SignUtil;
 import org.web3j.crypto.ECKeyPair;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.security.PrivateKey;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import static org.treegraph.baas.core.constant.CharacterConstant.*;
+import static org.treegraph.baas.core.constant.ConfluxConstant.*;
+import static org.treegraph.baas.core.constant.SplitterConstant.FILE_SEP;
+import static org.treegraph.baas.core.constant.SplitterConstant.LINE_SEP;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFromBase64;
 
 @Validated
 @Service
@@ -87,19 +74,39 @@ public class ScriptServiceImpl implements ScriptService {
 
   private final KeypairBuildService keypairBuildService;
 
-  public void deployNode(DeployNodeRequest deployNodeRequest) throws Exception {
-    DownloadDeployScriptRequest downloadDeployScriptRequest = DownloadDeployScriptRequest.builder()
-            .consId(deployNodeRequest.getConsId())
-            .nodeId(Lists.newArrayList(deployNodeRequest.getNodeId())).build();
-    byte[] content = downloadDeployScript(downloadDeployScriptRequest, null);
-    String dirDeployScript = "/opt/service/deploy/" + deployNodeRequest.getConsId() + "/" + deployNodeRequest.getNodeId();
-    if(!FileUtil.isExistingFolder(new File(dirDeployScript))) {
-      FileUtil.mkdirs(dirDeployScript);
-    }
-    FileUtil.cleanDir(dirDeployScript);
-    FileUtil.writeBytes(dirDeployScript + "/deploy.zip", content);
-  }
+  public void deployNode(DeployNodeRequest req) throws Exception {
+    String consortiumId = req.getConsId();
+    Assert.notNull(consortiumId, "consortiumId.not.found");
+    String blockchainId = req.getBlockchainId();
+    List<NodePo> nodes = nodeDas.findByConsIdAndChainId(consortiumId, blockchainId);
 
+    for(NodePo node : nodes) {
+      String consId = node.getConsortiumId();
+      String nodeId = node.getId();
+      DownloadDeployScriptRequest downloadDeployScriptRequest = DownloadDeployScriptRequest.builder()
+              .consId(consId)
+              .nodeId(Lists.newArrayList(nodeId)).build();
+      byte[] content = downloadDeployScript(downloadDeployScriptRequest, null);
+      String dirDeployScript = "/opt/service/deploy/" + consId + "/" + nodeId;
+      if (!FileUtil.isExistingFolder(new File(dirDeployScript))) {
+        FileUtil.mkdirs(dirDeployScript);
+      }
+      FileUtil.cleanDir(dirDeployScript);
+      FileUtil.writeBytes(dirDeployScript + "/deploy.zip", content);
+
+      String userAtIp = ConfluxUtils.toUserAtIp(ShellExecutor.USER, node.getNodeIp());
+      String ipAtPort = ConfluxUtils.toIpAtPort(node.getNodeIp(), node.getNodePort());
+      ShellExecutor.execRemote(node.getNodeIp(), DeployCmdConstant.MKDIR);
+      String scpScript = MessageFormat.format(DeployCmdConstant.SCP_SCRIPT, consId, nodeId, userAtIp, ipAtPort);
+      ShellExecutor.execLocal(scpScript);
+      String unzipScript = MessageFormat.format(DeployCmdConstant.UNZIP_SCRIPT, ipAtPort, ipAtPort);
+      ShellExecutor.execRemote(node.getNodeIp(), unzipScript);
+      String scpBinary = MessageFormat.format(DeployCmdConstant.SCP_BINARY, userAtIp, ipAtPort, node.getNodePort());
+      ShellExecutor.execLocal(scpBinary);
+      String launchBlockchain = MessageFormat.format(DeployCmdConstant.LAUNCH_BLOCKCHAIN, ipAtPort, node.getNodePort());
+      ShellExecutor.execRemote(node.getNodeIp(), launchBlockchain);
+    }
+  }
 
   @LogSkip
   public byte[] downloadDeployScript(DownloadDeployScriptRequest req, HttpServletResponse resp)
@@ -129,7 +136,7 @@ public class ScriptServiceImpl implements ScriptService {
     }
 
     // download deploy.zip file
-    ZipOutputStream zipOutputStream = null;
+    ZipOutputStream zipOutputStream;
     ByteArrayOutputStream bout = null;
     if(resp != null) {
       resp.setContentType("application/zip");

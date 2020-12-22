@@ -11,7 +11,7 @@ public class DeployNodeRequest {
 
   private String consId;
 
-  private String nodeId;
+  private String blockchainId;
 }
 
 

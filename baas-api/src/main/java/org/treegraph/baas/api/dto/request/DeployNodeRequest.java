@@ -12,6 +12,8 @@ public class DeployNodeRequest {
   private String consId;
 
   private String blockchainId;
+
+  private List<String> nodeId;
 }
 
 

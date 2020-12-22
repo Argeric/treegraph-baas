@@ -88,4 +88,30 @@ public class NodeEnum {
       return null;
     }
   }
+
+  /**
+   * 节点可达性code
+   */
+  @Getter
+  @AllArgsConstructor
+  public enum ReachableCode {
+
+    NOT_ACCESSABLE(0, "不可访问"),
+
+    ACCESSABLE(1, "可访问"),
+    ;
+
+    private final int code;
+
+    private final String desc;
+
+    public static MembershipStatus getByCode(int code) {
+      for (MembershipStatus s : MembershipStatus.values()) {
+        if (s.code == code) {
+          return s;
+        }
+      }
+      return null;
+    }
+  }
 }

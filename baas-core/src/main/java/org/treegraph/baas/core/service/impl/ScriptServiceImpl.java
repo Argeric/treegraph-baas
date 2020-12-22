@@ -2,6 +2,7 @@ package org.treegraph.baas.core.service.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import jodd.io.FileUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +13,11 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
+import org.treegraph.baas.api.dto.ReachableInfo;
 import org.treegraph.baas.api.dto.request.DeployNodeRequest;
+import org.treegraph.baas.api.dto.request.DetectReachableRequest;
 import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
+import org.treegraph.baas.api.dto.response.DetectReachableResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
 import org.treegraph.baas.core.constant.DeployCmdConstant;
 import org.treegraph.baas.core.constant.MonitorConstant;
@@ -28,6 +32,7 @@ import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
+import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.service.ScriptService;
 import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
 import org.treegraph.baas.core.util.ConfluxUtils;
@@ -74,11 +79,45 @@ public class ScriptServiceImpl implements ScriptService {
 
   private final KeypairBuildService keypairBuildService;
 
+  public DetectReachableResponse detectReachable(DetectReachableRequest req) {
+    String consortiumId = req.getConsId();
+    Assert.notNull(consortiumId, "consortiumId.not.found");
+    String blockchainId = req.getBlockchainId();
+    List<NodePo> nodes = nodeDas.findByConsIdAndChainId(consortiumId, blockchainId);
+
+    boolean hasNotReachableNode = false;
+    List<ReachableInfo> reachableInfos = Lists.newArrayList();
+    for (NodePo node : nodes) {
+      boolean isReachable = false;
+      try {
+        ShellExecutor.execRemote(node.getNodeIp(), DeployCmdConstant.MKDIR);
+        isReachable = true;
+      } catch (Exception e) {
+        log.error("detectReachable err:", e);
+      }
+      ReachableInfo reachableInfo = ReachableInfo.builder()
+              .consId(node.getConsortiumId())
+              .blockId(node.getBlockchainId())
+              .nodeId(node.getId())
+              .reachableCode(isReachable ? NodeEnum.ReachableCode.ACCESSABLE.getCode()
+                      : NodeEnum.ReachableCode.NOT_ACCESSABLE.getCode())
+              .build();
+      reachableInfos.add(reachableInfo);
+      hasNotReachableNode = hasNotReachableNode || isReachable;
+    }
+
+    return DetectReachableResponse.builder().list(reachableInfos).build();
+  }
+
   public void deployNode(DeployNodeRequest req) throws Exception {
     String consortiumId = req.getConsId();
     Assert.notNull(consortiumId, "consortiumId.not.found");
     String blockchainId = req.getBlockchainId();
     List<NodePo> nodes = nodeDas.findByConsIdAndChainId(consortiumId, blockchainId);
+    if(CollectionUtils.isNotEmpty(req.getNodeId())) {
+      Set<String> nodeIdSet = Sets.newHashSet(req.getNodeId());
+      nodes = nodes.stream().filter(item -> !nodeIdSet.contains(item.getId())).collect(Collectors.toList());
+    }
 
     for(NodePo node : nodes) {
       String consId = node.getConsortiumId();

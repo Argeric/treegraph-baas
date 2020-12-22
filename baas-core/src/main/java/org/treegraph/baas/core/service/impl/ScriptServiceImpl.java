@@ -96,14 +96,15 @@ public class ScriptServiceImpl implements ScriptService {
 
       String userAtIp = ConfluxUtils.toUserAtIp(ShellExecutor.USER, node.getNodeIp());
       String ipAtPort = ConfluxUtils.toIpAtPort(node.getNodeIp(), node.getNodePort());
+      String nodePort = node.getNodePort() + "";
       ShellExecutor.execRemote(node.getNodeIp(), DeployCmdConstant.MKDIR);
       String scpScript = MessageFormat.format(DeployCmdConstant.SCP_SCRIPT, consId, nodeId, userAtIp, ipAtPort);
       ShellExecutor.execLocal(scpScript);
       String unzipScript = MessageFormat.format(DeployCmdConstant.UNZIP_SCRIPT, ipAtPort, ipAtPort);
       ShellExecutor.execRemote(node.getNodeIp(), unzipScript);
-      String scpBinary = MessageFormat.format(DeployCmdConstant.SCP_BINARY, userAtIp, ipAtPort, node.getNodePort());
+      String scpBinary = MessageFormat.format(DeployCmdConstant.SCP_BINARY, userAtIp, ipAtPort, nodePort);
       ShellExecutor.execLocal(scpBinary);
-      String launchBlockchain = MessageFormat.format(DeployCmdConstant.LAUNCH_BLOCKCHAIN, ipAtPort, node.getNodePort());
+      String launchBlockchain = MessageFormat.format(DeployCmdConstant.LAUNCH_BLOCKCHAIN, ipAtPort, nodePort);
       ShellExecutor.execRemote(node.getNodeIp(), launchBlockchain);
     }
   }

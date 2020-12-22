@@ -12,9 +12,9 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class ShellExecutor {
 
-    private static final int TIME_OUT_SHELL_REMOTE = 30;
+    private static final int TIME_OUT_SHELL_REMOTE = 10;
 
-    private static final int TIME_OUT_SHELL_LOCAL = 15;
+    private static final int TIME_OUT_SHELL_LOCAL = 10;
 
     public static final String USER = "root";
 
@@ -52,7 +52,8 @@ public class ShellExecutor {
             while ((line = reader.readLine()) != null) {
                 log.debug("cmd:{} --->resp:{}", cmd, line);
                 if ((System.currentTimeMillis() - startTime) / 1000 > TIME_OUT_SHELL_REMOTE) {
-                    throw new RuntimeException("ssh.cmd.exec.timeout");
+                    //throw new RuntimeException("ssh.cmd.exec.timeout");
+                    break;
                 }
                 if(doneTag != null && line.contains(doneTag)) {
                     execCmdFlag = true;

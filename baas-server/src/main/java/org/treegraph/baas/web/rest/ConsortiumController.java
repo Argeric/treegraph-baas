@@ -18,6 +18,7 @@ import org.treegraph.baas.api.dto.ConsDetailInfo;
 import org.treegraph.baas.api.dto.ConsInfo;
 import org.treegraph.baas.api.dto.ListRequest;
 import org.treegraph.baas.api.dto.request.*;
+import org.treegraph.baas.api.dto.response.DetectReachableResponse;
 import org.treegraph.baas.api.dto.response.ListConsResponse;
 import org.treegraph.baas.common.util.PermHelper;
 import org.treegraph.baas.core.service.ConsortiumService;
@@ -129,6 +130,12 @@ public class ConsortiumController {
       throws Exception {
     consortiumService.deferConsortiumCert(deferCertificateRequest);
     return BaasResult.success();
+  }
+
+  @PostMapping("/node/detect")
+  public BaasResult<DetectReachableResponse> detectNode(@RequestBody DetectReachableRequest detectRedachableRequest) {
+    DetectReachableResponse detectReachableResponse = scriptService.detectReachable(detectRedachableRequest);
+    return BaasResult.success(detectReachableResponse);
   }
 
   @PostMapping("/node/deploy")

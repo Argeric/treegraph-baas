@@ -18,7 +18,7 @@ public class ShellExecutor {
 
     public static final String USER = "root";
 
-    public static final String HOST_KEY_PATH = "host_key/id_rsa";
+    public static final String HOST_KEY_PATH = "host_key/id_rsa.pem";
 
     public static void execRemote(String ip, String cmd) {
         execRemote(ip, cmd, null);

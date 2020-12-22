@@ -50,8 +50,7 @@ public class ShellExecutor {
             String line;
             long startTime = System.currentTimeMillis();
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-                log.info("cmd:{} --->resp:{}", cmd, line);
+                log.debug("cmd:{} --->resp:{}", cmd, line);
                 if ((System.currentTimeMillis() - startTime) / 1000 > TIME_OUT_SHELL_REMOTE) {
                     throw new RuntimeException("ssh.cmd.exec.timeout");
                 }
@@ -97,8 +96,7 @@ public class ShellExecutor {
             String line;
             long startTime = System.currentTimeMillis();
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-                log.info("cmd:{} --->resp:{}", cmd, line);
+                log.debug("cmd:{} --->resp:{}", cmd, line);
                 if ((System.currentTimeMillis() - startTime) / 1000 > TIME_OUT_SHELL_LOCAL) {
                     throw new RuntimeException("local.cmd.exec.timeout");
                 }

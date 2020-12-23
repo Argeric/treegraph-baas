@@ -133,12 +133,14 @@ public class ConsortiumController {
   }
 
   @PostMapping("/node/detect")
+  @ApiOperation("目标服务器连通性检测")
   public BaasResult<DetectReachableResponse> detectNode(@RequestBody DetectReachableRequest detectRedachableRequest) {
     DetectReachableResponse detectReachableResponse = scriptService.detectReachable(detectRedachableRequest);
     return BaasResult.success(detectReachableResponse);
   }
 
   @PostMapping("/node/deploy")
+  @ApiOperation("部署到目标服务器")
   public BaasResult<Void> deployNode(@RequestBody DeployNodeRequest deployNodeRequest) throws Exception {
     scriptService.deployNode(deployNodeRequest);
     return BaasResult.success();

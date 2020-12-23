@@ -128,7 +128,9 @@ public class ShellExecutor {
 
     public static void main(String[] args) {
         String remoteCommand = "cd /opt/service/blockchain/120.27.241.71@48778;bash ./auto_deploy.sh";
-        execRemote("120.27.241.71", remoteCommand, null);
+        remoteCommand = "ps -ef|grep conflux_32323|grep -v grep";
+        remoteCommand = "find /opt/service/blockchain/120.27.241.71@48778/tree_graph_node -name conflux.log";
+        execRemote("120.27.241.71", remoteCommand, "conflux_32323");
 //        String localCommand = "scp /Users/wangzhenting/Downloads/deployScripts-101_200_183_108.zip root@120.27.241.71:/opt/service/blockchain";
 //        localCommand = "ssh root@120.27.241.71 \"cd /opt/service/blockchain/120.27.241.71@48778;bash ./auto_deploy.sh\"";
 //        execLocal(localCommand, null);

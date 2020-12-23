@@ -2,6 +2,10 @@ package org.treegraph.baas.core.constant;
 
 public class DeployCmdConstant {
 
+  public static final String GREP_PROC = "ps -ef|grep {0}|grep -v grep";
+
+  public static final String FIND_FILE = "find /opt/service/blockchain/{0}/tree_graph_node -name conflux.log -type f";
+
   public static final String MKDIR = "mkdir -p /opt/service/blockchain";
 
   public static final String SCP_SCRIPT = "scp /opt/service/deploy/{0}/{1}/deploy.zip {2}:/opt/service/blockchain/{3}.zip";

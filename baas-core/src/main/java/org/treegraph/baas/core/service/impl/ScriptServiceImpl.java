@@ -31,7 +31,9 @@ import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
+import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.enums.NodeEnum;
+import org.treegraph.baas.core.heartbeat.impl.HeartbeatListener;
 import org.treegraph.baas.core.service.ScriptService;
 import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
 import org.treegraph.baas.core.util.ConfluxUtils;
@@ -125,6 +127,45 @@ public class ScriptServiceImpl implements ScriptService {
     for(NodePo node : nodes) {
       String consId = node.getConsortiumId();
       String nodeId = node.getId();
+      String nodePort = node.getNodePort() + "";
+      String userAtIp = ConfluxUtils.toUserAtIp(ShellExecutor.USER, node.getNodeIp());
+      String ipAtPort = ConfluxUtils.toIpAtPort(node.getNodeIp(), node.getNodePort());
+      HeartbeatEnum.Status nodeStatus = HeartbeatListener.getInstance().getNode(consId, nodeId).getStatus();
+      if(nodeStatus == HeartbeatEnum.Status.GREEN || nodeStatus == HeartbeatEnum.Status.YELLOW){
+        log.info("{} already launched!", ConfluxUtils.toIpAtPort(node.getNodeIp(), node.getNodePort()));
+        continue;
+      }
+      if(nodeStatus == HeartbeatEnum.Status.RED){
+        // blockchain proc exist, deploy next node
+        String procName = ConfluxUtils.toProcName(node.getNodePort());
+        String grepProc = MessageFormat.format(DeployCmdConstant.GREP_PROC, procName);
+        try {
+          ShellExecutor.execRemote(node.getNodeIp(), grepProc, procName);
+          continue;
+        } catch (Exception e){
+          log.error("{} blockchain proc not exist!", ipAtPort);
+        }
+        // blockchain proc not exist and log file not exist, deploy current node
+        boolean existLogFile = false;
+        String findFile = MessageFormat.format(DeployCmdConstant.FIND_FILE, ipAtPort);
+        try {
+          ShellExecutor.execRemote(node.getNodeIp(), findFile, "conflux.log");
+          existLogFile = true;
+        } catch (Exception e){
+          log.error("{} blockchain log file not exist!", ipAtPort);
+        }
+        // blockchain proc not exist and log file exist, restart current node
+        if(existLogFile){
+          String launchBlockchain = MessageFormat.format(DeployCmdConstant.LAUNCH_BLOCKCHAIN, ipAtPort, nodePort);
+          try {
+            ShellExecutor.execRemote(node.getNodeIp(), launchBlockchain);
+          } catch (Exception e){
+            log.error("{} blockchain restart fail!", ipAtPort);
+          }
+          continue;
+        }
+      }
+
       DownloadDeployScriptRequest downloadDeployScriptRequest = DownloadDeployScriptRequest.builder()
               .consId(consId)
               .nodeId(Lists.newArrayList(nodeId)).build();
@@ -136,9 +177,6 @@ public class ScriptServiceImpl implements ScriptService {
       FileUtil.cleanDir(dirDeployScript);
       FileUtil.writeBytes(dirDeployScript + "/deploy.zip", content);
 
-      String userAtIp = ConfluxUtils.toUserAtIp(ShellExecutor.USER, node.getNodeIp());
-      String ipAtPort = ConfluxUtils.toIpAtPort(node.getNodeIp(), node.getNodePort());
-      String nodePort = node.getNodePort() + "";
       ShellExecutor.execRemote(node.getNodeIp(), DeployCmdConstant.MKDIR);
       String scpScript = MessageFormat.format(DeployCmdConstant.SCP_SCRIPT, consId, nodeId, userAtIp, ipAtPort);
       ShellExecutor.execLocal(scpScript);

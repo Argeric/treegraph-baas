@@ -35,6 +35,10 @@ public class ConfluxUtils {
     return StringUtils.rightPad(uri, 21, " ");
   }
 
+  public static String toProcName(Integer nodePort) {
+    return "conflux_"+nodePort;
+  }
+
   public static String toUserAtIp(String user, String ip) {
     return user + CharacterConstant.AT + ip;
   }

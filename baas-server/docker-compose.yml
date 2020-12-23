@@ -47,6 +47,7 @@ services:
     volumes:
       - ./log/baas:/opt/service/log
       - ./deploy:/opt/service/deploy
+      - /root/.ssh:/root/.ssh
     networks:
       - backend_net
 

@@ -33,6 +33,7 @@ import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.enums.NodeEnum;
+import static org.treegraph.baas.core.enums.NodeEnum.ReachableCode;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatListener;
 import org.treegraph.baas.core.service.ScriptService;
 import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
@@ -68,7 +69,7 @@ import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFrom
 @Slf4j
 public class ScriptServiceImpl implements ScriptService {
 
-  public static final String HOST_PUB_KEY_PATH = "host_key/id_rsa.pub";
+  public static final String HOST_PUB_KEY = "host_key/id_rsa.pub";
 
   private final ConsortiumDas consortiumDas;
 
@@ -89,31 +90,31 @@ public class ScriptServiceImpl implements ScriptService {
       return DetectReachableResponse.builder().build();
     }
 
-    boolean hasNotReachableNode = false;
+    boolean existNotReachable = false;
     List<ReachableInfo> reachableInfos = Lists.newArrayList();
     for (NodePo node : nodes) {
-      boolean isReachable = false;
+      int reachableCode = ReachableCode.NOT_ACCESSABLE.getCode();
       try {
         ShellExecutor.execRemote(node.getNodeIp(), DeployCmdConstant.MKDIR);
-        isReachable = true;
+        reachableCode = ReachableCode.ACCESSABLE.getCode();
       } catch (Exception e) {
         log.error("detectReachable err:", e);
       }
+      NodeEnum.Status nodeStatus = HeartbeatListener.getInstance().getNodeStatus(node.getConsortiumId(), node.getId());
       ReachableInfo reachableInfo = ReachableInfo.builder()
               .consId(node.getConsortiumId())
               .blockId(node.getBlockchainId())
               .nodeId(node.getId())
-              .reachableCode(isReachable ? NodeEnum.ReachableCode.ACCESSABLE.getCode()
-                      : NodeEnum.ReachableCode.NOT_ACCESSABLE.getCode())
+              .reachableCode(reachableCode)
+              .status(nodeStatus.getCode())
               .build();
       reachableInfos.add(reachableInfo);
-      hasNotReachableNode = hasNotReachableNode || !isReachable;
+      existNotReachable = existNotReachable || (reachableCode == ReachableCode.NOT_ACCESSABLE.getCode());
     }
-    String hostPublicKey = FileUtils.readFileWithNoSep(new ClassPathResource(HOST_PUB_KEY_PATH));
 
     return DetectReachableResponse.builder()
             .list(reachableInfos)
-            .hostPublicKey(hasNotReachableNode ? hostPublicKey : null)
+            .hostPublicKey(existNotReachable ? FileUtils.readFileWithNoSep(new ClassPathResource(HOST_PUB_KEY)) : null)
             .build();
   }
 

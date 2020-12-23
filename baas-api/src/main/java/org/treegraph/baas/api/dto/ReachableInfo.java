@@ -10,4 +10,5 @@ public class ReachableInfo {
     private String blockId;
     private String nodeId;
     private Integer reachableCode;
+    private Integer status;
 }

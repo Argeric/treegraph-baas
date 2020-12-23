@@ -2,7 +2,6 @@ package org.treegraph.baas.core.service.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import jodd.io.FileUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,10 +81,11 @@ public class ScriptServiceImpl implements ScriptService {
   private final KeypairBuildService keypairBuildService;
 
   public DetectReachableResponse detectReachable(DetectReachableRequest req) {
-    String consortiumId = req.getConsId();
-    Assert.notNull(consortiumId, "consortiumId.not.found");
-    String blockchainId = req.getBlockchainId();
-    List<NodePo> nodes = nodeDas.findByConsIdAndChainId(consortiumId, blockchainId);
+    Assert.isTrue(!(req.getConsId() == null && req.getBlockchainId() == null), "consId/chainId.not.exist.ether");
+    List<NodePo> nodes = nodeDas.findByIds(req.getConsId(), req.getBlockchainId(), req.getNodeId());
+    if(CollectionUtils.isEmpty(nodes)){
+      return DetectReachableResponse.builder().build();
+    }
 
     boolean hasNotReachableNode = false;
     List<ReachableInfo> reachableInfos = Lists.newArrayList();
@@ -116,13 +116,10 @@ public class ScriptServiceImpl implements ScriptService {
   }
 
   public void deployNode(DeployNodeRequest req) throws Exception {
-    String consortiumId = req.getConsId();
-    Assert.notNull(consortiumId, "consortiumId.not.found");
-    String blockchainId = req.getBlockchainId();
-    List<NodePo> nodes = nodeDas.findByConsIdAndChainId(consortiumId, blockchainId);
-    if(CollectionUtils.isNotEmpty(req.getNodeId())) {
-      Set<String> nodeIdSet = Sets.newHashSet(req.getNodeId());
-      nodes = nodes.stream().filter(item -> !nodeIdSet.contains(item.getId())).collect(Collectors.toList());
+    Assert.isTrue(!(req.getConsId() == null && req.getBlockchainId() == null), "consId/chainId.not.exist.ether");
+    List<NodePo> nodes = nodeDas.findByIds(req.getConsId(), req.getBlockchainId(), req.getNodeId());
+    if(CollectionUtils.isEmpty(nodes)){
+      return ;
     }
 
     for(NodePo node : nodes) {

@@ -24,6 +24,8 @@ public interface NodeDas {
 
   List<NodePo> findByConsIdAndChainId(String consId, String chainId);
 
+  List<NodePo> findByIds(String consId, String chainId, List<String> nodeIds);
+
   List<NodePo> findByChainIds(List<String> chainIds);
 
   //NodePo findByIpPort(String ip, Integer port);

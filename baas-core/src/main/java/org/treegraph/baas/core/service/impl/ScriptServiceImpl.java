@@ -141,6 +141,7 @@ public class ScriptServiceImpl implements ScriptService {
             log.error("autoDeployt21--->" + errMsg);
             deployNode(node);
           } catch (Exception e) {
+            log.error("autoDeployt32--->" );
             errMsg = e.getMessage().substring(0, 100);
           }
           log.error("autoDeployt2--->" + errMsg);
@@ -203,10 +204,12 @@ public class ScriptServiceImpl implements ScriptService {
         return;
       }
     }
+    log.error("autoDeployt23--->" );
 
     DownloadDeployScriptRequest downloadDeployScriptRequest = DownloadDeployScriptRequest.builder()
             .consId(consId)
             .nodeId(Lists.newArrayList(nodeId)).build();
+    log.error("autoDeployt24--->" );
     byte[] content = downloadDeployScript(downloadDeployScriptRequest, null);
     String dirDeployScript = "/opt/service/deploy/" + consId + "/" + nodeId;
     if (!FileUtil.isExistingFolder(new File(dirDeployScript))) {
@@ -214,16 +217,22 @@ public class ScriptServiceImpl implements ScriptService {
     }
     FileUtil.cleanDir(dirDeployScript);
     FileUtil.writeBytes(dirDeployScript + "/deploy.zip", content);
+    log.error("autoDeployt25--->" );
 
     ShellExecutor.execRemote(node.getNodeIp(), DeployCmdConstant.MKDIR);
+    log.error("autoDeployt26--->" );
     String scpScript = MessageFormat.format(DeployCmdConstant.SCP_SCRIPT, consId, nodeId, userAtIp, ipAtPort);
     ShellExecutor.execLocal(scpScript);
+    log.error("autoDeployt27--->" );
     String unzipScript = MessageFormat.format(DeployCmdConstant.UNZIP_SCRIPT, ipAtPort, ipAtPort);
     ShellExecutor.execRemote(node.getNodeIp(), unzipScript);
+    log.error("autoDeployt28--->" );
     String scpBinary = MessageFormat.format(DeployCmdConstant.SCP_BINARY, userAtIp, ipAtPort, nodePort);
     ShellExecutor.execLocal(scpBinary);
+    log.error("autoDeployt29--->" );
     String launchBlockchain = MessageFormat.format(DeployCmdConstant.LAUNCH_BLOCKCHAIN, ipAtPort, nodePort);
     ShellExecutor.execRemote(node.getNodeIp(), launchBlockchain);
+    log.error("autoDeployt30--->" );
   }
 
   @LogSkip

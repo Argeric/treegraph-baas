@@ -141,8 +141,8 @@ public class ScriptServiceImpl implements ScriptService {
             log.error("autoDeployt21--->" + errMsg);
             deployNode(node);
           } catch (Exception e) {
-            log.error("autoDeployt32--->" );
-            errMsg = e.getMessage().substring(0, 100);
+            log.error("autoDeployt32--->"+e.getMessage() );
+            errMsg = e.getMessage();
           }
           log.error("autoDeployt2--->" + errMsg);
           if (errMsg != null) {

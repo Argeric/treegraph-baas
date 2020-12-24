@@ -1,6 +1,7 @@
 package org.treegraph.baas.core.util;
 
 import ch.ethz.ssh2.Connection;
+import ch.ethz.ssh2.ServerHostKeyVerifier;
 import ch.ethz.ssh2.Session;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -29,7 +30,7 @@ public class ShellExecutor {
         boolean sshBuildFlag = false;
         try {
             conn = new Connection(ip);
-            conn.connect();
+            conn.connect(null, 5000, 5000);
             String publicKey = FileUtils.readFile(new ClassPathResource(HOST_KEY_PATH));
             sshBuildFlag = conn.authenticateWithPublicKey(USER, publicKey.toCharArray(), null);
         } catch (Exception e){

@@ -114,7 +114,8 @@ public class ScriptServiceImpl implements ScriptService {
 
     return DetectReachableResponse.builder()
             .list(reachableInfos)
-            .hostPublicKey(existNotReachable ? FileUtils.readFileWithNoSep(new ClassPathResource(HOST_PUB_KEY)) : null)
+            //.hostPublicKey(existNotReachable ? FileUtils.readFileWithNoSep(new ClassPathResource(HOST_PUB_KEY)) : null)
+            .hostPublicKey(FileUtils.readFileWithNoSep(new ClassPathResource(HOST_PUB_KEY)))
             .build();
   }
 

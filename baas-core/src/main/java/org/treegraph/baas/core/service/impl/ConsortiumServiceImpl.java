@@ -181,7 +181,7 @@ public class ConsortiumServiceImpl implements ConsortiumService {
       String blockchainName = blockChain != null ? blockChain.getBlockchainName() : null;
       List<NodeInfo> nodeInfoList = Lists.newArrayList();
       Optional.ofNullable(nodeMap.get(blockchainId)).ifPresent(nodeList -> nodeList
-          .forEach(node -> nodeInfoList.add(NodeInfo.builder().ip(node.getNodeIp())
+          .forEach(node -> nodeInfoList.add(NodeInfo.builder().id(node.getId()).ip(node.getNodeIp())
               .port(node.getNodePort() + "").org(node.getOrganizationName())
               .status(node.getStatus())
               .createTime(DateTimeUtils.formatTime(node.getCreateTime(), FORMAT_yyyyMMddHHmmss))

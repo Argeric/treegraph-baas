@@ -1,5 +1,6 @@
 package org.treegraph.baas.core.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import jodd.io.FileUtil;
@@ -132,23 +133,29 @@ public class ScriptServiceImpl implements ScriptService {
       return;
     }
 
-    nodes.forEach(node ->
-            CompletableFuture.runAsync(() -> {
-              String errMsg = null;
-              try {
-                deployNode(node);
-              } catch (Exception e) {
-                errMsg = e.getMessage().substring(0, 100);
-              }
-              if(errMsg != null){
-                NodePo updateNode = NodePo.builder().
-                        id(node.getId()).
-                        deployMsg(errMsg).
-                        updateTime(LocalDateTime.now()).
-                        updateBy(WebHelper.getUserId()).build();
-                nodeDas.modifyNode(updateNode);
-              }
-            }, BizThreadPools.ATUO_DEPLOY));
+    nodes.forEach(node -> {
+        log.error("autoDeployt1--->" + JSON.toJSONString(node));
+        CompletableFuture.runAsync(() -> {
+          String errMsg = null;
+          try {
+            deployNode(node);
+          } catch (Exception e) {
+            errMsg = e.getMessage().substring(0, 100);
+          }
+          log.error("autoDeployt2--->" + errMsg);
+          if (errMsg != null) {
+            NodePo updateNode = NodePo.builder().
+                    id(node.getId()).
+                    deployMsg(errMsg).
+                    updateTime(LocalDateTime.now()).
+                    updateBy(WebHelper.getUserId()).build();
+            log.error("autoDeployt3--->" + JSON.toJSONString(updateNode));
+            boolean flag = nodeDas.modifyNode(updateNode);
+            log.error("autoDeployt4--->" + flag);
+          }
+        }, BizThreadPools.ATUO_DEPLOY);
+      }
+    );
   }
 
   private void deployNode(NodePo node) throws Exception{

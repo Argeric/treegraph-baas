@@ -13,6 +13,7 @@ import org.treegraph.baas.core.das.NodeCustomizedConfigDas;
 import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.domain.MembershipChangePo;
 import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
+import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatListener;

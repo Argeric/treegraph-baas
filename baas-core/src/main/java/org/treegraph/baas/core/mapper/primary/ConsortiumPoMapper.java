@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.ConsortiumPo;
 import org.treegraph.baas.core.domain.ConsortiumPoExample;
+import org.treegraph.baas.core.persistence.GlobalLevel;
 
 public interface ConsortiumPoMapper {
 
@@ -33,6 +34,7 @@ public interface ConsortiumPoMapper {
   int updateByExample(@Param("record") ConsortiumPo record,
       @Param("example") ConsortiumPoExample example);
 
+  @GlobalLevel
   int updateByPrimaryKeySelective(ConsortiumPo record);
 
   //int updateByPrimaryKeyWithBLOBs(ConsortiumPo record);

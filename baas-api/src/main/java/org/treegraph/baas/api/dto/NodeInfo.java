@@ -39,4 +39,6 @@ public class NodeInfo {
   private String logMonitorUri;
 
   private String sysMonitorUri;
+
+  private String deployMsg;
 }

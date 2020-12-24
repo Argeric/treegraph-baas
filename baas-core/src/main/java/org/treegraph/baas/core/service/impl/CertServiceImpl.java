@@ -1,18 +1,7 @@
 package org.treegraph.baas.core.service.impl;
 
-import static org.treegraph.baas.core.constant.GRpcConstant.RPC_CERT_CHAIN_FILE;
-import static org.treegraph.baas.core.constant.GRpcConstant.RPC_KEY_FILE;
-import static org.treegraph.baas.core.constant.GRpcConstant.SERVER_CERT_FILE;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -28,6 +17,16 @@ import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.service.CertService;
 import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
 import org.treegraph.baas.core.util.LogSkip;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import static org.treegraph.baas.core.constant.GRpcConstant.*;
 
 @Validated
 @Service

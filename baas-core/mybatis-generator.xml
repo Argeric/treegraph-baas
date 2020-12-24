@@ -13,13 +13,17 @@
 
         <!-- 配置相关插件-->
         <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
+        <!--
         <plugin type="org.treegraph.baas.common.util.LombokPlugin" />
+        -->
 
         <!-- 使用自定义的插件 -->
+        <!--
         <commentGenerator type="org.treegraph.baas.common.util.MyCommentGenerator">
         	<property name="suppressDate" value="true"/>
 			<property name="suppressAllComments" value="true" />
 		</commentGenerator>
+		-->
 
 	
 		<!-- 
@@ -117,17 +121,17 @@
         <table tableName="user_login_token" domainObjectName="UserLoginTokenPo" alias="userLoginToken">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
-        <table tableName="node" domainObjectName="NodePo" alias="node">
-        </table>   
         <table tableName="certificate_defer" domainObjectName="CertificateDeferPo" alias="certificateDefer">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table>           
+        </table>
         <table tableName="certificate_request" domainObjectName="CertificateRequestPo" alias="certificateRequest">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
-        -->
         <table tableName="scan_customized_favorite" domainObjectName="ScanCustomizedFavoritePo" alias="scanCustomizedFavorite">
           <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        -->
+        <table tableName="node" domainObjectName="NodePo" alias="node">
         </table>
     </context>
 

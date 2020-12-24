@@ -11,7 +11,7 @@ public interface ScriptService {
 
   DetectReachableResponse detectReachable(DetectReachableRequest req);
 
-  void deployNode(DeployNodeRequest deployNodeRequest) throws Exception ;
+  void autoDeploy(DeployNodeRequest deployNodeRequest) throws Exception ;
 
   byte[] downloadDeployScript(DownloadDeployScriptRequest downloadDeployScriptRequest,
       HttpServletResponse response)

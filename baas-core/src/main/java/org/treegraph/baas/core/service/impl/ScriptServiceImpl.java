@@ -18,6 +18,8 @@ import org.treegraph.baas.api.dto.request.DetectReachableRequest;
 import org.treegraph.baas.api.dto.request.DownloadDeployScriptRequest;
 import org.treegraph.baas.api.dto.response.DetectReachableResponse;
 import org.treegraph.baas.common.enums.IntTypeEnum;
+import org.treegraph.baas.common.util.WebHelper;
+import org.treegraph.baas.core.component.BizThreadPools;
 import org.treegraph.baas.core.constant.DeployCmdConstant;
 import org.treegraph.baas.core.constant.MonitorConstant;
 import org.treegraph.baas.core.das.ConsortiumDas;
@@ -33,7 +35,6 @@ import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.enums.NodeEnum;
-import static org.treegraph.baas.core.enums.NodeEnum.ReachableCode;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatListener;
 import org.treegraph.baas.core.service.ScriptService;
 import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
@@ -52,7 +53,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.security.PrivateKey;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -61,6 +65,7 @@ import static org.treegraph.baas.core.constant.CharacterConstant.*;
 import static org.treegraph.baas.core.constant.ConfluxConstant.*;
 import static org.treegraph.baas.core.constant.SplitterConstant.FILE_SEP;
 import static org.treegraph.baas.core.constant.SplitterConstant.LINE_SEP;
+import static org.treegraph.baas.core.enums.NodeEnum.ReachableCode;
 import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFromBase64;
 
 @Validated
@@ -70,6 +75,8 @@ import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.loadECKeyPairFrom
 public class ScriptServiceImpl implements ScriptService {
 
   public static final String HOST_PUB_KEY = "host_key/id_rsa.pub";
+
+  private static final ConcurrentHashMap<String, Map<String, Boolean>> deployTag = new ConcurrentHashMap<>();
 
   private final ConsortiumDas consortiumDas;
 
@@ -114,81 +121,98 @@ public class ScriptServiceImpl implements ScriptService {
 
     return DetectReachableResponse.builder()
             .list(reachableInfos)
-            //.hostPublicKey(existNotReachable ? FileUtils.readFileWithNoSep(new ClassPathResource(HOST_PUB_KEY)) : null)
             .hostPublicKey(FileUtils.readFileWithNoSep(new ClassPathResource(HOST_PUB_KEY)))
             .build();
   }
 
-  public void deployNode(DeployNodeRequest req) throws Exception {
+  public void autoDeploy(DeployNodeRequest req) {
     Assert.isTrue(!(req.getConsId() == null && req.getBlockchainId() == null), "consId/chainId.not.exist.ether");
     List<NodePo> nodes = nodeDas.findByIds(req.getConsId(), req.getBlockchainId(), req.getNodeId());
     if(CollectionUtils.isEmpty(nodes)){
-      return ;
+      return;
     }
 
-    for(NodePo node : nodes) {
-      String consId = node.getConsortiumId();
-      String nodeId = node.getId();
-      String nodePort = node.getNodePort() + "";
-      String userAtIp = ConfluxUtils.toUserAtIp(ShellExecutor.USER, node.getNodeIp());
-      String ipAtPort = ConfluxUtils.toIpAtPort(node.getNodeIp(), node.getNodePort());
-      HeartbeatEnum.Status nodeStatus = HeartbeatListener.getInstance().getNode(consId, nodeId).getStatus();
-      if(nodeStatus == HeartbeatEnum.Status.GREEN || nodeStatus == HeartbeatEnum.Status.YELLOW){
-        log.info("{} already launched!", ConfluxUtils.toIpAtPort(node.getNodeIp(), node.getNodePort()));
-        continue;
-      }
-      if(nodeStatus == HeartbeatEnum.Status.RED){
-        // blockchain proc exist, deploy next node
-        String procName = ConfluxUtils.toProcName(node.getNodePort());
-        String grepProc = MessageFormat.format(DeployCmdConstant.GREP_PROC, procName);
-        try {
-          ShellExecutor.execRemote(node.getNodeIp(), grepProc, procName);
-          continue;
-        } catch (Exception e){
-          log.error("{} blockchain proc not exist!", ipAtPort);
-        }
-        // blockchain proc not exist and log file not exist, deploy current node
-        boolean existLogFile = false;
-        String findFile = MessageFormat.format(DeployCmdConstant.FIND_FILE, ipAtPort);
-        try {
-          ShellExecutor.execRemote(node.getNodeIp(), findFile, "conflux.log");
-          existLogFile = true;
-        } catch (Exception e){
-          log.error("{} blockchain log file not exist!", ipAtPort);
-        }
-        // blockchain proc not exist and log file exist, restart current node
-        if(existLogFile){
-          String launchBlockchain = MessageFormat.format(DeployCmdConstant.LAUNCH_BLOCKCHAIN, ipAtPort, nodePort);
-          try {
-            ShellExecutor.execRemote(node.getNodeIp(), launchBlockchain);
-          } catch (Exception e){
-            log.error("{} blockchain restart fail!", ipAtPort);
-          }
-          continue;
-        }
-      }
+    nodes.forEach(node ->
+            CompletableFuture.runAsync(() -> {
+              String errMsg = null;
+              try {
+                deployNode(node);
+              } catch (Exception e) {
+                errMsg = e.getMessage().substring(0, 100);
+              }
+              if(errMsg != null){
+                NodePo updateNode = NodePo.builder().
+                        id(node.getId()).
+                        deployMsg(errMsg).
+                        updateTime(LocalDateTime.now()).
+                        updateBy(WebHelper.getUserId()).build();
+                nodeDas.modifyNode(updateNode);
+              }
+            }, BizThreadPools.ATUO_DEPLOY));
+  }
 
-      DownloadDeployScriptRequest downloadDeployScriptRequest = DownloadDeployScriptRequest.builder()
-              .consId(consId)
-              .nodeId(Lists.newArrayList(nodeId)).build();
-      byte[] content = downloadDeployScript(downloadDeployScriptRequest, null);
-      String dirDeployScript = "/opt/service/deploy/" + consId + "/" + nodeId;
-      if (!FileUtil.isExistingFolder(new File(dirDeployScript))) {
-        FileUtil.mkdirs(dirDeployScript);
-      }
-      FileUtil.cleanDir(dirDeployScript);
-      FileUtil.writeBytes(dirDeployScript + "/deploy.zip", content);
-
-      ShellExecutor.execRemote(node.getNodeIp(), DeployCmdConstant.MKDIR);
-      String scpScript = MessageFormat.format(DeployCmdConstant.SCP_SCRIPT, consId, nodeId, userAtIp, ipAtPort);
-      ShellExecutor.execLocal(scpScript);
-      String unzipScript = MessageFormat.format(DeployCmdConstant.UNZIP_SCRIPT, ipAtPort, ipAtPort);
-      ShellExecutor.execRemote(node.getNodeIp(), unzipScript);
-      String scpBinary = MessageFormat.format(DeployCmdConstant.SCP_BINARY, userAtIp, ipAtPort, nodePort);
-      ShellExecutor.execLocal(scpBinary);
-      String launchBlockchain = MessageFormat.format(DeployCmdConstant.LAUNCH_BLOCKCHAIN, ipAtPort, nodePort);
-      ShellExecutor.execRemote(node.getNodeIp(), launchBlockchain);
+  private void deployNode(NodePo node) throws Exception{
+    String consId = node.getConsortiumId();
+    String nodeId = node.getId();
+    String nodePort = node.getNodePort() + "";
+    String userAtIp = ConfluxUtils.toUserAtIp(ShellExecutor.USER, node.getNodeIp());
+    String ipAtPort = ConfluxUtils.toIpAtPort(node.getNodeIp(), node.getNodePort());
+    HeartbeatEnum.Status nodeStatus = HeartbeatListener.getInstance().getNode(consId, nodeId).getStatus();
+    if(nodeStatus == HeartbeatEnum.Status.GREEN || nodeStatus == HeartbeatEnum.Status.YELLOW){
+      log.info("{} already launched!", ConfluxUtils.toIpAtPort(node.getNodeIp(), node.getNodePort()));
+      return;
     }
+    if(nodeStatus == HeartbeatEnum.Status.RED){
+      // blockchain proc exist, deploy next node
+      String procName = ConfluxUtils.toProcName(node.getNodePort());
+      String grepProc = MessageFormat.format(DeployCmdConstant.GREP_PROC, procName);
+      try {
+        ShellExecutor.execRemote(node.getNodeIp(), grepProc, procName);
+        return;
+      } catch (Exception e){
+        log.error("{} blockchain proc not exist!", ipAtPort);
+      }
+      // blockchain proc not exist and log file not exist, deploy current node
+      boolean existLogFile = false;
+      String findFile = MessageFormat.format(DeployCmdConstant.FIND_FILE, ipAtPort);
+      try {
+        ShellExecutor.execRemote(node.getNodeIp(), findFile, "conflux.log");
+        existLogFile = true;
+      } catch (Exception e){
+        log.error("{} blockchain log file not exist!", ipAtPort);
+      }
+      // blockchain proc not exist and log file exist, restart current node
+      if(existLogFile){
+        String launchBlockchain = MessageFormat.format(DeployCmdConstant.LAUNCH_BLOCKCHAIN, ipAtPort, nodePort);
+        try {
+          ShellExecutor.execRemote(node.getNodeIp(), launchBlockchain);
+        } catch (Exception e){
+          log.error("{} blockchain restart fail!", ipAtPort);
+        }
+        return;
+      }
+    }
+
+    DownloadDeployScriptRequest downloadDeployScriptRequest = DownloadDeployScriptRequest.builder()
+            .consId(consId)
+            .nodeId(Lists.newArrayList(nodeId)).build();
+    byte[] content = downloadDeployScript(downloadDeployScriptRequest, null);
+    String dirDeployScript = "/opt/service/deploy/" + consId + "/" + nodeId;
+    if (!FileUtil.isExistingFolder(new File(dirDeployScript))) {
+      FileUtil.mkdirs(dirDeployScript);
+    }
+    FileUtil.cleanDir(dirDeployScript);
+    FileUtil.writeBytes(dirDeployScript + "/deploy.zip", content);
+
+    ShellExecutor.execRemote(node.getNodeIp(), DeployCmdConstant.MKDIR);
+    String scpScript = MessageFormat.format(DeployCmdConstant.SCP_SCRIPT, consId, nodeId, userAtIp, ipAtPort);
+    ShellExecutor.execLocal(scpScript);
+    String unzipScript = MessageFormat.format(DeployCmdConstant.UNZIP_SCRIPT, ipAtPort, ipAtPort);
+    ShellExecutor.execRemote(node.getNodeIp(), unzipScript);
+    String scpBinary = MessageFormat.format(DeployCmdConstant.SCP_BINARY, userAtIp, ipAtPort, nodePort);
+    ShellExecutor.execLocal(scpBinary);
+    String launchBlockchain = MessageFormat.format(DeployCmdConstant.LAUNCH_BLOCKCHAIN, ipAtPort, nodePort);
+    ShellExecutor.execRemote(node.getNodeIp(), launchBlockchain);
   }
 
   @LogSkip

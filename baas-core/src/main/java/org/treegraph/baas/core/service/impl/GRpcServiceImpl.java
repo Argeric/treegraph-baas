@@ -1,31 +1,10 @@
 package org.treegraph.baas.core.service.impl;
 
-import static org.treegraph.baas.core.constant.ConfluxConstant.DEFAULT_GRPC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.PROPERTY_JSONRPC_LOC_PORT;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_RPC_PORT_INTERVAL;
-import static org.treegraph.baas.core.constant.ConfluxConstant.TEST_SWITCH;
-import static org.treegraph.baas.core.constant.GRpcConstant.NODE_CERT_Path;
-import static org.treegraph.baas.core.constant.GRpcConstant.RPC_CERT_CHAIN_FILE;
-import static org.treegraph.baas.core.constant.GRpcConstant.RPC_KEY_FILE;
-import static org.treegraph.baas.core.constant.GRpcConstant.SERVER_CERT_FILE;
-import static org.treegraph.baas.core.constant.GRpcConstant.SERVER_KEY_FILE;
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
-import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
-
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import conflux.web3j.grpc.GrpcWeb3j;
 import conflux.web3j.response.Status;
-import java.io.File;
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.text.MessageFormat;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import jodd.io.FileUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +35,21 @@ import org.treegraph.baas.core.util.IdWorker;
 import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.crypto.x509.KeyUtil;
 import org.web3j.crypto.ECKeyPair;
+
+import java.io.File;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static org.treegraph.baas.core.constant.ConfluxConstant.*;
+import static org.treegraph.baas.core.constant.GRpcConstant.*;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyFromBase64;
+import static org.treegraph.baas.core.util.crypto.x509.KeyUtil.privateKeyToPem;
 
 @Service
 @AllArgsConstructor

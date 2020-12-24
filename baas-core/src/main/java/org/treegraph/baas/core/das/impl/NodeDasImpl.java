@@ -16,15 +16,7 @@ import org.treegraph.baas.core.das.MembershipChangeDas;
 import org.treegraph.baas.core.das.NodeCustomizedConfigDas;
 import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
-import org.treegraph.baas.core.domain.ConsortiumPo;
-import org.treegraph.baas.core.domain.KeypairPo;
-import org.treegraph.baas.core.domain.MembershipChangePo;
-import org.treegraph.baas.core.domain.MembershipPo;
-import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
-import org.treegraph.baas.core.domain.NodeKeyPo;
-import org.treegraph.baas.core.domain.NodePo;
-import org.treegraph.baas.core.domain.NodePoExample;
-import org.treegraph.baas.core.domain.NodePoExample.Criteria;
+import org.treegraph.baas.core.domain.*;
 import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.enums.NodeEnum;
 import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
@@ -62,7 +54,7 @@ public class NodeDasImpl implements NodeDas {
 
   public List<NodePo> findByIds(List<String> ids) {
     NodePoExample example = new NodePoExample();
-    Criteria criteria = example.createCriteria();
+    NodePoExample.Criteria criteria = example.createCriteria();
     if (CollectionUtils.isNotEmpty(ids)) {
       criteria.andIdIn(ids);
     }
@@ -73,7 +65,7 @@ public class NodeDasImpl implements NodeDas {
 
   public List<NodePo> findAll(String consId, String ip) {
     NodePoExample example = new NodePoExample();
-    Criteria criteria = example.createCriteria();
+    NodePoExample.Criteria criteria = example.createCriteria();
     if (StringUtils.isNotBlank(consId)) {
       criteria.andConsortiumIdEqualTo(consId);
     }
@@ -87,7 +79,7 @@ public class NodeDasImpl implements NodeDas {
 
   public List<NodePo> findByConsIdAndChainId(String consId, String chainId) {
     NodePoExample example = new NodePoExample();
-    Criteria criteria = example.createCriteria();
+    NodePoExample.Criteria criteria = example.createCriteria();
     if (StringUtils.isNotBlank(consId)) {
       criteria.andConsortiumIdEqualTo(consId);
     }
@@ -101,7 +93,7 @@ public class NodeDasImpl implements NodeDas {
 
   public List<NodePo> findByIds(String consId, String chainId, List<String> nodeIds){
     NodePoExample example = new NodePoExample();
-    Criteria criteria = example.createCriteria();
+    NodePoExample.Criteria criteria = example.createCriteria();
     if (StringUtils.isNotBlank(consId)) {
       criteria.andConsortiumIdEqualTo(consId);
     }
@@ -262,7 +254,7 @@ public class NodeDasImpl implements NodeDas {
     // update node membership status
     NodePo record = NodePo.builder().membershipStatus(membershipStatus.getCode()).build();
     NodePoExample example = new NodePoExample();
-    Criteria criteria = example.createCriteria();
+    NodePoExample.Criteria criteria = example.createCriteria();
     criteria.andIdIn(nodeIds);
     succFlag = succFlag && nodePoMapper.updateByExampleSelective(record, example) == nodeIds.size();
     // add membershipChange and memberships
@@ -278,7 +270,7 @@ public class NodeDasImpl implements NodeDas {
   public boolean modifyNodesStatus(List<String> nodeIds, NodeEnum.Status status) {
     NodePo record = NodePo.builder().status(status.getCode()).build();
     NodePoExample example = new NodePoExample();
-    Criteria criteria = example.createCriteria();
+    NodePoExample.Criteria criteria = example.createCriteria();
     criteria.andIdIn(nodeIds);
     return nodePoMapper.updateByExampleSelective(record, example) == nodeIds.size();
   }
@@ -295,7 +287,7 @@ public class NodeDasImpl implements NodeDas {
       record.setMembershipFinalStatus(record.getMembershipStatus());/*set membership final state*/
     }
     NodePoExample example = new NodePoExample();
-    Criteria criteria = example.createCriteria();
+    NodePoExample.Criteria criteria = example.createCriteria();
     criteria.andIdIn(nodeIds);
     succFlag = succFlag && nodePoMapper.updateByExampleSelective(record, example) == nodeIds.size();
     // update membership change status

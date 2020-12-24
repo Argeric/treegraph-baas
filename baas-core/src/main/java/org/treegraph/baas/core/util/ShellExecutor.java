@@ -33,7 +33,7 @@ public class ShellExecutor {
             String publicKey = FileUtils.readFile(new ClassPathResource(HOST_KEY_PATH));
             sshBuildFlag = conn.authenticateWithPublicKey(USER, publicKey.toCharArray(), null);
         } catch (Exception e){
-            throw new RuntimeException("ssh.conn.build.err", e);
+            throw new RuntimeException("cmd:" + cmd + ",ssh.conn.build.err", e);
         } finally {
             if(!sshBuildFlag && conn != null){
                 conn.close();
@@ -64,7 +64,7 @@ public class ShellExecutor {
                 execCmdFlag = true;
             }
         } catch (Exception e) {
-            throw new RuntimeException("ssh.cmd.exec.err", e);
+            throw new RuntimeException("cmd:" + cmd + ",ssh.cmd.exec.err", e);
         } finally {
             if (reader != null) {
                 try {
@@ -80,7 +80,7 @@ public class ShellExecutor {
         }
 
         if(!execCmdFlag){
-            throw new RuntimeException("ssh.cmd.exec.fail");
+            throw new RuntimeException("cmd:" + cmd + "ssh.cmd.exec.fail");
         }
     }
 

@@ -91,6 +91,7 @@ public class NodeServiceImpl implements NodeService {
           .createTime(
               DateTimeUtils.formatTime(item.getCreateTime(), DateTimeUtils.FORMAT_yyyyMMddHHmmss))
           .status(nodeStatus.getCode())
+          .deployMsg(item.getDeployMsg())
           .build();
     }).collect(Collectors.toList());
 
@@ -144,6 +145,7 @@ public class NodeServiceImpl implements NodeService {
         .status(nodeStatus.getCode())
         .logMonitorUri(toUri(node.getNodeIp(), logMonitorPort))
         .sysMonitorUri(toUri(node.getNodeIp(), sysMonitorPort))
+        .deployMsg(node.getDeployMsg())
         .build();
   }
 

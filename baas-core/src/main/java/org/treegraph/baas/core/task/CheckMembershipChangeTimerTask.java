@@ -9,7 +9,6 @@ import org.treegraph.baas.core.das.MembershipDas;
 import org.treegraph.baas.core.das.NodeDas;
 import org.treegraph.baas.core.domain.MembershipChangePo;
 import org.treegraph.baas.core.domain.MembershipPo;
-import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.enums.MembershipEnum;
 import org.treegraph.baas.core.enums.NodeEnum.MembershipStatus;
 import org.treegraph.baas.core.service.BlockchainRpcService;

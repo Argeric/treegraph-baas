@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiOperation;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
-import jodd.io.FileUtil;
 import lombok.AllArgsConstructor;
 import org.assertj.core.util.Lists;
 import org.springframework.util.Assert;
@@ -26,7 +25,6 @@ import org.treegraph.baas.core.service.ScriptService;
 import org.treegraph.baas.core.service.VaultService;
 import org.treegraph.baas.core.util.LogSkip;
 import org.treegraph.baas.core.util.SysManager;
-import org.treegraph.baas.core.util.crypto.x509.KeypairCertUtil;
 
 /**
  * @author zt
@@ -142,7 +140,7 @@ public class ConsortiumController {
   @PostMapping("/node/deploy")
   @ApiOperation("部署到目标服务器")
   public BaasResult<Void> deployNode(@RequestBody DeployNodeRequest deployNodeRequest) throws Exception {
-    scriptService.deployNode(deployNodeRequest);
+    scriptService.autoDeploy(deployNodeRequest);
     return BaasResult.success();
   }
 

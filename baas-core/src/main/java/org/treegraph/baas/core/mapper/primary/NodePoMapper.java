@@ -10,33 +10,32 @@ import org.treegraph.baas.core.persistence.GlobalLevel;
 import org.treegraph.baas.core.util.LogSkip;
 
 public interface NodePoMapper {
+    long countByExample(NodePoExample example);
 
-  long countByExample(NodePoExample example);
+    @GlobalLevel
+    int deleteByExample(NodePoExample example);
 
-  @GlobalLevel
-  int deleteByExample(NodePoExample example);
+    int deleteByPrimaryKey(String id);
 
-  int deleteByPrimaryKey(String id);
+    int insert(NodePo record);
 
-  int insert(NodePo record);
+    int insertSelective(NodePo record);
 
-  int insertSelective(NodePo record);
+    @GlobalLevel
+    List<NodePo> selectByExample(NodePoExample example);
 
-  @GlobalLevel
-  List<NodePo> selectByExample(NodePoExample example);
+    Optional<NodePo> selectByPrimaryKey(String id);
 
-  Optional<NodePo> selectByPrimaryKey(String id);
+    @GlobalLevel
+    @LogSkip
+    int updateByExampleSelective(@Param("record") NodePo record,
+                                 @Param("example") NodePoExample example);
 
-  @GlobalLevel
-  @LogSkip
-  int updateByExampleSelective(@Param("record") NodePo record,
-      @Param("example") NodePoExample example);
+    int updateByExample(@Param("record") NodePo record, @Param("example") NodePoExample example);
 
-  int updateByExample(@Param("record") NodePo record, @Param("example") NodePoExample example);
+    int updateByPrimaryKeySelective(NodePo record);
 
-  int updateByPrimaryKeySelective(NodePo record);
+    int updateByPrimaryKey(NodePo record);
 
-  int updateByPrimaryKey(NodePo record);
-
-  int bulkInsert(List<NodePo> list);
+    int bulkInsert(List<NodePo> list);
 }

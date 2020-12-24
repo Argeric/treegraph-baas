@@ -4,6 +4,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.NodeKeyPo;
 import org.treegraph.baas.core.domain.NodeKeyPoExample;
+import org.treegraph.baas.core.persistence.GlobalLevel;
 
 public interface NodeKeyPoMapper {
 
@@ -17,6 +18,7 @@ public interface NodeKeyPoMapper {
 
   int insertSelective(NodeKeyPo record);
 
+  @GlobalLevel
   List<NodeKeyPo> selectByExample(NodeKeyPoExample example);
 
   NodeKeyPo selectByPrimaryKey(Long id);

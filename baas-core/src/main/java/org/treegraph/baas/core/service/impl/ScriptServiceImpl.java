@@ -143,6 +143,7 @@ public class ScriptServiceImpl implements ScriptService {
           } catch (Exception e) {
             log.error("autoDeployt32--->"+e.getMessage() );
             errMsg = e.getMessage();
+            errMsg = errMsg != null && errMsg.length() > 100 ? errMsg.substring(0, 100) : errMsg;
           }
           log.error("autoDeployt2--->" + errMsg);
           if (errMsg != null) {

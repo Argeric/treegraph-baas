@@ -166,7 +166,7 @@ public class ScriptServiceImpl implements ScriptService {
     String ipAtPort = ConfluxUtils.toIpAtPort(node.getNodeIp(), node.getNodePort());
     HeartbeatEnum.Status nodeStatus = HeartbeatListener.getInstance().getNode(consId, nodeId).getStatus();
     if(nodeStatus == HeartbeatEnum.Status.GREEN || nodeStatus == HeartbeatEnum.Status.YELLOW){
-      log.info("{} already launched!", ConfluxUtils.toIpAtPort(node.getNodeIp(), node.getNodePort()));
+      log.error("{} already launched!", ConfluxUtils.toIpAtPort(node.getNodeIp(), node.getNodePort()));
       return;
     }
     if(nodeStatus == HeartbeatEnum.Status.RED){
@@ -175,6 +175,7 @@ public class ScriptServiceImpl implements ScriptService {
       String grepProc = MessageFormat.format(DeployCmdConstant.GREP_PROC, procName);
       try {
         ShellExecutor.execRemote(node.getNodeIp(), grepProc, procName);
+        log.error("{} blockchain proc exist!", ipAtPort);
         return;
       } catch (Exception e){
         log.error("{} blockchain proc not exist!", ipAtPort);
@@ -196,6 +197,7 @@ public class ScriptServiceImpl implements ScriptService {
         } catch (Exception e){
           log.error("{} blockchain restart fail!", ipAtPort);
         }
+        log.error("{} restart blockchain proc done!", ipAtPort);
         return;
       }
     }

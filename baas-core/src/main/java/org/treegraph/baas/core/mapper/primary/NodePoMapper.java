@@ -33,6 +33,7 @@ public interface NodePoMapper {
 
     int updateByExample(@Param("record") NodePo record, @Param("example") NodePoExample example);
 
+    @GlobalLevel
     int updateByPrimaryKeySelective(NodePo record);
 
     int updateByPrimaryKey(NodePo record);

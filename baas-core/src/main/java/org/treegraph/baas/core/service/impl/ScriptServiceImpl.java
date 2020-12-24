@@ -138,6 +138,7 @@ public class ScriptServiceImpl implements ScriptService {
         CompletableFuture.runAsync(() -> {
           String errMsg = null;
           try {
+            log.error("autoDeployt21--->" + errMsg);
             deployNode(node);
           } catch (Exception e) {
             errMsg = e.getMessage().substring(0, 100);
@@ -159,6 +160,7 @@ public class ScriptServiceImpl implements ScriptService {
   }
 
   private void deployNode(NodePo node) throws Exception{
+    log.error("autoDeployt22--->" );
     String consId = node.getConsortiumId();
     String nodeId = node.getId();
     String nodePort = node.getNodePort() + "";

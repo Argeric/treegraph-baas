@@ -1,6 +1,5 @@
 package org.treegraph.baas.core.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import jodd.io.FileUtil;
@@ -77,7 +76,7 @@ public class ScriptServiceImpl implements ScriptService {
 
   public static final String HOST_PUB_KEY = "host_key/id_rsa.pub";
 
-  private static final ConcurrentHashMap<String, Map<String, Boolean>> deployTag = new ConcurrentHashMap<>();
+  private static final ConcurrentHashMap<String, Map<String, Boolean>> deployFlag = new ConcurrentHashMap<>();
 
   private final ConsortiumDas consortiumDas;
 
@@ -129,33 +128,26 @@ public class ScriptServiceImpl implements ScriptService {
   public void autoDeploy(DeployNodeRequest req) {
     Assert.isTrue(!(req.getConsId() == null && req.getBlockchainId() == null), "neither consId nor chainId exist");
     List<NodePo> nodes = nodeDas.findByIds(req.getConsId(), req.getBlockchainId(), req.getNodeId());
-    if(CollectionUtils.isEmpty(nodes)){
+    if (CollectionUtils.isEmpty(nodes)) {
       return;
     }
 
-    nodes.forEach(node -> {
-        CompletableFuture.runAsync(() -> {
-          String errMsg = null;
-          try {
-            deployNode(node);
-          } catch (Exception e) {
-            errMsg = e.getMessage();
-            errMsg = errMsg != null && errMsg.length() > 100 ? errMsg.substring(0, 100) : errMsg;
-          }
-          if (errMsg != null) {
-            NodePo updateNode = NodePo.builder().
-                    id(node.getId()).
-                    deployMsg(errMsg).
-                    updateTime(LocalDateTime.now()).
-                    updateBy(WebHelper.getUserId()).build();
-            nodeDas.modifyNode(updateNode);
-          }
-        }, BizThreadPools.ATUO_DEPLOY);
-      }
+    nodes.forEach(
+            node -> CompletableFuture
+                    .runAsync(() -> deployNode(node), BizThreadPools.ATUO_DEPLOY)
+                    .exceptionally(e -> {
+                      NodePo updateNode = NodePo.builder().
+                              id(node.getId()).
+                              deployMsg(StringUtils.substring(e.getMessage(), 0, 100)).
+                              updateTime(LocalDateTime.now()).
+                              updateBy(WebHelper.getUserId()).build();
+                      nodeDas.modifyNode(updateNode);
+                      return null;
+                    })
     );
   }
 
-  private void deployNode(NodePo node) throws Exception{
+  private void deployNode(NodePo node) {
     String consId = node.getConsortiumId();
     String nodeId = node.getId();
     String nodePort = node.getNodePort() + "";
@@ -163,63 +155,65 @@ public class ScriptServiceImpl implements ScriptService {
     String ipAtPort = ConfluxUtils.toIpAtPort(node.getNodeIp(), node.getNodePort());
     HeartbeatEnum.Status nodeStatus = HeartbeatListener.getInstance().getNode(consId, nodeId).getStatus();
     if(nodeStatus == HeartbeatEnum.Status.GREEN || nodeStatus == HeartbeatEnum.Status.YELLOW){
-      log.info("auto deploy:{},blockchain proc already launched!", ipAtPort);
+      log.info("auto deploy:{}, proc running!", ipAtPort);
       return;
     }
     if(nodeStatus == HeartbeatEnum.Status.RED){
-      // blockchain proc exist, deploy next node
       String procName = ConfluxUtils.toProcName(node.getNodePort());
       String grepProc = MessageFormat.format(DeployCmdConstant.GREP_PROC, procName);
       try {
         ShellExecutor.execRemote(node.getNodeIp(), grepProc, procName);
-        log.info("auto deploy:{},blockchain proc already exist!", ipAtPort);
+        log.info("auto deploy:{}, proc exists!", ipAtPort);
         return;
       } catch (Exception e){
-        log.info("auto deploy:{},blockchain proc not exist!", ipAtPort);
       }
-      // neither blockchain proc nor log file not exist, deploy current node
       boolean existLogFile = false;
       String findFile = MessageFormat.format(DeployCmdConstant.FIND_FILE, ipAtPort);
       try {
         ShellExecutor.execRemote(node.getNodeIp(), findFile, "conflux.log");
         existLogFile = true;
-        log.info("auto deploy:{},blockchain log file already exist!", ipAtPort);
       } catch (Exception e){
-        log.info("auto deploy:{},blockchain log file not exist!", ipAtPort);
       }
-      // blockchain proc not exist but log file exist, restart current node
       if(existLogFile){
         String launchBlockchain = MessageFormat.format(DeployCmdConstant.LAUNCH_BLOCKCHAIN, ipAtPort, nodePort);
         try {
           ShellExecutor.execRemote(node.getNodeIp(), launchBlockchain);
-          log.info("auto deploy:{},blockchain restart success!", ipAtPort);
         } catch (Exception e){
-          log.info("auto deploy:{},blockchain restart fail!", ipAtPort);
+          throw new RuntimeException("auto deploy:" + ipAtPort + ", restart fail!", e);
         }
+        log.info("auto deploy:{}, restart success!", ipAtPort);
         return;
       }
     }
 
-    DownloadDeployScriptRequest downloadDeployScriptRequest = DownloadDeployScriptRequest.builder()
-            .consId(consId)
-            .nodeId(Lists.newArrayList(nodeId)).build();
-    byte[] content = downloadDeployScript(downloadDeployScriptRequest, null);
-    String dirDeployScript = "/opt/service/deploy/" + consId + "/" + nodeId;
-    if (!FileUtil.isExistingFolder(new File(dirDeployScript))) {
-      FileUtil.mkdirs(dirDeployScript);
+    try {
+      DownloadDeployScriptRequest downloadDeployScriptRequest = DownloadDeployScriptRequest.builder()
+              .consId(consId)
+              .nodeId(Lists.newArrayList(nodeId)).build();
+      byte[] content = downloadDeployScript(downloadDeployScriptRequest, null);
+      String dirDeployScript = "/opt/service/deploy/" + consId + "/" + nodeId;
+      if (!FileUtil.isExistingFolder(new File(dirDeployScript))) {
+        FileUtil.mkdirs(dirDeployScript);
+      }
+      FileUtil.cleanDir(dirDeployScript);
+      FileUtil.writeBytes(dirDeployScript + "/deploy.zip", content);
+    } catch (Exception e){
+      throw new RuntimeException("auto deploy:" + ipAtPort + ",download script fail!", e);
     }
-    FileUtil.cleanDir(dirDeployScript);
-    FileUtil.writeBytes(dirDeployScript + "/deploy.zip", content);
 
-    ShellExecutor.execRemote(node.getNodeIp(), DeployCmdConstant.MKDIR);
-    String scpScript = MessageFormat.format(DeployCmdConstant.SCP_SCRIPT, consId, nodeId, userAtIp, ipAtPort);
-    ShellExecutor.execLocal(scpScript);
-    String unzipScript = MessageFormat.format(DeployCmdConstant.UNZIP_SCRIPT, ipAtPort, ipAtPort);
-    ShellExecutor.execRemote(node.getNodeIp(), unzipScript);
-    String scpBinary = MessageFormat.format(DeployCmdConstant.SCP_BINARY, userAtIp, ipAtPort, nodePort);
-    ShellExecutor.execLocal(scpBinary);
-    String launchBlockchain = MessageFormat.format(DeployCmdConstant.LAUNCH_BLOCKCHAIN, ipAtPort, nodePort);
-    ShellExecutor.execRemote(node.getNodeIp(), launchBlockchain);
+    try {
+      ShellExecutor.execRemote(node.getNodeIp(), DeployCmdConstant.MKDIR);
+      String scpScript = MessageFormat.format(DeployCmdConstant.SCP_SCRIPT, consId, nodeId, userAtIp, ipAtPort);
+      ShellExecutor.execLocal(scpScript);
+      String unzipScript = MessageFormat.format(DeployCmdConstant.UNZIP_SCRIPT, ipAtPort, ipAtPort);
+      ShellExecutor.execRemote(node.getNodeIp(), unzipScript);
+      String scpBinary = MessageFormat.format(DeployCmdConstant.SCP_BINARY, userAtIp, ipAtPort, nodePort);
+      ShellExecutor.execLocal(scpBinary);
+      String launchBlockchain = MessageFormat.format(DeployCmdConstant.LAUNCH_BLOCKCHAIN, ipAtPort, nodePort);
+      ShellExecutor.execRemote(node.getNodeIp(), launchBlockchain);
+    } catch (Exception e){
+      throw new RuntimeException("auto deploy:" + ipAtPort + ",shell exec fail!", e);
+    }
   }
 
   @LogSkip

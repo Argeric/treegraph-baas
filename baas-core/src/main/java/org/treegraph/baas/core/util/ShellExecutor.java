@@ -28,7 +28,7 @@ public class ShellExecutor {
         boolean sshBuildFlag = false;
         try {
             conn = new Connection(ip);
-            conn.connect(null, 5000, 5000);
+            conn.connect(null, 3000, 3000);
             String publicKey = FileUtils.readFile(new ClassPathResource(HOST_KEY_PATH));
             sshBuildFlag = conn.authenticateWithPublicKey(USER, publicKey.toCharArray(), null);
         } catch (Exception e){

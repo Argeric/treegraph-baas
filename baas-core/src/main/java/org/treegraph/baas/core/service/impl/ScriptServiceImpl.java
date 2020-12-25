@@ -1,7 +1,9 @@
 package org.treegraph.baas.core.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import jnr.ffi.Struct;
 import jodd.io.FileUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,7 @@ import org.treegraph.baas.core.enums.ConsortiumEnum.EstablishStep;
 import org.treegraph.baas.core.enums.CryptoEnum.KeyType;
 import org.treegraph.baas.core.enums.HeartbeatEnum;
 import org.treegraph.baas.core.enums.NodeEnum;
+import org.treegraph.baas.core.heartbeat.bo.Heartbeat;
 import org.treegraph.baas.core.heartbeat.impl.HeartbeatListener;
 import org.treegraph.baas.core.service.ScriptService;
 import org.treegraph.baas.core.service.bo.GRpcKeypairCertBo;
@@ -97,27 +100,11 @@ public class ScriptServiceImpl implements ScriptService {
       return DetectReachableResponse.builder().build();
     }
 
-    boolean existNotReachable = false;
-    List<ReachableInfo> reachableInfos = Lists.newArrayList();
-    for (NodePo node : nodes) {
-      int reachableCode = ReachableCode.NOT_ACCESSABLE.getCode();
-      try {
-        ShellExecutor.execRemote(node.getNodeIp(), DeployCmdConstant.MKDIR);
-        reachableCode = ReachableCode.ACCESSABLE.getCode();
-      } catch (Exception e) {
-        log.error("detectReachable err:", e);
-      }
-      NodeEnum.Status nodeStatus = HeartbeatListener.getInstance().getNodeStatus(node.getConsortiumId(), node.getId());
-      ReachableInfo reachableInfo = ReachableInfo.builder()
-              .consId(node.getConsortiumId())
-              .blockId(node.getBlockchainId())
-              .nodeId(node.getId())
-              .reachableCode(reachableCode)
-              .status(nodeStatus.getCode())
-              .build();
-      reachableInfos.add(reachableInfo);
-      existNotReachable = existNotReachable || (reachableCode == ReachableCode.NOT_ACCESSABLE.getCode());
-    }
+    List<CompletableFuture<ReachableInfo>> futureList = nodes.stream()
+            .map(node -> CompletableFuture.supplyAsync(() -> detectReachable0(node), BizThreadPools.ATUO_DEPLOY))
+            .collect(Collectors.toList());
+    List<ReachableInfo> reachableInfos = futureList.stream().map(CompletableFuture::join)
+            .collect(Collectors.toList());
 
     return DetectReachableResponse.builder()
             .list(reachableInfos)
@@ -125,6 +112,22 @@ public class ScriptServiceImpl implements ScriptService {
             .build();
   }
 
+  private ReachableInfo detectReachable0(NodePo node){
+    int reachableCode = ReachableCode.NOT_ACCESSABLE.getCode();
+    try {
+      ShellExecutor.execRemote(node.getNodeIp(), DeployCmdConstant.MKDIR);
+      reachableCode = ReachableCode.ACCESSABLE.getCode();
+    } catch (Exception e) {
+      log.error("detectReachable err:", e);
+    }
+    return ReachableInfo.builder()
+            .consId(node.getConsortiumId())
+            .blockId(node.getBlockchainId())
+            .nodeId(node.getId())
+            .reachableCode(reachableCode)
+            .status(HeartbeatListener.getInstance().getNodeStatus(node.getConsortiumId(), node.getId()).getCode())
+            .build();
+  }
   public void autoDeploy(DeployNodeRequest req) {
     Assert.isTrue(!(req.getConsId() == null && req.getBlockchainId() == null), "neither consId nor chainId exist");
     List<NodePo> nodes = nodeDas.findByIds(req.getConsId(), req.getBlockchainId(), req.getNodeId());
@@ -132,18 +135,30 @@ public class ScriptServiceImpl implements ScriptService {
       return;
     }
 
-    nodes.forEach(
-            node -> CompletableFuture
-                    .runAsync(() -> deployNode(node), BizThreadPools.ATUO_DEPLOY)
-                    .exceptionally(e -> {
-                      NodePo updateNode = NodePo.builder().
-                              id(node.getId()).
-                              deployMsg(StringUtils.substring(e.getMessage(), 0, 100)).
-                              updateTime(LocalDateTime.now()).
-                              updateBy(WebHelper.getUserId()).build();
-                      nodeDas.modifyNode(updateNode);
-                      return null;
-                    })
+    for (NodePo node : nodes) {
+      Boolean deploying = deployFlag.computeIfAbsent(node.getConsortiumId(), k -> Maps.newConcurrentMap()).get(node.getId());
+      if (deploying != null && deploying) {
+        String ipAtPort = ConfluxUtils.toIpAtPort(node.getNodeIp(), node.getNodePort());
+        throw new RuntimeException("auto deploy:" + ipAtPort + ",exist deploying, retry later!");
+      }
+    }
+
+    nodes.forEach(node -> CompletableFuture
+            .runAsync(() -> {
+                      deployNode(node);
+                      deployFlag.get(node.getConsortiumId()).put(node.getId(), Boolean.FALSE);
+                    }
+                    , BizThreadPools.ATUO_DEPLOY)
+            .exceptionally(e -> {
+              deployFlag.get(node.getConsortiumId()).put(node.getId(), Boolean.FALSE);
+              NodePo updateNode = NodePo.builder().
+                      id(node.getId()).
+                      deployMsg(StringUtils.substring(e.getMessage(), 0, 100)).
+                      updateTime(LocalDateTime.now()).
+                      updateBy(WebHelper.getUserId()).build();
+              nodeDas.modifyNode(updateNode);
+              return null;
+            })
     );
   }
 
@@ -153,9 +168,11 @@ public class ScriptServiceImpl implements ScriptService {
     String nodePort = node.getNodePort() + "";
     String userAtIp = ConfluxUtils.toUserAtIp(ShellExecutor.USER, node.getNodeIp());
     String ipAtPort = ConfluxUtils.toIpAtPort(node.getNodeIp(), node.getNodePort());
+    deployFlag.get(node.getConsortiumId()).put(node.getId(), Boolean.TRUE);
+
     HeartbeatEnum.Status nodeStatus = HeartbeatListener.getInstance().getNode(consId, nodeId).getStatus();
     if(nodeStatus == HeartbeatEnum.Status.GREEN || nodeStatus == HeartbeatEnum.Status.YELLOW){
-      log.info("auto deploy:{}, proc running!", ipAtPort);
+      log.info("auto deploy:{},proc running!", ipAtPort);
       return;
     }
     if(nodeStatus == HeartbeatEnum.Status.RED){
@@ -163,7 +180,7 @@ public class ScriptServiceImpl implements ScriptService {
       String grepProc = MessageFormat.format(DeployCmdConstant.GREP_PROC, procName);
       try {
         ShellExecutor.execRemote(node.getNodeIp(), grepProc, procName);
-        log.info("auto deploy:{}, proc exists!", ipAtPort);
+        log.info("auto deploy:{},proc exists!", ipAtPort);
         return;
       } catch (Exception e){
       }
@@ -179,9 +196,9 @@ public class ScriptServiceImpl implements ScriptService {
         try {
           ShellExecutor.execRemote(node.getNodeIp(), launchBlockchain);
         } catch (Exception e){
-          throw new RuntimeException("auto deploy:" + ipAtPort + ", restart fail!", e);
+          throw new RuntimeException("auto deploy:" + ipAtPort + ",restart fail!", e);
         }
-        log.info("auto deploy:{}, restart success!", ipAtPort);
+        log.info("auto deploy:{},restart success!", ipAtPort);
         return;
       }
     }

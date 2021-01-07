@@ -7,9 +7,9 @@ import lombok.Data;
 @Data
 public class CreateRoleRequest {
 
-	private String consId;
-	
-	private String name;
-	
-	private List<String> permissions;
+  private String consId;
+
+  private String name;
+
+  private List<String> permissions;
 }

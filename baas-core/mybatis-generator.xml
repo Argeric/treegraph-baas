@@ -13,13 +13,17 @@
 
         <!-- 配置相关插件-->
         <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
-        <plugin type="org.treegraph.baas.core.util.LombokPlugin" />
+        <!--
+        <plugin type="org.treegraph.baas.common.util.LombokPlugin" />
+        -->
 
         <!-- 使用自定义的插件 -->
-        <commentGenerator type="org.treegraph.baas.core.util.MyCommentGenerator">
+        <!--
+        <commentGenerator type="org.treegraph.baas.common.util.MyCommentGenerator">
         	<property name="suppressDate" value="true"/>
 			<property name="suppressAllComments" value="true" />
 		</commentGenerator>
+		-->
 
 	
 		<!-- 
@@ -44,18 +48,18 @@
 		</javaTypeResolver>
 
         <!-- domaim=po持久化对象-->
-        <javaModelGenerator targetPackage="org.treegraph.baas.core.domain" targetProject="baas-core/src/main/java">
+        <javaModelGenerator targetPackage="org.treegraph.baas.core.domain" targetProject="src/main/java">
             <property name="enableSubPackages" value="false"/>
             <property name="trimStrings" value="true"/>
         </javaModelGenerator>
 
         <!-- xml生成地址 -->
-        <sqlMapGenerator targetPackage="mapper.primary" targetProject="baas-core/src/main/resources">
+        <sqlMapGenerator targetPackage="mapper.primary" targetProject="src/main/resources">
             <property name="enableSubPackages" value="false"/>
         </sqlMapGenerator>
 
         <!-- mapper接口地址 -->
-        <javaClientGenerator targetPackage="org.treegraph.baas.core.mapper.primary" targetProject="baas-core/src/main/java"
+        <javaClientGenerator targetPackage="org.treegraph.baas.core.mapper.primary" targetProject="src/main/java"
                              type="XMLMAPPER">
             <property name="enableSubPackages" value="false"/>
         </javaClientGenerator>
@@ -117,12 +121,18 @@
         <table tableName="user_login_token" domainObjectName="UserLoginTokenPo" alias="userLoginToken">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
         </table>
-        <table tableName="node" domainObjectName="NodePo" alias="node">
-        </table>   
-        -->
         <table tableName="certificate_defer" domainObjectName="CertificateDeferPo" alias="certificateDefer">
         	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
-        </table>                
+        </table>
+        <table tableName="certificate_request" domainObjectName="CertificateRequestPo" alias="certificateRequest">
+        	<generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="scan_customized_favorite" domainObjectName="ScanCustomizedFavoritePo" alias="scanCustomizedFavorite">
+          <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        -->
+        <table tableName="node" domainObjectName="NodePo" alias="node">
+        </table>
     </context>
 
 </generatorConfiguration>

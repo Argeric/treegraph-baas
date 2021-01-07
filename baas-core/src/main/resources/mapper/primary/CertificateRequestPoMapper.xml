@@ -6,11 +6,12 @@
     <result column="certificateRequest_consortium_id" jdbcType="VARCHAR" property="consortiumId" />
     <result column="certificateRequest_blockchain_id" jdbcType="VARCHAR" property="blockchainId" />
     <result column="certificateRequest_apply_user_id" jdbcType="VARCHAR" property="applyUserId" />
-    <result column="certificateRequest_certificate_url" jdbcType="VARCHAR" property="certificateUrl" />
-    <result column="certificateRequest_generate_time" jdbcType="TIMESTAMP" property="generateTime" />
-    <result column="certificateRequest_download_time" jdbcType="TIMESTAMP" property="downloadTime" />
+    <result column="certificateRequest_san" jdbcType="VARCHAR" property="san" />
+    <result column="certificateRequest_delete_flag" jdbcType="INTEGER" property="deleteFlag" />
     <result column="certificateRequest_create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="certificateRequest_update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="certificateRequest_create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="certificateRequest_update_by" jdbcType="VARCHAR" property="updateBy" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -73,9 +74,9 @@
   <sql id="Base_Column_List">
     certificateRequest.id as certificateRequest_id, certificateRequest.consortium_id as certificateRequest_consortium_id, 
     certificateRequest.blockchain_id as certificateRequest_blockchain_id, certificateRequest.apply_user_id as certificateRequest_apply_user_id, 
-    certificateRequest.certificate_url as certificateRequest_certificate_url, certificateRequest.generate_time as certificateRequest_generate_time, 
-    certificateRequest.download_time as certificateRequest_download_time, certificateRequest.create_time as certificateRequest_create_time, 
-    certificateRequest.update_time as certificateRequest_update_time
+    certificateRequest.san as certificateRequest_san, certificateRequest.delete_flag as certificateRequest_delete_flag, 
+    certificateRequest.create_time as certificateRequest_create_time, certificateRequest.update_time as certificateRequest_update_time, 
+    certificateRequest.create_by as certificateRequest_create_by, certificateRequest.update_by as certificateRequest_update_by
   </sql>
   <select id="selectByExample" parameterType="org.treegraph.baas.core.domain.CertificateRequestPoExample" resultMap="BaseResultMap">
     select
@@ -109,11 +110,13 @@
   </delete>
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.CertificateRequestPo" useGeneratedKeys="true">
     insert into certificate_request (consortium_id, blockchain_id, apply_user_id, 
-      certificate_url, generate_time, download_time, 
-      create_time, update_time)
+      san, delete_flag, create_time, 
+      update_time, create_by, update_by
+      )
     values (#{consortiumId,jdbcType=VARCHAR}, #{blockchainId,jdbcType=VARCHAR}, #{applyUserId,jdbcType=VARCHAR}, 
-      #{certificateUrl,jdbcType=VARCHAR}, #{generateTime,jdbcType=TIMESTAMP}, #{downloadTime,jdbcType=TIMESTAMP}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+      #{san,jdbcType=VARCHAR}, #{deleteFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{updateBy,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.treegraph.baas.core.domain.CertificateRequestPo" useGeneratedKeys="true">
     insert into certificate_request
@@ -127,20 +130,23 @@
       <if test="applyUserId != null">
         apply_user_id,
       </if>
-      <if test="certificateUrl != null">
-        certificate_url,
+      <if test="san != null">
+        san,
       </if>
-      <if test="generateTime != null">
-        generate_time,
-      </if>
-      <if test="downloadTime != null">
-        download_time,
+      <if test="deleteFlag != null">
+        delete_flag,
       </if>
       <if test="createTime != null">
         create_time,
       </if>
       <if test="updateTime != null">
         update_time,
+      </if>
+      <if test="createBy != null">
+        create_by,
+      </if>
+      <if test="updateBy != null">
+        update_by,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -153,20 +159,23 @@
       <if test="applyUserId != null">
         #{applyUserId,jdbcType=VARCHAR},
       </if>
-      <if test="certificateUrl != null">
-        #{certificateUrl,jdbcType=VARCHAR},
+      <if test="san != null">
+        #{san,jdbcType=VARCHAR},
       </if>
-      <if test="generateTime != null">
-        #{generateTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="downloadTime != null">
-        #{downloadTime,jdbcType=TIMESTAMP},
+      <if test="deleteFlag != null">
+        #{deleteFlag,jdbcType=INTEGER},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null">
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateBy != null">
+        #{updateBy,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -191,20 +200,23 @@
       <if test="record.applyUserId != null">
         certificateRequest.apply_user_id = #{record.applyUserId,jdbcType=VARCHAR},
       </if>
-      <if test="record.certificateUrl != null">
-        certificateRequest.certificate_url = #{record.certificateUrl,jdbcType=VARCHAR},
+      <if test="record.san != null">
+        certificateRequest.san = #{record.san,jdbcType=VARCHAR},
       </if>
-      <if test="record.generateTime != null">
-        certificateRequest.generate_time = #{record.generateTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.downloadTime != null">
-        certificateRequest.download_time = #{record.downloadTime,jdbcType=TIMESTAMP},
+      <if test="record.deleteFlag != null">
+        certificateRequest.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       </if>
       <if test="record.createTime != null">
         certificateRequest.create_time = #{record.createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.updateTime != null">
         certificateRequest.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createBy != null">
+        certificateRequest.create_by = #{record.createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updateBy != null">
+        certificateRequest.update_by = #{record.updateBy,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -217,11 +229,12 @@
       certificateRequest.consortium_id = #{record.consortiumId,jdbcType=VARCHAR},
       certificateRequest.blockchain_id = #{record.blockchainId,jdbcType=VARCHAR},
       certificateRequest.apply_user_id = #{record.applyUserId,jdbcType=VARCHAR},
-      certificateRequest.certificate_url = #{record.certificateUrl,jdbcType=VARCHAR},
-      certificateRequest.generate_time = #{record.generateTime,jdbcType=TIMESTAMP},
-      certificateRequest.download_time = #{record.downloadTime,jdbcType=TIMESTAMP},
+      certificateRequest.san = #{record.san,jdbcType=VARCHAR},
+      certificateRequest.delete_flag = #{record.deleteFlag,jdbcType=INTEGER},
       certificateRequest.create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      certificateRequest.update_time = #{record.updateTime,jdbcType=TIMESTAMP}
+      certificateRequest.update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      certificateRequest.create_by = #{record.createBy,jdbcType=VARCHAR},
+      certificateRequest.update_by = #{record.updateBy,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -238,20 +251,23 @@
       <if test="applyUserId != null">
         apply_user_id = #{applyUserId,jdbcType=VARCHAR},
       </if>
-      <if test="certificateUrl != null">
-        certificate_url = #{certificateUrl,jdbcType=VARCHAR},
+      <if test="san != null">
+        san = #{san,jdbcType=VARCHAR},
       </if>
-      <if test="generateTime != null">
-        generate_time = #{generateTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="downloadTime != null">
-        download_time = #{downloadTime,jdbcType=TIMESTAMP},
+      <if test="deleteFlag != null">
+        delete_flag = #{deleteFlag,jdbcType=INTEGER},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null">
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateBy != null">
+        update_by = #{updateBy,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
@@ -261,11 +277,12 @@
     set consortium_id = #{consortiumId,jdbcType=VARCHAR},
       blockchain_id = #{blockchainId,jdbcType=VARCHAR},
       apply_user_id = #{applyUserId,jdbcType=VARCHAR},
-      certificate_url = #{certificateUrl,jdbcType=VARCHAR},
-      generate_time = #{generateTime,jdbcType=TIMESTAMP},
-      download_time = #{downloadTime,jdbcType=TIMESTAMP},
+      san = #{san,jdbcType=VARCHAR},
+      delete_flag = #{deleteFlag,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
-      update_time = #{updateTime,jdbcType=TIMESTAMP}
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      update_by = #{updateBy,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>

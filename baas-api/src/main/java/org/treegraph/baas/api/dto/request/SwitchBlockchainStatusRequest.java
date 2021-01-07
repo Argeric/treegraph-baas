@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class SwitchBlockchainStatusRequest {
-	
-	private String blockchainId	;
+
+  private String blockchainId;
 }

@@ -16,10 +16,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoleInfoBo implements Serializable {
-   
-	private List<RolePermissionPo> rolePermissionList;
-	
-    private RolePo role;
 
-    private static final long serialVersionUID = 1L;
+  private List<RolePermissionPo> rolePermissionList;
+
+  private RolePo role;
+
+  private static final long serialVersionUID = 1L;
 }

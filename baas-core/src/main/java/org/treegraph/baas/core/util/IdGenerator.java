@@ -16,129 +16,124 @@ import java.util.stream.Stream;
 @SuppressWarnings("serial")
 public class IdGenerator implements Serializable {
 
-	/**
-	 * 机器id 全局初始化一次
-	 */
-	private static final int machineId = 0;
+  /**
+   * 机器id 全局初始化一次
+   */
+  private static final int machineId = 0;
 
-	/**
-	 * 自增id生成器，可扩展为其他策略
-	 */
-	private volatile static AtomicInteger inc;
-	
-	private static final String SEPERATOR = ".";
-	
-	
+  /**
+   * 自增id生成器，可扩展为其他策略
+   */
+  private static final AtomicInteger inc = new AtomicInteger(0);
 
-	/**
-	 * The default constructor
-	 */
-	private IdGenerator() {}
+  private static final String SEPARATOR = ".";
 
-	/**
-	 * 获取本机的信息：网卡信息 + 进程信息 + 类加载器信息
-	 * 
-	 * @return 机器id
-	 */
-	public static int computeMachineId() {
-		// 获取机器id
-		final int machineBlock;
-		try {
-			Enumeration<NetworkInterface> ni = NetworkInterface
-					.getNetworkInterfaces();
-			StringBuilder str = new StringBuilder();
-			while (ni.hasMoreElements()) {
-				str.append(ni.nextElement().toString());
-			}
-			machineBlock = str.toString().hashCode() << 16;
-		} catch (SocketException e) {
-			throw new RuntimeException(e);
-		}
 
-		// 获取进程id
-		final int processBlock;
-		{
-			int process = new Random().nextInt();
-			try {
-				process = ManagementFactory.getRuntimeMXBean().getName()
-						.hashCode();
-			} catch (Throwable e) {
-			}
+  /**
+   * The default constructor
+   */
+  private IdGenerator() {
+  }
 
-			// 获取类加载器id
-			ClassLoader loader = IdGenerator.class.getClassLoader();
-			int loaderId = loader == null ? 0 : System.identityHashCode(loader);
-			processBlock = new StringBuilder()
-					.append(Integer.toHexString(process))
-					.append(Integer.toHexString(loaderId)).toString()
-					.hashCode() & 0xFFFF;
-		}
+  /**
+   * 获取本机的信息：网卡信息 + 进程信息 + 类加载器信息
+   *
+   * @return 机器id
+   */
+  public static int computeMachineId() {
+    // 获取机器id
+    final int machineBlock;
+    try {
+      Enumeration<NetworkInterface> ni = NetworkInterface
+          .getNetworkInterfaces();
+      StringBuilder str = new StringBuilder();
+      while (ni.hasMoreElements()) {
+        str.append(ni.nextElement().toString());
+      }
+      machineBlock = str.toString().hashCode() << 16;
+    } catch (SocketException e) {
+      throw new RuntimeException(e);
+    }
 
-		return machineBlock | processBlock;
-	}
+    // 获取进程id
+    final int processBlock;
+    {
+      int process;
+      try {
+        process = ManagementFactory.getRuntimeMXBean().getName()
+            .hashCode();
+      } catch (Throwable e) {
+        process = new Random().nextInt();
+      }
 
-	/**
-	 * 生成Id
-	 * 
-	 * @return
-	 */
-	public static String generate() {
-		return new StringBuffer()
-				.append(Integer.toHexString((int) (System.currentTimeMillis() / 1000)))
-				.append(Integer.toHexString(machineId))
-				.append(Integer.toHexString(inc.addAndGet(1))).toString();
-	}
+      // 获取类加载器id
+      ClassLoader loader = IdGenerator.class.getClassLoader();
+      int loaderId = loader == null ? 0 : System.identityHashCode(loader);
+      processBlock = (Integer.toHexString(process) +
+          Integer.toHexString(loaderId))
+          .hashCode() & 0xFFFF;
+    }
 
-	/**
-	 * 
-	 * generateReadable:生成带有时间戳的定长id，长度:30；可读性略强，但性能较之generate()方法差了约3倍 <br/>
-	 *
-	 * @author tongzheng.zhang
-	 * @return
-	 * @since JDK 1.6
-	 */
-	public static String generateReadable() {
-		Calendar c = Calendar.getInstance();
-		return new StringBuffer()
-				.append(c.get(Calendar.YEAR))
-				.append(formatNum(c.get(Calendar.MONTH) + 1))
-				.append(formatNum(c.get(Calendar.DATE)))
-				.append(formatNum(c.get(Calendar.HOUR_OF_DAY)))
-				.append(formatNum(c.get(Calendar.MINUTE)))
-				.append(formatNum(c.get(Calendar.SECOND))).append(SEPERATOR)
-				.append(Integer.toHexString(machineId))
-				.append(Integer.toHexString(inc.addAndGet(1))).toString();
-	}
+    return machineBlock | processBlock;
+  }
 
-	/**
-	 * 
-	 * formatNum:格式化数字，主要为个位数加前缀零. <br/>
-	 *
-	 * @author tongzheng.zhang
-	 * @param num
-	 * @return
-	 * @since JDK 1.6
-	 */
-	private static String formatNum(int num) {
-		if (num < 10) {
-			return String.valueOf("0" + num);
-		}
-		return String.valueOf(num);
-	}
-	
-	/**
-	 * 
-	 * generateNumberId:生成数字id. <br/>
-	 *
-	 * @author tongzheng.zhang
-	 * @return
-	 * @since JDK 1.6
-	 */
-	public static synchronized long generateNumberId() {
-		return 0L;
-	}
-	
-	public static void main(String[] args) {
-		Stream.generate(IdGenerator :: generate).limit(100).forEach(System.out :: println);
-	}
+  /**
+   * 生成Id
+   *
+   * @return id
+   */
+  public static String generate() {
+    return Integer.toHexString((int) (System.currentTimeMillis() / 1000)) +
+        Integer.toHexString(machineId) +
+        Integer.toHexString(inc.addAndGet(1));
+  }
+
+  /**
+   * generateReadable:生成带有时间戳的定长id，长度:30；可读性略强，但性能较之generate()方法差了约3倍 <br/>
+   *
+   * @return id
+   * @author tongzheng.zhang
+   * @since JDK 1.6
+   */
+  public static String generateReadable() {
+    Calendar c = Calendar.getInstance();
+    return c.get(Calendar.YEAR) +
+        formatNum(c.get(Calendar.MONTH) + 1) +
+        formatNum(c.get(Calendar.DATE)) +
+        formatNum(c.get(Calendar.HOUR_OF_DAY)) +
+        formatNum(c.get(Calendar.MINUTE)) +
+        formatNum(c.get(Calendar.SECOND)) + SEPARATOR +
+        Integer.toHexString(machineId) +
+        Integer.toHexString(inc.addAndGet(1));
+  }
+
+  /**
+   * formatNum:格式化数字，主要为个位数加前缀零. <br/>
+   *
+   * @param num num
+   * @return num
+   * @author tongzheng.zhang
+   * @since JDK 1.6
+   */
+  private static String formatNum(int num) {
+    if (num < 10) {
+      return "0" + num;
+    }
+    return String.valueOf(num);
+  }
+
+//	/**
+//	 *
+//	 * generateNumberId:生成数字id. <br/>
+//	 *
+//	 * @return num
+//	 * @since JDK 1.6
+//	 */
+//	public static synchronized long generateNumberId() {
+//		return 0L;
+//	}
+
+  public static void main(String[] args) {
+    Stream.generate(IdGenerator::generate).limit(100).forEach(System.out::println);
+  }
 }

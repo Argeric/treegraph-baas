@@ -9,13 +9,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@Api(tags = "健康检查模块", description = "健康检查服务接口")
+@Api(tags = "健康检查模块")
 public class HealthCheckController {
-	
-    @RequestMapping(value = {"/health"}, method = RequestMethod.GET)
-    @ApiOperation("健康检查接口")
-    public BaasResult<Void> healthCheck() {
-    	
-        return BaasResult.success();
-    }
+
+  @RequestMapping(value = {"/health"}, method = RequestMethod.GET)
+  @ApiOperation("健康检查接口")
+  public BaasResult<Void> healthCheck() {
+
+    return BaasResult.success();
+  }
 }

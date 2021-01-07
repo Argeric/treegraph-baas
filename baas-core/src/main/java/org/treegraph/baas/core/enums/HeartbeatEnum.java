@@ -6,26 +6,26 @@ import lombok.Getter;
 
 public class HeartbeatEnum {
 
-	 /**
-     * 状态
+  /**
+   * 状态
+   */
+  @Getter
+  @AllArgsConstructor
+  public enum Status {
+    /**
+     * 正常
      */
-    @Getter
-    @AllArgsConstructor
-    public enum Status {
-        /**
-         * 正常
-         */
-        GREEN,
+    GREEN,
 
-        /**
-         * 异常
-         */
-        YELLOW,
-        
-        /**
-         * 挂了
-         */
-        RED,
-        ;
-    }
+    /**
+     * 异常
+     */
+    YELLOW,
+
+    /**
+     * 挂了
+     */
+    RED,
+    ;
+  }
 }

@@ -12,65 +12,66 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BlockChainPo implements Serializable {
-    /**
-     * 主键
-     */
-    private String id;
 
-    /**
-     * 联盟id
-     */
-    private String consortiumId;
+  /**
+   * 主键
+   */
+  private String id;
 
-    /**
-     * 区块链名称
-     */
-    private String blockchainName;
+  /**
+   * 联盟id
+   */
+  private String consortiumId;
 
-    /**
-     * 报警邮箱
-     */
-    private String alarmEmail;
+  /**
+   * 区块链名称
+   */
+  private String blockchainName;
 
-    /**
-     * 共识策略，1-treegraph
-     */
-    private Integer consensusAlgorithm;
+  /**
+   * 报警邮箱
+   */
+  private String alarmEmail;
 
-    /**
-     * 底层加密算法，1-treegraph
-     */
-    private Integer encryptAlgorithm;
+  /**
+   * 共识策略，1-treegraph
+   */
+  private Integer consensusAlgorithm;
 
-    /**
-     * 运行状态，0-未启动，1-运行中，2-已停止
-     */
-    private Integer status;
+  /**
+   * 底层加密算法，1-treegraph
+   */
+  private Integer encryptAlgorithm;
 
-    /**
-     * 0-未删除，1-已删除
-     */
-    private Integer deleteFlag;
+  /**
+   * 运行状态，0-未启动，1-运行中，2-已停止
+   */
+  private Integer status;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+  /**
+   * 0-未删除，1-已删除
+   */
+  private Integer deleteFlag;
 
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
+  /**
+   * 创建时间
+   */
+  private LocalDateTime createTime;
 
-    /**
-     * 创建人
-     */
-    private String createBy;
+  /**
+   * 更新时间
+   */
+  private LocalDateTime updateTime;
 
-    /**
-     * 更新人
-     */
-    private String updateBy;
+  /**
+   * 创建人
+   */
+  private String createBy;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   * 更新人
+   */
+  private String updateBy;
+
+  private static final long serialVersionUID = 1L;
 }

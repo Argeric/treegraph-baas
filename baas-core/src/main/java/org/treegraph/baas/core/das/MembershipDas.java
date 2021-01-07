@@ -5,5 +5,6 @@ import java.util.List;
 import org.treegraph.baas.core.domain.MembershipPo;
 
 public interface MembershipDas {
-	List<MembershipPo> findByMembershipChangeId(long membershipChangeId);
+
+  List<MembershipPo> findByMembershipChangeId(long membershipChangeId);
 }

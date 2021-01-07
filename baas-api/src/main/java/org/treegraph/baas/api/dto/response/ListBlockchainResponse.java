@@ -11,13 +11,13 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ListBlockchainResponse extends ListResponse{
+public class ListBlockchainResponse extends ListResponse {
 
-	private List<BlockchainInfo> list;
-	
-	@Builder
-	public ListBlockchainResponse(long total, int current, int pageSize, List<BlockchainInfo> list) {
-		super(total, current, pageSize);
-		this.list = list;
-	}
+  private List<BlockchainInfo> list;
+
+  @Builder
+  public ListBlockchainResponse(long total, int current, int pageSize, List<BlockchainInfo> list) {
+    super(total, current, pageSize);
+    this.list = list;
+  }
 }

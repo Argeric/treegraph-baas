@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrgBo implements Serializable {
-   
-	private String consortiumId;
-	
-    private String organizationName;
 
-    private static final long serialVersionUID = 1L;
+  private String consortiumId;
+
+  private String organizationName;
+
+  private static final long serialVersionUID = 1L;
 }

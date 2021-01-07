@@ -16,15 +16,17 @@ import org.treegraph.baas.core.enums.BlockchainEnum;
 
 public interface BlockchainService {
 
-	ListBlockchainResponse listBlockchain(ListRequest listRequest);
-	
-	List<BlockchainInfo> queryBlockchain(QueryBlockchainRequest req);
+  ListBlockchainResponse listBlockchain(ListRequest listRequest);
 
-	QueryBlockchainDetailResponse getBlockchainDetail(QueryBlockchainDetailRequest queryBlockchainDetailRequest);
+  List<BlockchainInfo> queryBlockchain(QueryBlockchainRequest req);
 
-	ListCertResponse listCert(ListCertRequest listCertRequest);
+  QueryBlockchainDetailResponse getBlockchainDetail(
+      QueryBlockchainDetailRequest queryBlockchainDetailRequest);
 
-	boolean downloadCert(DownloadCertRequest downloadCertRequest);
-	
-    boolean switchBlockchainStatus(SwitchBlockchainStatusRequest switchBlockchainStatusRequest, BlockchainEnum.Status status);
+  ListCertResponse listCert(ListCertRequest listCertRequest);
+
+  void downloadCert(DownloadCertRequest downloadCertRequest);
+
+  boolean switchBlockchainStatus(SwitchBlockchainStatusRequest switchBlockchainStatusRequest,
+      BlockchainEnum.Status status);
 }

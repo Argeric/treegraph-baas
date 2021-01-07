@@ -15,38 +15,39 @@ import lombok.AllArgsConstructor;
 
 /**
  * @author zt
- * @date May 11, 2020
  * @version 1.0
+ * @date May 11, 2020
  */
 @Service
 @AllArgsConstructor
-public class UserOperLogDasImpl implements UserOperLogDas{
-	
-	private UserOperLogPoMapper userOperLogPoMapper;
-	
-	@Async
-	@LogSkip
-	public void addOperLog(UserOperLogPo userOperLog) {
-		userOperLogPoMapper.insert(userOperLog);
-	}
-	
-	@LogSkip
-	public List<UserOperLogPo> findAllOperLog(String userId, String userName, String operCode, String ip) {
-		UserOperLogPoExample example = new UserOperLogPoExample();
-		Criteria criteria = example.createCriteria();
-		if (userId != null) {
-			criteria.andUserIdEqualTo(userId);
-		}
-		if (userName != null) {
-			criteria.andUserNameEqualTo(userName);
-		}
-		if (operCode != null) {
-			criteria.andOperCodeEqualTo(operCode);
-		}
-		if (ip != null) {
-			criteria.andUserIpEqualTo(ip);
-		}
-		example.setOrderByClause("create_time desc");
-		return userOperLogPoMapper.selectByExample(example);
-	}
+public class UserOperLogDasImpl implements UserOperLogDas {
+
+  private UserOperLogPoMapper userOperLogPoMapper;
+
+  @Async
+  @LogSkip
+  public void addOperLog(UserOperLogPo userOperLog) {
+    userOperLogPoMapper.insert(userOperLog);
+  }
+
+  @LogSkip
+  public List<UserOperLogPo> findAllOperLog(String userId, String userName, String operCode,
+      String ip) {
+    UserOperLogPoExample example = new UserOperLogPoExample();
+    Criteria criteria = example.createCriteria();
+    if (userId != null) {
+      criteria.andUserIdEqualTo(userId);
+    }
+    if (userName != null) {
+      criteria.andUserNameEqualTo(userName);
+    }
+    if (operCode != null) {
+      criteria.andOperCodeEqualTo(operCode);
+    }
+    if (ip != null) {
+      criteria.andUserIpEqualTo(ip);
+    }
+    example.setOrderByClause("create_time desc");
+    return userOperLogPoMapper.selectByExample(example);
+  }
 }

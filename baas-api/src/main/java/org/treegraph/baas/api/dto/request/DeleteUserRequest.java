@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DeleteUserRequest {
 
-	private String id;
+  private String id;
 }

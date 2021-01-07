@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class QueryConsRequest {
 
-	private String id;
+  private String id;
 }

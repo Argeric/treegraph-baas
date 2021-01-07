@@ -6,27 +6,30 @@ import org.treegraph.baas.core.domain.RolePermissionPo;
 import org.treegraph.baas.core.domain.RolePermissionPoExample;
 
 public interface RolePermissionPoMapper {
-    long countByExample(RolePermissionPoExample example);
 
-    int deleteByExample(RolePermissionPoExample example);
+  long countByExample(RolePermissionPoExample example);
 
-    int deleteByPrimaryKey(Long id);
+  int deleteByExample(RolePermissionPoExample example);
 
-    int insert(RolePermissionPo record);
+  int deleteByPrimaryKey(Long id);
 
-    int insertSelective(RolePermissionPo record);
+  int insert(RolePermissionPo record);
 
-    List<RolePermissionPo> selectByExample(RolePermissionPoExample example);
+  int insertSelective(RolePermissionPo record);
 
-    RolePermissionPo selectByPrimaryKey(Long id);
+  List<RolePermissionPo> selectByExample(RolePermissionPoExample example);
 
-    int updateByExampleSelective(@Param("record") RolePermissionPo record, @Param("example") RolePermissionPoExample example);
+  RolePermissionPo selectByPrimaryKey(Long id);
 
-    int updateByExample(@Param("record") RolePermissionPo record, @Param("example") RolePermissionPoExample example);
+  int updateByExampleSelective(@Param("record") RolePermissionPo record,
+      @Param("example") RolePermissionPoExample example);
 
-    int updateByPrimaryKeySelective(RolePermissionPo record);
+  int updateByExample(@Param("record") RolePermissionPo record,
+      @Param("example") RolePermissionPoExample example);
 
-    int updateByPrimaryKey(RolePermissionPo record);
-    
-    int bulkInsert(List<RolePermissionPo> list);
+  int updateByPrimaryKeySelective(RolePermissionPo record);
+
+  int updateByPrimaryKey(RolePermissionPo record);
+
+  int bulkInsert(List<RolePermissionPo> list);
 }

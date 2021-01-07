@@ -12,50 +12,56 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CertificateRequestPo implements Serializable {
-    /**
-     * 主键
-     */
-    private Long id;
 
-    /**
-     * 联盟id
-     */
-    private String consortiumId;
+  /**
+   *
+   */
+  private Long id;
 
-    /**
-     * 区块链id
-     */
-    private String blockchainId;
+  /**
+   *
+   */
+  private String consortiumId;
 
-    /**
-     * 申请人id
-     */
-    private String applyUserId;
+  /**
+   *
+   */
+  private String blockchainId;
 
-    /**
-     * 证书url
-     */
-    private String certificateUrl;
+  /**
+   *
+   */
+  private String applyUserId;
 
-    /**
-     * 生成时间
-     */
-    private LocalDateTime generateTime;
+  /**
+   *
+   */
+  private String san;
 
-    /**
-     * 下载时间
-     */
-    private LocalDateTime downloadTime;
+  /**
+   *
+   */
+  private Integer deleteFlag;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+  /**
+   *
+   */
+  private LocalDateTime createTime;
 
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
+  /**
+   *
+   */
+  private LocalDateTime updateTime;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   *
+   */
+  private String createBy;
+
+  /**
+   *
+   */
+  private String updateBy;
+
+  private static final long serialVersionUID = 1L;
 }

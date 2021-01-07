@@ -8,10 +8,10 @@ import lombok.Data;
 @Data
 @Builder
 public class DownloadDeployScriptRequest {
-	
-	private String consId;
-	
-	private List<String> nodeId;
+
+  private String consId;
+
+  private List<String> nodeId;
 }
 
 

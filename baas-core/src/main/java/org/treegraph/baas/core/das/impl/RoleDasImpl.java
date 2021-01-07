@@ -29,137 +29,145 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class RoleDasImpl implements RoleDas {
-	
-	private UserRolePoMapper userRolePoMapper;
 
-    private RolePoMapper rolePoMapper;
-    
-    private RolePermissionPoMapper rolePermissionPoMapper;
-    
-    public Optional<RolePo> findById(String roleId){
-    	return rolePoMapper.selectByPrimaryKey(roleId);
-    }
-     
-     public List<RolePo> findByIds(List<String> roleIds){
-    	 if(CollectionUtils.isEmpty(roleIds)) {
- 			return Lists.newArrayList();
- 		}
-     	RolePoExample example = new RolePoExample();
-     	example.createCriteria().andIdIn(roleIds);
-     	example.setOrderByClause("create_time desc");
-     	return rolePoMapper.selectByExample(example);
-     }
+  private UserRolePoMapper userRolePoMapper;
 
-     public List<RolePo> findAll(String id, String consId, String roleName){
-     	RolePoExample example = new RolePoExample();
-     	Criteria criteria = example.createCriteria();
-     	if(StringUtils.isNotBlank(id)) {
-     		criteria.andIdEqualTo(id);
-     	}
-     	if(StringUtils.isNotBlank(consId)) {
-     		criteria.andConsortiumIdEqualTo(consId);
-     	}
-     	if(StringUtils.isNotBlank(roleName)) {
-     		criteria.andRoleNameEqualTo(roleName);
-     	}
-     	criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-     	example.setOrderByClause("create_time desc");
-     	return rolePoMapper.selectByExample(example);
-     }
-    
-    public List<UserRolePo> findUserRolesByUserId(String userId){
-    	UserRolePoExample example = new UserRolePoExample();
-    	example.createCriteria().andUserIdEqualTo(userId).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-    	return userRolePoMapper.selectByExample(example);
+  private RolePoMapper rolePoMapper;
+
+  private RolePermissionPoMapper rolePermissionPoMapper;
+
+  public Optional<RolePo> findById(String roleId) {
+    return rolePoMapper.selectByPrimaryKey(roleId);
+  }
+
+  public List<RolePo> findByIds(List<String> roleIds) {
+    if (CollectionUtils.isEmpty(roleIds)) {
+      return Lists.newArrayList();
     }
-    
-   public List<UserRolePo> findUserRolesByUserIds(List<String> userIds){
-	   if(CollectionUtils.isEmpty(userIds)) {
-			return Lists.newArrayList();
-		}
-    	UserRolePoExample example = new UserRolePoExample();
-    	example.createCriteria().andUserIdIn(userIds).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-    	return userRolePoMapper.selectByExample(example);
+    RolePoExample example = new RolePoExample();
+    example.createCriteria().andIdIn(roleIds);
+    example.setOrderByClause("create_time desc");
+    return rolePoMapper.selectByExample(example);
+  }
+
+  public List<RolePo> findAll(String id, String consId, String roleName) {
+    RolePoExample example = new RolePoExample();
+    Criteria criteria = example.createCriteria();
+    if (StringUtils.isNotBlank(id)) {
+      criteria.andIdEqualTo(id);
     }
-   
-   public List<UserRolePo> findUserRolesForConsAdmin(List<String> userIds, String roleId){
-	   if(CollectionUtils.isEmpty(userIds)) {
-			return Lists.newArrayList();
-		}
-    	UserRolePoExample example = new UserRolePoExample();
-    	example.createCriteria()
-    	.andUserIdIn(userIds)
-    	.andRoleIdEqualTo(roleId)
-    	.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-    	return userRolePoMapper.selectByExample(example);
+    if (StringUtils.isNotBlank(consId)) {
+      criteria.andConsortiumIdEqualTo(consId);
     }
-    
-    public List<RolePo> findByConsIds(List<String> consIds){
-    	if(CollectionUtils.isEmpty(consIds)) {
-			return Lists.newArrayList();
-		}
-    	RolePoExample example = new RolePoExample();
-		example.createCriteria().andConsortiumIdIn(consIds).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-    	
-    	return rolePoMapper.selectByExample(example);
+    if (StringUtils.isNotBlank(roleName)) {
+      criteria.andRoleNameEqualTo(roleName);
     }
-    
-    public Optional<RolePo> findConsAdminRole(String consId) {
-    	RolePoExample example = new RolePoExample();
-		example.createCriteria().andConsortiumIdEqualTo(consId)
-				.andRoleTypeEqualTo(UserEnum.Role.CONSORTIUM_ADMIN.getCode())
-				.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-    	List<RolePo> roles = rolePoMapper.selectByExample(example);
-    	
-    	return Optional.ofNullable(CollectionUtils.isEmpty(roles) ? null : roles.get(0));
+    criteria.andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    example.setOrderByClause("create_time desc");
+    return rolePoMapper.selectByExample(example);
+  }
+
+  public List<UserRolePo> findUserRolesByUserId(String userId) {
+    UserRolePoExample example = new UserRolePoExample();
+    example.createCriteria().andUserIdEqualTo(userId)
+        .andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    return userRolePoMapper.selectByExample(example);
+  }
+
+  public List<UserRolePo> findUserRolesByUserIds(List<String> userIds) {
+    if (CollectionUtils.isEmpty(userIds)) {
+      return Lists.newArrayList();
     }
-    
-    public List<UserRolePo> findUserRolesByRoleId(String roleId){
-    	UserRolePoExample example = new UserRolePoExample();
-    	example.createCriteria().andRoleIdEqualTo(roleId).andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
-    	return userRolePoMapper.selectByExample(example);
+    UserRolePoExample example = new UserRolePoExample();
+    example.createCriteria().andUserIdIn(userIds)
+        .andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    return userRolePoMapper.selectByExample(example);
+  }
+
+  public List<UserRolePo> findUserRolesForConsAdmin(List<String> userIds, String roleId) {
+    if (CollectionUtils.isEmpty(userIds)) {
+      return Lists.newArrayList();
     }
-    
-    public boolean createRole(RolePo role, List<RolePermissionPo> permissionList) {
-    	boolean succFlag =  Boolean.TRUE;
-    	succFlag = succFlag && rolePoMapper.insert(role) > 0;
-    	if(CollectionUtils.isNotEmpty(permissionList)) {
-    		succFlag = succFlag && rolePermissionPoMapper.bulkInsert(permissionList) == permissionList.size();
-    	}
-    	return succFlag;
+    UserRolePoExample example = new UserRolePoExample();
+    example.createCriteria()
+        .andUserIdIn(userIds)
+        .andRoleIdEqualTo(roleId)
+        .andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    return userRolePoMapper.selectByExample(example);
+  }
+
+  public List<RolePo> findByConsIds(List<String> consIds) {
+    if (CollectionUtils.isEmpty(consIds)) {
+      return Lists.newArrayList();
     }
-    
-    public boolean modifyRole(String roleId, RolePo role, List<Long> toDelPermIds, List<RolePermissionPo> toAddPerms) {
-    	boolean succFlag =  Boolean.TRUE;
-    	if(role != null) {
-    		succFlag = succFlag && rolePoMapper.updateByPrimaryKeySelective(role) > 0;
-    	}
-    	
-    	if(CollectionUtils.isNotEmpty(toDelPermIds)) {
-    		RolePermissionPo record = RolePermissionPo.builder()
-    				.deleteFlag(IntTypeEnum.TRUE.getValue())
-    				.updateBy(WebHelper.getUserId())
-    				.updateTime(LocalDateTime.now())
-    				.build();
-    		RolePermissionPoExample example = new RolePermissionPoExample();
-        	example.createCriteria().andRoleIdEqualTo(roleId).andPermissionIdIn(toDelPermIds);
-        	succFlag = succFlag && rolePermissionPoMapper.updateByExampleSelective(record, example) == toDelPermIds.size();
-    	}
-    	
-    	if(CollectionUtils.isNotEmpty(toAddPerms)) {
-    		succFlag = succFlag && rolePermissionPoMapper.bulkInsert(toAddPerms) == toAddPerms.size();
-    	}
-    	
-    	return succFlag;
+    RolePoExample example = new RolePoExample();
+    example.createCriteria().andConsortiumIdIn(consIds)
+        .andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+
+    return rolePoMapper.selectByExample(example);
+  }
+
+  public Optional<RolePo> findConsAdminRole(String consId) {
+    RolePoExample example = new RolePoExample();
+    example.createCriteria().andConsortiumIdEqualTo(consId)
+        .andRoleTypeEqualTo(UserEnum.Role.CONSORTIUM_ADMIN.getCode())
+        .andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    List<RolePo> roles = rolePoMapper.selectByExample(example);
+
+    return Optional.ofNullable(CollectionUtils.isEmpty(roles) ? null : roles.get(0));
+  }
+
+  public List<UserRolePo> findUserRolesByRoleId(String roleId) {
+    UserRolePoExample example = new UserRolePoExample();
+    example.createCriteria().andRoleIdEqualTo(roleId)
+        .andDeleteFlagEqualTo(IntTypeEnum.FALSE.getValue());
+    return userRolePoMapper.selectByExample(example);
+  }
+
+  public boolean createRole(RolePo role, List<RolePermissionPo> permissionList) {
+    boolean succFlag = Boolean.TRUE;
+    succFlag = succFlag && rolePoMapper.insert(role) > 0;
+    if (CollectionUtils.isNotEmpty(permissionList)) {
+      succFlag =
+          succFlag && rolePermissionPoMapper.bulkInsert(permissionList) == permissionList.size();
     }
-    
-    public boolean deleteRole(String roleId) {
-    	RolePo record = RolePo.builder()
-    			.id(roleId)
-    			.deleteFlag(IntTypeEnum.TRUE.getValue())
-    			.updateTime(LocalDateTime.now())
-    			.updateBy(WebHelper.getUserId())
-    			.build();
-    	return rolePoMapper.updateByPrimaryKeySelective(record) > 0;
+    return succFlag;
+  }
+
+  public boolean modifyRole(String roleId, RolePo role, List<Long> toDelPermIds,
+      List<RolePermissionPo> toAddPerms) {
+    boolean succFlag = Boolean.TRUE;
+    if (role != null) {
+      succFlag = succFlag && rolePoMapper.updateByPrimaryKeySelective(role) > 0;
     }
+
+    if (CollectionUtils.isNotEmpty(toDelPermIds)) {
+      RolePermissionPo record = RolePermissionPo.builder()
+          .deleteFlag(IntTypeEnum.TRUE.getValue())
+          .updateBy(WebHelper.getUserId())
+          .updateTime(LocalDateTime.now())
+          .build();
+      RolePermissionPoExample example = new RolePermissionPoExample();
+      example.createCriteria().andRoleIdEqualTo(roleId).andPermissionIdIn(toDelPermIds);
+      succFlag = succFlag
+          && rolePermissionPoMapper.updateByExampleSelective(record, example) == toDelPermIds
+          .size();
+    }
+
+    if (CollectionUtils.isNotEmpty(toAddPerms)) {
+      succFlag = succFlag && rolePermissionPoMapper.bulkInsert(toAddPerms) == toAddPerms.size();
+    }
+
+    return succFlag;
+  }
+
+  public boolean deleteRole(String roleId) {
+    RolePo record = RolePo.builder()
+        .id(roleId)
+        .deleteFlag(IntTypeEnum.TRUE.getValue())
+        .updateTime(LocalDateTime.now())
+        .updateBy(WebHelper.getUserId())
+        .build();
+    return rolePoMapper.updateByPrimaryKeySelective(record) > 0;
+  }
 }

@@ -1,44 +1,87 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <configuration>
+    <property name="LOG_HOME" value="/opt/service/log"/>
+    <property name="LOG_NAME" value="baas-server"/>
 
-    <property name="LOG_HOME" value="{{ service_log_path_prefix }}/{{ app }}" />
-
-    <appender name="APP_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>${LOG_HOME}/{{ app }}.log</File>
-
+    <appender name="CONSOLE_DEBUG" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>{{ logback_parttern_info }}</pattern>
+            <pattern>%d{yyyy-MM-dd 'T' HH:mm:ss.SSS+08:00} %-5level %-17thread    %logger{0}[%L] %msg %n
+            </pattern>
         </encoder>
 
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>INFO</level>
+            <level>DEBUG</level>
+        </filter>
+    </appender>
+
+    <appender name="FILE_DEBUG"
+      class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${LOG_HOME}/${LOG_NAME}-debug.log</File>
+
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %-17thread    %logger{0}[%L] %msg %n
+            </pattern>
+        </encoder>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
         </filter>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${LOG_HOME}/backup/{{ app }}.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>${LOG_HOME}/backup/${LOG_NAME}-debug.%d{yyyy-MM-dd}.log
+            </FileNamePattern>
         </rollingPolicy>
     </appender>
 
-    <appender name="APP_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <File>${LOG_HOME}/{{ app }}_error.log</File>
+    <appender name="FILE_INFO"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${LOG_HOME}/${LOG_NAME}.log</File>
 
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>{{ logback_parttern_info }}</pattern>
+            <pattern>%d{yyyy-MM-dd 'T' HH:mm:ss.SSS+08:00} %-5level %-17thread    %logger{0}[%L] %msg %n
+            </pattern>
         </encoder>
 
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>ERROR</level>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
         </filter>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <FileNamePattern>${LOG_HOME}/backup/{{ app }}_error.%d{yyyy-MM-dd}.log</FileNamePattern>
+            <FileNamePattern>${LOG_HOME}/backup/${LOG_NAME}.%d{yyyy-MM-dd}.log
+            </FileNamePattern>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="FILE_ERROR"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${LOG_HOME}/${LOG_NAME}-error.log</File>
+
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd 'T' HH:mm:ss.SSS+08:00} %-5level %-17thread    %logger{0}[%L] %msg %n
+            </pattern>
+        </encoder>
+
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${LOG_HOME}/backup/${LOG_NAME}-error.%d{yyyy-MM-dd}.log
+            </FileNamePattern>
         </rollingPolicy>
     </appender>
 
     <root level="INFO">
-        <appender-ref ref="APP_INFO" />
-        <appender-ref ref="APP_ERROR" />
+        <appender-ref ref="CONSOLE_DEBUG"/>
+        <appender-ref ref="FILE_DEBUG"/>
+        <appender-ref ref="FILE_INFO"/>
+        <appender-ref ref="FILE_ERROR"/>
     </root>
-
 </configuration>

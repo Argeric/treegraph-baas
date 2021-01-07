@@ -11,15 +11,15 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class ListRoleResponse extends ListResponse{
+public class ListRoleResponse extends ListResponse {
 
-	private List<RolePermissionInfo> list;
+  private List<RolePermissionInfo> list;
 
-	@Builder
-	public ListRoleResponse(long total, int current, int pageSize, List<RolePermissionInfo> list) {
-		super(total, current, pageSize);
-		this.list = list;
-	}
-	
-	
+  @Builder
+  public ListRoleResponse(long total, int current, int pageSize, List<RolePermissionInfo> list) {
+    super(total, current, pageSize);
+    this.list = list;
+  }
+
+
 }

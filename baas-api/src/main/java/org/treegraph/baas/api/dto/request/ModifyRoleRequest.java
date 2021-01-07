@@ -6,12 +6,12 @@ import lombok.Data;
 
 @Data
 public class ModifyRoleRequest {
-	
-	private String id;
 
-	private String consId;
-	
-	private String name;
-	
-	private List<String> permissions;
+  private String id;
+
+  private String consId;
+
+  private String name;
+
+  private List<String> permissions;
 }

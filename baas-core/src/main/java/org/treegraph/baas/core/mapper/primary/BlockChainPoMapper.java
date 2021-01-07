@@ -8,25 +8,28 @@ import org.treegraph.baas.core.domain.BlockChainPo;
 import org.treegraph.baas.core.domain.BlockChainPoExample;
 
 public interface BlockChainPoMapper {
-    long countByExample(BlockChainPoExample example);
 
-    int deleteByExample(BlockChainPoExample example);
+  long countByExample(BlockChainPoExample example);
 
-    int deleteByPrimaryKey(String id);
+  int deleteByExample(BlockChainPoExample example);
 
-    int insert(BlockChainPo record);
+  int deleteByPrimaryKey(String id);
 
-    int insertSelective(BlockChainPo record);
+  int insert(BlockChainPo record);
 
-    List<BlockChainPo> selectByExample(BlockChainPoExample example);
+  int insertSelective(BlockChainPo record);
 
-    Optional<BlockChainPo> selectByPrimaryKey(String id);
+  List<BlockChainPo> selectByExample(BlockChainPoExample example);
 
-    int updateByExampleSelective(@Param("record") BlockChainPo record, @Param("example") BlockChainPoExample example);
+  Optional<BlockChainPo> selectByPrimaryKey(String id);
 
-    int updateByExample(@Param("record") BlockChainPo record, @Param("example") BlockChainPoExample example);
+  int updateByExampleSelective(@Param("record") BlockChainPo record,
+      @Param("example") BlockChainPoExample example);
 
-    int updateByPrimaryKeySelective(BlockChainPo record);
+  int updateByExample(@Param("record") BlockChainPo record,
+      @Param("example") BlockChainPoExample example);
 
-    int updateByPrimaryKey(BlockChainPo record);
+  int updateByPrimaryKeySelective(BlockChainPo record);
+
+  int updateByPrimaryKey(BlockChainPo record);
 }

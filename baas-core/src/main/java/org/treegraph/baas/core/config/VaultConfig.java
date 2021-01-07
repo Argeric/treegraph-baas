@@ -2,6 +2,7 @@ package org.treegraph.baas.core.config;
 
 import java.net.URI;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.vault.authentication.ClientAuthentication;
@@ -15,18 +16,21 @@ import org.springframework.vault.config.AbstractVaultConfiguration;
 @Configuration
 public class VaultConfig extends AbstractVaultConfiguration {
 
-	@Value("${vault.token}")
-	String token;
-	@Value("${vault.uri}")
-	URI vaultUri;
+  @Value("${vault.token}")
+  String token;
 
-	@Override
-	public VaultEndpoint vaultEndpoint() {
-		return VaultEndpoint.from(vaultUri);
-	}
+  @Value("${vault.uri}")
+  URI vaultUri;
 
-	@Override
-	public ClientAuthentication clientAuthentication() {
-		return new TokenAuthentication(token);
-	}
+  @NotNull
+  @Override
+  public VaultEndpoint vaultEndpoint() {
+    return VaultEndpoint.from(vaultUri);
+  }
+
+  @NotNull
+  @Override
+  public ClientAuthentication clientAuthentication() {
+    return new TokenAuthentication(token);
+  }
 }

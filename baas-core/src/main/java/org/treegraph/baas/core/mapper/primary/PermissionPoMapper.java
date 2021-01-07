@@ -9,29 +9,32 @@ import org.treegraph.baas.core.domain.PermissionPo;
 import org.treegraph.baas.core.domain.PermissionPoExample;
 
 public interface PermissionPoMapper {
-    long countByExample(PermissionPoExample example);
 
-    int deleteByExample(PermissionPoExample example);
+  long countByExample(PermissionPoExample example);
 
-    int deleteByPrimaryKey(Long id);
+  int deleteByExample(PermissionPoExample example);
 
-    int insert(PermissionPo record);
+  int deleteByPrimaryKey(Long id);
 
-    int insertSelective(PermissionPo record);
+  int insert(PermissionPo record);
 
-    List<PermissionPo> selectByExample(PermissionPoExample example);
+  int insertSelective(PermissionPo record);
 
-    Optional<PermissionPo> selectByPrimaryKey(Long id);
+  List<PermissionPo> selectByExample(PermissionPoExample example);
 
-    int updateByExampleSelective(@Param("record") PermissionPo record, @Param("example") PermissionPoExample example);
+  Optional<PermissionPo> selectByPrimaryKey(Long id);
 
-    int updateByExample(@Param("record") PermissionPo record, @Param("example") PermissionPoExample example);
+  int updateByExampleSelective(@Param("record") PermissionPo record,
+      @Param("example") PermissionPoExample example);
 
-    int updateByPrimaryKeySelective(PermissionPo record);
+  int updateByExample(@Param("record") PermissionPo record,
+      @Param("example") PermissionPoExample example);
 
-    int updateByPrimaryKey(PermissionPo record);
-    
-    List<String> findPermissionCodeByUserId(String userId);
-    
-    List<PermissionInfoBo> findPermissionInfoByUserId(String userId);
+  int updateByPrimaryKeySelective(PermissionPo record);
+
+  int updateByPrimaryKey(PermissionPo record);
+
+  List<String> findPermissionCodeByUserId(String userId);
+
+  List<PermissionInfoBo> findPermissionInfoByUserId(String userId);
 }

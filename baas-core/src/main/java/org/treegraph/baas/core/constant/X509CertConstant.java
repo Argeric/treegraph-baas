@@ -1,20 +1,11 @@
 package org.treegraph.baas.core.constant;
 
-import org.treegraph.baas.core.enums.CryptoEnum;
-import org.treegraph.baas.core.enums.CryptoEnum.SignCertificateType;
-
 public class X509CertConstant {
-	public static final String ALGO_CONS = CryptoEnum.Algo.RSA.getCode();
-	public static final String ALGO_NODE = CryptoEnum.Algo.ECC.getCode();
 
-	public static final String SUBJECT_ROOT_CA = "CN=rootCA,OU=it-dept,O=conflux-chain,L=SH,ST=SH,C=CN";
-	public static final String SUBJECT_CONSORTIUM_CERT = "CN=baas.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN";
-	public static final String SUBJECT_NODE_CERT = "CN=node.baas.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN";
-	
-	public static final String COMMON_NAME_CONSORTIUM_CERT= "baas.conflux-chain.org";
-	
-	public static final SignCertificateType SIGN_CERTIFICATE_TYPE = CryptoEnum.SignCertificateType.VAULT;
-	public static final int EXPIRE_CONSORTIUM_CERT_IN_DYAS = 365;
-	public static final String VAULT_ROLE_ISSUE_CERTIFICATE = "baasroot";
-	public static final String VAULT_PKI_PATH = "pki_baas_" + ALGO_CONS;
+  public static final String VAULT_PKI_PATH_ROOT_CA ="baas-root";
+  public static final String VAULT_ROLE_CONS_CA_ISSUER = "cons_ca_issuer";
+  public static final String VAULT_ROLE_RPC_CERT_ISSUER = "rpc_cert_issuer";
+  public static final int TTL_ROOT_CA_IN_DAY = 365 * 10;
+  public static final int TTL_CONSORTIUM_CA_IN_DAY = 365 * 5;
+  public static final int TTL_RPC_CERT_IN_DAY = 365;
 }

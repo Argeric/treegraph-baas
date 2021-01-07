@@ -6,33 +6,33 @@ import lombok.Getter;
 
 public class CertificateEnum {
 
-    /**
-     * 延期状态
-     */
-    @Getter
-    @AllArgsConstructor
-    public enum DeferStatus {
+  /**
+   * 延期状态
+   */
+  @Getter
+  @AllArgsConstructor
+  public enum DeferStatus {
 
-    	INITIAL(20, "初始化"),
-    	
-        PROCESSING(21, "请求延期中"),
+    INITIAL(20, "初始化"),
 
-        SUCCESS(22, "延期成功"),
-  
-        FAILURE(23, "延期失败"),
-        ;
+    PROCESSING(21, "请求延期中"),
 
-        private Integer code;
+    SUCCESS(22, "延期成功"),
 
-        private String desc;
+    FAILURE(23, "延期失败"),
+    ;
 
-        public static DeferStatus getByCode(int code) {
-            for (DeferStatus s : DeferStatus.values()) {
-                if (s.code.equals(code)) {
-                    return s;
-                }
-            }
-            return null;
+    private final Integer code;
+
+    private final String desc;
+
+    public static DeferStatus getByCode(int code) {
+      for (DeferStatus s : DeferStatus.values()) {
+        if (s.code.equals(code)) {
+          return s;
         }
+      }
+      return null;
     }
+  }
 }

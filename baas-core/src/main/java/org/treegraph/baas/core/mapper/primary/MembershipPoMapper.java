@@ -7,27 +7,30 @@ import org.treegraph.baas.core.domain.MembershipPo;
 import org.treegraph.baas.core.domain.MembershipPoExample;
 
 public interface MembershipPoMapper {
-    long countByExample(MembershipPoExample example);
 
-    int deleteByExample(MembershipPoExample example);
+  long countByExample(MembershipPoExample example);
 
-    int deleteByPrimaryKey(String id);
+  int deleteByExample(MembershipPoExample example);
 
-    int insert(MembershipPo record);
+  int deleteByPrimaryKey(String id);
 
-    int insertSelective(MembershipPo record);
+  int insert(MembershipPo record);
 
-    List<MembershipPo> selectByExample(MembershipPoExample example);
+  int insertSelective(MembershipPo record);
 
-    MembershipPo selectByPrimaryKey(String id);
+  List<MembershipPo> selectByExample(MembershipPoExample example);
 
-    int updateByExampleSelective(@Param("record") MembershipPo record, @Param("example") MembershipPoExample example);
+  MembershipPo selectByPrimaryKey(String id);
 
-    int updateByExample(@Param("record") MembershipPo record, @Param("example") MembershipPoExample example);
+  int updateByExampleSelective(@Param("record") MembershipPo record,
+      @Param("example") MembershipPoExample example);
 
-    int updateByPrimaryKeySelective(MembershipPo record);
+  int updateByExample(@Param("record") MembershipPo record,
+      @Param("example") MembershipPoExample example);
 
-    int updateByPrimaryKey(MembershipPo record);
-    
-    int bulkInsert(List<MembershipPo> list);
+  int updateByPrimaryKeySelective(MembershipPo record);
+
+  int updateByPrimaryKey(MembershipPo record);
+
+  int bulkInsert(List<MembershipPo> list);
 }

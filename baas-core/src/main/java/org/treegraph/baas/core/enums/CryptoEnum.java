@@ -5,111 +5,146 @@ import lombok.Getter;
 
 public class CryptoEnum {
 
-	@Getter
-	public enum Algo {
+  @Getter
+  public enum Algo {
 
-		ECC("ECC", "ECC算法"),
+    ECC("ECC", "ECC算法"),
 
-		SM2("SM2", "SM2算法"),
+    SM2("SM2", "SM2算法"),
 
-		RSA("RSA", "RSA算法"),
+    RSA("RSA", "RSA算法"),
 
-		;
+    ;
 
-		private String code;
+    private final String code;
 
-		private String desc;
+    private final String desc;
 
-		Algo(String code, String desc) {
-			this.code = code;
-			this.desc = desc;
-		}
+    Algo(String code, String desc) {
+      this.code = code;
+      this.desc = desc;
+    }
 
-		public static Algo getByCode(String code) {
-			for (Algo s : Algo.values()) {
-				if (s.code.equalsIgnoreCase(code)) {
-					return s;
-				}
-			}
-			return null;
-		}
-	}
+    public static Algo getByCode(String code) {
+      for (Algo s : Algo.values()) {
+        if (s.code.equalsIgnoreCase(code)) {
+          return s;
+        }
+      }
+      return null;
+    }
+  }
 
-	@Getter
-	public enum Pkcs {
+  /**
+   * 签发证书的类型
+   */
+  @Getter
+  @AllArgsConstructor
+  public enum CertSignType {
 
-		PKCS5("pkcs5", "pkcs5密钥加密算法"),
+    BC(1, "bounce castle"),
 
-		PKCS8("pkcs8", "pkcs8密钥加密算法"),
+    VAULT(2, "hashicorp vault"),
+    ;
 
-		;
+    private final Integer code;
 
-		private String code;
+    private final String desc;
 
-		private String desc;
+    public static CertSignType getByCode(int code) {
+      for (CertSignType s : CertSignType.values()) {
+        if (s.code == code) {
+          return s;
+        }
+      }
+      return null;
+    }
+  }
 
-		Pkcs(String code, String desc) {
-			this.code = code;
-			this.desc = desc;
-		}
+  @Getter
+  public enum Subject {
 
-		public static Pkcs getByCode(String code) {
-			for (Pkcs s : Pkcs.values()) {
-				if (s.code.equalsIgnoreCase(code)) {
-					return s;
-				}
-			}
-			return null;
-		}
-	}
+    ROOT_CA("CN=root.baas.conflux-chain.org,OU=it-dept,O=conflux-chain,L=SH,ST=SH,C=CN",
+        "root.ca.subject"),
 
-	/**
-	 * 密钥类型
-	 */
-	@Getter
-	@AllArgsConstructor
-	public enum KeyType {
+    CONSORTIUM("CN=consortium.baas.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN",
+        "consortium.ca.subject"),
 
-		CONSORTIUM(1, "联盟类型"),
+    RPC("CN=rpc.baas.conflux-chain.org,OU=rd,O=conflux-chain,L=SH,ST=SH,C=CN", "rpc.cert.subject"),
+    ;
 
-		NODE(2, "节点类型"),;
+    private final String code;
 
-		private Integer code;
+    private final String desc;
 
-		private String desc;
+    Subject(String code, String desc) {
+      this.code = code;
+      this.desc = desc;
+    }
 
-		public static KeyType getByCode(int code) {
-			for (KeyType s : KeyType.values()) {
-				if (s.code == code) {
-					return s;
-				}
-			}
-			return null;
-		}
-	}
-	
-	/**
-	 * 签发证书的类型
-	 */
-	@Getter
-	@AllArgsConstructor
-	public enum SignCertificateType {
+    public static Subject getByCode(String code) {
+      for (Subject s : Subject.values()) {
+        if (s.code.equalsIgnoreCase(code)) {
+          return s;
+        }
+      }
+      return null;
+    }
+  }
 
-		BC(1, "bounce castle"),
+  /**
+   * 密钥类型
+   */
+  @Getter
+  @AllArgsConstructor
+  public enum KeyType {
 
-		VAULT(2, "hashicorp vault"),;
+    //strategy 1
+/*    ROOT_CA(0, Algo.RSA, CertSignType.BC, Subject.ROOT_CA, "root.ca.keypair"),
 
-		private Integer code;
+    CONSORTIUM(1, Algo.RSA, CertSignType.BC, Subject.CONSORTIUM, "consortium.keypair"),
 
-		private String desc;
+    NODE(2, Algo.ECC, CertSignType.BC, null, "node.keypair"),
 
-		public static KeyType getByCode(int code) {
-			for (KeyType s : KeyType.values()) {
-				if (s.code == code) {
-					return s;
-				}
-			}
-			return null;
-		}
-	}
+    RPC(3, Algo.RSA, CertSignType.VAULT, Subject.RPC, "rpc.keypair"),*/
+
+    //strategy 2
+/*    ROOT_CA(0, Algo.RSA, CertSignType.VAULT, Subject.ROOT_CA, "root.ca.keypair"),
+
+    CONSORTIUM(1, Algo.RSA, CertSignType.VAULT, Subject.CONSORTIUM, "consortium.keypair"),
+
+    NODE(2, Algo.ECC, CertSignType.BC, null, "node.keypair"),
+
+    RPC(3, Algo.RSA, CertSignType.VAULT, Subject.RPC, "rpc.keypair"),*/
+
+    //strategy 3
+    ROOT_CA(0, Algo.RSA, CertSignType.BC, Subject.ROOT_CA, "root.ca.keypair"),
+
+    CONSORTIUM(1, Algo.RSA, CertSignType.BC, Subject.CONSORTIUM, "consortium.keypair"),
+
+    NODE(2, Algo.ECC, CertSignType.BC, null, "node.keypair"),
+
+    RPC(3, Algo.RSA, CertSignType.BC, Subject.RPC, "rpc.keypair"),
+
+    ;
+
+    private final Integer code;
+
+    private final Algo algo;
+
+    private final CertSignType signType;
+
+    private final Subject subject;
+
+    private final String desc;
+
+    public static KeyType getByCode(int code) {
+      for (KeyType s : KeyType.values()) {
+        if (s.code == code) {
+          return s;
+        }
+      }
+      return null;
+    }
+  }
 }

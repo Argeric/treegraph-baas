@@ -5,9 +5,9 @@ import org.treegraph.baas.core.domain.UserInfoPo;
 
 public interface TokenService {
 
-	UserInfoPo checkToken(String token);
-	
-	UserInvitePo checkInvitToken(String token);
-	
-	void authPermission(String userId, String uri);
+  UserInfoPo checkToken(String token);
+
+  UserInvitePo checkInviteToken(String token);
+
+  void authPermission(String userId, String uri);
 }

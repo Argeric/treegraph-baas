@@ -24,54 +24,55 @@ import lombok.AllArgsConstructor;
 
 /**
  * @author zt
- * @date May 11, 2020
  * @version 1.0
+ * @date May 11, 2020
  */
 @RestController
-@Api(tags = "角色模块", description = "权限角色管理")
+@Api(tags = "角色模块")
 @RequestMapping("/role")
 @AllArgsConstructor
 public class RoleController {
-	
-	private RoleService roleService;
-	
-	@PostMapping("/list")
-	@ApiOperation("角色权限列表")
-	public BaasResult<ListRoleResponse> listRole(@RequestBody ListRoleRequest listRoleRequest) {
-		ListRoleResponse roles = roleService.listRole(listRoleRequest);
-		return BaasResult.success(roles);
-	}
-	
-	@PostMapping("/query")
-	@ApiOperation("角色查询")
-	public BaasResult<List<RolePermissionInfo>> queryRole(@RequestBody QueryRoleRequest queryRoleRequest) {
-		List<RolePermissionInfo> roleList = roleService.queryRole(queryRoleRequest);
-		return BaasResult.success(roleList);
-	}
 
-	@PostMapping("/create")
-	@ApiOperation("创建角色")
-	public BaasResult<Void> createRole(@RequestBody CreateRoleRequest createRoleRequest) {
-		checkCreateRole(createRoleRequest);
-	    roleService.createRole(createRoleRequest);
-		return BaasResult.success();
-	}
-	
-	@PostMapping("/modify")
-	@ApiOperation("修改角色")
-	public BaasResult<Void> modifyRole(@RequestBody ModifyRoleRequest modifyRoleRequest) {
-		roleService.modifyRole(modifyRoleRequest);
-		return BaasResult.success();
-	}
-	
-	@PostMapping("/del")
-	@ApiOperation("删除角色")
-	public BaasResult<Void> deleteRole(@RequestBody DeleteRoleRequest deleteRoleRequest) {
-		roleService.deleteRole(deleteRoleRequest);
-		return BaasResult.success();
-	}
+  private final RoleService roleService;
 
-	private void checkCreateRole(CreateRoleRequest createRoleRequest) {
-		SysManager.checkOwnCons(Lists.newArrayList(createRoleRequest.getConsId()));
-	}
+  @PostMapping("/list")
+  @ApiOperation("角色权限列表")
+  public BaasResult<ListRoleResponse> listRole(@RequestBody ListRoleRequest listRoleRequest) {
+    ListRoleResponse roles = roleService.listRole(listRoleRequest);
+    return BaasResult.success(roles);
+  }
+
+  @PostMapping("/query")
+  @ApiOperation("角色查询")
+  public BaasResult<List<RolePermissionInfo>> queryRole(
+      @RequestBody QueryRoleRequest queryRoleRequest) {
+    List<RolePermissionInfo> roleList = roleService.queryRole(queryRoleRequest);
+    return BaasResult.success(roleList);
+  }
+
+  @PostMapping("/create")
+  @ApiOperation("创建角色")
+  public BaasResult<Void> createRole(@RequestBody CreateRoleRequest createRoleRequest) {
+    checkCreateRole(createRoleRequest);
+    roleService.createRole(createRoleRequest);
+    return BaasResult.success();
+  }
+
+  @PostMapping("/modify")
+  @ApiOperation("修改角色")
+  public BaasResult<Void> modifyRole(@RequestBody ModifyRoleRequest modifyRoleRequest) {
+    roleService.modifyRole(modifyRoleRequest);
+    return BaasResult.success();
+  }
+
+  @PostMapping("/del")
+  @ApiOperation("删除角色")
+  public BaasResult<Void> deleteRole(@RequestBody DeleteRoleRequest deleteRoleRequest) {
+    roleService.deleteRole(deleteRoleRequest);
+    return BaasResult.success();
+  }
+
+  private void checkCreateRole(CreateRoleRequest createRoleRequest) {
+    SysManager.checkOwnCons(Lists.newArrayList(createRoleRequest.getConsId()));
+  }
 }

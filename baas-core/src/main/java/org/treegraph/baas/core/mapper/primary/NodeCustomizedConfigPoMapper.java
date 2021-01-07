@@ -6,30 +6,35 @@ import org.apache.ibatis.annotations.Param;
 import org.treegraph.baas.core.domain.NodeCustomizedConfigPo;
 import org.treegraph.baas.core.domain.NodeCustomizedConfigPoExample;
 import org.treegraph.baas.core.persistence.GlobalLevel;
+import org.treegraph.baas.core.util.LogSkip;
 
+@GlobalLevel
 public interface NodeCustomizedConfigPoMapper {
-    long countByExample(NodeCustomizedConfigPoExample example);
 
-    int deleteByExample(NodeCustomizedConfigPoExample example);
+  long countByExample(NodeCustomizedConfigPoExample example);
 
-    int deleteByPrimaryKey(Long id);
+  int deleteByExample(NodeCustomizedConfigPoExample example);
 
-    int insert(NodeCustomizedConfigPo record);
+  int deleteByPrimaryKey(Long id);
 
-    int insertSelective(NodeCustomizedConfigPo record);
+  int insert(NodeCustomizedConfigPo record);
 
-    @GlobalLevel
-    List<NodeCustomizedConfigPo> selectByExample(NodeCustomizedConfigPoExample example);
+  int insertSelective(NodeCustomizedConfigPo record);
 
-    NodeCustomizedConfigPo selectByPrimaryKey(Long id);
+  @LogSkip
+  List<NodeCustomizedConfigPo> selectByExample(NodeCustomizedConfigPoExample example);
 
-    int updateByExampleSelective(@Param("record") NodeCustomizedConfigPo record, @Param("example") NodeCustomizedConfigPoExample example);
+  NodeCustomizedConfigPo selectByPrimaryKey(Long id);
 
-    int updateByExample(@Param("record") NodeCustomizedConfigPo record, @Param("example") NodeCustomizedConfigPoExample example);
+  int updateByExampleSelective(@Param("record") NodeCustomizedConfigPo record,
+      @Param("example") NodeCustomizedConfigPoExample example);
 
-    int updateByPrimaryKeySelective(NodeCustomizedConfigPo record);
+  int updateByExample(@Param("record") NodeCustomizedConfigPo record,
+      @Param("example") NodeCustomizedConfigPoExample example);
 
-    int updateByPrimaryKey(NodeCustomizedConfigPo record);
-    
-    int bulkInsert(List<NodeCustomizedConfigPo> list);
+  int updateByPrimaryKeySelective(NodeCustomizedConfigPo record);
+
+  int updateByPrimaryKey(NodeCustomizedConfigPo record);
+
+  int bulkInsert(List<NodeCustomizedConfigPo> list);
 }

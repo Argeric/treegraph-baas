@@ -14,12 +14,12 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class MembershipDasImpl implements MembershipDas {
 
-	private MembershipPoMapper membershipPoMapper;
-	
-	public List<MembershipPo> findByMembershipChangeId(long membershipChangeId) {
-		MembershipPoExample example = new MembershipPoExample();
-		MembershipPoExample.Criteria criteria = example.createCriteria();
-		criteria.andMembershipChangeIdEqualTo(membershipChangeId);
-		return membershipPoMapper.selectByExample(example);
-	}
+  private MembershipPoMapper membershipPoMapper;
+
+  public List<MembershipPo> findByMembershipChangeId(long membershipChangeId) {
+    MembershipPoExample example = new MembershipPoExample();
+    MembershipPoExample.Criteria criteria = example.createCriteria();
+    criteria.andMembershipChangeIdEqualTo(membershipChangeId);
+    return membershipPoMapper.selectByExample(example);
+  }
 }

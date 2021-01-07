@@ -12,45 +12,46 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserInvitePo implements Serializable {
-    /**
-     * 主键
-     */
-    private Long id;
 
-    /**
-     * 邀请者
-     */
-    private String inviter;
+  /**
+   * 主键
+   */
+  private Long id;
 
-    /**
-     * 接受者
-     */
-    private String accepter;
+  /**
+   * 邀请者
+   */
+  private String inviter;
 
-    /**
-     * 邀请token
-     */
-    private String token;
+  /**
+   * 接受者
+   */
+  private String accepter;
 
-    /**
-     * 过期时间，单位秒
-     */
-    private Integer expire;
+  /**
+   * 邀请token
+   */
+  private String token;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+  /**
+   * 过期时间，单位秒
+   */
+  private Integer expire;
 
-    /**
-     * 邀请时间
-     */
-    private LocalDateTime inviteTime;
+  /**
+   * 创建时间
+   */
+  private LocalDateTime createTime;
 
-    /**
-     * 接受时间
-     */
-    private LocalDateTime acceptTime;
+  /**
+   * 邀请时间
+   */
+  private LocalDateTime inviteTime;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   * 接受时间
+   */
+  private LocalDateTime acceptTime;
+
+  private static final long serialVersionUID = 1L;
 }

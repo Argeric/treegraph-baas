@@ -1,0 +1,204 @@
+package org.treegraph.baas.core.service.impl;
+
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringJoiner;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+import org.treegraph.baas.common.util.PermHelper;
+import org.treegraph.baas.common.util.WebHelper;
+import org.treegraph.baas.core.das.InviteUserDas;
+import org.treegraph.baas.core.das.PermissionDas;
+import org.treegraph.baas.core.das.UserInfoDas;
+import org.treegraph.baas.core.das.UserTokenDas;
+import org.treegraph.baas.core.das.bo.PermissionInfoBo;
+import org.treegraph.baas.core.domain.UserInfoPo;
+import org.treegraph.baas.core.domain.UserInvitePo;
+import org.treegraph.baas.core.domain.UserLoginTokenPo;
+import org.treegraph.baas.core.enums.UserEnum;
+import org.treegraph.baas.core.enums.UserEnum.PermissionPoint;
+import org.treegraph.baas.core.exception.AlertException;
+import org.treegraph.baas.core.service.TokenService;
+import org.treegraph.baas.core.util.JwtUtils;
+
+import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+@AllArgsConstructor
+public class TokenServiceImpl implements TokenService {
+
+  private final UserInfoDas userInfoDas;
+
+  private final UserTokenDas userTokenDas;
+
+  private final InviteUserDas inviteUserDas;
+
+  private final PermissionDas permissionDas;
+
+  private static final Map<String, String> URI_PERMISSION_MAP = Maps.newHashMap();
+
+  private static final String TAG_DATA_PERMISSION = "DATA_PERM";
+
+  static {
+    // system module
+    URI_PERMISSION_MAP.put("/sys/login", null);
+    URI_PERMISSION_MAP.put("/sys/log/list", TAG_DATA_PERMISSION);
+    // user module
+    URI_PERMISSION_MAP.put("/user/list", PermissionPoint.VIEW_CONS_USER.getCode());
+    URI_PERMISSION_MAP.put("/user/query", PermissionPoint.VIEW_CONS_USER.getCode());
+    URI_PERMISSION_MAP.put("/user/create", PermissionPoint.CREATE_CONS_USER.getCode());
+    URI_PERMISSION_MAP.put("/user/modify", PermissionPoint.UPDATE_CONS_USER.getCode());
+    URI_PERMISSION_MAP.put("/user/invite", PermissionPoint.CREATE_CONS_USER.getCode());
+    URI_PERMISSION_MAP.put("/user/unfrozen", PermissionPoint.CREATE_CONS_USER.getCode());
+    URI_PERMISSION_MAP.put("/user/invite/accept", null);
+    URI_PERMISSION_MAP.put("/user/pwd/modify", null);
+    URI_PERMISSION_MAP.put("/user/del", PermissionPoint.UPDATE_CONS_USER.getCode());
+    // role module
+    URI_PERMISSION_MAP.put("/role/list", TAG_DATA_PERMISSION);
+    URI_PERMISSION_MAP.put("/role/query", TAG_DATA_PERMISSION);
+    URI_PERMISSION_MAP.put("/role/create", TAG_DATA_PERMISSION);
+    URI_PERMISSION_MAP.put("/role/modify", TAG_DATA_PERMISSION);
+    URI_PERMISSION_MAP.put("/role/del", TAG_DATA_PERMISSION);
+    // consortium module
+    URI_PERMISSION_MAP.put("/cons/list", PermissionPoint.VIEW_CONS.getCode());
+    URI_PERMISSION_MAP.put("/cons/query", PermissionPoint.VIEW_CONS.getCode());
+    URI_PERMISSION_MAP.put("/cons/detail", PermissionPoint.VIEW_CONS.getCode());
+    URI_PERMISSION_MAP.put("/cons/create", PermissionPoint.CREATE_CONS.getCode());
+    URI_PERMISSION_MAP.put("/cons/modify", PermissionPoint.UPDATE_CONS.getCode());
+    URI_PERMISSION_MAP.put("/cons/del", PermissionPoint.UPDATE_CONS.getCode());
+    URI_PERMISSION_MAP.put("/cons/admin/create", PermissionPoint.CREATE_CONS_ADMIN.getCode());
+    URI_PERMISSION_MAP.put("/cons/blockchain/create", PermissionPoint.CREATE_BLOCKCHAIN.getCode());
+    URI_PERMISSION_MAP.put("/cons/node/create", PermissionPoint.CREATE_NODE.getCode());
+    URI_PERMISSION_MAP.put("/cons/script/download", PermissionPoint.CREATE_BLOCKCHAIN.getCode());
+    URI_PERMISSION_MAP.put("/cons/cert/defer", PermissionPoint.UPDATE_CONS.getCode());
+    URI_PERMISSION_MAP.put("/cons/node/detect", PermissionPoint.CREATE_BLOCKCHAIN.getCode());
+    URI_PERMISSION_MAP.put("/cons/node/deploy", PermissionPoint.CREATE_BLOCKCHAIN.getCode());
+    // blockchain module
+    URI_PERMISSION_MAP.put("/blockchain/list", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
+    URI_PERMISSION_MAP.put("/blockchain/query", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
+    URI_PERMISSION_MAP.put("/blockchain/detail", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
+    URI_PERMISSION_MAP.put("/blockchain/ca/list", PermissionPoint.GENERATE_CA.getCode());
+    URI_PERMISSION_MAP.put("/blockchain/ca/download", PermissionPoint.GENERATE_CA.getCode());
+    URI_PERMISSION_MAP.put("/blockchain/stop", PermissionPoint.UPDATE_BLOCKCHAIN.getCode());
+    URI_PERMISSION_MAP.put("/blockchain/start", PermissionPoint.UPDATE_BLOCKCHAIN.getCode());
+    // node module
+    URI_PERMISSION_MAP.put("/node/list", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
+    URI_PERMISSION_MAP.put("/node/brief/list", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
+    URI_PERMISSION_MAP.put("/node/detail", PermissionPoint.VIEW_BLOCKCHAIN.getCode());
+    URI_PERMISSION_MAP.put("/node/log", PermissionPoint.VIEW_NODE_LOG.getCode());
+    URI_PERMISSION_MAP.put("/node/modify", PermissionPoint.UPDATE_NODE.getCode());
+    URI_PERMISSION_MAP.put("/node/del", PermissionPoint.UPDATE_NODE.getCode());
+    // dashboard
+    URI_PERMISSION_MAP.put("/stat/dashboard", TAG_DATA_PERMISSION);
+    // scan favorite
+    URI_PERMISSION_MAP.put("/scan/fav/create", TAG_DATA_PERMISSION);
+    URI_PERMISSION_MAP.put("/scan/fav/modify", TAG_DATA_PERMISSION);
+    URI_PERMISSION_MAP.put("/scan/fav/delete", TAG_DATA_PERMISSION);
+    URI_PERMISSION_MAP.put("/scan/fav/list", TAG_DATA_PERMISSION);
+    // test
+    URI_PERMISSION_MAP.put("/cons/vault/role", PermissionPoint.UPDATE_CONS.getCode());
+  }
+
+  public UserInfoPo checkToken(String token) {
+    // parse token
+    Map<String, Object> paraMap = JwtUtils.validateToken(token);
+
+    // check user
+    String userId = JwtUtils.getUid(paraMap);
+    String account = JwtUtils.getAccount(paraMap);
+    String name = JwtUtils.getName(paraMap);
+    UserInfoPo user = userInfoDas.findById(userId)
+        .orElseThrow(() -> new AlertException("用户不存在[" + userId + "]"));
+    Assert.isTrue(user.getAccount().equals(account), "用户账户不一致[" + userId + "]");
+    Assert.isTrue(user.getName().equals(name), "用户姓名不一致[" + userId + "]");
+
+    // check token value
+    UserLoginTokenPo userToken = userTokenDas.findByUserId(userId);
+    Assert.isTrue(userToken.getToken().equals(token), "token失效，请重新登陆[" + userId + "]");
+
+    // check token expire
+    int expireSecs = userToken.getExpire();
+    long loginSecs = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"))
+        - userToken.getCreateTime().toEpochSecond(ZoneOffset.of("+8"));
+    Assert.isTrue(loginSecs - expireSecs < 0, "token失效，请重新登陆![" + userId + "]");
+
+    return user;
+  }
+
+  public UserInvitePo checkInviteToken(String token) {
+    // parse token
+    Map<String, Object> paraMap = JwtUtils.validateInviteToken(token);
+
+    // check invite
+    Long inviteId = Long.parseLong(JwtUtils.getInviteId(paraMap));
+    String inviter = JwtUtils.getInviter(paraMap);
+    String acceptor = JwtUtils.getAcceptor(paraMap);
+    UserInvitePo invite = inviteUserDas.findById(inviteId)
+        .orElseThrow(() -> new AlertException("邀请不存在[" + inviteId + "]"));
+    Assert.isTrue(invite.getInviter().equals(inviter), "邀请人不一致[" + invite.getInviter() + "]");
+    Assert.isTrue(invite.getAccepter().equals(acceptor), "被邀请人不一致[" + invite.getAccepter() + "]");
+    Assert.isTrue(inviter.equals(WebHelper.getUserId()),
+        "被邀请人和登陆用户不一致[" + invite.getInviter() + "][" + WebHelper.getUserId() + "]");
+
+    // check token expire
+    int expireSecs = invite.getExpire();
+    long loginSecs = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+8"))
+        - invite.getCreateTime().toEpochSecond(ZoneOffset.of("+8"));
+    Assert.isTrue(loginSecs - expireSecs < 0, "邀请失效，请重新让管理员发邀请![" + inviteId + "]");
+
+    return invite;
+  }
+
+  public void authPermission(String userId, String uri) {
+    boolean sysAdminFlag = Boolean.FALSE;
+    Set<String> consAdminSet = Sets.newHashSet();
+    Set<String> consIdSet = Sets.newHashSet();
+    Map<String, Set<String>> consPermMap = Maps.newHashMap();
+    List<PermissionInfoBo> permInfoList = permissionDas.findPermissionInfoByUserId(userId);
+    for (PermissionInfoBo permInfo : permInfoList) {
+      Integer roleType = permInfo.getRoleType();
+      String consId = permInfo.getConsId();
+      String permCode = permInfo.getPermCode();
+      if (roleType == UserEnum.Role.SYS_ADMIN.getCode()) {
+        sysAdminFlag = Boolean.TRUE;
+      }
+      if (roleType == UserEnum.Role.CONSORTIUM_ADMIN.getCode()) {
+        consAdminSet.add(consId);
+      }
+      consIdSet.add(consId);
+      Set<String> permSet = consPermMap.computeIfAbsent(consId, k -> Sets.newHashSet());
+      permSet.add(permCode);
+    }
+    String consIdsCond = getConsId(consIdSet);
+    PermHelper.init(sysAdminFlag, consAdminSet, consIdSet, consPermMap, consIdsCond);
+
+    Set<String> ownPerms = Sets.newHashSet();
+    consPermMap.values().forEach(ownPerms::addAll);
+    String reqPerm = URI_PERMISSION_MAP.get(uri);
+    boolean permit = TAG_DATA_PERMISSION.equals(reqPerm) || ownPerms.contains(reqPerm);
+    log.debug("uri======>" + uri + "\npermit======>" + permit + "\nreqPerm======>" + reqPerm
+        + "\nownPerms======>"
+        + JSON.toJSONString(ownPerms));
+    Assert.isTrue(permit, "没有此访问权限");
+  }
+
+  public String getConsId(Set<String> consIds) {
+    if (CollectionUtils.isEmpty(consIds)) {
+      return null;
+    }
+    StringJoiner cond = new StringJoiner(",", "(", ")");
+    consIds.forEach(item -> cond.add(new StringJoiner("", "'", "'").add(item).toString()));
+    return cond.toString();
+  }
+}

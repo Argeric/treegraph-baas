@@ -10,10 +10,10 @@ import lombok.Data;
 @Data
 @Builder
 public class AddNodesRequest {
-	
-	private String consId;
-	
-	private String blockchainId;
-	
-	private List<NodeInfo> nodes;
+
+  private String consId;
+
+  private String blockchainId;
+
+  private List<NodeInfo> nodes;
 }

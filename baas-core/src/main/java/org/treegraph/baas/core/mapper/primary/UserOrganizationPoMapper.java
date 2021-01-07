@@ -6,27 +6,30 @@ import org.treegraph.baas.core.domain.UserOrganizationPo;
 import org.treegraph.baas.core.domain.UserOrganizationPoExample;
 
 public interface UserOrganizationPoMapper {
-    long countByExample(UserOrganizationPoExample example);
 
-    int deleteByExample(UserOrganizationPoExample example);
+  long countByExample(UserOrganizationPoExample example);
 
-    int deleteByPrimaryKey(Long id);
+  int deleteByExample(UserOrganizationPoExample example);
 
-    int insert(UserOrganizationPo record);
+  int deleteByPrimaryKey(Long id);
 
-    int insertSelective(UserOrganizationPo record);
+  int insert(UserOrganizationPo record);
 
-    List<UserOrganizationPo> selectByExample(UserOrganizationPoExample example);
+  int insertSelective(UserOrganizationPo record);
 
-    UserOrganizationPo selectByPrimaryKey(Long id);
+  List<UserOrganizationPo> selectByExample(UserOrganizationPoExample example);
 
-    int updateByExampleSelective(@Param("record") UserOrganizationPo record, @Param("example") UserOrganizationPoExample example);
+  UserOrganizationPo selectByPrimaryKey(Long id);
 
-    int updateByExample(@Param("record") UserOrganizationPo record, @Param("example") UserOrganizationPoExample example);
+  int updateByExampleSelective(@Param("record") UserOrganizationPo record,
+      @Param("example") UserOrganizationPoExample example);
 
-    int updateByPrimaryKeySelective(UserOrganizationPo record);
+  int updateByExample(@Param("record") UserOrganizationPo record,
+      @Param("example") UserOrganizationPoExample example);
 
-    int updateByPrimaryKey(UserOrganizationPo record);
-    
-    int bulkInsert(List<UserOrganizationPo> list);
+  int updateByPrimaryKeySelective(UserOrganizationPo record);
+
+  int updateByPrimaryKey(UserOrganizationPo record);
+
+  int bulkInsert(List<UserOrganizationPo> list);
 }

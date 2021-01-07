@@ -15,10 +15,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserOrgBo implements Serializable {
-   
-	private List<UserOrganizationPo> toAddUserOrgs;
-	
-    private List<Long> toDelUserOrgIds;
 
-    private static final long serialVersionUID = 1L;
+  private List<UserOrganizationPo> toAddUserOrgs;
+
+  private List<Long> toDelUserOrgIds;
+
+  private static final long serialVersionUID = 1L;
 }

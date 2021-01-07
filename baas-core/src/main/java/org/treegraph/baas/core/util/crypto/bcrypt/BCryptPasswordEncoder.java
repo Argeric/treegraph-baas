@@ -25,12 +25,11 @@ import lombok.extern.slf4j.Slf4j;
  * passwords. The default value is 10.
  *
  * @author Dave Syer
- *
  */
 @Slf4j
 public class BCryptPasswordEncoder {
 
-  private Pattern BCRYPT_PATTERN = Pattern.compile("\\A\\$2a?\\$\\d\\d\\$[./0-9A-Za-z]{53}");
+  private final Pattern BCRYPT_PATTERN = Pattern.compile("\\A\\$2a?\\$\\d\\d\\$[./0-9A-Za-z]{53}");
 
   private final int strength;
 
@@ -53,8 +52,7 @@ public class BCryptPasswordEncoder {
 
   /**
    * @param strength the log rounds to use, between 4 and 31
-   * @param random the secure random instance to use
-   *
+   * @param random   the secure random instance to use
    */
   public BCryptPasswordEncoder(int strength, SecureRandom random) {
     if (strength != -1 && (strength < BCrypt.MIN_LOG_ROUNDS || strength > BCrypt.MAX_LOG_ROUNDS)) {
@@ -80,12 +78,12 @@ public class BCryptPasswordEncoder {
 
   public boolean matches(CharSequence rawPassword, String encodedPassword) {
     if (encodedPassword == null || encodedPassword.length() == 0) {
-      log.warn("Empty encoded password");
+      log.error("Empty encoded password");
       return false;
     }
 
     if (!BCRYPT_PATTERN.matcher(encodedPassword).matches()) {
-      log.warn("Encoded password does not look like BCrypt");
+      log.error("Encoded password does not look like BCrypt");
       return false;
     }
 
@@ -100,12 +98,12 @@ public class BCryptPasswordEncoder {
     String endPwd = encoder.encode(pwd);
     System.out.println(endPwd);
 
-    boolean succe1 = encoder.matches(pwd, endPwd);
+    boolean success1 = encoder.matches(pwd, endPwd);
 
-    System.out.println("pwd="+pwd+",endPwd="+endPwd.length()+",succe1="+succe1);
+    System.out.println("pwd=" + pwd + ",endPwd=" + endPwd.length() + ",success1=" + success1);
 
-    boolean succe2 = encoder.matches(pwd + "d", endPwd);
+    boolean success2 = encoder.matches(pwd + "d", endPwd);
 
-    System.out.println("pwd+d="+pwd+"d,endPwd="+endPwd+",succe2="+succe2);
+    System.out.println("pwd+d=" + pwd + "d,endPwd=" + endPwd + ",success2=" + success2);
   }
 }

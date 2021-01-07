@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ListRequest {
-	
-	private int current;
 
-	private int pageSize;
+  private int current;
+
+  private int pageSize;
 }

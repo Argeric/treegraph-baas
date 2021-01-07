@@ -6,25 +6,28 @@ import org.treegraph.baas.core.domain.UserLoginTokenPo;
 import org.treegraph.baas.core.domain.UserLoginTokenPoExample;
 
 public interface UserLoginTokenPoMapper {
-    long countByExample(UserLoginTokenPoExample example);
 
-    int deleteByExample(UserLoginTokenPoExample example);
+  long countByExample(UserLoginTokenPoExample example);
 
-    int deleteByPrimaryKey(Long id);
+  int deleteByExample(UserLoginTokenPoExample example);
 
-    int insert(UserLoginTokenPo record);
+  int deleteByPrimaryKey(Long id);
 
-    int insertSelective(UserLoginTokenPo record);
+  int insert(UserLoginTokenPo record);
 
-    List<UserLoginTokenPo> selectByExample(UserLoginTokenPoExample example);
+  int insertSelective(UserLoginTokenPo record);
 
-    UserLoginTokenPo selectByPrimaryKey(Long id);
+  List<UserLoginTokenPo> selectByExample(UserLoginTokenPoExample example);
 
-    int updateByExampleSelective(@Param("record") UserLoginTokenPo record, @Param("example") UserLoginTokenPoExample example);
+  UserLoginTokenPo selectByPrimaryKey(Long id);
 
-    int updateByExample(@Param("record") UserLoginTokenPo record, @Param("example") UserLoginTokenPoExample example);
+  int updateByExampleSelective(@Param("record") UserLoginTokenPo record,
+      @Param("example") UserLoginTokenPoExample example);
 
-    int updateByPrimaryKeySelective(UserLoginTokenPo record);
+  int updateByExample(@Param("record") UserLoginTokenPo record,
+      @Param("example") UserLoginTokenPoExample example);
 
-    int updateByPrimaryKey(UserLoginTokenPo record);
+  int updateByPrimaryKeySelective(UserLoginTokenPo record);
+
+  int updateByPrimaryKey(UserLoginTokenPo record);
 }

@@ -14,21 +14,21 @@ import lombok.Data;
 @Builder
 public class LoginResponse implements Serializable {
 
-	private static final long serialVersionUID = 3318359473138119777L;
+  private static final long serialVersionUID = 3318359473138119777L;
 
-	private String userId;
+  private String userId;
 
-	private String account;
+  private String account;
 
-	private String name;
+  private String name;
 
-	private String email;
+  private String email;
 
-	private String phone;
+  private String phone;
 
-	private String token;
+  private String token;
 
-	private boolean isFirstLogin;
+  private boolean isFirstLogin;
 
-	private List<AuthInfo> auth;
+  private List<AuthInfo> auth;
 }

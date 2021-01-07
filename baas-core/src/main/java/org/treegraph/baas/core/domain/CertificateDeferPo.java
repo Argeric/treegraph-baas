@@ -12,70 +12,71 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CertificateDeferPo implements Serializable {
-    /**
-     * 
-     */
-    private Long id;
 
-    /**
-     * 
-     */
-    private String publicKey;
+  /**
+   *
+   */
+  private Long id;
 
-    /**
-     * 
-     */
-    private String privateKey;
+  /**
+   *
+   */
+  private String publicKey;
 
-    /**
-     * 
-     */
-    private String csrStr;
+  /**
+   *
+   */
+  private String privateKey;
 
-    /**
-     * 
-     */
-    private String certStr;
+  /**
+   *
+   */
+  private String csrStr;
 
-    /**
-     * 
-     */
-    private String algorithm;
+  /**
+   *
+   */
+  private String certStr;
 
-    /**
-     * 联盟id
-     */
-    private String consortiumId;
+  /**
+   *
+   */
+  private String algorithm;
 
-    /**
-     * 延期状态，21-发起延期请求，22-延期成功，23-延期失败
-     */
-    private Integer status;
+  /**
+   * 联盟id
+   */
+  private String consortiumId;
 
-    /**
-     * 0-未删除，1-已删除
-     */
-    private Integer deleteFlag;
+  /**
+   * 延期状态，21-发起延期请求，22-延期成功，23-延期失败
+   */
+  private Integer status;
 
-    /**
-     * 
-     */
-    private LocalDateTime createTime;
+  /**
+   * 0-未删除，1-已删除
+   */
+  private Integer deleteFlag;
 
-    /**
-     * 
-     */
-    private String createBy;
+  /**
+   *
+   */
+  private LocalDateTime createTime;
 
-    /**
-     * 
-     */
-    private LocalDateTime updateTime;
+  /**
+   *
+   */
+  private String createBy;
 
-    /**
-     * 
-     */
-    private String updateBy;
+  /**
+   *
+   */
+  private LocalDateTime updateTime;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   *
+   */
+  private String updateBy;
+
+  private static final long serialVersionUID = 1L;
 }

@@ -12,40 +12,41 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserOrganizationPo implements Serializable {
-    /**
-     * 主键
-     */
-    private Long id;
 
-    /**
-     * 用户id
-     */
-    private String userId;
+  /**
+   * 主键
+   */
+  private Long id;
 
-    /**
-     * 联盟id
-     */
-    private String consortiumId;
+  /**
+   * 用户id
+   */
+  private String userId;
 
-    /**
-     * 机构名称
-     */
-    private String organizationName;
+  /**
+   * 联盟id
+   */
+  private String consortiumId;
 
-    /**
-     * 0-未删除，1-已删除
-     */
-    private Integer deleteFlag;
+  /**
+   * 机构名称
+   */
+  private String organizationName;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+  /**
+   * 0-未删除，1-已删除
+   */
+  private Integer deleteFlag;
 
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
+  /**
+   * 创建时间
+   */
+  private LocalDateTime createTime;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   * 更新时间
+   */
+  private LocalDateTime updateTime;
+
+  private static final long serialVersionUID = 1L;
 }

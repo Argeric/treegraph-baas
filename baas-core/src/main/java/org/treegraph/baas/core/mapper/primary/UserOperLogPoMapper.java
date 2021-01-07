@@ -6,25 +6,28 @@ import org.treegraph.baas.core.domain.UserOperLogPo;
 import org.treegraph.baas.core.domain.UserOperLogPoExample;
 
 public interface UserOperLogPoMapper {
-    long countByExample(UserOperLogPoExample example);
 
-    int deleteByExample(UserOperLogPoExample example);
+  long countByExample(UserOperLogPoExample example);
 
-    int deleteByPrimaryKey(Long id);
+  int deleteByExample(UserOperLogPoExample example);
 
-    int insert(UserOperLogPo record);
+  int deleteByPrimaryKey(Long id);
 
-    int insertSelective(UserOperLogPo record);
+  int insert(UserOperLogPo record);
 
-    List<UserOperLogPo> selectByExample(UserOperLogPoExample example);
+  int insertSelective(UserOperLogPo record);
 
-    UserOperLogPo selectByPrimaryKey(Long id);
+  List<UserOperLogPo> selectByExample(UserOperLogPoExample example);
 
-    int updateByExampleSelective(@Param("record") UserOperLogPo record, @Param("example") UserOperLogPoExample example);
+  UserOperLogPo selectByPrimaryKey(Long id);
 
-    int updateByExample(@Param("record") UserOperLogPo record, @Param("example") UserOperLogPoExample example);
+  int updateByExampleSelective(@Param("record") UserOperLogPo record,
+      @Param("example") UserOperLogPoExample example);
 
-    int updateByPrimaryKeySelective(UserOperLogPo record);
+  int updateByExample(@Param("record") UserOperLogPo record,
+      @Param("example") UserOperLogPoExample example);
 
-    int updateByPrimaryKey(UserOperLogPo record);
+  int updateByPrimaryKeySelective(UserOperLogPo record);
+
+  int updateByPrimaryKey(UserOperLogPo record);
 }

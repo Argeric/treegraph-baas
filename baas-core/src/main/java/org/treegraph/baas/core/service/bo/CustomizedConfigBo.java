@@ -11,7 +11,7 @@ import lombok.Data;
 @Builder
 public class CustomizedConfigBo {
 
-	private List<NodeCustomizedConfigPo> configList;
-	
-	private List<NodeCustomizedConfigPo> stepFactorConfigList;
+  private List<NodeCustomizedConfigPo> configList;
+
+  private List<NodeCustomizedConfigPo> stepFactorConfigList;
 }

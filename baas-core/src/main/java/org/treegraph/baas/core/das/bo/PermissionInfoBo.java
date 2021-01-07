@@ -9,25 +9,26 @@ import lombok.NoArgsConstructor;
 
 /**
  * @author zt
- * @date May 11, 2020
  * @version 1.0
+ * @date May 11, 2020
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PermissionInfoBo implements Serializable {
-	private String consId;
-	
-	private String roleId;
-	
-	private Integer roleType;
-	
-	private String roleName;
-	
-	private String permId;
-	
-	private String permCode;
-	
-    private static final long serialVersionUID = 1L;
+
+  private String consId;
+
+  private String roleId;
+
+  private Integer roleType;
+
+  private String roleName;
+
+  private String permId;
+
+  private String permCode;
+
+  private static final long serialVersionUID = 1L;
 }

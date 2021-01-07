@@ -15,19 +15,19 @@ import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
-public class InviteUserDasImpl implements InviteUserDas{
-	
-    private UserInvitePoMapper userInvitePoMapper;
-    
-    private UserRoleInvitePoMapper userRoleInvitePoMapper;
-    
-    public Optional<UserInvitePo> findById(Long inviteId) {
-        return userInvitePoMapper.selectByPrimaryKey(inviteId);
-    }
-    
-    public List<UserRoleInvitePo> findByInviteId(Long inviteId){
-    	UserRoleInvitePoExample example = new UserRoleInvitePoExample();
-    	example.createCriteria().andInviteIdEqualTo(inviteId);
-    	return userRoleInvitePoMapper.selectByExample(example);
-    }
+public class InviteUserDasImpl implements InviteUserDas {
+
+  private UserInvitePoMapper userInvitePoMapper;
+
+  private UserRoleInvitePoMapper userRoleInvitePoMapper;
+
+  public Optional<UserInvitePo> findById(Long inviteId) {
+    return userInvitePoMapper.selectByPrimaryKey(inviteId);
+  }
+
+  public List<UserRoleInvitePo> findByInviteId(Long inviteId) {
+    UserRoleInvitePoExample example = new UserRoleInvitePoExample();
+    example.createCriteria().andInviteIdEqualTo(inviteId);
+    return userRoleInvitePoMapper.selectByExample(example);
+  }
 }

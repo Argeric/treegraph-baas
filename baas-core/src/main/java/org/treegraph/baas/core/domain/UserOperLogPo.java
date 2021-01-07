@@ -12,55 +12,56 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserOperLogPo implements Serializable {
-    /**
-     * id
-     */
-    private Long id;
 
-    /**
-     * 用户id
-     */
-    private String userId;
+  /**
+   * id
+   */
+  private Long id;
 
-    /**
-     * 用户姓名
-     */
-    private String userName;
+  /**
+   * 用户id
+   */
+  private String userId;
 
-    /**
-     * 用户ip
-     */
-    private String userIp;
+  /**
+   * 用户姓名
+   */
+  private String userName;
 
-    /**
-     * 用户设备信息
-     */
-    private String userDevice;
+  /**
+   * 用户ip
+   */
+  private String userIp;
 
-    /**
-     * 操作类型
-     */
-    private Integer operType;
+  /**
+   * 用户设备信息
+   */
+  private String userDevice;
 
-    /**
-     * 操作code
-     */
-    private String operCode;
+  /**
+   * 操作类型
+   */
+  private Integer operType;
 
-    /**
-     * 操作信息
-     */
-    private String operInfo;
+  /**
+   * 操作code
+   */
+  private String operCode;
 
-    /**
-     * 操作时间
-     */
-    private LocalDateTime operTime;
+  /**
+   * 操作信息
+   */
+  private String operInfo;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+  /**
+   * 操作时间
+   */
+  private LocalDateTime operTime;
 
-    private static final long serialVersionUID = 1L;
+  /**
+   * 创建时间
+   */
+  private LocalDateTime createTime;
+
+  private static final long serialVersionUID = 1L;
 }

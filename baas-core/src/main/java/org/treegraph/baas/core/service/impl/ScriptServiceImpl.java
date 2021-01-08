@@ -366,11 +366,13 @@ public class ScriptServiceImpl implements ScriptService {
 
       // build script map
       String startScriptContent = FileUtils.readFile(new ClassPathResource("scripts/start.sh"));
+      String dockerStartScriptContent = FileUtils.readFile(new ClassPathResource("scripts/docker_start.sh"));
       String autoDeployScriptContent = FileUtils.readFile(new ClassPathResource("scripts/auto_deploy.sh"));
       Map<String, String> scripts = Maps.newHashMap();
       scripts.put("config.toml", scriptContent.toString());
       scripts.put("customized_config.toml", customizedScriptContent.toString());
       scripts.put("start.sh", startScriptContent);
+      scripts.put("docker_start.sh",dockerStartScriptContent);
       scripts.put("auto_deploy.sh", autoDeployScriptContent);
       scripts.putAll(logMonitorScripts);
       scripts.putAll(sysMonitorScripts);

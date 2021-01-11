@@ -364,17 +364,13 @@ public class ScriptServiceImpl implements ScriptService {
 
       // build script map
       String startScriptContent = FileUtils.readFile(new ClassPathResource("scripts/start.sh"));
-      String dockerScriptContent = FileUtils.readFile(new ClassPathResource("scripts/docker_start.sh"));
+      String dockerDeployScriptContent = FileUtils.readFile(new ClassPathResource("scripts/docker_start.sh"));
       String autoDeployScriptContent = FileUtils.readFile(new ClassPathResource("scripts/auto_deploy.sh"));
-      String jsonRpcPort = "";
-      String peerToPeerPort = "";
-      String containerName = "tree-graph-node_" + peerToPeerPort;
-      dockerScriptContent = MessageFormat.format(dockerScriptContent, jsonRpcPort, peerToPeerPort, containerName);
       Map<String, String> scripts = Maps.newHashMap();
       scripts.put("config.toml", scriptContent.toString());
       scripts.put("customized_config.toml", customizedScriptContent.toString());
       scripts.put("start.sh", startScriptContent);
-      scripts.put("docker_start.sh",dockerScriptContent);
+      scripts.put("docker_start.sh",buildDockerDeployScript(dockerDeployScriptContent, node, configs));
       scripts.put("auto_deploy.sh", autoDeployScriptContent);
       scripts.putAll(logMonitorScripts);
       scripts.putAll(sysMonitorScripts);
@@ -385,6 +381,16 @@ public class ScriptServiceImpl implements ScriptService {
     keypairDas.addKeyPairInfo(null, null, nodeKeypairBoList);
     log.debug("build deploy script finished[{}]", consId);
     return nodeScriptContentMap;
+  }
+
+  private String buildDockerDeployScript(String template, NodePo node, Map<String, String> configs){
+    String peerToPeerPort = node.getNodePort() + "";
+    String jsonRpcPort = configs.get(PROPERTY_JSONRPC_PORT);
+    String jsonRpcLocalHttpPort = configs.get(PROPERTY_JSONRPC_LOC_PORT);
+    String gRpcPort = TEST_SWITCH
+            ? (Integer.parseInt(jsonRpcLocalHttpPort) + TEST_RPC_PORT_INTERVAL) + "" : DEFAULT_GRPC_PORT + "";
+    String containerName = "tg_node" + peerToPeerPort;
+    return MessageFormat.format(template, peerToPeerPort, jsonRpcPort, gRpcPort, containerName);
   }
 
   private StringBuffer buildCustomizedDeployScript(ECKeyPair ecKeypair,

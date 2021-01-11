@@ -51,9 +51,7 @@ import org.treegraph.baas.core.util.crypto.x509.SignUtil;
 import org.web3j.crypto.ECKeyPair;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.*;
 import java.security.PrivateKey;
 import java.text.MessageFormat;
 import java.time.LocalDateTime;
@@ -366,13 +364,17 @@ public class ScriptServiceImpl implements ScriptService {
 
       // build script map
       String startScriptContent = FileUtils.readFile(new ClassPathResource("scripts/start.sh"));
-      String dockerStartScriptContent = FileUtils.readFile(new ClassPathResource("docker/docker_start.sh"));
+      String dockerScriptContent = FileUtils.readFile(new ClassPathResource("scripts/docker_start.sh"));
       String autoDeployScriptContent = FileUtils.readFile(new ClassPathResource("scripts/auto_deploy.sh"));
+      String jsonRpcPort = "";
+      String peerToPeerPort = "";
+      String containerName = "tree-graph-node_" + peerToPeerPort;
+      dockerScriptContent = MessageFormat.format(dockerScriptContent, jsonRpcPort, peerToPeerPort, containerName);
       Map<String, String> scripts = Maps.newHashMap();
       scripts.put("config.toml", scriptContent.toString());
       scripts.put("customized_config.toml", customizedScriptContent.toString());
       scripts.put("start.sh", startScriptContent);
-      scripts.put("docker_start.sh",dockerStartScriptContent);
+      scripts.put("docker_start.sh",dockerScriptContent);
       scripts.put("auto_deploy.sh", autoDeployScriptContent);
       scripts.putAll(logMonitorScripts);
       scripts.putAll(sysMonitorScripts);
@@ -471,4 +473,5 @@ public class ScriptServiceImpl implements ScriptService {
   private void append(StringBuffer strBuf, String str) {
     strBuf.append(str).append(LINE_SEP).append(LINE_SEP);
   }
+
 }

@@ -16,4 +16,8 @@ while getopts "p:" opt; do
   esac
 done
 
+#go to dir where the script is as working dir.
+SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+cd $SCRIPTPATH
+
 nohup $BLOCKCHAIN_BINARY_PATH --customized-config customized_config.toml &

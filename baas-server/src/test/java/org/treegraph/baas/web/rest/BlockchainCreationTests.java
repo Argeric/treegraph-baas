@@ -27,6 +27,7 @@ import org.treegraph.baas.core.das.UserInfoDas;
 import org.treegraph.baas.core.das.bo.NodeKeypairBo;
 import org.treegraph.baas.core.domain.BlockChainPo;
 import org.treegraph.baas.core.domain.KeypairPo;
+import org.treegraph.baas.core.domain.NodePo;
 import org.treegraph.baas.core.domain.UserInfoPo;
 import org.treegraph.baas.core.service.impl.KeypairBuildService;
 import org.treegraph.baas.core.service.impl.RpcSelectorService;
